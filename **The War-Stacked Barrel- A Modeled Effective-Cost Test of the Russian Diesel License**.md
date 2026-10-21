@@ -8,7 +8,7 @@
 - OFAC's General License 135 authorizes transactions involving Russian-origin diesel through April 7, 2027. Reporting says buyers, prices, payment and delivery dates were not disclosed.
 - Bipartisan senators said the license would offer "limited to no relief" to Americans, and Axios reported that analysts doubt the promised relief.
 - US military aid was $65.9 billion per the State Department (January 2025). Kiel puts all US aid near $127 billion (March 2026).
-- Moving equipment used fuel. TRANSCOM reported 141,945 tonnes moved by 939 flights, 57 ships, 141 rail shipments and 5,500+ trucks through December 2022. My estimate is about 6 million barrels burned (range 2–15 million), roughly 1% of aid cost. This is an estimate scaled from 2022 data, not a measured total.
+- Moving equipment used fuel. TRANSCOM reported 141,945 tonnes moved by 939 flights, 57 ships, 141 rail shipments and 5,500+ trucks through December 2022. My estimate is about 8 million barrels burned through 2025 (range 2–15 million), roughly 1% of aid cost. This is an estimate scaled from 2022 data, not a measured total.
 
 **3. Model.** Let V be the value credited to a donated barrel and L = P_donated − V the loss. Then **effective cost = P_used + L**. V is built from a baseline, a ceasefire credit with pre-defined verification rules, and negative terms such as new Russian revenue. It stays at zero until a verified outcome moves it. EIA's WTI averages price the donated barrels at $94.90 (2022), $77.58 (2023), $76.63 (2024) and $65.39 (2025).
 
