@@ -67,7 +67,7 @@ The original triangle shapes are preserved in both the source and annotated imag
 | Ticker | Chart | Date | Price (level marked) | Point label | Bias on chart |
 |---|---|---|---|---|---|
 | **LMT** | Lockheed Martin · 1D | Fri **Oct 9, 2026** | **≈ $514** | 🟠 **z — Hazard** | LONG |
-| **LMT** | Lockheed Martin · 1D | Fri **Oct 19, 2026** | **≈ $548** | 🟠 **z — Hazard** | LONG |
+| **LMT** | Lockheed Martin · 1D | Fri **Oct 19, 2026** | **≈ $548** | 🟠 **z — Pending Hazard** | LONG |
 | **OIL** | WTI Crude CFD · 1D | Tue **Sep 22, 2026** | **≈ $90.2** | 🟠 **z — Hazard** | LONG |
 | **OIL** | WTI Crude CFD · 1D | Tue **Sep 29, 2026** | **≈ $89.3** | 🟠 **z — Hazard** | LONG |
 | **BRENT** | Brent Crude · 1D | Fri **Oct 2, 2026** | **≈ $107.0** | 🟠 **z — Hazard** | LONG |
