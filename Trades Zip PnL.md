@@ -189,3 +189,14 @@ Ranked across open positions from ***Fall (Arizona) [2026]* exclusively** (`1 Un
 For any *Fall (Arizona) [2026]* position of $U_i$ standardized units ($1\text{ unit} = \$10{,}000.00$, initial notional $N_{0,i} = U_i \times \$10{,}000.00$), entry price $P_{0,i}$, and exit or October 22, 2026 closing mark $P_{1,i}$:
 
 $$Q_i = \frac{U_i \times \$10{,}000.00}{P_{0,i}}, \qquad \Delta P_i = \begin{cases} P_{1,i} - P_{0,i} & \text{if LONG} \\ P_{0,i} - P_{1,i} & \text{if SHORT} \end{cases}, \qquad \text{PnL}_i (\$) = Q_i \times \Delta P_i = U_i \times \$10{,}000.00 \times \frac{\Delta P_i}{P_{0,i}}$$
+
+---
+
+## 6. Model Performance Comparison
+
+The four portfolio-model variants above (**V1 · V2 · V3A · V3B**) are compared
+**day by day** across the same `35` *Fall (Arizona) [2026]* sessions in
+**[`Model Performance Comparison.md`](Model%20Performance%20Comparison.md)**, with an
+interactive explorer at
+**[`Model Performance Explorer.html`](Model%20Performance%20Explorer.html)** and
+machine-readable series in [`data/`](data/).
