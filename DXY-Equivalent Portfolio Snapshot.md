@@ -10,10 +10,10 @@ The new first chart compares each variant's cumulative total PnL in dollars with
 
 | Variant | Capital basis | Open unrealized PnL (USD) | Realized PnL (USD) | US10Y carry | Total PnL (USD) | USD return | DXY-equivalent account value (index units) | DXY-numeraire return |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| **Variant 1 — 1u Open** | $830,000 | $+22,529.30 | $+25,561.44 | $+158.44 | $+48,249.17 | +5.399% | 8,558.10 DXY-eq units | +2.027% |
-| **Variant 2 — 1u SAR** | $830,000 | $+13,866.47 | $+31,385.57 | $+158.44 | $+45,410.48 | +5.057% | 8,530.33 DXY-eq units | +1.696% |
-| **Variant 3A — Nu Open** | $920,000 | $+43,754.34 | $+25,561.44 | $+181.43 | $+69,497.21 | +7.180% | 9,646.42 DXY-eq units | +3.751% |
-| **Variant 3B — Nu SAR** | $920,000 | $+13,866.47 | $+42,552.27 | $+181.43 | $+56,600.18 | +5.778% | 9,520.25 DXY-eq units | +2.394% |
+| **Variant 1 — 1u Open** | $830,000 | $+26,445.94 | $+25,561.44 | $+158.79 | $+52,166.17 | +5.871% | 8,596.42 DXY-eq units | +2.484% |
+| **Variant 2 — 1u SAR** | $830,000 | $+17,783.12 | $+31,385.57 | $+158.79 | $+49,327.48 | +5.529% | 8,568.65 DXY-eq units | +2.153% |
+| **Variant 3A — Nu Open** | $920,000 | $+47,670.98 | $+25,561.44 | $+181.79 | $+73,414.21 | +7.606% | 9,684.74 DXY-eq units | +4.164% |
+| **Variant 3B — Nu SAR** | $920,000 | $+17,783.12 | $+42,552.27 | $+181.79 | $+60,517.18 | +6.204% | 9,558.57 DXY-eq units | +2.807% |
 
 ## DXY and FX Basis
 
@@ -26,7 +26,7 @@ The new first chart compares each variant's cumulative total PnL in dollars with
 ## PnL, Carry, and Position Treatment
 
 - Daily EUR/USD and JPY/USD unrealized PnL is calculated from the entry-date daily close, then marked to each uploaded daily close at $10,000 standard notional per position.
-- The Sep. 15 US30Y SHORT is marked daily with a proportional quote-return proxy on $10,000 notional. This is not a bond-duration/futures valuation. The Oct. 23 US30Y LONG at 5.311% is outside this Oct. 22 graph.
+- The Sep. 15 US30Y SHORT is marked daily with a proportional quote-return proxy on $10,000 notional. This is not a bond-duration/futures valuation. The Oct. 23 US30Y LONG, ORCL LONG at $125.83 for $25,000, and fifth LCID LONG at $3.47 are after the Oct. 22 cutoff and excluded from this graph. The four LCID entries dated Oct. 20–22 are included.
 - The US10Y spread carry preserves the established 4.865% baseline, actual/365 accrual, and cumulative deployed-notional basis from the core model comparison. Supplementary FX and US30Y PnL are included in the USD account value, but are not used to retroactively change the carry denominator. DXY itself is excluded because it is the numeraire.
 - US10Y positions are carry references, not independent yield-quote PnL rows. For the Oct. 12 market holiday, the user-approved US10Y 5.24% close from Oct. 9 is carried; the US30Y mark likewise carries its Oct. 9 5.60% close. The daily export records the US30Y source date explicitly.
 

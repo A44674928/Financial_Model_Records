@@ -13,6 +13,7 @@ Four model variants are compared over the *Fall (Arizona) [2026]* book:
 """
 
 import bisect
+import csv
 import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -84,6 +85,30 @@ for _sym, _px in {
 }.items():
     PRICES[_sym][-1] = _px
 
+# User-provided LCID pilot marks, kept in their own auditable daily CSV. The
+# history before the first LCID entry is irrelevant to PnL; seed it with the
+# first available mark so the shared session array remains fully populated.
+LCID_MARK_FILE = DATA_DIR / "lcid_small_caps_pilot_daily_marks.csv"
+_lcid_marks = {}
+with LCID_MARK_FILE.open(newline="", encoding="utf-8") as _fh:
+    for _row in csv.DictReader(_fh):
+        _day = _row["Date"].strip()
+        if _day in _lcid_marks:
+            raise ValueError(f"Duplicate LCID pilot mark for {_day}")
+        _lcid_marks[_day] = float(_row["Close"])
+if not _lcid_marks:
+    raise ValueError(f"No LCID marks found in {LCID_MARK_FILE}")
+_lcid_mark_days = sorted(_lcid_marks)
+_lcid_last = _lcid_marks[_lcid_mark_days[0]]
+_lcid_prices = []
+for _day in SESSION_DATES:
+    for _mark_day in _lcid_mark_days:
+        if _mark_day > _day:
+            break
+        _lcid_last = _lcid_marks[_mark_day]
+    _lcid_prices.append(_lcid_last)
+PRICES["LCID"] = _lcid_prices
+
 
 # --------------------------------------------------------------------------
 # Raw log parsing
@@ -92,7 +117,7 @@ LINE_RE = re.compile(
     r"^(?P<date>\d{4}-\d{2}-\d{2})\s+(?P<time>\d{2}:\d{2})\s+MST\s*\|\s*"
     r"SIMULATED PAPER\s+\[(?P<tag>[A-Za-z ]+?)\]\s*\|\s*"
     r"(?P<kind>entry|exit):\s*\[Market @ ~\$(?P<px>[\d,]+\.?\d*)\]\s*\|\s*"
-    r"size:\s*\[(?P<units>\d+)\s*units?[^\]]*\]\s*\|\s*"
+    r"size:\s*\[(?P<units>\d+(?:\.\d+)?)\s*units?[^\]]*\]\s*\|\s*"
     r"note:\s*\[(?P<note>.*)\]\s*$"
 )
 
@@ -115,6 +140,8 @@ def parse_trades():
             m = LINE_RE.match(line)
             if not m:
                 raise ValueError(f"Unparsed line {path.name}:{lineno + 1}: {line}")
+            parsed_units = float(m.group("units"))
+            units = int(parsed_units) if parsed_units.is_integer() else parsed_units
             events.append(
                 {
                     "sym": sym,
@@ -123,7 +150,7 @@ def parse_trades():
                     "tag": m.group("tag").strip().upper(),
                     "kind": m.group("kind"),
                     "px": float(m.group("px").replace(",", "")),
-                    "units": int(m.group("units")),
+                    "units": units,
                     "note": m.group("note"),
                     "order": lineno,
                 }
@@ -154,6 +181,10 @@ def build_lots(variant, events):
     lot_id = 0
 
     for ev in events:
+        # Keep later dated events in the ledger, but never clamp them onto the
+        # final historical session; they belong to a later valuation window.
+        if ev["date"] > SESSION_DATES[-1]:
+            continue
         sym, px, u = ev["sym"], ev["px"], ev["units"]
         idx = session_index(ev["date"], ev["kind"])
 
