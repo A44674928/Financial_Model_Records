@@ -1,6 +1,6 @@
 # Chart Archive Review — 2026-10-23 Screenshot ZIP
 
-Source: `Before the October 19th TradingView moderator's bitch fit.zip` (85 JPEGs), reconciled with `trades/*.txt` and `trades/index.txt`. Numbered image references correspond to `.cache/chart_review/images/001.jpeg`–`085.jpeg`; capture-name mapping is in `.cache/chart_review/manifest.txt`.
+Source: [`Archive/Before the October 19th TradingView moderator's bitch fit.zip`](Archive/Before%20the%20October%2019th%20TradingView%20moderator%27s%20bitch%20fit.zip) (85 JPEGs), reconciled with `trades/*.txt` and `trades/index.txt`. Numbered image references correspond to `.cache/chart_review/images/001.jpeg`–`085.jpeg`; capture-name mapping is in `.cache/chart_review/manifest.txt`.
 
 ## Changes Applied from Your Review
 

@@ -947,7 +947,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("Master ledger: **[`Trades Zip PnL.md`](Trades%20Zip%20PnL.md)** · "
       "Chart-signal report: **[`Triangle Signals.md`](Triangle%20Signals.md)** · "
       "Visual book: **[`Unrealized PnL.md`](Unrealized%20PnL.md)** · "
-      "Pre-2026: **[`2024 Trades PnL.md`](2024%20Trades%20PnL.md)**")
+      "Pre-2026: **[`2024 Trades PnL.md`](reports/2024/2024%20Trades%20PnL.md)**")
     A("")
 
     path = ROOT / "Model Performance Comparison.md"
