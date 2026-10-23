@@ -92,7 +92,7 @@ LINE_RE = re.compile(
     r"^(?P<date>\d{4}-\d{2}-\d{2})\s+(?P<time>\d{2}:\d{2})\s+MST\s*\|\s*"
     r"SIMULATED PAPER\s+\[(?P<tag>[A-Za-z ]+?)\]\s*\|\s*"
     r"(?P<kind>entry|exit):\s*\[Market @ ~\$(?P<px>[\d,]+\.?\d*)\]\s*\|\s*"
-    r"size:\s*\[(?P<units>\d+)\s*units?[^\]]*\]\s*\|\s*"
+    r"size:\s*\[(?P<units>\d+(?:\.\d+)?)\s*units?[^\]]*\]\s*\|\s*"
     r"note:\s*\[(?P<note>.*)\]\s*$"
 )
 
@@ -115,6 +115,8 @@ def parse_trades():
             m = LINE_RE.match(line)
             if not m:
                 raise ValueError(f"Unparsed line {path.name}:{lineno + 1}: {line}")
+            parsed_units = float(m.group("units"))
+            units = int(parsed_units) if parsed_units.is_integer() else parsed_units
             events.append(
                 {
                     "sym": sym,
@@ -123,7 +125,7 @@ def parse_trades():
                     "tag": m.group("tag").strip().upper(),
                     "kind": m.group("kind"),
                     "px": float(m.group("px").replace(",", "")),
-                    "units": int(m.group("units")),
+                    "units": units,
                     "note": m.group("note"),
                     "order": lineno,
                 }
@@ -154,6 +156,10 @@ def build_lots(variant, events):
     lot_id = 0
 
     for ev in events:
+        # Keep later dated events in the ledger, but never clamp them onto the
+        # final historical session; they belong to a later valuation window.
+        if ev["date"] > SESSION_DATES[-1]:
+            continue
         sym, px, u = ev["sym"], ev["px"], ev["units"]
         idx = session_index(ev["date"], ev["kind"])
 

@@ -616,12 +616,15 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
                    energy_chart=None, yield_chart=None, yield_csv=None):
     n = len(SESSION_DATES)
     last = n - 1
-    modeled_event_count = len(parse_trades())
+    direct_price_events = parse_trades()
+    modeled_event_count = sum(event["date"] <= SESSION_DATES[-1] for event in direct_price_events)
+    post_terminal_event_count = len(direct_price_events) - modeled_event_count
     trade_files = [p for p in (ROOT / "trades").glob("*.txt") if p.name != "index.txt"]
     book_event_count = sum(
         1 for p in trade_files for line in p.read_text(encoding="utf-8").splitlines()
         if line.strip() and not line.lstrip().startswith("#")
     )
+    price_unmodeled_event_count = book_event_count - len(direct_price_events)
     term = {v: series[v]["total"][last] for v in VARIANTS}
     spread_ab = term["V1"] - term["V2"]
     spread_cd = term["V3A"] - term["V3B"]
@@ -638,7 +641,8 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("Day-by-day (and, where market data supports it, intraday) comparison of the four "
       "portfolio models carried on the same standardized book: "
       "**[`trades/`](trades/)** / **[`trades.zip`](trades.zip)** — `32` price-covered symbols, "
-      f"`{modeled_event_count}` modeled log events out of `{book_event_count}` total 2026 log events, "
+      f"`{modeled_event_count}` in-window price-covered events out of `{book_event_count}` total 2026 log events "
+      f"(`{price_unmodeled_event_count}` outside direct-price scope; `{post_terminal_event_count}` after cutoff), "
       "`1 unit = $10,000.00` initial notional, all timestamps in Arizona year-round "
       "**`MST` / `UTC-07:00`**, marked against the **Thursday, October 22, 2026** close.")
     A("")
@@ -895,8 +899,10 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("## Method & Caveats")
     A("")
     A(f"- **Model coverage:** the four variants directly price the `32` symbols with configured "
-      f"daily market series. `{book_event_count - modeled_event_count}` log events for DXY, EURUSD, "
-      f"JPYUSD, US10Y and US30Y are not replayed as standalone price positions. The two US10Y "
+      f"daily market series. `{modeled_event_count}` price-covered events dated on or before the "
+      f"Oct. 22 mark are replayed; `{post_terminal_event_count}` price-covered event after the mark "
+      f"is excluded from these historical totals. `{price_unmodeled_event_count}` DXY, EURUSD, JPYUSD, "
+      f"US10Y and US30Y log events are not replayed as standalone price positions. The two US10Y "
       f"events establish the yield-adjustment context; its separate daily rate series applies the "
       f"baseline carry to the portfolio. DXY/FX/US30Y positions remain outside the four direct-price "
       f"variants and require their own quote/valuation treatment.")
@@ -1049,7 +1055,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <footer>
     Generated __GEN__. Prices: Yahoo Finance <code>interval=1d</code>. The four variants model
     the 32 symbols with configured daily marks; DXY, EURUSD, JPYUSD and US30Y are not directly
-    marked. US10Y drives a separate excess-yield adjustment above the 4.865% baseline.
+    marked. US10Y drives a separate excess-yield adjustment above the 4.865% baseline. The Oct 23
+    ORCL LONG is after the Oct 22 cutoff and is excluded from this historical view.
     The master <b>Trades Zip PnL.md</b> has not yet been recalculated for the newly reconciled
     positions, so its totals do not currently match this comparison. Excludes commissions,
     borrow fees and financing.

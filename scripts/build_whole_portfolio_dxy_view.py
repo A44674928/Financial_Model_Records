@@ -465,7 +465,7 @@ def build_report(dxy, fx, us30y, result):
         "## PnL, Carry, and Position Treatment",
         "",
         "- Daily EUR/USD and JPY/USD unrealized PnL is calculated from the entry-date daily close, then marked to each uploaded daily close at $10,000 standard notional per position.",
-        "- The Sep. 15 US30Y SHORT is marked daily with a proportional quote-return proxy on $10,000 notional. This is not a bond-duration/futures valuation. The Oct. 23 US30Y LONG at 5.311% is outside this Oct. 22 graph.",
+        "- The Sep. 15 US30Y SHORT is marked daily with a proportional quote-return proxy on $10,000 notional. This is not a bond-duration/futures valuation. The Oct. 23 US30Y LONG at 5.311% and ORCL LONG at $125.83 for $25,000 are after the Oct. 22 cutoff and excluded from this graph.",
         "- The US10Y spread carry preserves the established 4.865% baseline, actual/365 accrual, and cumulative deployed-notional basis from the core model comparison. Supplementary FX and US30Y PnL are included in the USD account value, but are not used to retroactively change the carry denominator. DXY itself is excluded because it is the numeraire.",
         "- US10Y positions are carry references, not independent yield-quote PnL rows. For the Oct. 12 market holiday, the user-approved US10Y 5.24% close from Oct. 9 is carried; the US30Y mark likewise carries its Oct. 9 5.60% close. The daily export records the US30Y source date explicitly.",
         "",
