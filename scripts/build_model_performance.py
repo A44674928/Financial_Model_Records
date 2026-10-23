@@ -6,8 +6,9 @@ Reads `trades/` through `model_perf_core.py` and writes:
   data/model_performance_daily.csv      full per-session series, all variants
   data/model_performance_tickers.csv    per-ticker terminal contribution
   data/model_performance_summary.json   machine-readable summary + series
-  Charts/performance/*.png              static charts
+  Charts/performance/*.png              static charts, including energy live-mark overlay
   data/model_performance_minute_intc.csv one-minute INTC event-window series
+  data/energy_live_mark_overlay.csv    separate user-quoted energy mark check
   Model Performance Comparison.md       written report
   Model Performance Explorer.html       standalone interactive explorer
 
@@ -38,6 +39,7 @@ from intraday_core import (  # noqa: E402
     intraday_series, spread,
 )
 from minute_closeup import inject_minute_section, write_minute_closeup
+from energy_live_overlay import inject_html_overlay, overlay_rows, write_overlay
 
 DIVERGENCE = ["CAT", "INTC", "META", "PLTR"]
 
@@ -263,6 +265,56 @@ def make_charts(series, contrib):
     return files
 
 
+def make_energy_overlay_chart(rows):
+    """Render an energy-only, separately dated historical/live mark comparison."""
+    CHARTS_DIR.mkdir(parents=True, exist_ok=True)
+    symbols = [row["symbol"] for row in rows]
+    hist_marks = [float(row["historical_mark_usd"]) for row in rows]
+    live_marks = [float(row["live_mark_usd"]) for row in rows]
+    hist_pnl = [float(row["historical_unrealized_pnl_usd"]) for row in rows]
+    live_pnl = [float(row["live_unrealized_pnl_usd"]) for row in rows]
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5.5))
+    x = [0, 1]
+    width = 0.34
+    series = [
+        (axes[0], hist_marks, live_marks, "Mark price (USD)", "Energy marks"),
+        (axes[1], hist_pnl, live_pnl, "Unrealized PnL (USD)", "Open-position PnL"),
+    ]
+    for ax, historical, live, ylabel, title in series:
+        old = ax.bar([i - width / 2 for i in x], historical, width,
+                     label="Oct 22 historical", color="#64748b")
+        new = ax.bar([i + width / 2 for i in x], live, width,
+                     label="Approx. Oct 23 user quote", color="#38bdf8")
+        _style(ax, title, ylabel, USDFMT)
+        ax.set_xlabel("")
+        ax.set_xticks(x)
+        ax.set_xticklabels(symbols, color=FG, fontsize=11, fontweight="bold")
+        ax.legend(facecolor=PANEL, edgecolor=GRID, labelcolor=FG, fontsize=8)
+        top = max(historical + live)
+        ax.set_ylim(0, top * 1.22)
+        for bars, values, is_pnl in ((old, historical, title == "Open-position PnL"),
+                                     (new, live, title == "Open-position PnL")):
+            for bar, value in zip(bars, values):
+                label = (f"{'+' if value >= 0 else '−'}${abs(value):,.2f}" if is_pnl
+                         else f"${value:,.2f}")
+                ax.annotate(label, (bar.get_x() + bar.get_width() / 2, bar.get_height()),
+                            xytext=(0, 4), textcoords="offset points", ha="center",
+                            va="bottom", color=FG, fontsize=8)
+
+    fig.suptitle("Energy Mark Update — Separate Snapshot, Not a Portfolio Re-mark",
+                 color=FG, fontsize=14, fontweight="bold", y=0.98)
+    fig.text(0.5, 0.015,
+             "Oct 22 marks use historical Yahoo futures proxies; Oct 23 marks are approximate user quotes. "
+             "Provider/time not specified. Do not combine with Oct 22 all-portfolio totals.",
+             ha="center", color=MUTED, fontsize=8)
+    fig.tight_layout(rect=(0, 0.06, 1, 0.92))
+    path = CHARTS_DIR / "14-energy-live-mark-overlay.png"
+    fig.savefig(path, dpi=150, facecolor=BG, bbox_inches="tight")
+    plt.close(fig)
+    return path
+
+
 # --------------------------------------------------------------------------
 # Intraday charts
 # --------------------------------------------------------------------------
@@ -430,7 +482,7 @@ def write_ticker_csv(contrib):
     return path
 
 
-def write_json(series, contrib, iser=None, co=None):
+def write_json(series, contrib, iser=None, co=None, energy_rows=None):
     path = DATA_DIR / "model_performance_summary.json"
     payload = {
         "generated_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -439,6 +491,12 @@ def write_json(series, contrib, iser=None, co=None):
         "unit_notional_usd": UNIT,
         "sessions": SESSION_DATES,
         "divergence_tickers": DIVERGENCE,
+        "energy_live_overlay": {
+            "historical_mark_date": "2026-10-22",
+            "live_mark_date": "2026-10-23",
+            "scope_note": "Separate energy-only user-quote snapshot; not included in Oct 22 model totals.",
+            "rows": energy_rows or [],
+        },
         "variants": {
             v: {
                 "label": VARIANT_LABEL[v],
@@ -484,7 +542,8 @@ def _bl(i):
 
 
 def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
-                   iser=None, co=None, icharts=None, intraday_csv=None):
+                   iser=None, co=None, icharts=None, intraday_csv=None,
+                   energy_chart=None):
     n = len(SESSION_DATES)
     last = n - 1
     term = {v: series[v]["total"][last] for v in VARIANTS}
@@ -526,6 +585,18 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
           f"{_money(s['realized'][last])} | {_money(s['unrealized'][last])} | "
           f"**{_money(term[v])}** | **{roi[v]:.2f}%** |")
     A("")
+    if energy_chart is not None:
+        A("## Energy Ticker Update — Separate Oct 23 Snapshot")
+        A("")
+        A("> This energy-only update is **not** part of the Oct 22 portfolio totals above. "
+          "BRENT and OIL use the approximate user-provided Oct 23 marks; provider and quote "
+          "time were not specified. Historical marks are Oct 22 Yahoo futures proxies, not "
+          "guaranteed cash/CFD matches.")
+        A("")
+        A(f"![Separate energy mark and PnL comparison]({energy_chart.relative_to(ROOT).as_posix()})")
+        A("")
+        A("Detailed marks and calculations: [`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv).")
+        A("")
     A("All four models agree on `28` of the `32` tickers. They diverge only on "
       "**`CAT`, `INTC`, `META` and `PLTR`** — the four symbols where a short is followed by a "
       "long (or a full exit is compounded into a short). Everything below is driven by those four.")
@@ -719,8 +790,18 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("## Method & Caveats")
     A("")
     A("- **Price source:** Yahoo Finance `v8/finance/chart` `interval=1d` for all `32` symbols "
-      "(`Brent = BZ=F`, `WTI = CL=F`, `BTC = BTC-USD`, `ETH = ETH-USD`); pulled "
-      f"{datetime.now(MST).strftime('%Y-%m-%d')}.")
+      "(`BRENT = BZ=F` Brent futures proxy, `OIL = CL=F` WTI futures proxy, "
+      "`BTC = BTC-USD`, `ETH = ETH-USD`); pulled "
+      f"{datetime.now(MST).strftime('%Y-%m-%d')}. `BZ=F`/`CL=F` are not exact matches "
+      "for the trade metadata's Brent Cash / ICE Brent and `TVC:USOIL` WTI CFD instruments.")
+    A("- **Oct 22 equity EOD recheck:** all `26` stock symbols and the `XLE` ETF were checked "
+      "against Yahoo Finance daily chart closes on Oct 23. `NET` was corrected from `$306.60` "
+      "to `$303.61`; the full symbol/source audit is in "
+      "[`data/oct22_equity_eod_recheck.csv`](data/oct22_equity_eod_recheck.csv).")
+    A("- **Live energy marks (separate snapshot):** approximate Oct 23 quotes supplied by the user "
+      "are audited in [`Trades Zip PnL.md`](Trades%20Zip%20PnL.md) and "
+      "[`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv). "
+      "They do not alter this Oct 22 historical comparison.")
     A("- **Session calendar:** the `35` U.S. equity regular sessions from "
       f"`{SESSION_DATES[0]}` to `{SESSION_DATES[-1]}`. Futures and crypto are mapped onto the "
       "same session index by trade date.")
@@ -1239,6 +1320,7 @@ def write_html(series, contrib, summary_json, iser=None):
     payload = json.loads(summary_json.read_text(encoding="utf-8"))
     slim = {
         "sessions": payload["sessions"],
+        "energy_live_overlay": payload.get("energy_live_overlay", {}),
         "variants": {
             v: {
                 "label": d["label"],
@@ -1290,6 +1372,8 @@ def main():
     contrib = ticker_contributions(series)
 
     charts = make_charts(series, contrib)
+    energy_rows = overlay_rows()
+    energy_chart = make_energy_overlay_chart(energy_rows)
 
     events = parse_trades()
     iser = intraday_series(VARIANTS, events, DIVERGENCE)
@@ -1299,17 +1383,19 @@ def main():
     daily_csv = write_csv(series)
     intraday_csv = write_intraday_csv(iser, co)
     ticker_csv = write_ticker_csv(contrib)
-    summary_json = write_json(series, contrib, iser, co)
+    summary_json = write_json(series, contrib, iser, co, energy_rows)
+    energy_overlay_csv = write_overlay()
     md = write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
-                        iser, co, icharts, intraday_csv)
+                        iser, co, icharts, intraday_csv, energy_chart)
     html = write_html(series, contrib, summary_json, iser)
     minute_image, minute_csv, minute_rows, minute_pnl = write_minute_closeup()
     inject_minute_section(md, html, minute_image, minute_csv, minute_rows, minute_pnl)
+    inject_html_overlay(html, rows=energy_rows, chart_path=energy_chart)
 
     print("Wrote:")
-    for p in charts + icharts + [minute_image]:
+    for p in charts + [energy_chart] + icharts + [minute_image]:
         print(f"  {p.relative_to(ROOT)}")
-    for p in (daily_csv, intraday_csv, minute_csv, ticker_csv, summary_json, md, html):
+    for p in (daily_csv, intraday_csv, minute_csv, energy_overlay_csv, ticker_csv, summary_json, md, html):
         print(f"  {p.relative_to(ROOT)}")
 
 

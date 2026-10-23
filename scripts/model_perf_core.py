@@ -35,8 +35,10 @@ VARIANT_LABEL = {
 }
 VARIANT_COLOR = {"V1": "#38bdf8", "V2": "#f472b6", "V3A": "#34d399", "V3B": "#fbbf24"}
 
-# Oct 22, 2026 terminal marks pinned to the verified settlement set used by
-# `Trades Zip PnL.md` (Yahoo's crypto daily snapshot drifts from settlement).
+# Oct 22, 2026 historical terminal marks pinned to the verified settlement set
+# used by `Trades Zip PnL.md` (Yahoo's crypto snapshot drifts from settlement).
+# BRENT/OIL are futures proxies (BZ=F/CL=F), not exact cash/CFD live tickers;
+# the separate Oct 23 user-quote overlay is in data/energy_live_mark_overlay.csv.
 VERIFIED_OCT22 = {
     "BTC": 81263.73,
     "ETH": 2381.38,
@@ -70,7 +72,7 @@ for _sym, _px in VERIFIED_OCT22.items():
 for _sym, _px in {
     "AAPL": 348.22, "AMZN": 250.38, "BRENT": 113.17, "CAT": 704.05, "CVX": 226.68,
     "DIS": 113.13, "GEV": 827.42, "HD": 327.73, "INTC": 85.49, "LLY": 1306.69,
-    "LMT": 589.91, "LULU": 104.06, "META": 648.85, "NET": 306.60, "NFLX": 67.05,
+    "LMT": 589.91, "LULU": 104.06, "META": 648.85, "NET": 303.61, "NFLX": 67.05,
     "NVDA": 212.21, "OIL": 99.47, "ORCL": 125.54, "PEP": 138.83, "PLTR": 196.19,
     "RIVN": 12.06, "SPCX": 144.75, "TMO": 676.54, "TSLA": 374.58, "UPS": 101.52,
     "V": 414.34, "VLO": 426.28, "WMT": 121.12, "XLE": 67.57, "XRH0": 790.00,
