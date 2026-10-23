@@ -1,0 +1,86 @@
+# Standardized Position Sizing & Cohort Convention — *Fall (Arizona) [2026]* Exclusively
+# Season & Timezone: trades/*.txt represents *Fall (Arizona) [2026]* exclusively (America/Phoenix, year-round MST / UTC-07:00 without DST; 06:30 MST = 09:30 EDT U.S. regular-session open, 13:00 MST = 16:00 EDT close; includes the Sep 3–posted BTC trade carrying an author-estimated 2026-08-01 entry alongside the 76 Sep 3 – Oct 19, 2026 lines).
+# 1 unit = $10,000.00 initial notional (fractional shares/contracts Q = $10,000.00 / entry_price; e.g., 2 units = $20,000.00, 5 units = $50,000.00).
+# Full exits are compounded with shorts. Same-day multi-post entries represent distinct 1-unit ($10,000.00) trades.
+# Cohort split: trades/*.txt contains *Fall (Arizona) [2026]* entries exclusively; pre-2026 entries are separated into trades/2024/ (trades/2024/PLTR.txt).
+
+# Disc1 · The 52 Cards — reviewed stock watchlist
+NVDA | STOCK · Nvidia Corp — Technology
+AAPL | STOCK · Apple Inc. — Technology
+MSFT | STOCK · Microsoft Corp — Technology
+AVGO | STOCK · Broadcom Inc. — Technology
+MU | STOCK · Micron Technology, Inc. — Technology
+AMD | STOCK · Advanced Micro Devices — Technology
+INTC | STOCK · Intel Corp — Technology
+GOOGL | STOCK · Alphabet Inc. — Communication Services
+META | STOCK · Meta Platforms, Inc. — Communication Services
+NFLX | STOCK · NetFlix Inc — Communication Services
+VZ | STOCK · Verizon Communications Inc. — Communication Services
+TMUS | STOCK · T-Mobile US, Inc. — Communication Services
+DIS | STOCK · Walt Disney Company — Communication Services
+AMZN | STOCK · Amazon.com, Inc. — Consumer Cyclical
+TSLA | STOCK · Tesla, Inc. — Consumer Cyclical
+HD | STOCK · Home Depot, Inc. — Consumer Cyclical
+MCD | STOCK · McDonald's Corporation — Consumer Cyclical
+TJX | STOCK · The TJX Companies, Inc. — Consumer Cyclical
+BKNG | STOCK · Booking Holdings Inc. — Consumer Cyclical
+SPCX | STOCK · SpaceX — Industrials
+CAT | STOCK · Caterpillar Inc. — Industrials
+GE | STOCK · GE Aerospace — Industrials
+GEV | STOCK · GE Vernova — Industrials
+RTX | STOCK · RTX Corporation — Industrials
+DE | STOCK · Deere & Company — Industrials
+UNP | STOCK · Union Pacific Corp. — Industrials
+LLY | STOCK · Eli Lilly and Company — Healthcare
+JNJ | STOCK · Johnson & Johnson — Healthcare
+ABBV | STOCK · AbbVie Inc. — Healthcare
+MRK | STOCK · Merck & Co., Inc. — Healthcare
+UNH | STOCK · UnitedHealth Group Incorporated — Healthcare
+TMO | STOCK · Thermo Fisher Scientific Inc. — Healthcare
+AMGN | STOCK · Amgen Inc — Healthcare
+JPM | STOCK · JPMorgan Chase & Co. — Financial Services
+V | STOCK · VISA Inc. — Financial Services
+MA | STOCK · Mastercard Incorporated — Financial Services
+BAC | STOCK · Bank of America Corporation — Financial Services
+MS | STOCK · Morgan Stanley — Financial Services
+GS | STOCK · Goldman Sachs Group Inc. — Financial Services
+WFC | STOCK · Wells Fargo & Co. — Financial Services
+WMT | STOCK · Walmart Inc. — Consumer Defensive
+COST | STOCK · Costco Wholesale Corporation — Consumer Defensive
+KO | STOCK · Coca-Cola Company — Consumer Defensive
+PG | STOCK · Procter & Gamble Company — Consumer Defensive
+PM | STOCK · Philip Morris International Inc. — Consumer Defensive
+PEP | STOCK · PepsiCo, Inc. — Consumer Defensive
+XOM | STOCK · ExxonMobil — Energy
+CVX | STOCK · Chevron Corporation — Energy
+COP | STOCK · ConocoPhillips — Energy
+MPC | STOCK · MARATHON PETROLEUM CORPORATION — Energy
+VLO | STOCK · Valero Energy Corporation — Energy
+PSX | STOCK · PHILLIPS 66 — Energy
+# Disc4 · Futures — reviewed product series; codes in parentheses are product codes, not dated contracts
+WTI | FUTURES · West Texas Intermediate crude (CL)
+NATURAL_GAS | FUTURES · Henry Hub natural gas (NG)
+GOLD | FUTURES · Gold (GC)
+SILVER | FUTURES · Silver (SI)
+COPPER | FUTURES · Copper (HG)
+ALUMINUM | FUTURES · Aluminum (ALI)
+PLATINUM | FUTURES · Platinum (PL)
+PALLADIUM | FUTURES · Palladium (PA)
+WHEAT | FUTURES · Wheat (ZW)
+CORN | FUTURES · Corn (ZC)
+SOYBEANS | FUTURES · Soybeans (ZS)
+
+# Disc5 · Added from *Fall (Arizona) [2026]* TradingView posts — symbols outside the 52 Cards and futures series
+BTC | CRYPTO · Bitcoin / U.S. Dollar (Bitstamp)
+ETH | CRYPTO · Ethereum / U.S. Dollar (Coinbase)
+XRH0 | ETC · Xtrackers Physical Rhodium ETC (LSE)
+PLTR | STOCK · Palantir Technologies Inc. — Technology
+RIVN | STOCK · Rivian Automotive, Inc. — Consumer Discretionary
+LULU | STOCK · lululemon athletica inc. — Consumer Discretionary
+NET | STOCK · Cloudflare, Inc. — Technology
+UPS | STOCK · United Parcel Service, Inc. — Industrials
+LMT | STOCK · Lockheed Martin Corporation — Aerospace & Defense
+XLE | ETF · State Street Energy Select Sector SPDR ETF — Energy
+ORCL | STOCK · Oracle Corporation — Technology
+BRENT | CFD / FUTURES · Crude Oil Brent (Cash / ICE Brent)
+OIL | CFD / FUTURES · WTI Crude Oil (TVC:USOIL; corresponds to WTI in Disc4)
