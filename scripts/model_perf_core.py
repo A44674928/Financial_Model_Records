@@ -38,7 +38,7 @@ VARIANT_COLOR = {"V1": "#38bdf8", "V2": "#f472b6", "V3A": "#34d399", "V3B": "#fb
 # These books are recorded in trades/, but the four comparison variants have no
 # compatible daily mark series / valuation model for them. Keep them in the
 # canonical ledger while excluding them explicitly from model PnL replay.
-UNMODELED_SYMBOLS = frozenset({"DXY", "EURUSD", "US10Y", "US30Y"})
+UNMODELED_SYMBOLS = frozenset({"DXY", "EURUSD", "JPYUSD", "US10Y", "US30Y"})
 
 # Oct 22, 2026 historical terminal marks pinned to the verified settlement set
 # used by `Trades Zip PnL.md` (Yahoo's crypto snapshot drifts from settlement).

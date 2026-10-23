@@ -13,7 +13,7 @@ class ModelTradeScopeTests(unittest.TestCase):
     def test_model_parser_excludes_unpriced_index_fx_and_yield_books(self):
         events = parse_trades()
         modeled = {event["sym"] for event in events}
-        self.assertEqual(UNMODELED_SYMBOLS, {"DXY", "EURUSD", "US10Y", "US30Y"})
+        self.assertEqual(UNMODELED_SYMBOLS, {"DXY", "EURUSD", "JPYUSD", "US10Y", "US30Y"})
         self.assertTrue(modeled.isdisjoint(UNMODELED_SYMBOLS))
         self.assertTrue(modeled.issubset(PRICES))
         self.assertEqual(len(events), 82)
@@ -37,8 +37,8 @@ class ModelTradeScopeTests(unittest.TestCase):
     def test_comparison_report_states_model_coverage_and_unreconciled_master(self):
         report = Path(__file__).resolve().parents[1] / "Model Performance Comparison.md"
         text = report.read_text(encoding="utf-8")
-        self.assertIn("`82` modeled log events out of `87` total 2026 log events", text)
-        self.assertIn("`DXY`, `EURUSD`, `US10Y` and `US30Y`", text)
+        self.assertIn("`82` modeled log events out of `88` total 2026 log events", text)
+        self.assertIn("`DXY`, `EURUSD`, `JPYUSD`, `US10Y` and `US30Y`", text)
         self.assertIn("master PnL report has not been recalculated", text)
 
 

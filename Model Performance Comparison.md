@@ -1,6 +1,6 @@
 # Model Performance Comparison — *Fall (Arizona) [2026]*
 
-Day-by-day (and, where market data supports it, intraday) comparison of the four portfolio models carried on the same standardized book: **[`trades/`](trades/)** / **[`trades.zip`](trades.zip)** — `32` price-covered symbols, `82` modeled log events out of `87` total 2026 log events, `1 unit = $10,000.00` initial notional, all timestamps in Arizona year-round **`MST` / `UTC-07:00`**, marked against the **Thursday, October 22, 2026** close.
+Day-by-day (and, where market data supports it, intraday) comparison of the four portfolio models carried on the same standardized book: **[`trades/`](trades/)** / **[`trades.zip`](trades.zip)** — `32` price-covered symbols, `82` modeled log events out of `88` total 2026 log events, `1 unit = $10,000.00` initial notional, all timestamps in Arizona year-round **`MST` / `UTC-07:00`**, marked against the **Thursday, October 22, 2026** close.
 
 > **Interactive version:** open **[`Model Performance Explorer.html`](Model%20Performance%20Explorer.html)** for a self-contained explorer with toggleable series, a hover crosshair, and per-ticker breakdowns. Machine-readable exports live in [`data/`](data/): [`model_performance_daily.csv`](data/model_performance_daily.csv), [`model_performance_tickers.csv`](data/model_performance_tickers.csv), [`model_performance_summary.json`](data/model_performance_summary.json).
 
@@ -214,7 +214,7 @@ A focused **60-bar, one-minute** view around the Sep 24 `10:00 MST` INTC short. 
 
 ## Method & Caveats
 
-- **Model coverage:** the four variants use the `32` symbols with configured daily price series. `DXY`, `EURUSD`, `US10Y` and `US30Y` remain in the canonical trade logs but are excluded from model PnL (`5` log events total) because no compatible price/valuation series is configured for these index, FX and yield positions.
+- **Model coverage:** the four variants use the `32` symbols with configured daily price series. `DXY`, `EURUSD`, `JPYUSD`, `US10Y` and `US30Y` remain in the canonical trade logs but are excluded from model PnL (`6` log events total) because no compatible price/valuation series is configured for these index, FX and yield positions.
 - **Price source:** Yahoo Finance `v8/finance/chart` `interval=1d` for all `32` symbols (`BRENT = BZ=F` Brent futures proxy, `OIL = CL=F` WTI futures proxy, `BTC = BTC-USD`, `ETH = ETH-USD`); pulled 2026-10-23. `BZ=F`/`CL=F` are not exact matches for the trade metadata's Brent Cash / ICE Brent and `TVC:USOIL` WTI CFD instruments.
 - **Oct 22 equity EOD recheck:** all `26` stock symbols and the `XLE` ETF were checked against Yahoo Finance daily chart closes on Oct 23. `NET` was corrected from `$306.60` to `$303.61`; the full symbol/source audit is in [`data/oct22_equity_eod_recheck.csv`](data/oct22_equity_eod_recheck.csv).
 - **Live energy marks (separate snapshot):** the approximate Oct 23 user-provided quotes and their open-lot calculations are in [`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv). They do not alter this Oct 22 historical comparison.

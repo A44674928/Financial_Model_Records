@@ -801,7 +801,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("## Method & Caveats")
     A("")
     A(f"- **Model coverage:** the four variants use the `32` symbols with configured daily price series. "
-      f"`DXY`, `EURUSD`, `US10Y` and `US30Y` remain in the canonical trade logs but are excluded "
+      f"`DXY`, `EURUSD`, `JPYUSD`, `US10Y` and `US30Y` remain in the canonical trade logs but are excluded "
       f"from model PnL (`{book_event_count - modeled_event_count}` log events total) because no "
       "compatible price/valuation series is configured for these index, FX and yield positions.")
     A("- **Price source:** Yahoo Finance `v8/finance/chart` `interval=1d` for all `32` symbols "
@@ -952,7 +952,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   <footer>
     Generated __GEN__. Prices: Yahoo Finance <code>interval=1d</code>. The four variants model
-    the 32 symbols with configured daily marks; DXY, EURUSD, US10Y and US30Y remain in the
+    the 32 symbols with configured daily marks; DXY, EURUSD, JPYUSD, US10Y and US30Y remain in the
     canonical logs but are excluded because compatible index, FX and yield valuations are not configured.
     The master <b>Trades Zip PnL.md</b> has not yet been recalculated for the newly reconciled
     positions, so its totals do not currently match this comparison. Excludes commissions,
