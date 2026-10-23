@@ -38,6 +38,7 @@ US30Y_FILES = (
 )
 REPORT = ROOT / "DXY-Equivalent Portfolio Snapshot.md"
 GRAPH = CHARTS / "16-whole-portfolio-dxy-vs-usd-pnl.png"
+TOTAL_PNL_GRAPH = CHARTS / "17-dxy-close-vs-whole-portfolio-pnl-usd.png"
 DAILY_CSV = DATA / "whole_portfolio_dxy_vs_usd_daily.csv"
 SUMMARY_CSV = DATA / "whole_portfolio_dxy_vs_usd_summary.csv"
 TERMINAL_DATE = "2026-10-22"
@@ -272,6 +273,75 @@ def write_daily_csv(dxy, fx, us30y, us30y_source_dates, core, result):
                 })
 
 
+def make_total_pnl_graph(dxy, result):
+    """Plot cumulative total USD PnL against the daily DXY index close."""
+    import matplotlib.dates as mdates
+    import matplotlib.pyplot as plt
+    from matplotlib.ticker import FuncFormatter
+
+    CHARTS.mkdir(parents=True, exist_ok=True)
+    dates = [date.fromisoformat(day) for day in SESSION_DATES]
+    fig, ax = plt.subplots(figsize=(14, 7.5))
+    fig.patch.set_facecolor(BG)
+    ax.set_facecolor(PANEL)
+    ax.grid(True, color=GRID, alpha=0.7, linewidth=0.7)
+    ax.tick_params(colors=MUTED, labelsize=9)
+    for side in ("bottom", "left", "top", "right"):
+        ax.spines[side].set_color(GRID)
+
+    for variant in VARIANTS:
+        ax.plot(
+            dates,
+            result[variant]["total_pnl_usd"],
+            color=VARIANT_COLOR[variant],
+            lw=2.2,
+            label=f"{VARIANT_LABEL[variant]} — total PnL (USD)",
+        )
+    ax.axhline(0, color=MUTED, lw=0.9, ls="--", alpha=0.85)
+    ax.set_ylabel("Whole-portfolio cumulative PnL (USD)", color=FG)
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"${value/1000:,.0f}k"))
+    ax.set_title("DXY Close vs. Whole-Portfolio PnL in Dollars", color=FG, fontsize=16, pad=13)
+
+    ax_dxy = ax.twinx()
+    ax_dxy.plot(
+        dates,
+        [dxy[day] for day in SESSION_DATES],
+        color=DXY_COLOR,
+        lw=2.4,
+        ls=(0, (5, 3)),
+        label="DXY daily close (right axis)",
+    )
+    ax_dxy.set_ylabel("DXY index close", color=DXY_COLOR)
+    ax_dxy.tick_params(axis="y", colors=DXY_COLOR, labelsize=9)
+    ax_dxy.spines["right"].set_color(DXY_COLOR)
+
+    handles1, labels1 = ax.get_legend_handles_labels()
+    handles2, labels2 = ax_dxy.get_legend_handles_labels()
+    legend = ax.legend(handles1 + handles2, labels1 + labels2, loc="upper left",
+                       ncol=2, fontsize=8.5, frameon=True)
+    legend.get_frame().set_facecolor(BG)
+    legend.get_frame().set_edgecolor(GRID)
+    for text in legend.get_texts():
+        text.set_color(FG)
+
+    tick_dates = dates[::4]
+    if tick_dates[-1] != dates[-1]:
+        tick_dates.append(dates[-1])
+    ax.set_xticks(tick_dates)
+    ax.set_xlim(dates[0], dates[-1])
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%-m/%-d"))
+    ax.tick_params(axis="x", rotation=35)
+    ax.set_xlabel("Session close (Arizona / MST)", color=FG)
+    fig.text(
+        0.5, 0.012,
+        "Total USD PnL = realized + open unrealized (including FX/US30Y marks) + established US10Y carry; DXY is the whole-book numeraire, not a trade.",
+        color=MUTED, ha="center", fontsize=8.5,
+    )
+    fig.tight_layout(rect=(0.02, 0.04, 0.98, 0.99))
+    fig.savefig(TOTAL_PNL_GRAPH, dpi=160, facecolor=BG, bbox_inches="tight")
+    plt.close(fig)
+
+
 def make_graph(dxy, result):
     import matplotlib.dates as mdates
     import matplotlib.pyplot as plt
@@ -359,9 +429,11 @@ def build_report(dxy, fx, us30y, result):
     lines = [
         "# Whole-Portfolio DXY Numeraire — Daily Comparison",
         "",
-        "This graph applies DXY to the entire portfolio as a numeraire; DXY is not a standalone $10,000 position. The upper panel aligns the four variants' total open unrealized PnL in USD with the daily DXY close. The lower panel compares each variant's return in USD with the same whole-account value expressed in DXY-equivalent units.",
+        "The new first chart compares each variant's cumulative total PnL in dollars with the daily DXY close. Total USD PnL includes realized PnL, open unrealized PnL (including FX and US30Y marks), and the established US10Y carry adjustment. DXY is the numeraire for the whole portfolio, not a standalone $10,000 position. The second graph retains the open-unrealized-PnL and USD-versus-DXY-return views.",
         "",
-        "![DXY close vs whole-portfolio unrealized PnL and USD/DXY returns](Charts/performance/16-whole-portfolio-dxy-vs-usd-pnl.png)",
+        "![DXY Close vs. Whole-Portfolio PnL in Dollars](Charts/performance/17-dxy-close-vs-whole-portfolio-pnl-usd.png)",
+        "",
+        "![Whole-portfolio unrealized PnL and USD/DXY returns](Charts/performance/16-whole-portfolio-dxy-vs-usd-pnl.png)",
         "",
         "## Oct. 22 Terminal Results",
         "",
@@ -446,6 +518,7 @@ def main():
     dxy, fx, us30y, us30y_source_dates, core, result = build_daily_series()
     write_daily_csv(dxy, fx, us30y, us30y_source_dates, core, result)
     write_summary_csv(result, fx, dxy)
+    make_total_pnl_graph(dxy, result)
     make_graph(dxy, result)
     build_report(dxy, fx, us30y, result)
     last = len(SESSION_DATES) - 1
@@ -455,6 +528,7 @@ def main():
             f"USD return {result[variant]['usd_return_pct'][last]:+.3f}%; "
             f"DXY return {result[variant]['dxy_return_pct'][last]:+.3f}%"
         )
+    print(f"Wrote {TOTAL_PNL_GRAPH.relative_to(ROOT)}")
     print(f"Wrote {GRAPH.relative_to(ROOT)}")
     print(f"Wrote {REPORT.relative_to(ROOT)}")
     print(f"Wrote {DAILY_CSV.relative_to(ROOT)}")

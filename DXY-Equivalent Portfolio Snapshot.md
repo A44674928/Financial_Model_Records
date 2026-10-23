@@ -1,8 +1,10 @@
 # Whole-Portfolio DXY Numeraire — Daily Comparison
 
-This graph applies DXY to the entire portfolio as a numeraire; DXY is not a standalone $10,000 position. The upper panel aligns the four variants' total open unrealized PnL in USD with the daily DXY close. The lower panel compares each variant's return in USD with the same whole-account value expressed in DXY-equivalent units.
+The new first chart compares each variant's cumulative total PnL in dollars with the daily DXY close. Total USD PnL includes realized PnL, open unrealized PnL (including FX and US30Y marks), and the established US10Y carry adjustment. DXY is the numeraire for the whole portfolio, not a standalone $10,000 position. The second graph retains the open-unrealized-PnL and USD-versus-DXY-return views.
 
-![DXY close vs whole-portfolio unrealized PnL and USD/DXY returns](Charts/performance/16-whole-portfolio-dxy-vs-usd-pnl.png)
+![DXY Close vs. Whole-Portfolio PnL in Dollars](Charts/performance/17-dxy-close-vs-whole-portfolio-pnl-usd.png)
+
+![Whole-portfolio unrealized PnL and USD/DXY returns](Charts/performance/16-whole-portfolio-dxy-vs-usd-pnl.png)
 
 ## Oct. 22 Terminal Results
 

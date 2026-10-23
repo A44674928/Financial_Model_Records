@@ -71,6 +71,25 @@ def test_us10y_carry_preserves_established_core_model_basis():
         assert cumulative[variant] == expected[variant]["yield_adjustment"]
 
 
+def test_total_usd_pnl_includes_realized_unrealized_and_established_carry():
+    _, _, _, _, _, result = dxy_view.build_daily_series()
+    for variant in VARIANTS:
+        for i in range(len(SESSION_DATES)):
+            expected = (
+                result[variant]["realized_usd"][i]
+                + result[variant]["unrealized_usd"][i]
+                + result[variant]["us10y_carry_usd"][i]
+            )
+            assert abs(result[variant]["total_pnl_usd"][i] - expected) < 1e-8
+
+
+def test_requested_total_pnl_chart_is_generated():
+    dxy, _, _, _, _, result = dxy_view.build_daily_series()
+    dxy_view.make_total_pnl_graph(dxy, result)
+    assert dxy_view.TOTAL_PNL_GRAPH.exists()
+    assert dxy_view.TOTAL_PNL_GRAPH.stat().st_size > 10_000
+
+
 def test_exported_csvs_are_complete_and_oct22_values_reconcile():
     dxy, fx, us30y, source_dates, core, result = dxy_view.build_daily_series()
     dxy_view.write_daily_csv(dxy, fx, us30y, source_dates, core, result)
