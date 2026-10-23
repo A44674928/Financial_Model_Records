@@ -38,7 +38,8 @@ class ModelTradeScopeTests(unittest.TestCase):
         report = Path(__file__).resolve().parents[1] / "Model Performance Comparison.md"
         text = report.read_text(encoding="utf-8")
         self.assertIn("`82` modeled log events out of `88` total 2026 log events", text)
-        self.assertIn("`DXY`, `EURUSD`, `JPYUSD`, `US10Y` and `US30Y`", text)
+        self.assertIn("DXY, EURUSD, JPYUSD, US10Y and US30Y", text)
+        self.assertIn("US10Y Baseline Adjustment", text)
         self.assertIn("master PnL report has not been recalculated", text)
 
 

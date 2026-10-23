@@ -6,12 +6,20 @@ Day-by-day (and, where market data supports it, intraday) comparison of the four
 
 ## The Four Models
 
-| Model | Rule | Units deployed | Realized | Unrealized | **Total PnL** | **ROI** |
-|---|---|---:|---:|---:|---:|---:|
-| **Variant 1 — 1u Open** | every line is 1 unit; positions stay open | 77u ($770,000) | $25,561.44 | $23,158.21 | **$48,719.64** | **6.33%** |
-| **Variant 2 — 1u SAR** | every line is 1 unit; LONG/REBUY stops-and-reverses open shorts | 77u ($770,000) | $31,385.57 | $14,495.38 | **$45,880.95** | **5.96%** |
-| **Variant 3A — Nu Open** | compounded shorts sized to the preceding full exit; positions stay open | 86u ($860,000) | $25,561.44 | $44,383.25 | **$69,944.68** | **8.13%** |
-| **Variant 3B — Nu SAR** | compounded shorts *and* stop-and-reverse | 86u ($860,000) | $42,552.27 | $14,495.38 | **$57,047.65** | **6.63%** |
+| Model | Rule | Units deployed | Realized | Unrealized | Base PnL | US10Y adjustment | **Adjusted PnL** | **Adjusted ROI** |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| **Variant 1 — 1u Open** | every line is 1 unit; positions stay open | 77u ($770,000) | $25,561.44 | $23,158.21 | $48,719.64 | $158.44 | **$48,878.08** | **6.35%** |
+| **Variant 2 — 1u SAR** | every line is 1 unit; LONG/REBUY stops-and-reverses open shorts | 77u ($770,000) | $31,385.57 | $14,495.38 | $45,880.95 | $158.44 | **$46,039.39** | **5.98%** |
+| **Variant 3A — Nu Open** | compounded shorts sized to the preceding full exit; positions stay open | 86u ($860,000) | $25,561.44 | $44,383.25 | $69,944.68 | $181.43 | **$70,126.12** | **8.15%** |
+| **Variant 3B — Nu SAR** | compounded shorts *and* stop-and-reverse | 86u ($860,000) | $42,552.27 | $14,495.38 | $57,047.65 | $181.43 | **$57,229.09** | **6.65%** |
+
+## US10Y Baseline Adjustment
+
+This user-requested, yield-based inflation-style carry is a model adjustment, not a CPI inflation measure or a Treasury total-return calculation. It treats the user-provided daily US10Y closes as annualized carry relative to the `4.865%` baseline from `2026-09-10`. For each interval, the adjustment is the model's cumulative deployed notional (the same denominator used for ROI; it does not fall after a position closes) × ((yield close − 4.865) / 100) × actual calendar days / 365. Values above baseline add positive adjustment; below baseline subtract. Per your confirmation, the Oct 9 close (5.24%) is carried across the Oct 12 Treasury holiday; the export records the original source date. The Oct 23 screenshot yield is kept separate from Oct 22 historical model totals.
+
+![US10Y yield baseline and cumulative adjustment](Charts/performance/15-us10y-baseline-adjustment.png)
+
+Session-level rates, forward-fill dates, actual/365 accruals, and adjusted totals: [`model_performance_us10y_adjustment.csv`](data/model_performance_us10y_adjustment.csv).
 
 ## Energy Ticker Update — Separate Oct 23 Snapshot
 
@@ -25,13 +33,15 @@ All four models agree on `28` of the `32` tickers. They diverge only on **`CAT`,
 
 ## Headline Chart
 
-![Cumulative total PnL by session](Charts/performance/01-cumulative-pnl-by-session.png)
+![Cumulative base trading PnL by session](Charts/performance/01-cumulative-pnl-by-session.png)
 
-**Reading it:** the models begin close together, then spread as the reversal-sensitive positions develop. At the Oct 22 mark the absolute-dollar ranking is **V3A > V3B > V1 > V2**.
+**Reading it:** the models begin close together, then spread as the reversal-sensitive positions develop. At the Oct 22 mark both the base and US10Y-adjusted dollar rankings are **V3A > V3B > V1 > V2**.
 
-## Return on Capital
+## Base Return on Capital
 
-![Cumulative ROI by session](Charts/performance/02-cumulative-roi-by-session.png)
+![Cumulative base ROI by session](Charts/performance/02-cumulative-roi-by-session.png)
+
+This chart shows trading PnL before the US10Y carry; the adjusted ROI is shown in the model table above and is selectable in the interactive explorer.
 
 Raw dollars flatter V3A/V3B because they deploy more capital — `86` units (`$860,000.00`) against V1/V2's `77` units (`$770,000.00`). ROI normalises for that, and the terminal ranking is unchanged: compounding shorts into full exits beats flat sizing on both capital bases, and *not* stop-and-reversing beats stop-and-reversing on both.
 
@@ -214,7 +224,7 @@ A focused **60-bar, one-minute** view around the Sep 24 `10:00 MST` INTC short. 
 
 ## Method & Caveats
 
-- **Model coverage:** the four variants use the `32` symbols with configured daily price series. `DXY`, `EURUSD`, `JPYUSD`, `US10Y` and `US30Y` remain in the canonical trade logs but are excluded from model PnL (`6` log events total) because no compatible price/valuation series is configured for these index, FX and yield positions.
+- **Model coverage:** the four variants directly price the `32` symbols with configured daily market series. Six event lines for DXY, EURUSD, JPYUSD, US10Y and US30Y are not replayed as standalone price positions. The two US10Y entries instead establish the yield-adjustment context; its separate daily rate series applies the baseline carry to the portfolio. DXY/FX/US30Y positions remain unvalued in the four direct-price variants.
 - **Price source:** Yahoo Finance `v8/finance/chart` `interval=1d` for all `32` symbols (`BRENT = BZ=F` Brent futures proxy, `OIL = CL=F` WTI futures proxy, `BTC = BTC-USD`, `ETH = ETH-USD`); pulled 2026-10-23. `BZ=F`/`CL=F` are not exact matches for the trade metadata's Brent Cash / ICE Brent and `TVC:USOIL` WTI CFD instruments.
 - **Oct 22 equity EOD recheck:** all `26` stock symbols and the `XLE` ETF were checked against Yahoo Finance daily chart closes on Oct 23. `NET` was corrected from `$306.60` to `$303.61`; the full symbol/source audit is in [`data/oct22_equity_eod_recheck.csv`](data/oct22_equity_eod_recheck.csv).
 - **Live energy marks (separate snapshot):** the approximate Oct 23 user-provided quotes and their open-lot calculations are in [`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv). They do not alter this Oct 22 historical comparison.
