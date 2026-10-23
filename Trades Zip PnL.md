@@ -1,6 +1,8 @@
 # Standardized Paper-Trades Ledger — *Fall (Arizona) [2026]* (`1 Unit = $10,000.00`)
 
-Complete mark-to-market ledger for [`trades/`](trades/) and [`trades.zip`](trades.zip) covering ***Fall (Arizona) [2026]* exclusively** (**32 symbols**, **77 standardized log lines** through `2026-10-19`; all timestamps recorded in Arizona year-round **`MST` / `UTC-07:00`** without Daylight Saving Time, where `06:30 MST = 09:30 EDT` U.S. regular-session open and `13:00 MST = 16:00 EDT` close), marked against **Thursday, October 22, 2026** closing prices (`1:00 PM MST` / `4:00 PM EDT`).
+Complete mark-to-market ledger for [`trades/`](trades/) and [`trades.zip`](trades.zip) covering ***Fall (Arizona) [2026]* exclusively** (**32 symbols**, **77 standardized log lines** through `2026-10-19`; all timestamps recorded in Arizona year-round **`MST` / `UTC-07:00`** without Daylight Saving Time, where `06:30 MST = 09:30 EDT` U.S. regular-session open and `13:00 MST = 16:00 EDT` close), marked against **Thursday, October 22, 2026** closing prices (`1:00 PM MST` / `4:00 PM EDT`). The separate approximate Oct 23 live-energy quote overlay below does **not** change these historical close-based totals.
+
+> **Oct 22 equity EOD recheck (Oct 23):** I rechecked all **26 stock symbols plus the XLE ETF** against Yahoo Finance daily chart closes for Oct 22. **26 of 27 matched** the prior ledger marks; `NET` was stale at `$306.60` and the source close was `$303.61`. The NET mark and dependent PnL have been corrected; symbol-by-symbol source URLs and deltas are in [`data/oct22_equity_eod_recheck.csv`](data/oct22_equity_eod_recheck.csv). The separate energy-proxy caveat below still applies.
 
 > **Cohort Scope — *Fall (Arizona) [2026]* Exclusively:** These trades are ***Fall (Arizona) [2026]* exclusively** (`America/Phoenix`, `MST` — not a full-year 2026 calendar book; includes the Sep 3–posted `BTC` chart carrying an author-estimated `2026-08-01` entry alongside the 76 `2026-09-03` to `2026-10-19` lines). The pre-season `2024-08-19 PLTR @ $24.00` long entry has been separated into [`trades/2024/PLTR.txt`](trades/2024/PLTR.txt) (see standalone [`2024 Trades PnL.md`](2024%20Trades%20PnL.md)) so all tables, rankings, and return percentages below reflect ***Fall (Arizona) [2026]* exclusively** with zero multi-year skew.
 
@@ -19,21 +21,34 @@ Complete mark-to-market ledger for [`trades/`](trades/) and [`trades.zip`](trade
 
 | *Fall (Arizona) [2026]* Model Variant | Closed Units | Realized PnL ($) | Open Units | Unrealized PnL ($) | Total Units (Notional) | **Combined PnL ($)** | **Return (%)** | Unit Win / Flat / Loss |
 |---|---:|---:|---:|---:|---:|---:|---:|---|
-| **Variant 1 — As-Logged Multi-Leg (`1u = $10k` Compounded Short)** | **14u** | **+$23,083.77** | **58u** | **+$20,319.85** | **72u ($720k)** | **+$43,403.62** | **+6.03%** | **50u W / 1u F / 21u L** |
-| **Variant 2 — Automated SAR (`1u` Short Covered on Next Long)** | **19u** | **+$28,907.91** | **53u** | **+$11,657.03** | **72u ($720k)** | **+$40,564.93** | **+5.63%** | **51u W / 1u F / 20u L** |
-| **Variant 3A — Matched-Stack Reversal (`Nu` Short Open: `2u CAT`, `5u INTC/META`)** | **14u** | **+$23,083.77** | **67u** | **+$41,544.89** | **81u ($810k)** | **+$64,628.66** | **+7.98%** | **59u W / 1u F / 21u L** |
-| **Variant 3B — Matched-Stack SAR (`Nu` Short Covered on Next Long)** | **28u** | **+$40,074.61** | **53u** | **+$11,657.03** | **81u ($810k)** | **+$51,731.64** | **+6.39%** | **60u W / 1u F / 20u L** |
+| **Variant 1 — As-Logged Multi-Leg (`1u = $10k` Compounded Short)** | **14u** | **+$23,083.77** | **58u** | **+$20,229.95** | **72u ($720k)** | **+$43,313.72** | **+6.02%** | **50u W / 1u F / 21u L** |
+| **Variant 2 — Automated SAR (`1u` Short Covered on Next Long)** | **19u** | **+$28,907.91** | **53u** | **+$11,567.12** | **72u ($720k)** | **+$40,475.03** | **+5.62%** | **51u W / 1u F / 20u L** |
+| **Variant 3A — Matched-Stack Reversal (`Nu` Short Open: `2u CAT`, `5u INTC/META`)** | **14u** | **+$23,083.77** | **67u** | **+$41,454.99** | **81u ($810k)** | **+$64,538.76** | **+7.97%** | **59u W / 1u F / 21u L** |
+| **Variant 3B — Matched-Stack SAR (`Nu` Short Covered on Next Long)** | **28u** | **+$40,074.61** | **53u** | **+$11,567.12** | **81u ($810k)** | **+$51,641.74** | **+6.38%** | **60u W / 1u F / 20u L** |
 
 ### B. Pre-Oct-19 *Fall (Arizona) [2026]* Cohort (`<= 2026-10-12`, 30 Symbols — Excluding the 9 Oct 19 Snapshot Trades)
 
 | *Fall (Arizona) [2026]* Variant (`<= Oct 12`) | Closed Units | Realized PnL ($) | Open Units | Unrealized PnL ($) | Total Units (Notional) | **Combined PnL ($)** | **Return (%)** | Unit Win / Flat / Loss |
 |---|---:|---:|---:|---:|---:|---:|---:|---|
-| **Variant 1 — As-Logged Multi-Leg (`1u` Compounded Short)** | **14u** | **+$23,083.77** | **49u** | **+$20,905.68** | **63u ($630k)** | **+$43,989.45** | **+6.98%** | **46u W / 1u F / 16u L** |
-| **Variant 2 — Automated SAR (`1u` Short Covered on Next Long)** | **18u** | **+$27,345.29** | **45u** | **+$14,100.72** | **63u ($630k)** | **+$41,446.01** | **+6.58%** | **47u W / 1u F / 15u L** |
-| **Variant 3A — Matched-Stack (`2u CAT`, `5u INTC/META` Open)** | **14u** | **+$23,083.77** | **58u** | **+$42,130.72** | **72u ($720k)** | **+$65,214.49** | **+9.06%** | **55u W / 1u F / 16u L** |
-| **Variant 3B — Matched-Stack SAR (`2u CAT`, `5u INTC/META` Covered)** | **26u** | **+$36,949.37** | **46u** | **+$15,958.59** | **72u ($720k)** | **+$52,907.95** | **+7.35%** | **56u W / 1u F / 15u L** |
+| **Variant 1 — As-Logged Multi-Leg (`1u` Compounded Short)** | **14u** | **+$23,083.77** | **49u** | **+$20,815.78** | **63u ($630k)** | **+$43,899.55** | **+6.97%** | **46u W / 1u F / 16u L** |
+| **Variant 2 — Automated SAR (`1u` Short Covered on Next Long)** | **18u** | **+$27,345.29** | **45u** | **+$14,010.82** | **63u ($630k)** | **+$41,356.11** | **+6.56%** | **47u W / 1u F / 15u L** |
+| **Variant 3A — Matched-Stack (`2u CAT`, `5u INTC/META` Open)** | **14u** | **+$23,083.77** | **58u** | **+$42,040.81** | **72u ($720k)** | **+$65,124.59** | **+9.05%** | **55u W / 1u F / 16u L** |
+| **Variant 3B — Matched-Stack SAR (`2u CAT`, `5u INTC/META` Covered)** | **26u** | **+$36,949.37** | **46u** | **+$15,868.69** | **72u ($720k)** | **+$52,818.05** | **+7.34%** | **56u W / 1u F / 15u L** |
 
 ---
+
+## Live Energy Quote Reconciliation — Approximate Oct 23 Marks
+
+The historical tables in this ledger remain marked to the **Oct 22 close/settlement**. A source audit found that the historical series uses **Yahoo `BZ=F` (Brent futures)** for `BRENT` and **Yahoo `CL=F` (WTI futures)** for `OIL`; the trade metadata instead identifies **Brent Cash / ICE Brent** and **`TVC:USOIL`**. These are related markets, but not guaranteed to be quote-identical instruments.
+
+For a separate current snapshot, the following calculation uses the approximate prices supplied by the user on **Oct 23, 2026**. Provider and exact quote time were not supplied. Each position remains sized at `$10,000` notional; realized PnL is unchanged at `$0.00` because all four lots in each symbol remain open.
+
+| Symbol | Trade instrument | Historical series proxy | Open lots | Historical mark (Oct 22) | Historical realized / unrealized | Approx. live mark (Oct 23) | Live realized / unrealized estimate | Change in unrealized |
+|---|---|---|---:|---:|---:|---:|---:|---:|
+| [`BRENT`](trades/BRENT.txt) | Brent Cash / ICE Brent | Yahoo `BZ=F` futures | 4 long | `$113.17` | `$0.00 / +$2,437.10` | **`$115.72`** | `$0.00 / +$3,393.31` | **+$956.21** |
+| [`OIL`](trades/OIL.txt) | `TVC:USOIL` WTI CFD | Yahoo `CL=F` futures | 4 long | `$99.47` | `$0.00 / +$3,219.53` | **`$100.94`** | `$0.00 / +$3,858.25` | **+$638.71** |
+
+The detailed, reproducible overlay is [`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv); its inputs are explicitly marked as user-provided estimates with no verified timestamp. **Do not add these two updated marks to the Oct 22 portfolio totals above**: the remaining symbols are still at the Oct 22 close. Historical model performance continues to use a consistent Oct 22 close basis.
 
 ## 1. *Fall (Arizona) [2026]* Realized PnL — Closed Exits & Stop-and-Reverse Covers (`1 Unit = $10,000.00`)
 
@@ -83,7 +98,7 @@ Complete mark-to-market ledger for [`trades/`](trades/) and [`trades.zip`](trade
 | [**LMT**](trades/LMT.txt) | $589.91 | 0C / 4L | $0.00 | +$5,880.21 | **+$5,880.21** | **+$5,880.21** | **+$5,880.21** |
 | [**LULU**](trades/LULU.txt) | $104.06 | 0C / 1L | $0.00 | +$844.10 | **+$844.10** | **+$844.10** | **+$844.10** |
 | [**META**](trades/META.txt) | $648.85 | 5C / 2L+1S | +$7,952.70 | −$401.02 | **+$7,551.68** | **+$6,622.19** | **+$13,821.53** |
-| [**NET**](trades/NET.txt) | $306.60 | 0C / 1L | $0.00 | −$781.44 | **−$781.44** | **−$781.44** | **−$781.44** |
+| [**NET**](trades/NET.txt) | $303.61 | 0C / 1L | $0.00 | −$871.34 | **−$871.34** | **−$871.34** | **−$871.34** |
 | [**NFLX**](trades/NFLX.txt) | $67.05 | 0C / 1L | $0.00 | −$1.49 | **−$1.49** | **−$1.49** | **−$1.49** |
 | [**NVDA**](trades/NVDA.txt) | $212.21 | 0C / 1L | $0.00 | −$757.00 | **−$757.00** | **−$757.00** | **−$757.00** |
 | [**OIL**](trades/OIL.txt) | $99.47 | 0C / 4L | $0.00 | +$3,219.53 | **+$3,219.53** | **+$3,219.53** | **+$3,219.53** |
@@ -100,7 +115,7 @@ Complete mark-to-market ledger for [`trades/`](trades/) and [`trades.zip`](trade
 | [**WMT**](trades/WMT.txt) | $121.12 | 0C / 1L | $0.00 | +$1,617.11 | **+$1,617.11** | **+$1,617.11** | **+$1,617.11** |
 | [**XLE**](trades/XLE.txt) | $67.57 | 0C / 1L | $0.00 | +$756.13 | **+$756.13** | **+$756.13** | **+$756.13** |
 | [**XRH0**](trades/XRH0.txt) | $790.00 | 0C / 1L | $0.00 | $0.00 | **$0.00** | **$0.00** | **$0.00** |
-| **Total — *Fall (Arizona) [2026]* Portfolio (32 Tickers)** | | **14C / 58O (72u)** | **+$23,083.77** | **+$20,319.85** | **+$43,403.62** | **+$40,564.93** | **+$64,628.66** |
+| **Total — *Fall (Arizona) [2026]* Portfolio (32 Tickers)** | | **14C / 58O (72u)** | **+$23,083.77** | **+$20,229.95** | **+$43,313.72** | **+$40,475.03** | **+$64,538.76** |
 
 ---
 
@@ -170,9 +185,9 @@ Ranked across open positions from ***Fall (Arizona) [2026]* exclusively** (`1 Un
 | 46 | [**PLTR**](trades/PLTR.txt) | 2026-09-03 06:30 | `SHORT` | **SHORT** | 1u | $184.91 | $196.19 | 54.0804 | −$11.28 | **−6.10%** | **−$610.03** | Covered @ $167.23 in V2 (`+$956.14` R) |
 | 47 | [**UPS**](trades/UPS.txt) | 2026-10-09 06:30 | `SHORT` | **SHORT** | 1u | $94.57 | $101.52 | 105.7418 | −$6.95 | **−7.35%** | **−$734.91** | V1, V2, V3 |
 | 48 | [**NVDA**](trades/NVDA.txt) | 2026-09-03 06:30 | `LONG` | **LONG** | 1u | $229.59 | $212.21 | 43.5559 | −$17.38 | **−7.57%** | **−$757.00** | V1, V2, V3 |
-| 49 | [**NET**](trades/NET.txt) | 2026-09-17 06:30 | `LONG` | **LONG** | 1u | $332.59 | $306.60 | 30.0670 | −$25.99 | **−7.81%** | **−$781.44** | V1, V2, V3 |
-| 50 | [**UPS**](trades/UPS.txt) | 2026-10-09 06:30 | `SHORT` | **SHORT** | 1u | $94.13 | $101.52 | 106.2361 | −$7.39 | **−7.85%** | **−$785.08** | V1, V2, V3 |
-| 51 | [**DIS**](trades/DIS.txt) | 2026-09-21 06:30 | `SHORT` | **SHORT** | 1u | $104.23 | $113.13 | 95.9417 | −$8.90 | **−8.54%** | **−$853.88** | V1, V2, V3 |
+| 51 | [**NET**](trades/NET.txt) | 2026-09-17 06:30 | `LONG` | **LONG** | 1u | $332.59 | $303.61 | 30.0670 | −$28.98 | **−8.71%** | **−$871.34** | V1, V2, V3 |
+| 49 | [**UPS**](trades/UPS.txt) | 2026-10-09 06:30 | `SHORT` | **SHORT** | 1u | $94.13 | $101.52 | 106.2361 | −$7.39 | **−7.85%** | **−$785.08** | V1, V2, V3 |
+| 50 | [**DIS**](trades/DIS.txt) | 2026-09-21 06:30 | `SHORT` | **SHORT** | 1u | $104.23 | $113.13 | 95.9417 | −$8.90 | **−8.54%** | **−$853.88** | V1, V2, V3 |
 | 52 | [**META**](trades/META.txt) | 2026-10-09 06:30 | `LONG` | **LONG** | 1u | $719.00 | $648.85 | 13.9082 | −$70.15 | **−9.76%** | **−$975.66** | V1, V2, V3 |
 | 53 | [**INTC**](trades/INTC.txt) | 2026-10-19 06:30 | `LONG` | **LONG** | 1u | $94.865 | $85.49 | 105.4130 | −$9.375 | **−9.88%** | **−$988.25** | Oct 19 chart addition |
 | 54 | [**META**](trades/META.txt) | 2026-09-25 10:00 | `REBUY` | **LONG** | 1u | $720.37 | $648.85 | 13.8818 | −$71.52 | **−9.93%** | **−$992.82** | V1, V2, V3 |
@@ -180,7 +195,7 @@ Ranked across open positions from ***Fall (Arizona) [2026]* exclusively** (`1 Un
 | 56 | [**GEV**](trades/GEV.txt) | 2026-10-09 06:30 | `LONG` | **LONG** | 1u | $1,006.57 | $827.42 | 9.9347 | −$179.15 | **−17.80%** | **−$1,779.81** | V1, V2, V3 |
 | 57 | [**INTC**](trades/INTC.txt) | 2026-09-28 06:30 | `LONG` | **LONG** | 1u | $104.70 | $85.49 | 95.5110 | −$19.21 | **−18.35%** | **−$1,834.77** | V1, V2, V3 |
 | 58 | [**INTC**](trades/INTC.txt) | 2026-10-04 06:30 | `LONG` | **LONG** | 1u | $119.33 | $85.49 | 83.8012 | −$33.84 | **−28.36%** | **−$2,835.83** | V1, V2, V3 |
-| — | **Total — *Fall (Arizona) [2026]* Open Units (`58 Units`)** | | | | **58u ($580k)** | | | | | **+3.50%** | **+$20,319.85** | *V2 (`53u`): `+$11,657.03`; V3A (`67u`): `+$41,544.89`* |
+| — | **Total — *Fall (Arizona) [2026]* Open Units (`58 Units`)** | | | | **58u ($580k)** | | | | | **+3.49%** | **+$20,229.95** | *V2 (`53u`): `+$11,567.12`; V3A (`67u`): `+$41,454.99`* |
 
 ---
 

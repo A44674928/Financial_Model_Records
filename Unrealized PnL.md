@@ -3,6 +3,8 @@
 Mark-to-market **Unrealized Profit & Loss (PnL)** for trades from ***Fall (Arizona) [2026]* exclusively** (`America/Phoenix`, year-round **`MST` / `UTC-07:00`** without Daylight Saving Time) as of **Thursday, October 22, 2026** regular-session close (**4:00 PM EDT / 1:00 PM MST** for NYSE/NASDAQ equities; **official October 22 daily settlement** for ICE Brent and NYMEX WTI crude oil), assuming an equal **$10,000.00 initial notional (`1 unit`) per open position** (fractional quantity $Q = \$10{,}000 / P_{\text{entry}}$; excludes commissions, borrow fees, and overnight financing).
 
 > **Master Unified Ledger — *Fall (Arizona) [2026]* Exclusively (`32` Symbols, Exact Fills + Realized & Short-Compounded Exits):** This document preserves the visual chart-only book from `Charts/`. For the complete error-corrected, standardized **`1 unit = $10,000.00`** *Fall (Arizona) [2026]* master ledger across all **32 symbols** (`trades/` & `trades.zip`, including realized `[TAKE PROFIT]` exits compounded with shorts, `INTC $115.11` Neutral → Short, same-day multi-post pairs, and restored `BRENT` / `OIL` / Oct 19 trades), see **[`Trades Zip PnL.md`](Trades%20Zip%20PnL.md)**.
+>
+> **Energy quote-source correction:** this document's historical Oct 22 values use Yahoo futures proxies (`BZ=F` for Brent and `CL=F` for WTI); the logged trade instruments are Brent Cash / ICE Brent and `TVC:USOIL`. They are not exact live ticker matches. Approximate Oct 23 user-provided cash/CFD marks and recalculated PnL are separately recorded in the live-mark section of [`Trades Zip PnL.md`](Trades%20Zip%20PnL.md) and [`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv). The historical tables here remain on their Oct 22 basis.
 
 ---
 

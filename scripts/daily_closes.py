@@ -4,7 +4,9 @@
 Source: Yahoo Finance `v8/finance/chart` `interval=1d`, pulled 2026-10-23.
 Equity/ETF session timestamps (MST regular-session open, UTC-07:00) are the
 union calendar; futures (BZ=F Brent, CL=F WTI) and crypto (BTC-USD, ETH-USD)
-are mapped onto the same session index by trade date.
+are mapped onto the same session index by trade date. BZ=F/CL=F are historical
+futures proxies for the book's BRENT Cash / ICE Brent and TVC:USOIL WTI CFD
+entries, respectively; do not interpret them as exact live cash/CFD tickers.
 
 XRH0 (db Physical Rhodium ETC, LSE) is too illiquid for a daily history
 (Yahoo returns a single bar), so it is held flat at the $790.00 log entry,

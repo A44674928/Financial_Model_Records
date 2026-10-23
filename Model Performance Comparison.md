@@ -8,10 +8,18 @@ Day-by-day (and, where market data supports it, intraday) comparison of the four
 
 | Model | Rule | Units deployed | Realized | Unrealized | **Total PnL** | **ROI** |
 |---|---|---:|---:|---:|---:|---:|
-| **Variant 1 — 1u Open** | every line is 1 unit; positions stay open | 72u ($720,000) | $23,083.77 | $20,319.85 | **$43,403.62** | **6.03%** |
-| **Variant 2 — 1u SAR** | every line is 1 unit; LONG/REBUY stops-and-reverses open shorts | 72u ($720,000) | $28,907.91 | $11,657.03 | **$40,564.93** | **5.63%** |
-| **Variant 3A — Nu Open** | compounded shorts sized to the preceding full exit; positions stay open | 81u ($810,000) | $23,083.77 | $41,544.89 | **$64,628.66** | **7.98%** |
-| **Variant 3B — Nu SAR** | compounded shorts *and* stop-and-reverse | 81u ($810,000) | $40,074.61 | $11,657.03 | **$51,731.64** | **6.39%** |
+| **Variant 1 — 1u Open** | every line is 1 unit; positions stay open | 72u ($720,000) | $23,083.77 | $20,229.95 | **$43,313.72** | **6.02%** |
+| **Variant 2 — 1u SAR** | every line is 1 unit; LONG/REBUY stops-and-reverses open shorts | 72u ($720,000) | $28,907.91 | $11,567.12 | **$40,475.03** | **5.62%** |
+| **Variant 3A — Nu Open** | compounded shorts sized to the preceding full exit; positions stay open | 81u ($810,000) | $23,083.77 | $41,454.99 | **$64,538.76** | **7.97%** |
+| **Variant 3B — Nu SAR** | compounded shorts *and* stop-and-reverse | 81u ($810,000) | $40,074.61 | $11,567.12 | **$51,641.74** | **6.38%** |
+
+## Energy Ticker Update — Separate Oct 23 Snapshot
+
+> This energy-only update is **not** part of the Oct 22 portfolio totals above. BRENT and OIL use the approximate user-provided Oct 23 marks; provider and quote time were not specified. Historical marks are Oct 22 Yahoo futures proxies, not guaranteed cash/CFD matches.
+
+![Separate energy mark and PnL comparison](Charts/performance/14-energy-live-mark-overlay.png)
+
+Detailed marks and calculations: [`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv).
 
 All four models agree on `28` of the `32` tickers. They diverge only on **`CAT`, `INTC`, `META` and `PLTR`** — the four symbols where a short is followed by a long (or a full exit is compounded into a short). Everything below is driven by those four.
 
@@ -67,7 +75,7 @@ Raw dollars flatter V3A/V3B because they deploy more capital — `81` units (`$8
 | `2026-10-19` | -497.97 | +207.67 | -924.29 | +221.31 | widest split (V3B best, V3A worst) |
 | `2026-10-20` | -782.98 | -1,074.87 | -87.92 | -1,074.87 | widest split (V3A best, V2 worst) |
 | `2026-10-21` | -4,490.58 | -3,571.51 | -5,233.35 | -3,571.51 | widest split (V2 best, V3A worst) |
-| `2026-10-22` | +6,236.86 | +3,650.47 | +11,535.85 | +3,650.47 | Terminal mark; widest split (V3A best, V2 worst) |
+| `2026-10-22` | +6,146.96 | +3,560.57 | +11,445.95 | +3,560.57 | Terminal mark; widest split (V3A best, V2 worst) |
 
 ## Where the Models Diverge
 
@@ -84,9 +92,9 @@ Raw dollars flatter V3A/V3B because they deploy more capital — `81` units (`$8
 
 | Model | Peak | Peak day | Trough | Trough day | Max drawdown | Max DD day | Best day | Worst day |
 |---|---:|---|---:|---:|---|---:|---|---:|
-| **Variant 1 — 1u Open** | $43,403.62 | `2026-10-22` | $2,258.87 | `2026-09-15` | -$5,771.53 | `2026-10-21` | $13,709.56 (`2026-09-21`) | -$4,490.58 (`2026-10-21`) |
+| **Variant 1 — 1u Open** | $43,313.72 | `2026-10-22` | $2,258.87 | `2026-09-15` | -$5,771.53 | `2026-10-21` | $13,709.56 (`2026-09-21`) | -$4,490.58 (`2026-10-21`) |
 | **Variant 2 — 1u SAR** | $41,560.84 | `2026-10-19` | $2,547.12 | `2026-09-15` | -$4,646.38 | `2026-10-21` | $14,004.30 (`2026-09-21`) | -$3,571.51 (`2026-10-21`) |
-| **Variant 3A — Nu Open** | $64,628.66 | `2026-10-22` | $2,258.87 | `2026-09-15` | -$6,245.56 | `2026-10-21` | $13,709.56 (`2026-09-21`) | -$5,233.35 (`2026-10-21`) |
+| **Variant 3A — Nu Open** | $64,538.76 | `2026-10-22` | $2,258.87 | `2026-09-15` | -$6,245.56 | `2026-10-21` | $13,709.56 (`2026-09-21`) | -$5,233.35 (`2026-10-21`) |
 | **Variant 3B — Nu SAR** | $52,727.54 | `2026-10-19` | $2,547.12 | `2026-09-15` | -$4,646.38 | `2026-10-21` | $14,004.30 (`2026-09-21`) | -$3,571.51 (`2026-10-21`) |
 
 ## Terminal Composition
@@ -95,10 +103,10 @@ Raw dollars flatter V3A/V3B because they deploy more capital — `81` units (`$8
 
 | Model | Realized (closed) | Unrealized (open) | Closed lots | Open lots |
 |---|---:|---:|---:|---:|
-| **Variant 1 — 1u Open** | $23,083.77 | $20,319.85 | 14 | 58 |
-| **Variant 2 — 1u SAR** | $28,907.91 | $11,657.03 | 19 | 53 |
-| **Variant 3A — Nu Open** | $23,083.77 | $41,544.89 | 14 | 58 |
-| **Variant 3B — Nu SAR** | $40,074.61 | $11,657.03 | 19 | 53 |
+| **Variant 1 — 1u Open** | $23,083.77 | $20,229.95 | 14 | 58 |
+| **Variant 2 — 1u SAR** | $28,907.91 | $11,567.12 | 19 | 53 |
+| **Variant 3A — Nu Open** | $23,083.77 | $41,454.99 | 14 | 58 |
+| **Variant 3B — Nu SAR** | $40,074.61 | $11,567.12 | 19 | 53 |
 
 ## Contribution by Ticker
 
@@ -136,7 +144,7 @@ Raw dollars flatter V3A/V3B because they deploy more capital — `81` units (`$8
 | `RIVN` | 1u | $0.00 | -$1,566.43 | **-$1,566.43** |
 | `UPS` | 2u | $0.00 | -$1,519.99 | **-$1,519.99** |
 | `DIS` | 2u | -$310.50 | -$853.88 | **-$1,164.38** |
-| `NET` | 1u | $0.00 | -$781.44 | **-$781.44** |
+| `NET` | 1u | $0.00 | -$871.34 | **-$871.34** |
 | `NVDA` | 1u | $0.00 | -$757.00 | **-$757.00** |
 | `AMZN` | 1u | $0.00 | -$317.12 | **-$317.12** |
 | `ORCL` | 1u | $0.00 | -$209.78 | **-$209.78** |
@@ -206,7 +214,9 @@ A focused **60-bar, one-minute** view around the Sep 24 `10:00 MST` INTC short. 
 
 ## Method & Caveats
 
-- **Price source:** Yahoo Finance `v8/finance/chart` `interval=1d` for all `32` symbols (`Brent = BZ=F`, `WTI = CL=F`, `BTC = BTC-USD`, `ETH = ETH-USD`); pulled 2026-10-23.
+- **Price source:** Yahoo Finance `v8/finance/chart` `interval=1d` for all `32` symbols (`BRENT = BZ=F` Brent futures proxy, `OIL = CL=F` WTI futures proxy, `BTC = BTC-USD`, `ETH = ETH-USD`); pulled 2026-10-23. `BZ=F`/`CL=F` are not exact matches for the trade metadata's Brent Cash / ICE Brent and `TVC:USOIL` WTI CFD instruments.
+- **Oct 22 equity EOD recheck:** all `26` stock symbols and the `XLE` ETF were checked against Yahoo Finance daily chart closes on Oct 23. `NET` was corrected from `$306.60` to `$303.61`; the full symbol/source audit is in [`data/oct22_equity_eod_recheck.csv`](data/oct22_equity_eod_recheck.csv).
+- **Live energy marks (separate snapshot):** approximate Oct 23 quotes supplied by the user are audited in [`Trades Zip PnL.md`](Trades%20Zip%20PnL.md) and [`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv). They do not alter this Oct 22 historical comparison.
 - **Session calendar:** the `35` U.S. equity regular sessions from `2026-09-03` to `2026-10-22`. Futures and crypto are mapped onto the same session index by trade date.
 - **`XRH0`** (db Physical Rhodium ETC, LSE) is too illiquid for a usable daily history, so it is held flat at its `$790.00` log entry — matching the [`Trades Zip PnL.md`](Trades%20Zip%20PnL.md) convention.
 - **Terminal marks** on `2026-10-22` are pinned to the verified settlement set used by [`Trades Zip PnL.md`](Trades%20Zip%20PnL.md), so the final row reconciles to **$0.00** against that ledger.
