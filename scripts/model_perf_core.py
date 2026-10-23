@@ -35,6 +35,11 @@ VARIANT_LABEL = {
 }
 VARIANT_COLOR = {"V1": "#38bdf8", "V2": "#f472b6", "V3A": "#34d399", "V3B": "#fbbf24"}
 
+# These books are recorded in trades/, but the four comparison variants have no
+# compatible daily mark series / valuation model for them. Keep them in the
+# canonical ledger while excluding them explicitly from model PnL replay.
+UNMODELED_SYMBOLS = frozenset({"DXY", "EURUSD", "US10Y", "US30Y"})
+
 # Oct 22, 2026 historical terminal marks pinned to the verified settlement set
 # used by `Trades Zip PnL.md` (Yahoo's crypto snapshot drifts from settlement).
 # BRENT/OIL are futures proxies (BZ=F/CL=F), not exact cash/CFD live tickers;
@@ -99,6 +104,10 @@ def parse_trades():
         if path.name == "index.txt":
             continue
         sym = path.stem
+        if sym in UNMODELED_SYMBOLS:
+            continue
+        if sym not in PRICES:
+            raise ValueError(f"No configured daily price series for modeled symbol {sym!r}")
         for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines()):
             line = line.strip()
             if not line or line.startswith("#"):

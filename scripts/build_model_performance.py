@@ -546,11 +546,21 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
                    energy_chart=None):
     n = len(SESSION_DATES)
     last = n - 1
+    modeled_event_count = len(parse_trades())
+    trade_files = [p for p in (ROOT / "trades").glob("*.txt") if p.name != "index.txt"]
+    book_event_count = sum(
+        1 for p in trade_files for line in p.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    )
     term = {v: series[v]["total"][last] for v in VARIANTS}
     roi = {v: series[v]["roi"][last] for v in VARIANTS}
     spread_ab = term["V1"] - term["V2"]
     spread_cd = term["V3A"] - term["V3B"]
     spread_size = term["V3A"] - term["V1"]
+    flat_units = series["V1"]["stats"]["units"]
+    natural_units = series["V3A"]["stats"]["units"]
+    flat_deployed = series["V1"]["stats"]["deployed"]
+    natural_deployed = series["V3A"]["stats"]["deployed"]
 
     lines = []
     A = lines.append
@@ -558,10 +568,10 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("")
     A("Day-by-day (and, where market data supports it, intraday) comparison of the four "
       "portfolio models carried on the same standardized book: "
-      "**[`trades/`](trades/)** / **[`trades.zip`](trades.zip)** — `32` symbols, "
-      "`77` standardized log lines, `1 unit = $10,000.00` initial notional, all timestamps in "
-      "Arizona year-round **`MST` / `UTC-07:00`**, marked against the "
-      "**Thursday, October 22, 2026** close.")
+      "**[`trades/`](trades/)** / **[`trades.zip`](trades.zip)** — `32` price-covered symbols, "
+      f"`{modeled_event_count}` modeled log events out of `{book_event_count}` total 2026 log events, "
+      "`1 unit = $10,000.00` initial notional, all timestamps in Arizona year-round "
+      "**`MST` / `UTC-07:00`**, marked against the **Thursday, October 22, 2026** close.")
     A("")
     A("> **Interactive version:** open **[`Model Performance Explorer.html`](Model%20Performance%20Explorer.html)** "
       "for a self-contained explorer with toggleable series, a hover crosshair, and per-ticker "
@@ -605,18 +615,19 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("")
     A(f"![Cumulative total PnL by session]({charts[0].relative_to(ROOT).as_posix()})")
     A("")
-    A("**Reading it:** all four models track each other almost exactly for the first four weeks, "
-      "then fan out in October. Ranking is stable from `Oct 6` onward: "
-      "**V3A > V3B > V1 > V2** on absolute dollars.")
+    A("**Reading it:** the models begin close together, then spread as the reversal-sensitive "
+      "positions develop. At the Oct 22 mark the absolute-dollar ranking is "
+      "**V3A > V3B > V1 > V2**.")
     A("")
     A("## Return on Capital")
     A("")
     A(f"![Cumulative ROI by session]({charts[1].relative_to(ROOT).as_posix()})")
     A("")
-    A("Raw dollars flatter V3A/V3B because they deploy more capital — `81` units "
-      "(`$810,000`) against V1/V2's `72` units (`$720,000`). ROI normalises for that, and the "
-      "ranking is unchanged: compounding shorts into full exits beats flat sizing on both "
-      "capital bases, and *not* stop-and-reversing beats stop-and-reversing on both.")
+    A(f"Raw dollars flatter V3A/V3B because they deploy more capital — `{natural_units:.0f}` units "
+      f"(`{_money(natural_deployed)}`) against V1/V2's `{flat_units:.0f}` units "
+      f"(`{_money(flat_deployed)}`). ROI normalises for that, and the terminal ranking is "
+      "unchanged: compounding shorts into full exits beats flat sizing on both capital bases, "
+      "and *not* stop-and-reversing beats stop-and-reversing on both.")
     A("")
     A("## Day-by-Day Moves")
     A("")
@@ -789,6 +800,10 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
 
     A("## Method & Caveats")
     A("")
+    A(f"- **Model coverage:** the four variants use the `32` symbols with configured daily price series. "
+      f"`DXY`, `EURUSD`, `US10Y` and `US30Y` remain in the canonical trade logs but are excluded "
+      f"from model PnL (`{book_event_count - modeled_event_count}` log events total) because no "
+      "compatible price/valuation series is configured for these index, FX and yield positions.")
     A("- **Price source:** Yahoo Finance `v8/finance/chart` `interval=1d` for all `32` symbols "
       "(`BRENT = BZ=F` Brent futures proxy, `OIL = CL=F` WTI futures proxy, "
       "`BTC = BTC-USD`, `ETH = ETH-USD`); pulled "
@@ -798,8 +813,8 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       "against Yahoo Finance daily chart closes on Oct 23. `NET` was corrected from `$306.60` "
       "to `$303.61`; the full symbol/source audit is in "
       "[`data/oct22_equity_eod_recheck.csv`](data/oct22_equity_eod_recheck.csv).")
-    A("- **Live energy marks (separate snapshot):** approximate Oct 23 quotes supplied by the user "
-      "are audited in [`Trades Zip PnL.md`](Trades%20Zip%20PnL.md) and "
+    A("- **Live energy marks (separate snapshot):** the approximate Oct 23 user-provided quotes "
+      "and their open-lot calculations are in "
       "[`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv). "
       "They do not alter this Oct 22 historical comparison.")
     A("- **Session calendar:** the `35` U.S. equity regular sessions from "
@@ -808,9 +823,10 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("- **`XRH0`** (db Physical Rhodium ETC, LSE) is too illiquid for a usable daily history, "
       "so it is held flat at its `$790.00` log entry — matching the "
       "[`Trades Zip PnL.md`](Trades%20Zip%20PnL.md) convention.")
-    A("- **Terminal marks** on `2026-10-22` are pinned to the verified settlement set used by "
-      "[`Trades Zip PnL.md`](Trades%20Zip%20PnL.md), so the final row reconciles to "
-      "**$0.00** against that ledger.")
+    A("- **Terminal marks** on `2026-10-22` use the verified settlement set from "
+      "[`Trades Zip PnL.md`](Trades%20Zip%20PnL.md). This comparison now includes the newly "
+      "reconciled chart positions for model-priced symbols; the master PnL report has not been "
+      "recalculated in this update, so its totals will not currently reconcile to this comparison.")
     A("- **ROI** is cumulative PnL divided by notional deployed *to date* "
       "(units opened on or before that session × `$10,000`), so early sessions show larger "
       "percentages on less capital.")
@@ -935,9 +951,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <footer>
-    Generated __GEN__. Prices: Yahoo Finance <code>interval=1d</code>.
-    Terminal marks pinned to the verified settlement set so the final row reconciles to
-    $0.00 against <b>Trades Zip PnL.md</b>. Excludes commissions, borrow fees and financing.
+    Generated __GEN__. Prices: Yahoo Finance <code>interval=1d</code>. The four variants model
+    the 32 symbols with configured daily marks; DXY, EURUSD, US10Y and US30Y remain in the
+    canonical logs but are excluded because compatible index, FX and yield valuations are not configured.
+    The master <b>Trades Zip PnL.md</b> has not yet been recalculated for the newly reconciled
+    positions, so its totals do not currently match this comparison. Excludes commissions,
+    borrow fees and financing.
   </footer>
 </div>
 <script>
