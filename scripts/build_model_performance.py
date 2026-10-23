@@ -894,10 +894,11 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("## Method & Caveats")
     A("")
     A(f"- **Model coverage:** the four variants directly price the `32` symbols with configured "
-      f"daily market series. Six event lines for DXY, EURUSD, JPYUSD, US10Y and US30Y are not "
-      f"replayed as standalone price positions. The two US10Y entries instead establish the "
-      f"yield-adjustment context; its separate daily rate series applies the baseline carry to "
-      f"the portfolio. DXY/FX/US30Y positions remain unvalued in the four direct-price variants.")
+      f"daily market series. `{book_event_count - modeled_event_count}` log events for DXY, EURUSD, "
+      f"JPYUSD, US10Y and US30Y are not replayed as standalone price positions. The two US10Y "
+      f"events establish the yield-adjustment context; its separate daily rate series applies the "
+      f"baseline carry to the portfolio. DXY/FX/US30Y positions remain outside the four direct-price "
+      f"variants and require their own quote/valuation treatment.")
     A("- **Price source:** Yahoo Finance `v8/finance/chart` `interval=1d` for all `32` symbols "
       "(`BRENT = BZ=F` Brent futures proxy, `OIL = CL=F` WTI futures proxy, "
       "`BTC = BTC-USD`, `ETH = ETH-USD`); pulled "

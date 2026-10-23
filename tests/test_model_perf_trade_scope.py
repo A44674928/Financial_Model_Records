@@ -3,6 +3,7 @@
 import sys
 import unittest
 from pathlib import Path
+from zipfile import ZipFile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
@@ -34,10 +35,22 @@ class ModelTradeScopeTests(unittest.TestCase):
         }
         self.assertTrue(expected.issubset(positions))
 
+    def test_oct23_us30y_long_is_separate_and_synced_to_zip(self):
+        root = Path(__file__).resolve().parents[1]
+        log = root / "trades/US30Y.txt"
+        content = log.read_bytes()
+        self.assertIn(
+            b"2026-10-23 06:30 MST | SIMULATED PAPER [LONG] | entry: [Market @ ~5.311%]",
+            content,
+        )
+        with ZipFile(root / "trades.zip") as archive:
+            self.assertEqual(archive.read("trades/US30Y.txt"), content)
+            self.assertEqual(archive.read("trades/index.txt"), (root / "trades/index.txt").read_bytes())
+
     def test_comparison_report_states_model_coverage_and_unreconciled_master(self):
         report = Path(__file__).resolve().parents[1] / "Model Performance Comparison.md"
         text = report.read_text(encoding="utf-8")
-        self.assertIn("`82` modeled log events out of `88` total 2026 log events", text)
+        self.assertIn("`82` modeled log events out of `89` total 2026 log events", text)
         self.assertIn("DXY, EURUSD, JPYUSD, US10Y and US30Y", text)
         self.assertIn("US10Y Baseline Adjustment", text)
         self.assertIn("master PnL report has not been recalculated", text)
