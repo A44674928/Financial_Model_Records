@@ -1,2 +1,3 @@
 2026-09-17 06:30 MST | SIMULATED PAPER [LONG] | entry: [Market @ ~$210.83] | size: [1 unit ($10,000)] | note: [same-day trade 1 of 2; Support > Buy > Chevron, 1D NYSE, price 210.83 on 209.32 to 211.16 support, rising trendline, 217.78 high]
 2026-09-17 06:30 MST | SIMULATED PAPER [LONG] | entry: [Market @ ~$210.68] | size: [1 unit ($10,000)] | note: [same-day trade 2 of 2; Chevy was misplaced in the Chevron aisle (updated), 1M NYSE, price 210.68 +2.20%, near 217.78 high]
+2026-10-05 06:30 MST | SIMULATED PAPER [LONG] | entry: [Market @ ~$206.83] | size: [1 unit ($10,000)] | note: [CVX position indicated by the Oct 4 CVX-caption post on Brent Cash chart; entry price uses Oct 5 market open as instructed]

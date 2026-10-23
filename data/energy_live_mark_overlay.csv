@@ -1,3 +1,3 @@
 symbol,trade_instrument,historical_price_proxy,historical_mark_date,historical_mark_usd,historical_realized_pnl_usd,historical_unrealized_pnl_usd,live_mark_date,live_mark_usd,live_quote_basis,live_realized_pnl_usd,live_unrealized_pnl_usd,change_from_historical_mark_usd,open_lots,open_units
-BRENT,Brent Cash / ICE Brent (trade log),Yahoo BZ=F Brent futures,2026-10-22,113.17,0.00,2437.10,2026-10-23,115.72,User-provided approximate quote; provider/time not specified,0.00,3393.31,956.21,4,4
-OIL,TVC:USOIL WTI CFD (trade index),Yahoo CL=F WTI futures,2026-10-22,99.47,0.00,3219.53,2026-10-23,100.94,User-provided approximate quote; provider/time not specified,0.00,3858.25,638.71,4,4
+BRENT,Brent Cash / ICE Brent (trade log),Yahoo BZ=F Brent futures,2026-10-22,113.17,0.00,3068.78,2026-10-23,115.72,User-provided approximate quote; provider/time not specified,0.00,4264.55,1195.77,5,5
+OIL,TVC:USOIL WTI CFD (trade index),Yahoo CL=F WTI futures,2026-10-22,99.47,0.00,4051.72,2026-10-23,100.94,User-provided approximate quote; provider/time not specified,0.00,4998.30,946.58,6,6

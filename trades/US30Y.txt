@@ -1,0 +1,2 @@
+2026-09-15 06:30 MST | SIMULATED PAPER [SHORT] | entry: [Market @ ~5.35%] | size: [1 unit ($10,000)] | note: [U.S. 30Y Yield, SHORT badge, 1W TVC, chart quote 5.35000000%]
+2026-10-23 06:30 MST | SIMULATED PAPER [LONG] | entry: [Market @ ~5.311%] | size: [1 unit ($10,000)] | note: [User-provided additional U.S. 30Y Yield LONG, distinct from the Sep 15 SHORT; Oct 23 mark/entry]
