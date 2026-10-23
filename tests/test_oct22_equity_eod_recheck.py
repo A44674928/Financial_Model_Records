@@ -18,7 +18,7 @@ class Oct22EquityEodRecheckTests(unittest.TestCase):
 
         self.assertEqual(len(rows), 27)  # 26 STOCK entries plus XLE ETF
         self.assertEqual({row["symbol"] for row in rows},
-                         {symbol for symbol in PRICES if symbol not in {"BTC", "ETH", "BRENT", "OIL", "XRH0"}})
+                         {symbol for symbol in PRICES if symbol not in {"BTC", "ETH", "BRENT", "OIL", "XRH0", "LCID"}})
         corrections = [row for row in rows if row["result"] == "CORRECTED"]
         self.assertEqual([(row["symbol"], row["prior_ledger_mark_usd"],
                            row["verified_oct22_yahoo_close_usd"], row["change_usd"])

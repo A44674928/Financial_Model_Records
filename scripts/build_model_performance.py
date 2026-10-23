@@ -616,6 +616,8 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
                    energy_chart=None, yield_chart=None, yield_csv=None):
     n = len(SESSION_DATES)
     last = n - 1
+    symbol_count = len(PRICES)
+    invariant_symbol_count = symbol_count - len(DIVERGENCE)
     direct_price_events = parse_trades()
     modeled_event_count = sum(event["date"] <= SESSION_DATES[-1] for event in direct_price_events)
     post_terminal_event_count = len(direct_price_events) - modeled_event_count
@@ -640,7 +642,8 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("")
     A("Day-by-day (and, where market data supports it, intraday) comparison of the four "
       "portfolio models carried on the same standardized book: "
-      "**[`trades/`](trades/)** / **[`trades.zip`](trades.zip)** — `32` price-covered symbols, "
+      "**[`trades/`](trades/)** / **[`trades.zip`](trades.zip)** — "
+      f"`{symbol_count}` price-covered symbols, "
       f"`{modeled_event_count}` in-window price-covered events out of `{book_event_count}` total 2026 log events "
       f"(`{price_unmodeled_event_count}` outside direct-price scope; `{post_terminal_event_count}` after cutoff), "
       "`1 unit = $10,000.00` initial notional, all timestamps in Arizona year-round "
@@ -653,6 +656,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"[`{ticker_csv.name}`](data/{ticker_csv.name}), "
       f"[`{summary_json.name}`](data/{summary_json.name}).")
     A("> **Whole-portfolio DXY view:** **[`DXY-Equivalent Portfolio Snapshot.md`](DXY-Equivalent%20Portfolio%20Snapshot.md)** includes the daily DXY-numeraire comparison, graph, Oct. 22 results, and supporting CSV exports.")
+    A("> **Small Caps pilot:** **[`Small Caps [Buyout & Reorganization Offering Test Pilot].md`](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md)** tracks the user-provided LCID entries and marks; its first four entries are included in the Oct. 22 four-model comparison.")
     A("")
     A("## The Four Models")
     A("")
@@ -702,7 +706,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
         A("")
         A("Detailed marks and calculations: [`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv).")
         A("")
-    A("All four models agree on `28` of the `32` tickers. They diverge only on "
+    A(f"All four models agree on `{invariant_symbol_count}` of the `{symbol_count}` tickers. They diverge only on "
       "**`CAT`, `INTC`, `META` and `PLTR`** — the four symbols where a short is followed by a "
       "long (or a full exit is compounded into a short). Everything below is driven by those four.")
     A("")
@@ -821,8 +825,8 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
         A("Daily closes hide *when* inside a session the models pull apart. Zooming to "
           "**hourly bars** (7 per session: `06:30`→`13:00 MST`) resolves that.")
         A("")
-        A("> **Scope:** the intraday view covers **`CAT`, `INTC`, `META` and `PLTR`** — the "
-          "divergence sub-book. The other `28` tickers produce byte-identical PnL under all "
+        A(f"> **Scope:** the intraday view covers **`CAT`, `INTC`, `META` and `PLTR`** — the "
+          f"divergence sub-book. The other `{invariant_symbol_count}` tickers produce byte-identical PnL under all "
           "four models, so they cancel exactly out of every comparison below. Every number "
           "here is therefore *exact*, not interpolated.")
         A("")
@@ -837,8 +841,8 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
             A(f"| **{VARIANT_LABEL[v]}** | {_money(s['realized'][-1])} | "
               f"{_money(s['unrealized'][-1])} | **{_money(s['total'][-1])}** |")
         A("")
-        A("The sub-book totals differ from the full-portfolio totals above by exactly the "
-          "28 invariant tickers, which contribute the same amount to every model.")
+        A(f"The sub-book totals differ from the full-portfolio totals above by exactly the "
+          f"{invariant_symbol_count} invariant tickers, which contribute the same amount to every model.")
         A("")
         A("### The regime flips")
         A("")
@@ -898,7 +902,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
 
     A("## Method & Caveats")
     A("")
-    A(f"- **Model coverage:** the four variants directly price the `32` symbols with configured "
+    A(f"- **Model coverage:** the four variants directly price the `{symbol_count}` symbols with configured "
       f"daily market series. `{modeled_event_count}` price-covered events dated on or before the "
       f"Oct. 22 mark are replayed; `{post_terminal_event_count}` price-covered event after the mark "
       f"is excluded from these historical totals. `{price_unmodeled_event_count}` DXY, EURUSD, JPYUSD, "
@@ -906,11 +910,13 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"events establish the yield-adjustment context; its separate daily rate series applies the "
       f"baseline carry to the portfolio. DXY/FX/US30Y positions remain outside the four direct-price "
       f"variants and require their own quote/valuation treatment.")
-    A("- **Price source:** Yahoo Finance `v8/finance/chart` `interval=1d` for all `32` symbols "
-      "(`BRENT = BZ=F` Brent futures proxy, `OIL = CL=F` WTI futures proxy, "
+    A(f"- **Price source:** Yahoo Finance `v8/finance/chart` `interval=1d` for `{symbol_count - 1}` symbols "
+      f"(`BRENT = BZ=F` Brent futures proxy, `OIL = CL=F` WTI futures proxy, "
       "`BTC = BTC-USD`, `ETH = ETH-USD`); pulled "
-      f"{datetime.now(MST).strftime('%Y-%m-%d')}. `BZ=F`/`CL=F` are not exact matches "
-      "for the trade metadata's Brent Cash / ICE Brent and `TVC:USOIL` WTI CFD instruments.")
+      f"{datetime.now(MST).strftime('%Y-%m-%d')}. LCID uses the separate user-provided daily marks in "
+      "[`data/lcid_small_caps_pilot_daily_marks.csv`](data/lcid_small_caps_pilot_daily_marks.csv). "
+      "`BZ=F`/`CL=F` are not exact matches for the trade metadata's Brent Cash / ICE Brent and "
+      "`TVC:USOIL` WTI CFD instruments.")
     A("- **Oct 22 equity EOD recheck:** all `26` stock symbols and the `XLE` ETF were checked "
       "against Yahoo Finance daily chart closes on Oct 23. `NET` was corrected from `$306.60` "
       "to `$303.61`; the full symbol/source audit is in "
@@ -1015,7 +1021,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <div class="wrap">
   <h1>Model Performance Explorer</h1>
   <p class="sub">*Fall (Arizona) [2026]* paper-trade book &middot; __NSESS__ sessions
-     (__START__ &rarr; __END__, MST) &middot; 32 symbols &middot; 1 unit = $10,000.00
+     (__START__ &rarr; __END__, MST) &middot; __NSYMS__ symbols &middot; 1 unit = $10,000.00
      &middot; marked to the Oct 22, 2026 close</p>
 
   <div class="card">
@@ -1054,11 +1060,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   <footer>
     Generated __GEN__. Prices: Yahoo Finance <code>interval=1d</code>. The four variants model
-    the 32 symbols with configured daily marks; DXY, EURUSD, JPYUSD and US30Y are not directly
-    marked. US10Y drives a separate excess-yield adjustment above the 4.865% baseline. The Oct 23
-    ORCL LONG is after the Oct 22 cutoff and is excluded from this historical view.
-    The master <b>Trades Zip PnL.md</b> has not yet been recalculated for the newly reconciled
-    positions, so its totals do not currently match this comparison. Excludes commissions,
+    the __NSYMS__ symbols with configured daily marks; DXY, EURUSD, JPYUSD and US30Y are not directly
+    marked. LCID pilot marks are user-provided. US10Y drives a separate excess-yield adjustment above
+    the 4.865% baseline. The Oct 23 ORCL LONG and fifth LCID LONG are after the Oct 22 cutoff and
+    excluded from this historical view. The master <b>Trades Zip PnL.md</b> has not yet been recalculated for
+    the newly reconciled positions, so its totals do not currently match this comparison. Excludes commissions,
     borrow fees and financing.
   </footer>
 </div>
@@ -1484,6 +1490,7 @@ def write_html(series, contrib, summary_json, iser=None):
         HTML_TEMPLATE
         .replace("__DATA__", json.dumps(slim, separators=(",", ":")))
         .replace("__NSESS__", str(len(SESSION_DATES)))
+        .replace("__NSYMS__", str(len(PRICES)))
         .replace("__START__", SESSION_DATES[0])
         .replace("__END__", SESSION_DATES[-1])
         .replace("__GEN__", datetime.now(MST).strftime("%Y-%m-%d %H:%M MST"))

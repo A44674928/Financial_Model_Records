@@ -13,6 +13,7 @@ Four model variants are compared over the *Fall (Arizona) [2026]* book:
 """
 
 import bisect
+import csv
 import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -83,6 +84,30 @@ for _sym, _px in {
     "V": 414.34, "VLO": 426.28, "WMT": 121.12, "XLE": 67.57, "XRH0": 790.00,
 }.items():
     PRICES[_sym][-1] = _px
+
+# User-provided LCID pilot marks, kept in their own auditable daily CSV. The
+# history before the first LCID entry is irrelevant to PnL; seed it with the
+# first available mark so the shared session array remains fully populated.
+LCID_MARK_FILE = DATA_DIR / "lcid_small_caps_pilot_daily_marks.csv"
+_lcid_marks = {}
+with LCID_MARK_FILE.open(newline="", encoding="utf-8") as _fh:
+    for _row in csv.DictReader(_fh):
+        _day = _row["Date"].strip()
+        if _day in _lcid_marks:
+            raise ValueError(f"Duplicate LCID pilot mark for {_day}")
+        _lcid_marks[_day] = float(_row["Close"])
+if not _lcid_marks:
+    raise ValueError(f"No LCID marks found in {LCID_MARK_FILE}")
+_lcid_mark_days = sorted(_lcid_marks)
+_lcid_last = _lcid_marks[_lcid_mark_days[0]]
+_lcid_prices = []
+for _day in SESSION_DATES:
+    for _mark_day in _lcid_mark_days:
+        if _mark_day > _day:
+            break
+        _lcid_last = _lcid_marks[_mark_day]
+    _lcid_prices.append(_lcid_last)
+PRICES["LCID"] = _lcid_prices
 
 
 # --------------------------------------------------------------------------
