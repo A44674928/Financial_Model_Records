@@ -648,7 +648,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"[`{daily_csv.name}`](data/{daily_csv.name}), "
       f"[`{ticker_csv.name}`](data/{ticker_csv.name}), "
       f"[`{summary_json.name}`](data/{summary_json.name}).")
-    A("> **DXY-equivalent portfolio snapshot:** see **[`DXY-Equivalent Portfolio Snapshot.md`](DXY-Equivalent%20Portfolio%20Snapshot.md)** for all open PnL, DXY-point equivalents, currency conversions, and expanded US10Y carry at Oct 22.")
+    A("> **Whole-portfolio DXY view:** **[`DXY-Equivalent Portfolio Snapshot.md`](DXY-Equivalent%20Portfolio%20Snapshot.md)** documents the corrected numeraire method and the daily DXY/FX closes still needed for the requested graph.")
     A("")
     A("## The Four Models")
     A("")
