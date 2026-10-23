@@ -1,7 +1,7 @@
-# Triangle Signals — October 19, 2026 screenshots
+# Triangle Signals — October 19, 2026 screenshots (*Fall (Arizona) [2026]*)
 
 Dates and prices of the recorded **green**, **orange** and **red** triangle annotations on the charts in
-`Archive/October 19th 2026.zip` (10 screenshots, 9 unique — see `Charts/`).
+`Archive/October 19th 2026.zip` (10 screenshots, 9 unique — see `Charts/`), representing ***Fall (Arizona) [2026]* exclusively** (`America/Phoenix`, year-round `MST` / `UTC-07:00`).
 
 - **Triangle dates** are read from each chart's own time axis, converted to trading sessions.
 - **Triangle prices** are read from each chart's price scale (the levels are logarithmic), at the point of the triangle.
@@ -50,13 +50,15 @@ used as current prices — in particular, SPCX uses **$147.96**, not its future 
 
 | Ticker | Chart | Date | Price (level marked) | Point label | Bias on chart |
 |---|---|---|---|---|---|
-| **PLTR** | Palantir · 1D | Fri **Sep 11, 2026** | **≈ $166** | 🟢 **x — Long** | SHORT |
-| **LMT** | Lockheed Martin · 1D | Wed **Oct 7, 2026** | **≈ $502** | 🟢 **x — Long** | LONG |
-| **LMT** | Lockheed Martin · 1D | Mon **Oct 12, 2026** | **≈ $496** | 🟢 **x — Long** | LONG |
-| **OIL** | WTI Crude CFD · 1D | Thu **Oct 8, 2026** | **≈ $90.6** | 🟢 **x — Long** | LONG |
-| **BRENT** | Brent Crude · 1D | Wed **Sep 23, 2026** | **≈ $102.5** | 🟢 **x — Long** | LONG |
-| **BRENT** | Brent Crude · 1D | Fri **Oct 9, 2026** | **≈ $106.5** | 🟢 **x — Long** | LONG |
-| **CAT** | Caterpillar · 1D | Mon **Sep 14, 2026** | **≈ $780** | 🟢 **x — Long** | LONG |
+| **PLTR** | Palantir · 1D | Sun **Sep 13, 2026** *(Fri Sep 11 session)* | **$167.23** *(axis ≈ $166)* | 🟢 **x — Long** | SHORT |
+| **LMT** | Lockheed Martin · 1D | Sat **Oct 3, 2026** *(Fri Oct 2 session)* | **$505.41** | 🟢 **x — Long** | LONG |
+| **LMT** | Lockheed Martin · 1D | Thu **Oct 8, 2026** | **$499.22** | 🟢 **x — Long** | LONG |
+| **OIL** | WTI Crude CFD · 1D | Thu **Oct 8, 2026** | **≈ $90.60** | 🟢 **x — Long** | LONG |
+| **BRENT** | Brent Crude · 1D | Wed **Sep 23, 2026** | **≈ $102.50** | 🟢 **x — Long** | LONG |
+| **BRENT** | Brent Crude · 1D | Fri **Oct 9, 2026** | **≈ $106.50** | 🟢 **x — Long** | LONG |
+| **CAT** | Caterpillar · 1D | Thu **Sep 17, 2026** | **$785.41** *(axis ≈ $780)* | 🟢 **x — Long** | LONG |
+| **INTC** | Intel · 1D | Sun **Sep 6, 2026** *(Fri Sep 4 session)* | **$95.80** | 🟢 **x — Long** | LONG |
+| **INTC** | Intel · 1D | Wed **Sep 16, 2026** | **$102.25** | 🟢 **x — Long** | LONG |
 
 The historical point label and the chart's overall bias are separate: PLTR's old green point is
 **x — Long**, while its current price gets **y — Short** from the screenshot's SHORT badge.
@@ -66,23 +68,23 @@ The original triangle shapes are preserved in both the source and annotated imag
 
 | Ticker | Chart | Date | Price (level marked) | Point label | Bias on chart |
 |---|---|---|---|---|---|
-| **LMT** | Lockheed Martin · 1D | Fri **Oct 9, 2026** | **≈ $514** | 🟠 **z — Hazard** | LONG |
-| **LMT** | Lockheed Martin · 1D | Fri **Oct 19, 2026** | **≈ $548** | 🟠 **z — Pending Hazard** | LONG |
-| **OIL** | WTI Crude CFD · 1D | Tue **Sep 22, 2026** | **≈ $90.2** | 🟠 **z — Hazard** | LONG |
-| **OIL** | WTI Crude CFD · 1D | Tue **Sep 29, 2026** | **≈ $89.3** | 🟠 **z — Hazard** | LONG |
-| **BRENT** | Brent Crude · 1D | Fri **Oct 2, 2026** | **≈ $107.0** | 🟠 **z — Hazard** | LONG |
-| **CAT** | Caterpillar · 1D | Tue **Oct 6, 2026** | **≈ $867** | 🟠 **z — Hazard** | LONG |
-| **INTC** | Intel · 1D | Mon **Sep 28, 2026** | **≈ $117** | 🟠 **z — Hazard** | LONG |
+| **LMT** | Lockheed Martin · 1D | Tue **Oct 6, 2026** | **$507.17** *(below $514.65 line)* | 🟠 **z — Hazard** *(Long entry in `trades/LMT.txt`)* | LONG |
+| **LMT** | Lockheed Martin · 1D | Mon **Oct 19, 2026** | **$548.23** | 🟠 **z — Pending Hazard** *(Long entry in `trades/LMT.txt`)* | LONG |
+| **OIL** | WTI Crude CFD · 1D | Tue **Sep 22, 2026** | **≈ $90.20** | 🟠 **z — Hazard** *(Long entry in `trades/OIL.txt`)* | LONG |
+| **OIL** | WTI Crude CFD · 1D | Tue **Sep 29, 2026** | **≈ $89.30** | 🟠 **z — Hazard** *(Long entry in `trades/OIL.txt`)* | LONG |
+| **BRENT** | Brent Crude · 1D | Fri **Oct 2, 2026** | **≈ $107.00** | 🟠 **z — Hazard** *(Long entry in `trades/BRENT.txt`)* | LONG |
+| **CAT** | Caterpillar · 1D | Tue **Oct 6, 2026** | **$864.70** *(axis ≈ $867)* | 🟠 **z — Hazard** *(Full exit + compounded Short in `trades/CAT.txt`)* | LONG |
+| **INTC** | Intel · 1D | Thu **Sep 24, 2026** | **$115.11** *(115.109 support line)* | 🟠 **z — Hazard** *(Neutral flip → Short in `trades/INTC.txt`)* | LONG |
 
 Orange triangle/dot annotations are **Hazard** warning points under this key, even when the
-screenshot has an overall LONG badge. They are not relabeled as long entries.
+screenshot has an overall LONG badge. Cross-referenced exact trade executions are logged in `trades/` (`1 unit = $10,000.00`).
 
 ## Red triangles — y · Short
 
 | Ticker | Chart | Date | Price (level marked) | Point label | Bias on chart |
 |---|---|---|---|---|---|
-| **PLTR** | Palantir · 1D | Fri **Oct 9, 2026** | **≈ $211** (high ≈ $215) | 🔴 **y — Short** | SHORT |
-| **SPCX** | SpaceX · **1W** | week of Mon **Sep 28, 2026** | **≈ $176** | 🔴 **y — Short** | SHORT |
+| **PLTR** | Palantir · 1D | Fri **Oct 9, 2026** | **$209.05** *(axis ≈ $211)* | 🔴 **y — Short** *(Full exit + compounded Short in `trades/PLTR.txt`)* | SHORT |
+| **SPCX** | SpaceX · **1W** | Tue **Oct 6, 2026** *(wk of Sep 28)* | **$176.42** spike high *(entry **$173.77**)* | 🔴 **y — Short** | SHORT |
 
 Red triangle annotations use **y — Short** under this key.
 
@@ -106,7 +108,7 @@ These charts still receive a **current-price** label from their original LONG/SH
 | `Charts/OIL/OIL 2026-10-19 21.46.00.jpeg` | OIL (WTI) | 9:46:00 PM | 2 orange, 1 green |
 | `Charts/BRENT/BRENT 2026-10-19 21.46.08.jpeg` | BRENT | 9:46:08 PM | 2 green, 1 orange |
 | `Charts/CAT/CAT 2026-10-19 21.46.16.jpeg` | CAT | 9:46:16 PM | 1 green, 1 orange |
-| `Charts/INTC/INTC 2026-10-19 21.46.26.jpeg` | INTC | 9:46:26 PM | 1 orange |
+| `Charts/INTC/INTC 2026-10-19 21.46.26.jpeg` | INTC | 9:46:26 PM | 2 green, 1 orange |
 | `Charts/ORCL/ORCL 2026-10-19 21.46.46.jpeg` | ORCL | 9:46:46 PM | none |
 
 `Archive/duplicates/OIL 2026-10-19 21.46.00 (duplicate).jpeg` is a byte-identical copy of the OIL screenshot,

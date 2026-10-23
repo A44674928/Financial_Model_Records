@@ -1,0 +1,4 @@
+2026-09-22 06:30 MST | SIMULATED PAPER [LONG] | entry: [Market @ ~$90.20] | size: [1 unit ($10,000)] | note: [CFDs on WTI Crude Oil, 1D TVC, orange hazard continuation long at 90.20 pullback low]
+2026-09-29 06:30 MST | SIMULATED PAPER [LONG] | entry: [Market @ ~$89.30] | size: [1 unit ($10,000)] | note: [CFDs on WTI Crude Oil, 1D TVC, orange hazard continuation long retesting rising trendline at 89.30]
+2026-10-08 06:30 MST | SIMULATED PAPER [LONG] | entry: [Market @ ~$90.60] | size: [1 unit ($10,000)] | note: [CFDs on WTI Crude Oil, 1D TVC, green long triangle breaking higher off trendline confluence]
+2026-10-19 06:30 MST | SIMULATED PAPER [LONG] | entry: [Market @ ~$98.74] | size: [1 unit ($10,000)] | note: [OIL [Continuation], 1D TVC, price 98.74 advancing along rising trendline]

@@ -1,0 +1,4 @@
+2026-09-23 06:30 MST | SIMULATED PAPER [LONG] | entry: [Market @ ~$102.50] | size: [1 unit ($10,000)] | note: [Crude Oil Brent (Cash), 1D BlackBull Markets, green long triangle at rising trendline support]
+2026-10-02 06:30 MST | SIMULATED PAPER [LONG] | entry: [Market @ ~$107.00] | size: [1 unit ($10,000)] | note: [Crude Oil Brent (Cash), 1D BlackBull Markets, orange hazard continuation long along rising channel]
+2026-10-09 06:30 MST | SIMULATED PAPER [LONG] | entry: [Market @ ~$106.50] | size: [1 unit ($10,000)] | note: [Crude Oil Brent (Cash), 1D BlackBull Markets, green long triangle on 106.38 support]
+2026-10-19 06:30 MST | SIMULATED PAPER [LONG] | entry: [Market @ ~$111.025] | size: [1 unit ($10,000)] | note: [BRENT!, 1D BlackBull Markets, price 111.025 above 109.62 / 109.17 support ladder]
