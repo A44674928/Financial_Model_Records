@@ -7,6 +7,7 @@ Reads `trades/` through `model_perf_core.py` and writes:
   data/model_performance_tickers.csv    per-ticker terminal contribution
   data/model_performance_summary.json   machine-readable summary + series
   Charts/performance/*.png              static charts
+  data/model_performance_minute_intc.csv one-minute INTC event-window series
   Model Performance Comparison.md       written report
   Model Performance Explorer.html       standalone interactive explorer
 
@@ -36,6 +37,7 @@ from intraday_core import (  # noqa: E402
     BAR_LABELS, BAR_SESSION, BARS_PER_SESSION, N_BARS, crossovers,
     intraday_series, spread,
 )
+from minute_closeup import inject_minute_section, write_minute_closeup
 
 DIVERGENCE = ["CAT", "INTC", "META", "PLTR"]
 
@@ -1301,11 +1303,13 @@ def main():
     md = write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
                         iser, co, icharts, intraday_csv)
     html = write_html(series, contrib, summary_json, iser)
+    minute_image, minute_csv, minute_rows, minute_pnl = write_minute_closeup()
+    inject_minute_section(md, html, minute_image, minute_csv, minute_rows, minute_pnl)
 
     print("Wrote:")
-    for p in charts + icharts:
+    for p in charts + icharts + [minute_image]:
         print(f"  {p.relative_to(ROOT)}")
-    for p in (daily_csv, intraday_csv, ticker_csv, summary_json, md, html):
+    for p in (daily_csv, intraday_csv, minute_csv, ticker_csv, summary_json, md, html):
         print(f"  {p.relative_to(ROOT)}")
 
 

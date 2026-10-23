@@ -196,6 +196,14 @@ Per-ticker intraday contribution at the Oct 22 close:
 
 Full per-bar series: [`model_performance_intraday.csv`](data/model_performance_intraday.csv) (245 rows).
 
+## 1-Minute Close-Up — INTC Hazard-Flip Window
+
+A focused **60-bar, one-minute** view around the Sep 24 `10:00 MST` INTC short. This is a zoom into one high-signal hour, not a replacement for the 35-session hourly sub-book. The lower panel carries INTC-only cumulative realized + open PnL for each model; V1/V2 and V3A/V3B overlap here because their SAR paths have not yet diverged on this date.
+
+![INTC one-minute hazard-flip close-up](Charts/performance/13-minute-intc-hazard-flip.png)
+
+**Data-quality flag:** Yahoo's first close after the logged event is **$125.59** at `10:01 MST`, while the trade log records **$115.11** (a **$10.48 / 9.1%** difference). The PnL panel preserves the book's logged entry price; it does not silently reprice or correct the trade. Minute series: [`model_performance_minute_intc.csv`](data/model_performance_minute_intc.csv) (60 rows).
+
 ## Method & Caveats
 
 - **Price source:** Yahoo Finance `v8/finance/chart` `interval=1d` for all `32` symbols (`Brent = BZ=F`, `WTI = CL=F`, `BTC = BTC-USD`, `ETH = ETH-USD`); pulled 2026-10-23.
