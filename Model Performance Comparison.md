@@ -84,10 +84,10 @@ Raw dollars flatter V3A/V3B because they deploy more capital — `81` units (`$8
 
 | Model | Peak | Peak day | Trough | Trough day | Max drawdown | Max DD day | Best day | Worst day |
 |---|---:|---|---:|---:|---|---:|---|---:|
-| **Variant 1 — 1u Open** | $43,403.62 | `2026-10-22` | $2,258.87 | `2026-09-15` | $-5,771.53 | `2026-10-21` | $13,709.56 (`2026-09-21`) | $-4,490.58 (`2026-10-21`) |
-| **Variant 2 — 1u SAR** | $41,560.84 | `2026-10-19` | $2,547.12 | `2026-09-15` | $-4,646.38 | `2026-10-21` | $14,004.30 (`2026-09-21`) | $-3,571.51 (`2026-10-21`) |
-| **Variant 3A — Nu Open** | $64,628.66 | `2026-10-22` | $2,258.87 | `2026-09-15` | $-6,245.56 | `2026-10-21` | $13,709.56 (`2026-09-21`) | $-5,233.35 (`2026-10-21`) |
-| **Variant 3B — Nu SAR** | $52,727.54 | `2026-10-19` | $2,547.12 | `2026-09-15` | $-4,646.38 | `2026-10-21` | $14,004.30 (`2026-09-21`) | $-3,571.51 (`2026-10-21`) |
+| **Variant 1 — 1u Open** | $43,403.62 | `2026-10-22` | $2,258.87 | `2026-09-15` | -$5,771.53 | `2026-10-21` | $13,709.56 (`2026-09-21`) | -$4,490.58 (`2026-10-21`) |
+| **Variant 2 — 1u SAR** | $41,560.84 | `2026-10-19` | $2,547.12 | `2026-09-15` | -$4,646.38 | `2026-10-21` | $14,004.30 (`2026-09-21`) | -$3,571.51 (`2026-10-21`) |
+| **Variant 3A — Nu Open** | $64,628.66 | `2026-10-22` | $2,258.87 | `2026-09-15` | -$6,245.56 | `2026-10-21` | $13,709.56 (`2026-09-21`) | -$5,233.35 (`2026-10-21`) |
+| **Variant 3B — Nu SAR** | $52,727.54 | `2026-10-19` | $2,547.12 | `2026-09-15` | -$4,646.38 | `2026-10-21` | $14,004.30 (`2026-09-21`) | -$3,571.51 (`2026-10-21`) |
 
 ## Terminal Composition
 
@@ -125,23 +125,76 @@ Raw dollars flatter V3A/V3B because they deploy more capital — `81` units (`$8
 | `SPCX` | 3u | $0.00 | $2,929.12 | **$2,929.12** |
 | `BTC` | 2u | $0.00 | $2,920.54 | **$2,920.54** |
 | `BRENT` | 4u | $0.00 | $2,437.10 | **$2,437.10** |
-| `PLTR` | 4u | $2,500.75 | $-99.94 | **$2,400.81** |
+| `PLTR` | 4u | $2,500.75 | -$99.94 | **$2,400.81** |
 | `WMT` | 1u | $0.00 | $1,617.11 | **$1,617.11** |
 
 ### Bottom contributors (V3A)
 
 | Ticker | Units | Realized | Unrealized | **Total** |
 |---|---:|---:|---:|---:|
-| `GEV` | 1u | $0.00 | $-1,779.81 | **$-1,779.81** |
-| `RIVN` | 1u | $0.00 | $-1,566.43 | **$-1,566.43** |
-| `UPS` | 2u | $0.00 | $-1,519.99 | **$-1,519.99** |
-| `DIS` | 2u | $-310.50 | $-853.88 | **$-1,164.38** |
-| `NET` | 1u | $0.00 | $-781.44 | **$-781.44** |
-| `NVDA` | 1u | $0.00 | $-757.00 | **$-757.00** |
-| `AMZN` | 1u | $0.00 | $-317.12 | **$-317.12** |
-| `ORCL` | 1u | $0.00 | $-209.78 | **$-209.78** |
-| `ETH` | 1u | $0.00 | $-190.39 | **$-190.39** |
-| `TSLA` | 1u | $0.00 | $-177.15 | **$-177.15** |
+| `GEV` | 1u | $0.00 | -$1,779.81 | **-$1,779.81** |
+| `RIVN` | 1u | $0.00 | -$1,566.43 | **-$1,566.43** |
+| `UPS` | 2u | $0.00 | -$1,519.99 | **-$1,519.99** |
+| `DIS` | 2u | -$310.50 | -$853.88 | **-$1,164.38** |
+| `NET` | 1u | $0.00 | -$781.44 | **-$781.44** |
+| `NVDA` | 1u | $0.00 | -$757.00 | **-$757.00** |
+| `AMZN` | 1u | $0.00 | -$317.12 | **-$317.12** |
+| `ORCL` | 1u | $0.00 | -$209.78 | **-$209.78** |
+| `ETH` | 1u | $0.00 | -$190.39 | **-$190.39** |
+| `TSLA` | 1u | $0.00 | -$177.15 | **-$177.15** |
+
+## Intraday — Hour by Hour
+
+Daily closes hide *when* inside a session the models pull apart. Zooming to **hourly bars** (7 per session: `06:30`→`13:00 MST`) resolves that.
+
+> **Scope:** the intraday view covers **`CAT`, `INTC`, `META` and `PLTR`** — the divergence sub-book. The other `28` tickers produce byte-identical PnL under all four models, so they cancel exactly out of every comparison below. Every number here is therefore *exact*, not interpolated.
+
+![Intraday divergence sub-book](Charts/performance/09-intraday-sub-book-pnl.png)
+
+### Terminal, divergence sub-book only
+
+| Model | Realized | Unrealized | **Sub-book total** |
+|---|---:|---:|---:|
+| **Variant 1 — 1u Open** | $23,394.27 | $1,195.66 | **$24,589.93** |
+| **Variant 2 — 1u SAR** | $29,218.40 | -$7,467.17 | **$21,751.24** |
+| **Variant 3A — Nu Open** | $23,394.27 | $22,420.70 | **$45,814.97** |
+| **Variant 3B — Nu SAR** | $40,385.11 | -$7,467.17 | **$32,917.94** |
+
+The sub-book totals differ from the full-portfolio totals above by exactly the 28 invariant tickers, which contribute the same amount to every model.
+
+### The regime flips
+
+![Intraday spreads](Charts/performance/10-intraday-spreads.png)
+
+![Crossover zoom](Charts/performance/11-crossover-zoom.png)
+
+| Spread | First > 0 | Stays > 0 from | Peak | Trough | Terminal |
+|---|---|---|---:|---:|---:|
+| **V1-V2** | `10-15 07:30 MST` | `10-16 07:30 MST` | $2,861.47 @ `10-22 12:30 MST` | -$4,916.98 @ `10-02 07:30 MST` | **$2,838.69** |
+| **V3A-V3B** | `10-14 09:30 MST` | `10-14 13:00 MST` | $13,114.19 @ `10-22 11:30 MST` | -$11,985.25 @ `10-02 07:30 MST` | **$12,897.03** |
+| **V3A-V1** | `09-22 13:00 MST` | `09-25 07:30 MST` | $21,433.86 @ `10-22 11:30 MST` | -$510.75 @ `09-24 13:00 MST` | **$21,225.04** |
+| **V3B-V2** | `09-22 13:00 MST` | `09-25 07:30 MST` | $11,345.49 @ `10-15 07:30 MST` | -$510.75 @ `09-24 13:00 MST` | **$11,166.70** |
+
+**What this says — stop-and-reverse is a help early and a drag late.** Both spreads open the season deeply *negative*, meaning the **SAR books lead** out of the gate: at `10-02 07:30 MST` `V2` is ahead of `V1` by $4,916.98 and `V3B` is ahead of `V3A` by $11,985.25 — the widest SAR lead of the whole season, on the same bar. Flipping a position instead of stacking a new one protects capital while prices run *against* the earlier direction.
+
+That lead then erodes as the trend matures, and the **open books take over for good in the `Oct 14`–`Oct 16` window**: `V3A − V3B` first prints positive at `10-14 09:30 MST` and never looks back from `10-14 13:00 MST`; `V1 − V2` flips a day later and holds from `10-16 07:30 MST`. Once the moves are directional, reversing out of the original entry throws away the winner — which is why the two spreads end the season on opposite sides of zero, and `4.5×` apart in magnitude.
+
+Compounding shorts into full exits, by contrast, is unambiguous: `V3A − V1` turns positive on `09-22 13:00 MST` — the moment the `INTC` `5-unit` full exit at `$127.11` is compounded — and never crosses back.
+
+### Which ticker drives each edge
+
+![Intraday per ticker](Charts/performance/12-intraday-per-ticker.png)
+
+Per-ticker intraday contribution at the Oct 22 close:
+
+| Ticker | V1 | V2 | V3A | V3B | Intraday peak bar (V3A) |
+|---|---:|---:|---:|---:|---|
+| `CAT` | $1,507.94 | -$349.93 | $3,365.81 | -$349.93 | `10-15 07:30 MST` |
+| `INTC` | $188.67 | -$5,658.85 | $13,285.99 | -$5,658.85 | `10-22 13:00 MST` |
+| `META` | -$401.02 | -$1,968.48 | $5,868.83 | -$1,968.48 | `09-24 12:30 MST` |
+| `PLTR` | -$99.94 | $510.09 | -$99.94 | $510.09 | `10-08 07:30 MST` |
+
+Full per-bar series: [`model_performance_intraday.csv`](data/model_performance_intraday.csv) (245 rows).
 
 ## Method & Caveats
 

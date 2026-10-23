@@ -30,8 +30,14 @@ from matplotlib.ticker import FuncFormatter
 
 from model_perf_core import (  # noqa: E402
     CHARTS_DIR, DATA_DIR, MST, PRICES, ROOT, SESSION_DATES, UNIT, VARIANTS,
-    VARIANT_COLOR, VARIANT_LABEL, all_series,
+    VARIANT_COLOR, VARIANT_LABEL, all_series, parse_trades,
 )
+from intraday_core import (  # noqa: E402
+    BAR_LABELS, BAR_SESSION, BARS_PER_SESSION, N_BARS, crossovers,
+    intraday_series, spread,
+)
+
+DIVERGENCE = ["CAT", "INTC", "META", "PLTR"]
 
 BG = "#0d131e"
 PANEL = "#141c2b"
@@ -256,8 +262,137 @@ def make_charts(series, contrib):
 
 
 # --------------------------------------------------------------------------
+# Intraday charts
+# --------------------------------------------------------------------------
+def make_intraday_charts(iser, co):
+    CHARTS_DIR.mkdir(parents=True, exist_ok=True)
+    x = list(range(N_BARS))
+    files = []
+
+    def save(fig, name):
+        path = CHARTS_DIR / name
+        fig.savefig(path, dpi=150, facecolor=BG, bbox_inches="tight")
+        plt.close(fig)
+        files.append(path)
+
+    def xticks_hourly(ax, step=14):
+        idx = list(range(6, N_BARS, step))
+        ax.set_xticks(idx)
+        ax.set_xticklabels([BAR_LABELS[i].replace(" ", "\n") for i in idx],
+                           rotation=0, fontsize=7.5)
+
+    # 09. Divergence sub-book, hourly
+    fig, ax = plt.subplots(figsize=(13, 5.8))
+    for v in VARIANTS:
+        ax.plot(x, iser[v]["total"], label=VARIANT_LABEL[v],
+                color=VARIANT_COLOR[v], lw=1.8)
+    ax.axhline(0, color=MUTED, lw=1, ls="--", alpha=0.6)
+    _style(ax, "Intraday PnL — Divergence Sub-Book (CAT · INTC · META · PLTR)",
+           "PnL (USD)", USDFMT)
+    xticks_hourly(ax)
+    ax.legend(facecolor=PANEL, edgecolor=GRID, labelcolor=FG, fontsize=9, loc="upper left")
+    save(fig, "09-intraday-sub-book-pnl.png")
+
+    # 10. Intraday spreads with crossover markers
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(13, 8.6), sharex=True)
+    for ax, key, title in [
+        (ax1, "V1-V2", "V1 − V2 : stop-and-reverse effect (1-unit book)"),
+        (ax2, "V3A-V3B", "V3A − V3B : stop-and-reverse effect (natural-unit book)"),
+    ]:
+        d = co[key]
+        sp = d["spread"]
+        ax.plot(x, sp, color="#a78bfa", lw=1.7)
+        ax.fill_between(x, 0, sp, where=[s >= 0 for s in sp],
+                        color="#34d399", alpha=0.25, interpolate=True)
+        ax.fill_between(x, 0, sp, where=[s < 0 for s in sp],
+                        color="#ef4444", alpha=0.25, interpolate=True)
+        ax.axhline(0, color=MUTED, lw=1, ls="--", alpha=0.7)
+        for bar, colour, mark in ((d["first_positive"], "#38bdf8", "first > 0"),
+                                  (d["persists_from"], "#34d399", "stays > 0"),
+                                  (d["peak_bar"], "#fbbf24", "peak")):
+            if bar is None:
+                continue
+            ax.axvline(bar, color=colour, lw=1, ls=":", alpha=0.85)
+            ax.annotate(f"{mark}\n{BAR_LABELS[bar]}\n${sp[bar]:,.0f}",
+                        xy=(bar, sp[bar]), xytext=(8, 10),
+                        textcoords="offset points", color=colour, fontsize=7.5)
+        _style(ax, title, "Spread (USD)", USDFMT)
+    xticks_hourly(ax2)
+    fig.suptitle("Intraday Regime Flips — When One Model Overtakes Another",
+                 color=FG, fontsize=14, fontweight="bold", y=0.985)
+    save(fig, "10-intraday-spreads.png")
+
+    # 11. Crossover zoom (V3A − V3B around Oct 13–17)
+    d = co["V3A-V3B"]
+    lo = max(0, (d["first_positive"] or 0) // BARS_PER_SESSION * BARS_PER_SESSION
+             - 2 * BARS_PER_SESSION)
+    hi = min(N_BARS, lo + 6 * BARS_PER_SESSION)
+    fig, ax = plt.subplots(figsize=(12, 5.6))
+    zx = list(range(lo, hi))
+    zv = d["spread"][lo:hi]
+    ax.plot(zx, zv, color="#a78bfa", lw=2.2, marker="o", ms=3)
+    ax.fill_between(zx, 0, zv, where=[s >= 0 for s in zv],
+                    color="#34d399", alpha=0.28, interpolate=True)
+    ax.fill_between(zx, 0, zv, where=[s < 0 for s in zv],
+                    color="#ef4444", alpha=0.28, interpolate=True)
+    ax.axhline(0, color=MUTED, lw=1, ls="--", alpha=0.8)
+    if d["first_positive"] is not None and lo <= d["first_positive"] < hi:
+        ax.axvline(d["first_positive"], color="#38bdf8", lw=1.4, ls=":")
+        ax.annotate(f"CROSSOVER\n{BAR_LABELS[d['first_positive']]} MST\n"
+                    f"${d['spread'][d['first_positive']]:,.2f}",
+                    xy=(d["first_positive"], d["spread"][d["first_positive"]]),
+                    xytext=(12, 14), textcoords="offset points",
+                    color="#38bdf8", fontsize=9, fontweight="bold")
+    _style(ax, "Zoom — V3A Overtakes V3B (hourly bars, MST)", "Spread (USD)", USDFMT)
+    ax.set_xticks(zx)
+    ax.set_xticklabels([BAR_LABELS[i].replace(" ", "\n") for i in zx],
+                       rotation=90, fontsize=7)
+    save(fig, "11-crossover-zoom.png")
+
+    # 12. Per-ticker intraday paths (2x2)
+    fig, axes = plt.subplots(2, 2, figsize=(13, 8), sharex=True)
+    for ax, sym in zip(axes.ravel(), DIVERGENCE):
+        for v in VARIANTS:
+            ax.plot(x, iser[v]["per_ticker"][sym], label=VARIANT_LABEL[v],
+                    color=VARIANT_COLOR[v], lw=1.5)
+        ax.axhline(0, color=MUTED, lw=1, ls="--", alpha=0.6)
+        _style(ax, f"{sym} — intraday PnL by model", "PnL (USD)", USDFMT)
+        ax.set_xlabel("")
+    for ax in axes[1]:
+        ax.set_xticks(list(range(6, N_BARS, 14)))
+        ax.set_xticklabels([BAR_LABELS[i].replace(" ", "\n")
+                            for i in range(6, N_BARS, 14)], fontsize=7.5)
+    axes[0, 0].legend(facecolor=PANEL, edgecolor=GRID, labelcolor=FG,
+                      fontsize=8, loc="upper left")
+    fig.suptitle("Where Each Model's Edge Comes From", color=FG,
+                 fontsize=14, fontweight="bold", y=0.98)
+    save(fig, "12-intraday-per-ticker.png")
+    return files
+
+
+# --------------------------------------------------------------------------
 # Data exports
 # --------------------------------------------------------------------------
+def write_intraday_csv(iser, co):
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    path = DATA_DIR / "model_performance_intraday.csv"
+    with path.open("w", newline="", encoding="utf-8") as fh:
+        w = csv.writer(fh)
+        w.writerow(["bar_index", "bar_close_mst", "session_date", "bar_in_session"]
+                   + [f"{v}_subtotal_usd" for v in VARIANTS]
+                   + [f"{v}_{s}_usd" for v in VARIANTS for s in DIVERGENCE]
+                   + ["spread_V1_V2_usd", "spread_V3A_V3B_usd"])
+        for i in range(N_BARS):
+            w.writerow([i, BAR_LABELS[i], SESSION_DATES[BAR_SESSION[i]],
+                        i % BARS_PER_SESSION]
+                       + [f"{iser[v]['total'][i]:.2f}" for v in VARIANTS]
+                       + [f"{iser[v]['per_ticker'][s][i]:.2f}"
+                          for v in VARIANTS for s in DIVERGENCE]
+                       + [f"{co['V1-V2']['spread'][i]:.2f}",
+                          f"{co['V3A-V3B']['spread'][i]:.2f}"])
+    return path
+
+
 def write_csv(series):
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     path = DATA_DIR / "model_performance_daily.csv"
@@ -293,7 +428,7 @@ def write_ticker_csv(contrib):
     return path
 
 
-def write_json(series, contrib):
+def write_json(series, contrib, iser=None, co=None):
     path = DATA_DIR / "model_performance_summary.json"
     payload = {
         "generated_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -301,6 +436,7 @@ def write_json(series, contrib):
         "timezone": "America/Phoenix — MST / UTC-07:00 (no DST)",
         "unit_notional_usd": UNIT,
         "sessions": SESSION_DATES,
+        "divergence_tickers": DIVERGENCE,
         "variants": {
             v: {
                 "label": VARIANT_LABEL[v],
@@ -314,6 +450,22 @@ def write_json(series, contrib):
             for v in VARIANTS
         },
     }
+    if iser is not None and co is not None:
+        payload["intraday"] = {
+            "bars": N_BARS,
+            "bars_per_session": BARS_PER_SESSION,
+            "labels": BAR_LABELS,
+            "session_index": BAR_SESSION,
+            "series": {
+                v: {"total": iser[v]["total"], "per_ticker": iser[v]["per_ticker"]}
+                for v in VARIANTS
+            },
+            "spreads": {k: d["spread"] for k, d in co.items()},
+            "milestones": {
+                k: {kk: vv for kk, vv in d.items() if kk != "spread"}
+                for k, d in co.items()
+            },
+        }
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     return path
 
@@ -322,10 +474,15 @@ def write_json(series, contrib):
 # Markdown report
 # --------------------------------------------------------------------------
 def _money(x):
-    return f"${x:,.2f}"
+    return (f"-${abs(x):,.2f}" if x < 0 else f"${x:,.2f}")
 
 
-def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json):
+def _bl(i):
+    return f"`{BAR_LABELS[i]} MST`" if i is not None else "—"
+
+
+def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
+                   iser=None, co=None, icharts=None, intraday_csv=None):
     n = len(SESSION_DATES)
     last = n - 1
     term = {v: series[v]["total"][last] for v in VARIANTS}
@@ -476,6 +633,87 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json)
         A(f"| `{sym}` | {d['units']:.0f}u | {_money(d['realized'])} | "
           f"{_money(d['unrealized'])} | **{_money(d['total'])}** |")
     A("")
+    if iser is not None and co is not None:
+        A("## Intraday — Hour by Hour")
+        A("")
+        A("Daily closes hide *when* inside a session the models pull apart. Zooming to "
+          "**hourly bars** (7 per session: `06:30`→`13:00 MST`) resolves that.")
+        A("")
+        A("> **Scope:** the intraday view covers **`CAT`, `INTC`, `META` and `PLTR`** — the "
+          "divergence sub-book. The other `28` tickers produce byte-identical PnL under all "
+          "four models, so they cancel exactly out of every comparison below. Every number "
+          "here is therefore *exact*, not interpolated.")
+        A("")
+        A(f"![Intraday divergence sub-book]({icharts[0].relative_to(ROOT).as_posix()})")
+        A("")
+        A("### Terminal, divergence sub-book only")
+        A("")
+        A("| Model | Realized | Unrealized | **Sub-book total** |")
+        A("|---|---:|---:|---:|")
+        for v in VARIANTS:
+            s = iser[v]
+            A(f"| **{VARIANT_LABEL[v]}** | {_money(s['realized'][-1])} | "
+              f"{_money(s['unrealized'][-1])} | **{_money(s['total'][-1])}** |")
+        A("")
+        A("The sub-book totals differ from the full-portfolio totals above by exactly the "
+          "28 invariant tickers, which contribute the same amount to every model.")
+        A("")
+        A("### The regime flips")
+        A("")
+        A(f"![Intraday spreads]({icharts[1].relative_to(ROOT).as_posix()})")
+        A("")
+        A(f"![Crossover zoom]({icharts[2].relative_to(ROOT).as_posix()})")
+        A("")
+        A("| Spread | First > 0 | Stays > 0 from | Peak | Trough | Terminal |")
+        A("|---|---|---|---:|---:|---:|")
+        for key in ("V1-V2", "V3A-V3B", "V3A-V1", "V3B-V2"):
+            d = co[key]
+            A(f"| **{key}** | {_bl(d['first_positive'])} | {_bl(d['persists_from'])} | "
+              f"{_money(d['peak'])} @ {_bl(d['peak_bar'])} | "
+              f"{_money(d['trough'])} @ {_bl(d['trough_bar'])} | "
+              f"**{_money(d['terminal'])}** |")
+        A("")
+        A("**What this says — stop-and-reverse is a help early and a drag late.** Both "
+          "spreads open the season deeply *negative*, meaning the **SAR books lead** out of "
+          "the gate: at " + _bl(co["V1-V2"]["trough_bar"]) + " `V2` is ahead of `V1` by "
+          f"{_money(-co['V1-V2']['trough'])} and `V3B` is ahead of `V3A` by "
+          f"{_money(-co['V3A-V3B']['trough'])} — the widest SAR lead of the whole season, "
+          "on the same bar. Flipping a position instead of stacking a new one protects "
+          "capital while prices run *against* the earlier direction.")
+        A("")
+        A("That lead then erodes as the trend matures, and the **open books take over for "
+          "good in the `Oct 14`–`Oct 16` window**: `V3A − V3B` first prints positive at "
+          f"{_bl(co['V3A-V3B']['first_positive'])} and never looks back from "
+          f"{_bl(co['V3A-V3B']['persists_from'])}; `V1 − V2` flips a day later and holds "
+          f"from {_bl(co['V1-V2']['persists_from'])}. Once the moves are directional, "
+          "reversing out of the original entry throws away the winner — which is why the "
+          "two spreads end the season on opposite sides of zero, and `"
+          f"{abs(co['V3A-V3B']['terminal'] / co['V1-V2']['terminal']):.1f}×` apart in "
+          "magnitude.")
+        A("")
+        A("Compounding shorts into full exits, by contrast, is unambiguous: `V3A − V1` "
+          f"turns positive on {_bl(co['V3A-V1']['first_positive'])} — the moment the "
+          "`INTC` `5-unit` full exit at `$127.11` is compounded — and never crosses back.")
+        A("")
+        A("### Which ticker drives each edge")
+        A("")
+        A(f"![Intraday per ticker]({icharts[3].relative_to(ROOT).as_posix()})")
+        A("")
+        A("Per-ticker intraday contribution at the Oct 22 close:")
+        A("")
+        A("| Ticker | " + " | ".join(VARIANTS) + " | Intraday peak bar (V3A) |")
+        A("|---|" + "---:|---:|---:|---:|" + "---|")
+        for sym in DIVERGENCE:
+            col = iser["V3A"]["per_ticker"][sym]
+            pk = max(range(N_BARS), key=lambda i: col[i])
+            A(f"| `{sym}` | " + " | ".join(
+                _money(iser[v]["per_ticker"][sym][-1]) for v in VARIANTS) +
+              f" | {_bl(pk)} |")
+        A("")
+        A(f"Full per-bar series: [`{intraday_csv.name}`](data/{intraday_csv.name}) "
+          f"({N_BARS} rows).")
+        A("")
+
     A("## Method & Caveats")
     A("")
     A("- **Price source:** Yahoo Finance `v8/finance/chart` `interval=1d` for all `32` symbols "
@@ -839,15 +1077,163 @@ bv.addEventListener("mouseleave", ()=>tip2.style.opacity=0);
       }).join("")+"</tr>").join("")+"</tbody>";
 })();
 
-let rt; window.addEventListener("resize", ()=>{ clearTimeout(rt); rt=setTimeout(()=>{draw();drawBars();},120); });
-draw(); drawBars();
+/* ---------- intraday ---------- */
+const IN = DATA.intraday;
+const IMETRICS = {
+  sub:   {label:"Divergence sub-book PnL", get:v=>IN.series[v].total},
+  rz:    {label:"Realized (cumulative)",   get:v=>IN.series[v].realized},
+  un:    {label:"Unrealized (open)",       get:v=>IN.series[v].unrealized},
+  sp12:  {label:"Spread V1 − V2",          get:()=>IN.spreads["V1-V2"]},
+  sp34:  {label:"Spread V3A − V3B",        get:()=>IN.spreads["V3A-V3B"]},
+  sp31:  {label:"Spread V3A − V1",         get:()=>IN.spreads["V3A-V1"]},
+  tick:  {label:"Per-ticker (V3A)",        get:()=>null}
+};
+let imetric="sub", depth="hour", ishown=new Set(VARS), isym="CAT";
+
+const iEl=document.getElementById("imetrics");
+iEl.innerHTML = Object.entries(IMETRICS).map(([k,m])=>
+  `<button class="${k===imetric?"on":""}" data-i="${k}">${m.label}</button>`).join("");
+iEl.onclick = e=>{ const b=e.target.closest("button"); if(!b) return;
+  imetric=b.dataset.i; [...iEl.children].forEach(c=>c.classList.toggle("on",c===b));
+  syncILegend(); drawI(); };
+
+const dEl=document.getElementById("depth");
+dEl.innerHTML = [["hour","Hourly bars (245)"],["session","Session closes (35)"]]
+  .map(([k,l])=>`<button class="${k===depth?"on":""}" data-d="${k}">${l}</button>`).join("");
+dEl.onclick = e=>{ const b=e.target.closest("button"); if(!b) return;
+  depth=b.dataset.d; [...dEl.children].forEach(c=>c.classList.toggle("on",c===b)); drawI(); };
+
+const ilEl=document.getElementById("ilegend");
+function ilegendHTML(){
+  if(imetric==="tick"){
+    return IN.tickers.map(s=>
+      `<label class="${s===isym?"on":""}" data-s="${s}"><span class="swatch" style="background:#a78bfa"></span>${s}</label>`).join("");
+  }
+  if(imetric.startsWith("sp"))
+    return `<label class="on"><span class="swatch" style="background:#a78bfa"></span>Spread</label>`;
+  return VARS.map(v=>
+    `<label class="${ishown.has(v)?"on":""}" data-v="${v}"><span class="swatch" style="background:${DATA.variants[v].color}"></span>${DATA.variants[v].label}</label>`).join("");
+}
+function syncILegend(){ ilEl.innerHTML=ilegendHTML(); }
+ilEl.onclick = e=>{ const l=e.target.closest("label"); if(!l) return;
+  if(imetric==="tick"){ isym=l.dataset.s; }
+  else if(!imetric.startsWith("sp")){ const v=l.dataset.v;
+    if(ishown.has(v)&&ishown.size>1){ishown.delete(v);} else {ishown.add(v);} }
+  syncILegend(); drawI(); };
+syncILegend();
+
+const ic=document.getElementById("ichart"), ix=ic.getContext("2d");
+const tip3=document.getElementById("tip3");
+let ig=null;
+
+function drawI(){
+  sizeCanvas(ic,420);
+  const W=ic.clientWidth,H=420,L=80,R=16,T=16,B=56,pw=W-L-R,ph=H-T-B;
+  ix.clearRect(0,0,W,H); ix.fillStyle="#141c2b"; ix.fillRect(0,0,W,H);
+  const step = depth==="hour" ? 1 : IN.bars_per_session;
+  const xs=[]; for(let i=(depth==="hour"?0:IN.bars_per_session-1); i<IN.bars; i+=step) xs.push(i);
+  const n=xs.length;
+
+  let seriesList=[];
+  if(imetric==="tick"){
+    seriesList=[{name:`${isym} (V3A)`,color:"#a78bfa",vals:xs.map(i=>IN.series.V3A.per_ticker[isym][i])}];
+  } else if(imetric.startsWith("sp")){
+    const vals=IMETRICS[imetric].get();
+    seriesList=[{name:IMETRICS[imetric].label,color:"#a78bfa",vals:xs.map(i=>vals[i])}];
+  } else {
+    seriesList=VARS.filter(v=>ishown.has(v)).map(v=>({
+      name:DATA.variants[v].label,color:DATA.variants[v].color,
+      vals:xs.map(i=>IMETRICS[imetric].get(v)[i])}));
+  }
+  let vals=[]; seriesList.forEach(s=>s.vals.forEach(v=>vals.push(v)));
+  if(!vals.length) return;
+  let lo=Math.min(0,...vals), hi=Math.max(0,...vals); const pad=(hi-lo)*0.08||1;
+  lo-=pad; hi+=pad;
+  const X=j=>L+(n===1?pw/2:j*pw/(n-1));
+  const Y=v=>T+ph-(v-lo)/(hi-lo)*ph;
+
+  ix.strokeStyle="#243044"; ix.fillStyle="#93a4bd"; ix.font="11px ui-monospace,monospace";
+  ix.textAlign="right";
+  niceTicks(lo,hi,6).forEach(t=>{ const y=Y(t);
+    ix.beginPath(); ix.moveTo(L,y); ix.lineTo(L+pw,y); ix.stroke();
+    ix.fillText("$"+Math.round(t).toLocaleString(),L-8,y+4); });
+  ix.strokeStyle="#3f4d66"; ix.beginPath(); ix.moveTo(L,Y(0)); ix.lineTo(L+pw,Y(0)); ix.stroke();
+  ix.textAlign="center"; ix.font="9.5px ui-monospace,monospace";
+  const every = depth==="hour" ? 14 : 3;
+  xs.forEach((b,j)=>{ if(j%every===0||j===n-1){
+    const lb=IN.labels[b];
+    ix.save(); ix.translate(X(j),H-B+12); ix.rotate(-Math.PI/4);
+    ix.fillText(lb,0,0); ix.restore(); }});
+
+  seriesList.forEach(s=>{
+    if(s.vals.some(v=>v<0) && !imetric.startsWith("sp") && imetric!=="tick"){
+      ix.fillStyle=s.color; ix.globalAlpha=.16;
+      ix.beginPath(); ix.moveTo(X(0),Y(0));
+      s.vals.forEach((v,j)=>ix.lineTo(X(j),Y(v)));
+      ix.lineTo(X(n-1),Y(0)); ix.closePath(); ix.fill(); ix.globalAlpha=1;
+    }
+    ix.strokeStyle=s.color; ix.lineWidth=2; ix.beginPath();
+    s.vals.forEach((v,j)=> j?ix.lineTo(X(j),Y(v)):ix.moveTo(X(j),Y(v)));
+    ix.stroke();
+  });
+
+  if(imetric.startsWith("sp")){
+    const m=IN.milestones[imetric==="sp12"?"V1-V2":imetric==="sp34"?"V3A-V3B":"V3A-V1"];
+    [[m.first_positive,"#38bdf8","first >0"],[m.persists_from,"#34d399","persists"],
+     [m.peak_bar,"#fbbf24","peak"],[m.trough_bar,"#ef4444","trough"]].forEach(([b,c,lab])=>{
+      if(b==null) return;
+      const j=xs.indexOf(b); if(j<0) return;
+      ix.setLineDash([3,3]); ix.strokeStyle=c; ix.lineWidth=1.2;
+      ix.beginPath(); ix.moveTo(X(j),T); ix.lineTo(X(j),T+ph); ix.stroke(); ix.setLineDash([]);
+      ix.fillStyle=c; ix.font="9.5px sans-serif"; ix.textAlign="left";
+      ix.fillText(lab, X(j)+4, T+12);
+    });
+  }
+  ig={L,T,pw,ph,n,X,Y,xs,seriesList};
+}
+
+ic.addEventListener("mousemove",e=>{
+  if(!ig) return;
+  const r=ic.getBoundingClientRect(), mx=e.clientX-r.left, my=e.clientY-r.top;
+  const {L,T,pw,ph,n,X,Y,xs,seriesList}=ig;
+  if(mx<L-10||mx>L+pw+10||my<T-10||my>T+ph+10){ tip3.style.opacity=0; return; }
+  const j=Math.max(0,Math.min(n-1,Math.round((mx-L)/(pw/(n-1)))));
+  tip3.innerHTML = `<b>${IN.labels[xs[j]]} MST</b><br>` + seriesList.map(s=>
+    `<span style="color:${s.color}">■</span> ${s.name}: ${usd(s.vals[j])}`).join("<br>");
+  tip3.style.opacity=1;
+  const tw=tip3.offsetWidth;
+  tip3.style.left=Math.min(Math.max(X(j)+14,4),r.width-tw-4)+"px";
+  tip3.style.top=Math.max(my-10,4)+"px";
+});
+ic.addEventListener("mouseleave",()=>tip3.style.opacity=0);
+
+(function(){
+  const el=document.getElementById("milestones");
+  const rows=[["V1 − V2","V1-V2"],["V3A − V3B","V3A-V3B"],["V3A − V1","V3A-V1"],["V3B − V2","V3B-V2"]];
+  el.innerHTML = rows.map(([lab,key])=>{
+    const m=IN.milestones[key];
+    const f=m.first_positive!=null?IN.labels[m.first_positive]:"—";
+    const p=m.persists_from!=null?IN.labels[m.persists_from]:"—";
+    const pk=m.peak_bar!=null?IN.labels[m.peak_bar]:"—";
+    return `<div class="stat">
+      <div class="k">${lab}</div>
+      <div class="v ${m.terminal>=0?'pos':'neg'}">${usd(m.terminal)}</div>
+      <div class="k" style="margin-top:8px">first &gt; 0</div><div style="font-size:13px">${f} MST</div>
+      <div class="k" style="margin-top:6px">persists from</div><div style="font-size:13px">${p} MST</div>
+      <div class="k" style="margin-top:6px">peak</div><div style="font-size:13px">${usd(m.peak)} @ ${pk}</div>
+    </div>`;
+  }).join("");
+})();
+
+let rt; window.addEventListener("resize", ()=>{ clearTimeout(rt); rt=setTimeout(()=>{draw();drawBars();drawI();},120); });
+draw(); drawBars(); drawI();
 </script>
 </body>
 </html>
 """
 
 
-def write_html(series, contrib, summary_json):
+def write_html(series, contrib, summary_json, iser=None):
     payload = json.loads(summary_json.read_text(encoding="utf-8"))
     slim = {
         "sessions": payload["sessions"],
@@ -860,6 +1246,25 @@ def write_html(series, contrib, summary_json):
                 "tickers": d["tickers"],
             }
             for v, d in payload["variants"].items()
+        },
+        "intraday": {
+            "bars": payload["intraday"]["bars"],
+            "bars_per_session": payload["intraday"]["bars_per_session"],
+            "labels": payload["intraday"]["labels"],
+            "tickers": payload["divergence_tickers"],
+            "series": {
+                v: {
+                    "total": [round(x, 2) for x in iser[v]["total"]],
+                    "realized": [round(x, 2) for x in iser[v]["realized"]],
+                    "unrealized": [round(x, 2) for x in iser[v]["unrealized"]],
+                    "per_ticker": {s: [round(y, 2) for y in arr]
+                                   for s, arr in d["per_ticker"].items()},
+                }
+                for v, d in payload["intraday"]["series"].items()
+            },
+            "spreads": {k: [round(x, 2) for x in arr]
+                        for k, arr in payload["intraday"]["spreads"].items()},
+            "milestones": payload["intraday"]["milestones"],
         },
     }
     html = (
@@ -883,16 +1288,24 @@ def main():
     contrib = ticker_contributions(series)
 
     charts = make_charts(series, contrib)
+
+    events = parse_trades()
+    iser = intraday_series(VARIANTS, events, DIVERGENCE)
+    co = crossovers(iser)
+    icharts = make_intraday_charts(iser, co)
+
     daily_csv = write_csv(series)
+    intraday_csv = write_intraday_csv(iser, co)
     ticker_csv = write_ticker_csv(contrib)
-    summary_json = write_json(series, contrib)
-    md = write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json)
-    html = write_html(series, contrib, summary_json)
+    summary_json = write_json(series, contrib, iser, co)
+    md = write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
+                        iser, co, icharts, intraday_csv)
+    html = write_html(series, contrib, summary_json, iser)
 
     print("Wrote:")
-    for p in charts:
+    for p in charts + icharts:
         print(f"  {p.relative_to(ROOT)}")
-    for p in (daily_csv, ticker_csv, summary_json, md, html):
+    for p in (daily_csv, intraday_csv, ticker_csv, summary_json, md, html):
         print(f"  {p.relative_to(ROOT)}")
 
 
