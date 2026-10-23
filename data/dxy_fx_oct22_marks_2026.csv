@@ -1,4 +1,4 @@
 symbol,mark_date,close,quote_units,source
-DXY,2026-10-22,101.616,index points,User-provided historical close
+DXY,2026-10-22,102.22,index points,User-provided daily close CSV; supersedes earlier 101.616 mark
 EURUSD,2026-10-22,1.12169,USD per EUR,User-provided historical close
 JPYUSD,2026-10-22,0.006376,USD per JPY,User-provided historical close
