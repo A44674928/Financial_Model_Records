@@ -1,4 +1,9 @@
-"""Build a one-minute, high-signal INTC entry-window close-up."""
+"""Legacy audit utility for the one-minute INTC entry-window comparison.
+
+The active model uses the chart-posting price recorded in the trade log. This
+module is not called by the current report builder; its minute series is retained
+for audit context and must not be treated as a replacement fill or slippage proof.
+"""
 
 import csv
 from datetime import datetime, timezone
@@ -94,7 +99,7 @@ def write_minute_closeup():
     price_ax.scatter([0], [close[0]], s=26, color="#fbbf24", zorder=5)
     price_ax.annotate(
         f"first minute close ${close[0]:.2f}\n"
-        f"log entry ${LOGGED_ENTRY_PRICE:.2f} (off-scale)",
+        f"logged entry ref ~${LOGGED_ENTRY_PRICE:.2f} (off-scale)",
         xy=(0, close[0]), xytext=(26, 12), textcoords="offset points",
         color=fg, fontsize=9,
         arrowprops={"arrowstyle": "->", "color": muted, "lw": 0.8},
@@ -116,7 +121,7 @@ def write_minute_closeup():
                     label=VARIANT_LABEL[v])
     pnl_ax.axvline(0, color="#38bdf8", ls=":", lw=1.5, alpha=0.9)
     pnl_ax.axhline(0, color=muted, ls="--", lw=0.8, alpha=0.65)
-    pnl_ax.text(0.012, 0.97, "SHORT logged at 10:00 · $115.11 · 1 unit",
+    pnl_ax.text(0.012, 0.97, "SHORT logged at 10:00 · ~$115.11 · 1 unit",
                 transform=pnl_ax.transAxes, va="top", color="#38bdf8",
                 fontsize=9, fontweight="bold")
     pnl_ax.set_ylabel("INTC cumulative PnL (USD)", color=muted)
@@ -134,10 +139,11 @@ def write_minute_closeup():
 
     gap = close[0] - LOGGED_ENTRY_PRICE
     pct_gap = 100 * gap / LOGGED_ENTRY_PRICE
-    fig.text(0.125, 0.015,
-             f"First Yahoo minute close: ${close[0]:.2f} vs logged fill ${LOGGED_ENTRY_PRICE:.2f} "
-             f"(+${gap:.2f} / {pct_gap:.1f}%). PnL follows the logged fill, not a repriced fill.",
-             color=muted, fontsize=9)
+    fig.text(0.095, 0.015,
+             f"First retained Yahoo minute close: ${close[0]:.2f} vs logged entry reference ~${LOGGED_ENTRY_PRICE:.2f} "
+             f"(+${gap:.2f} / {pct_gap:.1f}%). Log date is approximate from chart axis; this is not verified slippage. "
+             "Model PnL uses the recorded entry reference.",
+             color=muted, fontsize=8.5)
     fig.subplots_adjust(left=0.09, right=0.98, top=0.92, bottom=0.11)
     image = CHARTS_DIR / "13-minute-intc-hazard-flip.png"
     fig.savefig(image, dpi=160, facecolor=bg, bbox_inches="tight")
@@ -152,16 +158,17 @@ def inject_minute_section(md_path, html_path, image_path, csv_path, rows, result
     pct_gap = 100 * gap / LOGGED_ENTRY_PRICE
     out = (
         "## 1-Minute Close-Up — INTC Hazard-Flip Window\n\n"
-        f"A focused **60-bar, one-minute** view around the Sep 24 `10:00 MST` INTC short. "
-        "This is a zoom into one high-signal hour, not a replacement for the 35-session "
+        f"A focused **60-bar, one-minute** view around the logged Sep 24 `10:00 MST` INTC short "
+        "(the trade-log note says the date is approximate from the chart axis). This is a zoom into one high-signal hour, not a replacement for the 35-session "
         "hourly sub-book. The lower panel carries INTC-only cumulative realized + open PnL "
         "for each model; V1/V2 and V3A/V3B overlap here because their SAR paths have not "
         "yet diverged on this date.\n\n"
         f"![INTC one-minute hazard-flip close-up]({image_path.relative_to(ROOT).as_posix()})\n\n"
-        f"**Data-quality flag:** Yahoo's first close after the logged event is **${first:.2f}** "
-        f"at `10:01 MST`, while the trade log records **${LOGGED_ENTRY_PRICE:.2f}** "
-        f"(a **${gap:.2f} / {pct_gap:.1f}%** difference). The PnL panel preserves the "
-        "book's logged entry price; it does not silently reprice or correct the trade. "
+        f"**Timing/source caveat:** the trade-log note says the event date is approximate from the chart axis; "
+        "this is a diagnostic comparison at the logged `10:00 MST` reference, not a verified execution or slippage measurement. "
+        f"The first retained Yahoo one-minute close is **${first:.2f}** at `10:01 MST`, versus the logged entry reference "
+        f"**~${LOGGED_ENTRY_PRICE:.2f}** (a **${gap:.2f} / {pct_gap:.1f}%** difference). The replay's PnL still uses "
+        "the recorded entry price; it does not silently reprice or correct the trade. "
         f"Minute series: [`{csv_path.name}`](data/{csv_path.name}) (60 rows).\n\n"
     )
     md = md_path.read_text(encoding="utf-8")
@@ -183,8 +190,9 @@ def inject_minute_section(md_path, html_path, image_path, csv_path, rows, result
         card_id + "\n"
         "    <h2>1-minute close-up — INTC hazard-flip window</h2>\n"
         "    <p class=\"hint\">Sep 24, 2026 · 10:00–11:00 MST · 60 one-minute bars. "
-        f"First observed close ${first:.2f} vs logged entry ${LOGGED_ENTRY_PRICE:.2f} "
-        f"(+${gap:.2f}, {pct_gap:.1f}%). The PnL follows the logged entry price.</p>\n"
+        f"First retained Yahoo close ${first:.2f} at 10:01 vs logged entry reference ~${LOGGED_ENTRY_PRICE:.2f} "
+        f"(+${gap:.2f}, {pct_gap:.1f}%). The trade-log note says the event date is approximate from the chart axis; "
+        "treat this as a diagnostic discrepancy, not verified slippage. PnL uses the recorded entry reference.</p>\n"
         f"    <a href=\"{image_path.relative_to(ROOT).as_posix()}\"><img "
         f"src=\"{image_path.relative_to(ROOT).as_posix()}\" alt=\"INTC one-minute close-up\" "
         "style=\"width:100%;height:auto;border-radius:8px\"></a>\n"

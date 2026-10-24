@@ -284,14 +284,6 @@ The percentage-gain view plots all **32 series**: the same 16 Core × 1U pairing
 
 ![All 32 Core × 1U variant pairings with and without oil, shown as deployed-notional percentage gain](Charts/performance/22-force-variant-oil-percent-gain.png)
 
-## 1-Minute Close-Up — INTC Hazard-Flip Window
-
-A focused **60-bar, one-minute** view around the Sep 24 `10:00 MST` INTC short. This is a zoom into one high-signal hour, not a replacement for the 35-session hourly sub-book. The lower panel carries INTC-only cumulative realized + open PnL for each model; V1/V2 and V3A/V3B overlap here because their SAR paths have not yet diverged on this date.
-
-![INTC one-minute hazard-flip close-up](Charts/performance/13-minute-intc-hazard-flip.png)
-
-**Data-quality flag:** Yahoo's first close after the logged event is **$125.59** at `10:01 MST`, while the trade log records **$115.11** (a **$10.48 / 9.1%** difference). The PnL panel preserves the book's logged entry price; it does not silently reprice or correct the trade. Minute series: [`model_performance_minute_intc.csv`](data/model_performance_minute_intc.csv) (60 rows).
-
 ## Method & Caveats
 
 - **Model coverage:** the four variants directly price the `33` symbols with configured daily market series. `88` price-covered events dated on or before the Oct. 23 mark are replayed; `0` price-covered events after the mark are excluded from this current daily replay. `7` DXY, EURUSD, JPYUSD, US10Y and US30Y log events are not replayed as standalone price positions. The two US10Y events establish yield-adjustment context; this report's additive carry is retained only as a legacy reference. Whole-account US10Y and compounded US30Y multiplier scenarios are in the DXY snapshot and linked explorer. DXY/FX/US30Y positions remain outside the four direct-price variants and require their own quote/valuation treatment.
@@ -301,7 +293,7 @@ A focused **60-bar, one-minute** view around the Sep 24 `10:00 MST` INTC short. 
 - **`XRH0`** (db Physical Rhodium ETC, LSE) is too illiquid for a usable daily history, so it remains at the `$790.00` log-entry mark through Oct. 22; the user-corrected Oct. 23 endpoint is `$785.00`. No interim daily prices are invented.
 - **Oct. 22 historical marks** remain pinned to the verified settlement set from [`Trades Zip PnL.md`](Trades%20Zip%20PnL.md); the Oct. 23 endpoint uses the user-supplied EOD file above. The Oct. 23 ORCL and LCID entries are now included at that date's close. The master PnL report remains unrecalculated and unreconciled; do not interpret this model replay as a refresh of its totals.
 - **ROI** is cumulative PnL divided by notional deployed *to date* (units opened on or before that session × 1U standard notional), so early sessions show larger percentages on less capital.
-- Entry fills use the log's own market prices, not session closes; exits are realised on their log date.
+- Entry fills use the chart-posting prices recorded in the trade log, not later minute or session closes; the Sep. 24 INTC short uses the chart-posting price `$115.11`. Exits are realised on their log date.
 - Excludes commissions, borrow fees, and overnight financing.
 
 ---
