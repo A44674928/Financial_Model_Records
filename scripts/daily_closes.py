@@ -2,7 +2,8 @@
 """Daily closing prices for the *Fall (Arizona) [2026]* paper-trade book.
 
 Historical Yahoo Finance daily series through 2026-10-22, extended by the
-user-supplied Yahoo Finance close set in `data/eod_closes_20261023.csv`.
+user-supplied consolidated EOD close set in `data/consolidated_portfolio_closes_v2.csv`.
+Its Source column preserves Yahoo Finance marks, explicit energy overrides, and system constraints.
 Equity/ETF session timestamps (MST regular-session open, UTC-07:00) are the
 union calendar; futures (BZ=F Brent, CL=F WTI) and crypto (BTC-USD, ETH-USD)
 are mapped onto the same session index by trade date. BZ=F/CL=F remain historical
@@ -227,10 +228,11 @@ import csv as _csv
 from datetime import datetime as _datetime, timezone as _timezone
 from pathlib import Path as _Path
 
-OCT23_EOD_FILE = _Path(__file__).resolve().parents[1] / "data" / "eod_closes_20261023.csv"
+OCT23_EOD_FILE = _Path(__file__).resolve().parents[1] / "data" / "consolidated_portfolio_closes_v2.csv"
 OCT23_EOD_DATE = "2026-10-23"
 _OCT23_EQUITY_OPEN_UTC = 1792762200  # 06:30 MST / 13:30 UTC
 _OCT23_MARKS = {}
+OCT23_EOD_SOURCES = {}
 with OCT23_EOD_FILE.open(newline="", encoding="utf-8") as _fh:
     _reader = _csv.DictReader(_fh)
     _required = {"Date", "Ticker", "EOD_Close", "Source"}
@@ -243,9 +245,13 @@ with OCT23_EOD_FILE.open(newline="", encoding="utf-8") as _fh:
         if _sym in _OCT23_MARKS:
             raise ValueError(f"Duplicate Oct 23 EOD close for {_sym}")
         _close = float(_row["EOD_Close"].strip())
+        _source = _row["Source"].strip()
         if _close <= 0:
             raise ValueError(f"Nonpositive Oct 23 EOD close for {_sym}")
+        if not _source:
+            raise ValueError(f"Blank source label for {_sym} in {OCT23_EOD_FILE.name}")
         _OCT23_MARKS[_sym] = _close
+        OCT23_EOD_SOURCES[_sym] = _source
 
 _EXPECTED_EOD_SYMBOLS = set(CLOSES) | {"BTC", "ETH", "LCID"}
 _MISSING_EOD_SYMBOLS = sorted(_EXPECTED_EOD_SYMBOLS - _OCT23_MARKS.keys())

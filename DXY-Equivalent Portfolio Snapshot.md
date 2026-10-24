@@ -10,10 +10,10 @@ The new first chart compares each variant's cumulative total PnL in dollars with
 
 | Variant | Capital basis | Open unrealized PnL (USD) | Realized PnL (USD) | US10Y carry | Total PnL (USD) | USD return | DXY-equivalent account value (index units) | DXY-numeraire return |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| **Variant 1 — 1u Open** | $830,000 | $+27,266.13 | $+25,561.44 | $+160.90 | $+52,988.47 | +5.970% | 8,614.58 DXY-eq units | +2.700% |
-| **Variant 2 — 1u SAR** | $830,000 | $+18,598.80 | $+31,385.57 | $+160.90 | $+50,145.27 | +5.627% | 8,586.73 DXY-eq units | +2.368% |
-| **Variant 3A — Nu Open** | $920,000 | $+48,549.62 | $+25,561.44 | $+184.13 | $+74,295.19 | +7.702% | 9,704.75 DXY-eq units | +4.379% |
-| **Variant 3B — Nu SAR** | $920,000 | $+18,598.80 | $+42,552.27 | $+184.13 | $+61,335.21 | +6.293% | 9,577.82 DXY-eq units | +3.014% |
+| **Variant 1 — 1u Open** | $830,000 | $+149,821.21 | $+25,561.44 | $+160.90 | $+175,543.54 | +20.735% | 9,814.92 DXY-eq units | +17.010% |
+| **Variant 2 — 1u SAR** | $830,000 | $+119,279.75 | $+31,385.57 | $+160.90 | $+150,826.23 | +17.757% | 9,572.83 DXY-eq units | +14.124% |
+| **Variant 3A — Nu Open** | $920,000 | $+194,024.55 | $+25,561.44 | $+184.13 | $+219,770.12 | +23.514% | 11,129.58 DXY-eq units | +19.703% |
+| **Variant 3B — Nu SAR** | $920,000 | $+119,279.75 | $+42,552.27 | $+184.13 | $+162,016.16 | +17.237% | 10,563.92 DXY-eq units | +13.620% |
 
 ## DXY and FX Basis
 

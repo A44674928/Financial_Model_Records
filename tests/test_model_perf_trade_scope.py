@@ -27,16 +27,27 @@ class ModelTradeScopeTests(unittest.TestCase):
         import csv
 
         root = Path(__file__).resolve().parents[1]
-        with (root / "data/eod_closes_20261023.csv").open(newline="", encoding="utf-8") as fh:
+        with (root / "data/consolidated_portfolio_closes_v2.csv").open(newline="", encoding="utf-8") as fh:
             rows = list(csv.DictReader(fh))
         marks = {row["Ticker"]: float(row["EOD_Close"]) for row in rows if row["Date"] == "2026-10-23"}
+        sources = {row["Ticker"]: row["Source"] for row in rows if row["Date"] == "2026-10-23"}
         self.assertEqual(set(PRICES), set(marks) - {"US10Y", "US30Y"})
         self.assertEqual(PRICES["AAPL"][-1], marks["AAPL"])
         self.assertEqual(PRICES["BTC"][-1], marks["BTC"])
         self.assertEqual(PRICES["LCID"][-1], marks["LCID"])
-        self.assertEqual(PRICES["ORCL"][-1], 126.16)
-        self.assertEqual(PRICES["BRENT"][-1], 113.81)
-        self.assertEqual(PRICES["OIL"][-1], 97.53)
+        self.assertEqual(PRICES["ORCL"][-1], 175.4)
+        self.assertEqual(PRICES["BRENT"][-1], 117.345)
+        self.assertEqual(PRICES["OIL"][-1], 103.45)
+        self.assertEqual(marks["US10Y"], 4.986)
+        self.assertEqual(marks["US30Y"], 5.43)
+        self.assertEqual(sources["BRENT"], "BlackBull Markets (Override)")
+        self.assertEqual(sources["OIL"], "TradingView TVC:USOIL (Override)")
+        self.assertEqual(sources["LCID"], "System Constraint")
+        with (root / "data/eod_close_reconciliation_20261023.csv").open(newline="", encoding="utf-8") as fh:
+            audit = list(csv.DictReader(fh))
+        self.assertEqual(len(audit), 35)
+        self.assertEqual(sum(row["Status"] == "price_changed" for row in audit), 26)
+        self.assertEqual(sum(row["Status"] == "source_only" for row in audit), 2)
 
     def test_chart_reconciled_positions_are_in_model_replay(self):
         events = parse_trades()
@@ -79,7 +90,7 @@ class ModelTradeScopeTests(unittest.TestCase):
         oct22 = SESSION_DATES.index("2026-10-22")
         oct23 = SESSION_DATES.index("2026-10-23")
         self.assertEqual(PRICES["ORCL"][oct22], 125.54)
-        self.assertEqual(PRICES["ORCL"][oct23], 126.16)
+        self.assertEqual(PRICES["ORCL"][oct23], 175.4)
         for variant in VARIANTS:
             lots, _ = build_lots(variant, events)
             orcl_lot = next(
@@ -140,6 +151,8 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertIn("`33` price-covered symbols", text)
         self.assertIn("DXY, EURUSD, JPYUSD, US10Y and US30Y", text)
         self.assertIn("US10Y Baseline Adjustment", text)
+        self.assertIn("consolidated_portfolio_closes_v2.csv", text)
+        self.assertIn("Twenty-six prices changed and two source labels changed", text)
         self.assertIn("master PnL report remains", text)
         self.assertIn("unrecalculated and unreconciled", text)
 

@@ -18,7 +18,7 @@ This repository contains the Fall (Arizona) 2026 paper-trading ledger, model ana
 - `Charts/` — original and labeled chart images, plus generated performance charts.
 - `Archive/` — source screenshot archives and duplicate captures.
 - `reports/` — historical standalone reports, including the 2024 trade report.
-- `data/` — user-provided input series, audit tables, and generated model exports, including the Oct. 23 EOD close set [`eod_closes_20261023.csv`](data/eod_closes_20261023.csv). The chart-price transcription input is [`current_price_points.csv`](data/current_price_points.csv).
+- `data/` — user-provided input series, audit tables, and generated model exports. The active Oct. 23 close set is [`consolidated_portfolio_closes_v2.csv`](data/consolidated_portfolio_closes_v2.csv); its comparison against the preserved v1 set is [`eod_close_reconciliation_20261023.csv`](data/eod_close_reconciliation_20261023.csv). The chart-price transcription input is [`current_price_points.csv`](data/current_price_points.csv).
 - `scripts/` — model engines, report builders, and chart-label tooling.
 - `tests/` — regression tests for the ledgers, marks, model calculations, and generated outputs.
 - `research/` — topical research reports and working notes, grouped by subject.

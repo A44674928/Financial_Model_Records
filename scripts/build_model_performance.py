@@ -341,8 +341,9 @@ def make_energy_overlay_chart(rows):
         for bars, values, is_pnl in ((old, historical, title == "Open-position PnL"),
                                      (new, live, title == "Open-position PnL")):
             for bar, value in zip(bars, values):
+                price_label = f"${value:,.3f}".rstrip("0").rstrip(".")
                 label = (f"{'+' if value >= 0 else '−'}${abs(value):,.2f}" if is_pnl
-                         else f"${value:,.2f}")
+                         else price_label)
                 ax.annotate(label, (bar.get_x() + bar.get_width() / 2, bar.get_height()),
                             xytext=(0, 4), textcoords="offset points", ha="center",
                             va="bottom", color=FG, fontsize=8)
@@ -350,8 +351,8 @@ def make_energy_overlay_chart(rows):
     fig.suptitle("Energy EOD Close and Approximate Quote Comparison",
                  color=FG, fontsize=14, fontweight="bold", y=0.98)
     fig.text(0.5, 0.015,
-             "Oct 23 EOD closes use the supplied Yahoo Finance CSV; approximate user quotes remain separate. "
-             "The exact EOD prices are in daily totals; do not mix the approximate quotes into those totals.",
+             "Oct 23 EOD closes use consolidated v2; BRENT and OIL carry the listed BlackBull/TradingView overrides. "
+             "Approximate user quotes remain separate from model totals.",
              ha="center", color=MUTED, fontsize=8)
     fig.tight_layout(rect=(0, 0.06, 1, 0.92))
     path = CHARTS_DIR / "14-energy-live-mark-overlay.png"
@@ -699,9 +700,10 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     if energy_chart is not None:
         A("## Energy EOD Marks and Separate Approximate Quotes")
         A("")
-        A("> The Oct 23 EOD closes ($113.81 BRENT / $97.53 OIL) from the supplied Yahoo Finance CSV are included in the daily model totals above. "
-          "This comparison keeps the separate approximate user quotes ($115.72 / $100.94; provider/time unspecified) out of those totals. "
-          "Historical series use BZ=F and CL=F futures proxies, not guaranteed cash/CFD matches.")
+        A("> The Oct 23 EOD closes ($117.345 BRENT / $103.45 OIL) from `consolidated_portfolio_closes_v2.csv` are included in daily model totals. "
+          "BRENT uses the BlackBull Markets override and OIL uses the TradingView TVC:USOIL override. "
+          "Separate approximate user quotes ($115.72 / $100.94; provider/time unspecified) remain outside those totals. "
+          "Earlier history uses BZ=F and CL=F futures proxies, not guaranteed cash/CFD matches.")
         A("")
         A(f"![Separate energy mark and PnL comparison]({energy_chart.relative_to(ROOT).as_posix()})")
         A("")
@@ -912,17 +914,16 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"events establish the yield-adjustment context; its separate daily rate series applies the "
       f"baseline carry to the portfolio. DXY/FX/US30Y positions remain outside the four direct-price "
       f"variants and require their own quote/valuation treatment.")
-    A(f"- **Price source:** Yahoo Finance `v8/finance/chart` `interval=1d` for `{symbol_count - 1}` symbols "
-      f"(`BRENT = BZ=F` Brent futures proxy, `OIL = CL=F` WTI futures proxy, "
-      "`BTC = BTC-USD`, `ETH = ETH-USD`); pulled "
-      f"{datetime.now(MST).strftime('%Y-%m-%d')}. LCID uses the separate user-provided daily marks in "
-      "[`data/lcid_small_caps_pilot_daily_marks.csv`](data/lcid_small_caps_pilot_daily_marks.csv). "
-      "`BZ=F`/`CL=F` are not exact matches for the trade metadata's Brent Cash / ICE Brent and "
-      "`TVC:USOIL` WTI CFD instruments.")
-    A("- **Oct. 23 EOD source:** the supplied close set in "
-      "[`data/eod_closes_20261023.csv`](data/eod_closes_20261023.csv) (Source column: Yahoo Finance) covers all 33 configured symbols. "
-      "LCID continues to use its separate pilot mark series, whose Oct. 23 value ($3.55) matches that EOD file. "
-      "The historical Oct. 22 equity recheck remains separately auditable in "
+    A("- **Price source:** historical daily series through Oct. 22 use the configured Yahoo Finance histories "
+      "(`BRENT = BZ=F`, `OIL = CL=F`, `BTC = BTC-USD`, `ETH = ETH-USD`); the Oct. 23 endpoint uses the "
+      "user-supplied consolidated file's per-ticker `Source` labels. LCID retains its separate pilot mark series, "
+      "which matches the consolidated file at $3.55. `BZ=F`/`CL=F` remain historical proxies, not exact matches "
+      "for the logged Brent Cash / ICE Brent and `TVC:USOIL` instruments.")
+    A("- **Oct. 23 price reconciliation:** `data/consolidated_portfolio_closes_v2.csv` is the active close set; "
+      "[`data/eod_close_reconciliation_20261023.csv`](data/eod_close_reconciliation_20261023.csv) compares it to "
+      "the preserved v1 source and records close/source changes. Twenty-six prices changed and two source labels "
+      "changed with the same value. The prior file is preserved as "
+      "[`data/eod_closes_20261023_v1.csv`](data/eod_closes_20261023_v1.csv). Historical Oct. 22 equity checks remain in "
       "[`data/oct22_equity_eod_recheck.csv`](data/oct22_equity_eod_recheck.csv).")
     A("- **Approximate energy quotes (separate overlay):** their open-lot calculations versus the exact EOD marks are in "
       "[`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv). They remain excluded from model totals.")
