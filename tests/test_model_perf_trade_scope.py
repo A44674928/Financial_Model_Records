@@ -231,6 +231,8 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertIn("active_price_source_registry_v2.csv", text)
         self.assertIn("Oil Desk EOD Accumulation Hypothetical.md", text)
         self.assertIn("$10,000 (1-unit) force-multiplier variant", text)
+        self.assertIn("Model Calculation Guide.md", text)
+        self.assertIn("84.5u ($845,000)", text)
         self.assertIn("master PnL report remains", text)
         self.assertIn("unrecalculated and unreconciled", text)
 

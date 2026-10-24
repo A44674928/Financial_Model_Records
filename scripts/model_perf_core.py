@@ -3,8 +3,8 @@
 
 Four model variants are compared over the *Fall (Arizona) [2026]* book:
 
-  V1  1u Open  - every log line is 1 unit ($10,000); positions stay open.
-  V2  1u SAR   - 1 unit; a LONG / REBUY stops-and-reverses open shorts.
+  V1  1u Open  - logged entry units at $10,000 each; no LONG-triggered short cover.
+  V2  1u SAR   - same logged sizing; LONG / REBUY closes open shorts.
   V3A Nu Open  - natural units (compounded shorts sized to the preceding
                  full exit); positions stay open.
   V3B Nu SAR   - natural units, plus stop-and-reverse on LONG / REBUY.

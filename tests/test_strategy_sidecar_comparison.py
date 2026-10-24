@@ -71,6 +71,7 @@ class StrategySidecarComparisonTests(unittest.TestCase):
         report = Path(__file__).resolve().parents[1] / "Strategy and Sidecar Comparison.md"
         report_text = report.read_text(encoding="utf-8")
         self.assertIn("Force multiplier ($10,000/EOD)", report_text)
+        self.assertIn("Model Calculation Guide.md", report_text)
         self.assertIn("force_multiplier_eod_positions_v1.csv", report_text)
         self.assertIn("Force multiplier — $10,000 / 1 unit per EOD", report_text)
         audit_path = Path(__file__).resolve().parents[1] / "data" / "force_multiplier_eod_positions_v1.csv"

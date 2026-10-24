@@ -7,15 +7,16 @@ Day-by-day (and, where market data supports it, intraday) comparison of the four
 > **Small Caps pilot:** **[`Small Caps [Buyout & Reorganization Offering Test Pilot].md`](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md)** tracks the five LCID entries; all five are included in the Oct. 23 four-model comparison.
 > **Oil desk hypothetical:** **[`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md)** shows 10 new $10,000 long units per supplied EOD session for each exact energy benchmark, separately and combined with the chart-opened energy positions.
 > **Strategy and sidecar comparison:** **[`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md)** compares the existing variants, fixed-$500/EOD exponential model, $10,000 (1-unit) force-multiplier variant, oil-desk daily buys, and their additive composites.
+> **How the models work:** **[`Model Calculation Guide.md`](Model%20Calculation%20Guide.md)** explains unit sizing, day-by-day lot handling, close/reversal behavior, and PnL formulas.
 
 ## The Four Models
 
 | Model | Rule | Units deployed | Realized | Unrealized | Base PnL | Legacy additive US10Y carry (reference) | **Legacy adjusted PnL** | **Legacy adjusted ROI** |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
-| **Variant 1 — 1u Open** | every line is 1 unit; positions stay open | 84u ($845,000) | $25,561.44 | $74,038.24 | $99,599.67 | $160.90 | **$99,760.58** | **11.81%** |
-| **Variant 2 — 1u SAR** | every line is 1 unit; LONG/REBUY stops-and-reverses open shorts | 84u ($845,000) | $31,385.57 | $43,496.78 | $74,882.36 | $160.90 | **$75,043.26** | **8.88%** |
-| **Variant 3A — Nu Open** | compounded shorts sized to the preceding full exit; positions stay open | 94u ($935,000) | $25,561.44 | $118,241.58 | $143,803.02 | $184.13 | **$143,987.15** | **15.40%** |
-| **Variant 3B — Nu SAR** | compounded shorts *and* stop-and-reverse | 94u ($935,000) | $42,552.27 | $43,496.78 | $86,049.06 | $184.13 | **$86,233.19** | **9.22%** |
+| **Variant 1 — 1u Open** | logged entry sizes at $10,000/unit; explicit exits close longs | 84.5u ($845,000) | $25,561.44 | $74,038.24 | $99,599.67 | $160.90 | **$99,760.58** | **11.81%** |
+| **Variant 2 — 1u SAR** | V1 sizing plus LONG/REBUY closes open shorts | 84.5u ($845,000) | $31,385.57 | $43,496.78 | $74,882.36 | $160.90 | **$75,043.26** | **8.88%** |
+| **Variant 3A — Nu Open** | V1 behavior; qualifying compounded shorts use preceding full-exit units | 93.5u ($935,000) | $25,561.44 | $118,241.58 | $143,803.02 | $184.13 | **$143,987.15** | **15.40%** |
+| **Variant 3B — Nu SAR** | V2 behavior plus qualifying compounded shorts | 93.5u ($935,000) | $42,552.27 | $43,496.78 | $86,049.06 | $184.13 | **$86,233.19** | **9.22%** |
 
 ## Oct. 23 Endpoint Price Corrections Applied
 

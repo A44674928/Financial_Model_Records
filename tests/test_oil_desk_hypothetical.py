@@ -29,6 +29,8 @@ class OilDeskHypotheticalTests(unittest.TestCase):
         self.assertEqual(terminal["OIL"]["combined_energy_unrealized_pnl_usd"], "281961.62")
         first = next(row for row in rows if row["ticker"] == "OIL")
         self.assertEqual(first["daily_buys_unrealized_pnl_usd"], "0.00")
+        report = Path(__file__).resolve().parents[1] / "Oil Desk EOD Accumulation Hypothetical.md"
+        self.assertIn("Model Calculation Guide.md", report.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

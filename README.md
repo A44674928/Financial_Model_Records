@@ -6,6 +6,7 @@ This repository contains the Fall (Arizona) 2026 paper-trading ledger, model ana
 
 - [Model Performance Comparison](Model%20Performance%20Comparison.md) — four-model daily and intraday comparison.
 - [Model Performance Explorer](Model%20Performance%20Explorer.html) — interactive view of model results.
+- [Model Calculation Guide](Model%20Calculation%20Guide.md) — plain-language unit sizing, daily position handling, reversal logic, and PnL formulas.
 - [Trades Zip PnL](Trades%20Zip%20PnL.md) — master historical PnL report; see its scope note for reconciliation status.
 - [Whole-Portfolio DXY Snapshot](DXY-Equivalent%20Portfolio%20Snapshot.md) — USD and DXY-numeraire comparison.
 - [Small Caps pilot](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md) — LCID Buyout & Reorganization Offering test basket.

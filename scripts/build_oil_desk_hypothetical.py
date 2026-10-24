@@ -158,6 +158,8 @@ def write_report(rows=None):
         "",
         "A separate sidecar model layered on top of the existing chart-opened Brent and TVC:USOIL positions. It does not alter the four core strategy definitions or their DXY/yield account bases.",
         "",
+        "For the daily position and PnL methodology across all variants and sidecars, see [`Model Calculation Guide.md`](Model%20Calculation%20Guide.md).",
+        "",
         "## Assumptions",
         "",
         f"- Buy **{DAILY_UNITS} units ($10,000 per unit; $100,000 notional)** in each instrument at every supplied EOD session.",

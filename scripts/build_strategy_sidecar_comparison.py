@@ -363,6 +363,8 @@ def write_report(rows):
         "",
         "![Core models, both direction-following model sizes, and sidecar combinations](Charts/performance/20-strategy-sidecar-comparison.png)",
         "",
+        "Calculation detail for the core variants and daily lot rules: [`Model Calculation Guide.md`](Model%20Calculation%20Guide.md).",
+        "",
         "## Model rules and combination math",
         "",
         "- **Core variants:** existing V1, V2, V3A, and V3B model replays from the main comparison.",

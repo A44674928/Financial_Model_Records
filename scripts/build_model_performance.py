@@ -663,6 +663,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("> **Small Caps pilot:** **[`Small Caps [Buyout & Reorganization Offering Test Pilot].md`](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md)** tracks the five LCID entries; all five are included in the Oct. 23 four-model comparison.")
     A("> **Oil desk hypothetical:** **[`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md)** shows 10 new $10,000 long units per supplied EOD session for each exact energy benchmark, separately and combined with the chart-opened energy positions.")
     A("> **Strategy and sidecar comparison:** **[`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md)** compares the existing variants, fixed-$500/EOD exponential model, $10,000 (1-unit) force-multiplier variant, oil-desk daily buys, and their additive composites.")
+    A("> **How the models work:** **[`Model Calculation Guide.md`](Model%20Calculation%20Guide.md)** explains unit sizing, day-by-day lot handling, close/reversal behavior, and PnL formulas.")
     A("")
     A("## The Four Models")
     A("")
@@ -671,11 +672,11 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     for v in VARIANTS:
         s = series[v]
         A(f"| **{VARIANT_LABEL[v]}** | "
-          f"{'every line is 1 unit; positions stay open' if v == 'V1' else ''}"
-          f"{'every line is 1 unit; LONG/REBUY stops-and-reverses open shorts' if v == 'V2' else ''}"
-          f"{'compounded shorts sized to the preceding full exit; positions stay open' if v == 'V3A' else ''}"
-          f"{'compounded shorts *and* stop-and-reverse' if v == 'V3B' else ''} | "
-          f"{s['stats']['units']:.0f}u (${s['stats']['deployed']:,.0f}) | "
+          f"{'logged entry sizes at $10,000/unit; explicit exits close longs' if v == 'V1' else ''}"
+          f"{'V1 sizing plus LONG/REBUY closes open shorts' if v == 'V2' else ''}"
+          f"{'V1 behavior; qualifying compounded shorts use preceding full-exit units' if v == 'V3A' else ''}"
+          f"{'V2 behavior plus qualifying compounded shorts' if v == 'V3B' else ''} | "
+          f"{s['stats']['units']:.1f}u (${s['stats']['deployed']:,.0f}) | "
           f"{_money(s['realized'][last])} | {_money(s['unrealized'][last])} | "
           f"{_money(term[v])} | {_money(s['yield_adjustment'][last])} | "
           f"**{_money(s['adjusted_total'][last])}** | "
