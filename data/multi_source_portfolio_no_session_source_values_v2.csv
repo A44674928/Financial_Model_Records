@@ -1,0 +1,33 @@
+Date,Ticker,Removed_TradingView_Price,Removed_YahooFinance_Price,Removed_Custom_Override_Price,Removed_Source_Provided_Average,No_Session_Reason
+2026-09-07,AAPL,315.99,317.25,316.62,316.62,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,AMZN,225.36,226.26,225.81,225.81,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,CAT,292.05,293.23,292.64,292.64,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,CVX,137.39,137.95,137.67,137.67,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,DIS,85.97,86.31,86.14,86.14,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,GEV,156.66,157.28,156.97,156.97,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,HD,374.48,375.98,375.23,375.23,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,INTC,21.27,21.35,21.31,21.31,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,LCID,3.2,3.22,3.21,3.21,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,LLY,709.25,712.09,710.67,710.67,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,LMT,452.81,454.63,453.72,453.72,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,LULU,286.43,287.57,287.0,287.0,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,META,583.95,586.29,585.12,585.12,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,NET,89.42,89.78,89.6,89.6,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,NFLX,59.84,60.08,59.96,59.96,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,NVDA,191.7,192.46,192.08,192.08,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,ORCL,158.29,158.93,158.61,158.61,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,PEP,153.48,154.1,153.79,153.79,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,PLTR,39.25,39.41,39.33,39.33,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,RIVN,10.22,10.26,10.24,10.24,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,SPCX,98.5,98.9,98.7,98.7,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,TMO,490.89,492.85,491.87,491.87,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,TSLA,198.46,199.26,198.86,198.86,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,UPS,120.5,120.98,120.74,120.74,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,V,256.35,257.37,256.86,256.86,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,VLO,116.68,117.14,116.91,116.91,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,WMT,74.06,74.36,74.21,74.21,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,XLE,63.01,63.27,63.14,63.14,U.S. equity/ETF market closed for Labor Day; no regular-session close
+2026-09-07,US10Y,4.27,4.29,4.2827,4.2809,U.S. Treasury benchmark market holiday/no supplied close; no new close to record
+2026-10-12,US10Y,4.79,4.81,4.7998,4.7999,U.S. Treasury benchmark market holiday/no supplied close; no new close to record
+2026-09-07,US30Y,4.59,4.61,4.5979,4.5993,U.S. Treasury benchmark market holiday/no supplied close; no new close to record
+2026-10-12,US30Y,5.2,5.22,5.2097,5.2099,U.S. Treasury benchmark market holiday/no supplied close; no new close to record

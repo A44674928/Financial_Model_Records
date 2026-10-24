@@ -135,7 +135,7 @@ def write_report(entries, rows):
     lines = [
         f"# {TITLE}",
         "",
-        "A separate small-cap pilot book for five user-specified LCID LONG entries. All five entries are $10,000 each (five standard units, $50,000 total after Oct. 23). The first four entries are incorporated into the existing four-model replay through its Oct. 22 cutoff; the Oct. 23 entry is retained in the pilot but excluded from that historical comparison.",
+        "A separate small-cap pilot book for five user-specified LCID LONG entries. All five entries are $10,000 each (five standard units, $50,000 total after Oct. 23). The current four-model daily replay now includes all five entries through the Oct. 23 EOD close; the Oct. 22 historical comparison remains available as an earlier row in the daily exports.",
         "",
         "## Pilot Basket",
         "",
@@ -164,7 +164,7 @@ def write_report(entries, rows):
     lines.extend([
         "",
         f"- At the Oct. 22 historical comparison cutoff, four entries are active: **${oct22['deployed_notional_usd']:,.0f} deployed**, marked at **${oct22['lcid_mark_usd']:.2f}**, with **${oct22['unrealized_pnl_usd']:+,.2f}** open PnL.",
-        f"- The Oct. 23 pilot-only view includes the fifth entry: **${terminal['deployed_notional_usd']:,.0f} deployed**, marked at **${terminal['lcid_mark_usd']:.2f}**, with **${terminal['unrealized_pnl_usd']:+,.2f}** open PnL.",
+        f"- The Oct. 23 EOD view includes all five entries: **${terminal['deployed_notional_usd']:,.0f} deployed**, marked at **${terminal['lcid_mark_usd']:.2f}**, with **${terminal['unrealized_pnl_usd']:+,.2f}** open PnL. This is the LCID mark used in the current four-model daily replay.",
         "- The four model variants have the same LCID contribution because the pilot contains LONG entries only; this adds exposure and PnL but does not alter the variants' relative LCID path.",
         "- Daily marks `$3.27`, `$3.21`, `$3.46`, and `$3.55` map in order to Oct. 20, 21, 22, and 23, as supplied. They are kept separately from the five entry fills in `trades/LCID.txt`.",
         "- Entry fills use the user's provided prices; PnL is `notional × (daily mark / entry price − 1)`. No commissions or other costs are included.",

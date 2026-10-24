@@ -20,7 +20,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA_PATH = ROOT / "Current Price Points.csv"
+DATA_PATH = ROOT / "data" / "current_price_points.csv"
 REPORT_PATH = ROOT / "Triangle Signals.md"
 BEGIN_TABLE = "<!-- current-prices:start -->"
 END_TABLE = "<!-- current-prices:end -->"

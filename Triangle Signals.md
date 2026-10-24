@@ -42,7 +42,7 @@ day's price change. No screenshot explicitly marks its current price as a warnin
 <!-- current-prices:end -->
 
 Source values, capture times (local, as named in the files), and marker placement coordinates are in
-[Current Price Points.csv](Current%20Price%20Points.csv). Prices are in the displayed USD units;
+[current_price_points.csv](data/current_price_points.csv). Prices are in the displayed USD units;
 OIL is quoted in USD per barrel. Projected candles, targets, and support/resistance levels are **not**
 used as current prices — in particular, SPCX uses **$147.96**, not its future target near $45.
 

@@ -17,7 +17,7 @@ Mark-to-market **Unrealized Profit & Loss (PnL)** for trades from ***Fall (Arizo
 | **1C. Triangle/Hazard Book + All 4 `SPCX` Points** (`$176`, `$173.77`, `$161.59`, `$147.96`) | **19** | **$190,000.00** | **$212,099.85** | **+$22,099.85** | **+11.63%** | **18 W / 1 L** | **7 of 7 (100% green)** |
 | *— Add 2 Unlisted `INTC` Chart `🟢L` (`Sep 4`, `Sep 16`) to 1A / 1B / 1C* | *20 / 20 / 21* | *$200k / $200k / $210k* | *$217,783.51 / $219,342.12 / $229,559.07* | ***+$17,783.51 / +$19,342.12 / +$19,559.07*** | ***+8.89% / +9.67% / +9.31%*** | *17–18 W / 3 L* | ***7 of 7 (100% green)*** |
 | **2A. Published Charts Book (All 11 Charts: Oct 6 & Oct 9 `SPCX` + 9 Oct 19 Charts)** | **11** | **$110,000.00** | **$112,126.34** | **+$2,126.34** | **+1.93%** | **6 W / 5 L** | **4 of 9** |
-| **2B. October 19 Snapshot Charts Only** (`Current Price Points.csv`) | **9** | **$90,000.00** | **$89,414.18** | **−$585.82** | **−0.65%** | 4 W / 5 L | 4 of 9 |
+| **2B. October 19 Snapshot Charts Only** (`data/current_price_points.csv`) | **9** | **$90,000.00** | **$89,414.18** | **−$585.82** | **−0.65%** | 4 W / 5 L | 4 of 9 |
 
 ---
 
@@ -110,7 +110,7 @@ Both newly provided `SPCX` screenshots have been archived alongside matching �
 
 ## 3. Published Charts Book (All 11 Charts: Oct 6 & Oct 9 `SPCX` + 9 Oct 19 Charts)
 
-Combining the two earlier `SPCX` `↘ SHORT` screenshots (`Oct 6 @ $173.77` and `Oct 9 @ $161.59`) with the nine October 19 charts in [`Current Price Points.csv`](Current%20Price%20Points.csv) (including the October 19 `SPCX @ $147.96` GitHub chart) flips the Published Charts Book **from `−$585.82` (−0.65%) into profit at `+$2,126.34` (+1.93% on $110,000.00)**:
+Combining the two earlier `SPCX` `↘ SHORT` screenshots (`Oct 6 @ $173.77` and `Oct 9 @ $161.59`) with the nine October 19 charts in [`current_price_points.csv`](data/current_price_points.csv) (including the October 19 `SPCX @ $147.96` GitHub chart) flips the Published Charts Book **from `−$585.82` (−0.65%) into profit at `+$2,126.34` (+1.93% on $110,000.00)**:
 
 | Ticker | Idea Date / Chart | Signal / Side | Entry Price | Mark Price (Oct 22) | Implied Units ($10k) | Trade PnL ($/unit) | Return (%) | Unrealized PnL ($) | Position Value ($) |
 |---|---|---|---:|---:|---:|---:|---:|---:|---:|

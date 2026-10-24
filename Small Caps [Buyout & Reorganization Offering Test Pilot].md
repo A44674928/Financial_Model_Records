@@ -1,6 +1,6 @@
 # Small Caps [Buyout & Reorganization Offering Test Pilot]
 
-A separate small-cap pilot book for five user-specified LCID LONG entries. All five entries are $10,000 each (five standard units, $50,000 total after Oct. 23). The first four entries are incorporated into the existing four-model replay through its Oct. 22 cutoff; the Oct. 23 entry is retained in the pilot but excluded from that historical comparison.
+A separate small-cap pilot book for five user-specified LCID LONG entries. All five entries are $10,000 each (five standard units, $50,000 total after Oct. 23). The current four-model daily replay now includes all five entries through the Oct. 23 EOD close; the Oct. 22 historical comparison remains available as an earlier row in the daily exports.
 
 ## Pilot Basket
 
@@ -24,7 +24,7 @@ A separate small-cap pilot book for five user-specified LCID LONG entries. All f
 | 2026-10-23 | $3.55 | 5 | $50,000 | $+5,289.53 | +10.579% |
 
 - At the Oct. 22 historical comparison cutoff, four entries are active: **$40,000 deployed**, marked at **$3.46**, with **$+3,916.64** open PnL.
-- The Oct. 23 pilot-only view includes the fifth entry: **$50,000 deployed**, marked at **$3.55**, with **$+5,289.53** open PnL.
+- The Oct. 23 EOD view includes all five entries: **$50,000 deployed**, marked at **$3.55**, with **$+5,289.53** open PnL. This is the LCID mark used in the current four-model daily replay.
 - The four model variants have the same LCID contribution because the pilot contains LONG entries only; this adds exposure and PnL but does not alter the variants' relative LCID path.
 - Daily marks `$3.27`, `$3.21`, `$3.46`, and `$3.55` map in order to Oct. 20, 21, 22, and 23, as supplied. They are kept separately from the five entry fills in `trades/LCID.txt`.
 - Entry fills use the user's provided prices; PnL is `notional × (daily mark / entry price − 1)`. No commissions or other costs are included.

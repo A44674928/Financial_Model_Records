@@ -1,0 +1,36 @@
+Date,Ticker,TradingView_Price,YahooFinance_Price,Custom_Override_Price,the independent auditor's average for work purposes,Active_V2_Close,Active_V2_Source,V6_Close,V6_Source,Audit_Average_minus_V2,Audit_Average_minus_V6
+2026-10-23,AAPL,347.73,347.73,347.73,347.73,347.73,Yahoo Finance,347.73,Yahoo Finance,0.00,0.00
+2026-10-23,AMZN,248.0,248.0,248.0,248.0,192.45,Yahoo Finance,185.2,Yahoo Finance,55.55,62.8
+2026-10-23,BRENT,115.12,113.81,117.345,115.425,117.345,BlackBull Markets (Override),117.345,BlackBull,-1.920,-1.920
+2026-10-23,BTC,81291.0,81291.0,81291.0,81291.0,68250.0,Yahoo Finance,68250.0,Yahoo Finance,13041.0,13041.0
+2026-10-23,CAT,321.4,321.4,321.4,321.4,395.2,Yahoo Finance,320.15,Yahoo Finance,-73.8,1.25
+2026-10-23,CVX,151.2,151.2,151.2,151.2,151.3,Yahoo Finance,145.4,Yahoo Finance,-0.1,5.8
+2026-10-23,DIS,94.6,94.6,94.6,94.6,98.4,Yahoo Finance,92.8,Yahoo Finance,-3.8,1.8
+2026-10-23,ETH,2395.66,2395.66,2395.66,2395.66,2640.0,Yahoo Finance,2650.0,Yahoo Finance,-244.34,-254.34
+2026-10-23,GEV,172.4,172.4,172.4,172.4,185.6,Yahoo Finance,165.3,Yahoo Finance,-13.2,7.1
+2026-10-23,HD,412.1,412.1,412.1,412.1,412.1,Yahoo Finance,355.0,Yahoo Finance,0.0,57.1
+2026-10-23,INTC,23.4,23.4,23.4,23.4,24.85,Yahoo Finance,23.4,Yahoo Finance,-1.45,0.0
+2026-10-23,LCID,3.52,3.52,3.52,3.52,3.55,System Constraint,3.52,Yahoo Finance,-0.03,0.00
+2026-10-23,LLY,780.5,780.5,780.5,780.5,915.2,Yahoo Finance,780.5,Yahoo Finance,-134.7,0.0
+2026-10-23,LMT,498.3,498.3,498.3,498.3,582.4,Yahoo Finance,460.0,Yahoo Finance,-84.1,38.3
+2026-10-23,LULU,315.2,315.2,315.2,315.2,265.3,Yahoo Finance,310.2,Yahoo Finance,49.9,5.0
+2026-10-23,META,642.62,642.62,642.62,642.62,642.62,Yahoo Finance,642.62,Yahoo Finance,0.00,0.00
+2026-10-23,NET,98.4,98.4,98.4,98.4,325.73,Yahoo Finance,325.73,Yahoo Finance,-227.33,-227.33
+2026-10-23,NFLX,65.85,65.85,65.85,65.85,762.1,Yahoo Finance,65.85,Yahoo Finance,-696.25,0.00
+2026-10-23,NVDA,210.96,210.96,210.96,210.96,210.96,Yahoo Finance,210.96,Yahoo Finance,0.00,0.00
+2026-10-23,OIL,101.45,97.53,103.45,100.81,103.45,TradingView TVC:USOIL (Override),103.45,TradingView,-2.64,-2.64
+2026-10-23,ORCL,174.2,174.2,174.2,174.2,175.4,Yahoo Finance,172.1,Yahoo Finance,-1.2,2.1
+2026-10-23,PEP,168.9,168.9,168.9,168.9,172.1,Yahoo Finance,168.4,Yahoo Finance,-3.2,0.5
+2026-10-23,PLTR,43.2,43.2,43.2,43.2,44.8,Yahoo Finance,42.15,Yahoo Finance,-1.6,1.05
+2026-10-23,RIVN,11.25,11.25,11.25,11.25,11.25,Yahoo Finance,11.25,Yahoo Finance,0.00,0.00
+2026-10-23,SPCX,108.4,108.4,108.4,108.4,112.5,Yahoo Finance,31.4,Yahoo Finance,-4.1,77.0
+2026-10-23,TMO,540.2,540.2,540.2,540.2,524.3,Yahoo Finance,540.2,Yahoo Finance,15.9,0.0
+2026-10-23,TSLA,218.4,218.4,218.4,218.4,220.4,Yahoo Finance,220.5,Yahoo Finance,-2.0,-2.1
+2026-10-23,UPS,132.6,132.6,132.6,132.6,134.6,Yahoo Finance,132.6,Yahoo Finance,-2.0,0.0
+2026-10-23,V,282.1,282.1,282.1,282.1,282.4,Yahoo Finance,275.4,Yahoo Finance,-0.3,6.7
+2026-10-23,VLO,128.4,128.4,128.4,128.4,142.8,Yahoo Finance,122.1,Yahoo Finance,-14.4,6.3
+2026-10-23,WMT,81.5,81.5,81.5,81.5,81.15,Yahoo Finance,78.2,Yahoo Finance,0.35,3.3
+2026-10-23,XLE,69.35,69.35,69.35,69.35,69.35,Yahoo Finance,69.35,Yahoo Finance,0.00,0.00
+2026-10-23,XRH0,780.0,780.0,780.0,780.0,790.0,System Constraint,780.0,LSE,-10.0,0.0
+2026-10-23,US10Y,4.986,4.986,4.986,4.986,4.986,Yahoo Finance,4.986,Yahoo Finance,0.000,0.000
+2026-10-23,US30Y,5.43,5.43,5.43,5.43,5.43,Yahoo Finance,5.43,Yahoo Finance,0.00,0.00

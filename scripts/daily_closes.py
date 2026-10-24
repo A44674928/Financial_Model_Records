@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
 """Daily closing prices for the *Fall (Arizona) [2026]* paper-trade book.
 
-Source: Yahoo Finance `v8/finance/chart` `interval=1d`, pulled 2026-10-23.
+Historical Yahoo Finance daily series through 2026-10-22, extended by the
+user-supplied consolidated EOD close set in `data/consolidated_portfolio_closes_v2.csv`.
+Its Source column preserves Yahoo Finance marks, explicit energy overrides, and system constraints.
 Equity/ETF session timestamps (MST regular-session open, UTC-07:00) are the
 union calendar; futures (BZ=F Brent, CL=F WTI) and crypto (BTC-USD, ETH-USD)
-are mapped onto the same session index by trade date. BZ=F/CL=F are historical
+are mapped onto the same session index by trade date. BZ=F/CL=F remain historical
 futures proxies for the book's BRENT Cash / ICE Brent and TVC:USOIL WTI CFD
-entries, respectively; do not interpret them as exact live cash/CFD tickers.
+entries, respectively; do not interpret them as exact cash/CFD tickers.
 
 XRH0 (db Physical Rhodium ETC, LSE) is too illiquid for a daily history
 (Yahoo returns a single bar), so it is held flat at the $790.00 log entry,
 matching the `Trades Zip PnL.md` convention.
 """
 
-# 35 U.S. equity regular sessions: 2026-09-03 .. 2026-10-22 (MST open epoch)
+# 35 historical U.S. equity regular sessions: 2026-09-03 .. 2026-10-22 (MST open epoch)
 EQUITY_TS = [
     1788442200, 1788528600, 1788874200, 1788960600, 1789047000, 1789133400,
     1789392600, 1789479000, 1789565400, 1789651800, 1789738200, 1789997400,
@@ -217,3 +219,63 @@ ETH_CLOSES = [
     2446.73, 2470.77, 2386.19, 2396.24,
 ]
 
+
+
+# Append the user's authoritative Oct 23 EOD close set without rewriting the
+# frozen historical series above. DXY/FX and US10Y/US30Y inputs are consumed by
+# their dedicated report builders; the core book takes the 33 priced symbols.
+import csv as _csv
+from datetime import datetime as _datetime, timezone as _timezone
+from pathlib import Path as _Path
+
+OCT23_EOD_FILE = _Path(__file__).resolve().parents[1] / "data" / "consolidated_portfolio_closes_v2.csv"
+OCT23_EOD_DATE = "2026-10-23"
+_OCT23_EQUITY_OPEN_UTC = 1792762200  # 06:30 MST / 13:30 UTC
+_OCT23_MARKS = {}
+OCT23_EOD_SOURCES = {}
+with OCT23_EOD_FILE.open(newline="", encoding="utf-8") as _fh:
+    _reader = _csv.DictReader(_fh)
+    _required = {"Date", "Ticker", "EOD_Close", "Source"}
+    if not _reader.fieldnames or not _required.issubset(_reader.fieldnames):
+        raise ValueError(f"{OCT23_EOD_FILE.name} must contain {sorted(_required)}")
+    for _row in _reader:
+        if _row["Date"].strip() != OCT23_EOD_DATE:
+            raise ValueError(f"Unexpected date in {OCT23_EOD_FILE.name}: {_row['Date']}")
+        _sym = _row["Ticker"].strip().upper()
+        if _sym in _OCT23_MARKS:
+            raise ValueError(f"Duplicate Oct 23 EOD close for {_sym}")
+        _close = float(_row["EOD_Close"].strip())
+        _source = _row["Source"].strip()
+        if _close <= 0:
+            raise ValueError(f"Nonpositive Oct 23 EOD close for {_sym}")
+        if not _source:
+            raise ValueError(f"Blank source label for {_sym} in {OCT23_EOD_FILE.name}")
+        _OCT23_MARKS[_sym] = _close
+        OCT23_EOD_SOURCES[_sym] = _source
+
+_EXPECTED_EOD_SYMBOLS = set(CLOSES) | {"BTC", "ETH", "LCID"}
+_MISSING_EOD_SYMBOLS = sorted(_EXPECTED_EOD_SYMBOLS - _OCT23_MARKS.keys())
+if _MISSING_EOD_SYMBOLS:
+    raise ValueError(f"Missing Oct 23 EOD closes: {_MISSING_EOD_SYMBOLS}")
+if _datetime.fromtimestamp(_OCT23_EQUITY_OPEN_UTC, _timezone.utc).strftime("%Y-%m-%d") != OCT23_EOD_DATE:
+    raise ValueError("Oct 23 equity session timestamp is inconsistent with the EOD source date")
+if _datetime.fromtimestamp(EQUITY_TS[-1], _timezone.utc).strftime("%Y-%m-%d") != "2026-10-22":
+    raise ValueError("Expected the historical equity series to end on Oct 22 before appending Oct 23")
+EQUITY_TS.append(_OCT23_EQUITY_OPEN_UTC)
+for _sym, _series in CLOSES.items():
+    _series.append(_OCT23_MARKS[_sym])
+
+# Crypto daily bars are labelled by their UTC trade date. Replace the existing
+# Oct 23-labelled closes when present; otherwise append that UTC day.
+_OCT23_CRYPTO_TS = int(_datetime.strptime(OCT23_EOD_DATE, "%Y-%m-%d").replace(tzinfo=_timezone.utc).timestamp())
+_crypto_dates = [_datetime.fromtimestamp(_ts, _timezone.utc).strftime("%Y-%m-%d") for _ts in CRYPTO_TS]
+if OCT23_EOD_DATE in _crypto_dates:
+    _crypto_index = _crypto_dates.index(OCT23_EOD_DATE)
+    BTC_CLOSES[_crypto_index] = _OCT23_MARKS["BTC"]
+    ETH_CLOSES[_crypto_index] = _OCT23_MARKS["ETH"]
+else:
+    if CRYPTO_TS and CRYPTO_TS[-1] >= _OCT23_CRYPTO_TS:
+        raise ValueError("Crypto timestamp list is not ordered before Oct 23")
+    CRYPTO_TS.append(_OCT23_CRYPTO_TS)
+    BTC_CLOSES.append(_OCT23_MARKS["BTC"])
+    ETH_CLOSES.append(_OCT23_MARKS["ETH"])

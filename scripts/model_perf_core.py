@@ -41,10 +41,11 @@ VARIANT_COLOR = {"V1": "#38bdf8", "V2": "#f472b6", "V3A": "#34d399", "V3B": "#fb
 # canonical ledger while excluding them explicitly from model PnL replay.
 UNMODELED_SYMBOLS = frozenset({"DXY", "EURUSD", "JPYUSD", "US10Y", "US30Y"})
 
-# Oct 22, 2026 historical terminal marks pinned to the verified settlement set
-# used by `Trades Zip PnL.md` (Yahoo's crypto snapshot drifts from settlement).
-# BRENT/OIL are futures proxies (BZ=F/CL=F), not exact cash/CFD live tickers;
-# the separate Oct 23 user-quote overlay is in data/energy_live_mark_overlay.csv.
+# Oct 22, 2026 historical marks pinned to the verified settlement set used by
+# `Trades Zip PnL.md` (Yahoo's crypto snapshot drifts from settlement). These
+# remain pinned at the Oct 22 index after the user-supplied Oct 23 EOD session
+# is appended. BRENT/OIL are historical futures proxies (BZ=F/CL=F), not exact
+# cash/CFD tickers; approximate Oct 23 quotes remain a separate overlay.
 VERIFIED_OCT22 = {
     "BTC": 81263.73,
     "ETH": 2381.38,
@@ -72,9 +73,11 @@ for _sym, _series in _CRYPTO_SERIES.items():
         _mapped.append(_series[max(_i, 0)] if _i >= 0 else _series[0])
     PRICES[_sym] = _mapped
 
-# Pin the terminal session to the verified settlement marks.
+# Keep the previous Oct 22 cutoff reproducible as a historical observation;
+# the Oct 23 EOD source supplies the new terminal session instead.
+_OCT22_INDEX = SESSION_DATES.index("2026-10-22")
 for _sym, _px in VERIFIED_OCT22.items():
-    PRICES[_sym][-1] = _px
+    PRICES[_sym][_OCT22_INDEX] = _px
 for _sym, _px in {
     "AAPL": 348.22, "AMZN": 250.38, "BRENT": 113.17, "CAT": 704.05, "CVX": 226.68,
     "DIS": 113.13, "GEV": 827.42, "HD": 327.73, "INTC": 85.49, "LLY": 1306.69,
@@ -83,7 +86,7 @@ for _sym, _px in {
     "RIVN": 12.06, "SPCX": 144.75, "TMO": 676.54, "TSLA": 374.58, "UPS": 101.52,
     "V": 414.34, "VLO": 426.28, "WMT": 121.12, "XLE": 67.57, "XRH0": 790.00,
 }.items():
-    PRICES[_sym][-1] = _px
+    PRICES[_sym][_OCT22_INDEX] = _px
 
 # User-provided LCID pilot marks, kept in their own auditable daily CSV. The
 # history before the first LCID entry is irrelevant to PnL; seed it with the
