@@ -10,6 +10,7 @@ This repository contains the Fall (Arizona) 2026 paper-trading ledger, model ana
 - [Whole-Portfolio DXY Snapshot](DXY-Equivalent%20Portfolio%20Snapshot.md) — USD and DXY-numeraire comparison.
 - [Small Caps pilot](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md) — LCID Buyout & Reorganization Offering test basket.
 - [Oil Desk EOD Accumulation Hypothetical](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md) — daily 10-unit energy buys, kept separate from the core models.
+- [Strategy and Sidecar Comparison](Strategy%20and%20Sidecar%20Comparison.md) — standard variants, $500/EOD direction-following model, oil sidecar, and composites.
 - [Chart Archive Review](Chart%20Archive%20Review.md), [Triangle Signals](Triangle%20Signals.md), and [Unrealized PnL](Unrealized%20PnL.md) — source reconciliation and focused trade views.
 
 ## Repository layout
@@ -34,6 +35,7 @@ PYTHONPATH=scripts python3 scripts/build_model_performance.py
 PYTHONPATH=scripts python3 scripts/build_whole_portfolio_dxy_view.py
 PYTHONPATH=scripts python3 scripts/build_small_caps_pilot.py
 PYTHONPATH=scripts python3 scripts/build_oil_desk_hypothetical.py
+PYTHONPATH=scripts python3 scripts/build_strategy_sidecar_comparison.py
 ```
 
 Some chart-generation and test dependencies (for example, Matplotlib and Pillow) may need to be installed in the local environment first.
