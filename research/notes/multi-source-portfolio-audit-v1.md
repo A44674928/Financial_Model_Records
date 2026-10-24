@@ -30,6 +30,20 @@ The file's average for BRENT/OIL is **$115.425 / $100.81**, while the active sou
 
 It also conflicts with confirmed constraints: LCID's Oct. 23 average is $3.52 versus the specified $3.55, and XRH0's is $780 versus the $790 system constraint. The 10/23 match counts do not resolve the broader historical concerns.
 
+## Live Yahoo endpoint spot-check (partial)
+
+A live Yahoo Finance chart-data check of the **Oct. 23, 2026** daily bars verified three representative U.S. equities:
+
+| Ticker | Yahoo daily close | Candidate Yahoo column | Active v2 | v6 |
+|---|---:|---:|---:|---:|
+| AAPL | $347.73 | $347.73 | $347.73 | $347.73 |
+| AMZN | $248.00 | $248.00 | $192.45 | $185.20 |
+| NFLX | $65.85 | $65.85 | $762.10 | $65.85 |
+
+The candidate Yahoo values match the live closes for all three. This spot-check also flags likely wrong active-reference endpoints for AMZN and NFLX; **no active model input or output was changed**. Full 39-date × 35-ticker live verification has not been completed, and no broad historical refresh is represented by this three-row spot-check. The row-level live evidence is in [`data/multi_source_portfolio_live_yahoo_endpoint_check.csv`](../../data/multi_source_portfolio_live_yahoo_endpoint_check.csv).
+
+The Sep. 7 U.S. holiday rows remain invalid for listed U.S. equities/ETFs and U.S. Treasury yields; a refreshed file must retain the date grid but mark those rows as no-session, not use their supplied values as closes. The original candidate remains preserved unchanged.
+
 ## Row-level audit artifacts
 
 - [`data/multi_source_portfolio_formula_check.csv`](../../data/multi_source_portfolio_formula_check.csv) — each source value, recalculated mean, rounding check, and custom-vs-midpoint check (1,365 rows).
@@ -38,4 +52,4 @@ It also conflicts with confirmed constraints: LCID's Oct. 23 average is $3.52 ve
 
 **Assessment:** structurally complete and its average formula checks out, but source provenance, smooth monotonic series, the holiday rows, and conflicts with confirmed marks mean it is **not suitable as an accurate EOD price file yet**. Keep it as an audit candidate; do not use it to refresh model results until the underlying source values are verified.
 
-Input SHA-256: `c0afecb11ddf8cb952ae2b47a4b95456604a5583ba99d6c04ea9ccb25343813b`.
+Input SHA-256: `c0afecb11ddf8cb952ae2b47a4b95456604a5583ba99d6c04ea9ccb25343813b` (**independently recalculated against the preserved CSV; matches**).
