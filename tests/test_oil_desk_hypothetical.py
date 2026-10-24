@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from build_oil_desk_hypothetical import build_rows  # noqa: E402
+from build_oil_desk_hypothetical import build_rows, load_energy_marks  # noqa: E402
 
 
 class OilDeskHypotheticalTests(unittest.TestCase):
@@ -21,16 +21,34 @@ class OilDeskHypotheticalTests(unittest.TestCase):
         self.assertEqual(terminal["BRENT"]["chart_open_units"], "5")
         self.assertEqual(terminal["BRENT"]["chart_positions_unrealized_pnl_usd"], "5026.57")
         self.assertEqual(terminal["BRENT"]["combined_energy_unrealized_pnl_usd"], "229385.42")
+        self.assertEqual(terminal["BRENT"]["eod_close"], "117.345")
+        self.assertEqual(terminal["BRENT"]["source"], "User-provided BlackBull Markets Brent Cash EOD")
         self.assertEqual(terminal["OIL"]["cumulative_daily_buy_units"], 320)
         self.assertEqual(terminal["OIL"]["cumulative_daily_buy_notional_usd"], "3200000.00")
         self.assertEqual(terminal["OIL"]["daily_buys_unrealized_pnl_usd"], "275347.06")
         self.assertEqual(terminal["OIL"]["chart_open_units"], "6")
         self.assertEqual(terminal["OIL"]["chart_positions_unrealized_pnl_usd"], "6614.56")
         self.assertEqual(terminal["OIL"]["combined_energy_unrealized_pnl_usd"], "281961.62")
-        first = next(row for row in rows if row["ticker"] == "OIL")
-        self.assertEqual(first["daily_buys_unrealized_pnl_usd"], "0.00")
+        self.assertEqual(terminal["OIL"]["eod_close"], "103.45")
+        self.assertEqual(terminal["OIL"]["source"], "User-provided TradingView TVC:USOIL EOD")
+        first_brent = next(row for row in rows if row["ticker"] == "BRENT")
+        first_oil = next(row for row in rows if row["ticker"] == "OIL")
+        self.assertEqual(first_brent["date"], "2026-09-23")
+        self.assertEqual(first_oil["date"], "2026-09-10")
+        self.assertEqual(first_brent["daily_buys_unrealized_pnl_usd"], "0.00")
+        self.assertEqual(first_oil["daily_buys_unrealized_pnl_usd"], "0.00")
+        marks = load_energy_marks()
+        self.assertEqual(len(marks["BRENT"]), 23)
+        self.assertEqual(len(marks["OIL"]), 32)
+        self.assertEqual(marks["BRENT"]["2026-10-23"]["close"], 117.345)
+        self.assertEqual(marks["OIL"]["2026-10-23"]["close"], 103.45)
         report = Path(__file__).resolve().parents[1] / "Oil Desk EOD Accumulation Hypothetical.md"
-        self.assertIn("Model Calculation Guide.md", report.read_text(encoding="utf-8"))
+        report_text = report.read_text(encoding="utf-8")
+        self.assertIn("same exact daily energy marks", report_text)
+        self.assertIn("energy_provider_eod_marks_v1.csv", report_text)
+        self.assertIn("2026-09-23–2026-10-23 | 23 | $117.345", report_text)
+        self.assertIn("2026-09-10–2026-10-23 | 32 | $103.45", report_text)
+        self.assertNotIn("approximate quote", report_text.lower())
 
 
 if __name__ == "__main__":

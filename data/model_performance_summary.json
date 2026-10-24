@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-10-24T05:16:27Z",
+  "generated_utc": "2026-10-24T06:34:59Z",
   "cohort": "Fall (Arizona) [2026]",
   "timezone": "America/Phoenix \u2014 MST / UTC-07:00 (no DST)",
   "unit_notional_usd": 10000.0,
@@ -47,49 +47,6 @@
     "META",
     "PLTR"
   ],
-  "energy_live_overlay": {
-    "historical_mark_date": "2026-10-23",
-    "live_mark_date": "2026-10-23",
-    "scope_note": "Exact Oct 23 EOD marks are in the main daily model; approximate quotes are a separate energy-only overlay.",
-    "rows": [
-      {
-        "symbol": "BRENT",
-        "trade_instrument": "BlackBull Brent Cash (trade log)",
-        "historical_price_source_basis": "User-provided BlackBull Brent Cash daily EOD",
-        "eod_source": "User-provided BlackBull Markets Brent Cash EOD",
-        "historical_mark_date": "2026-10-23",
-        "historical_mark_usd": "117.345",
-        "historical_realized_pnl_usd": "0.00",
-        "historical_unrealized_pnl_usd": "5026.57",
-        "live_mark_date": "2026-10-23",
-        "live_mark_usd": "115.72",
-        "live_quote_basis": "User-provided approximate quote; provider/time not specified",
-        "live_realized_pnl_usd": "0.00",
-        "live_unrealized_pnl_usd": "4264.55",
-        "change_from_historical_mark_usd": "-762.01",
-        "open_lots": "5",
-        "open_units": "5"
-      },
-      {
-        "symbol": "OIL",
-        "trade_instrument": "TradingView TVC:USOIL WTI CFD (trade index)",
-        "historical_price_source_basis": "User-provided TradingView TVC:USOIL daily EOD",
-        "eod_source": "User-provided TradingView TVC:USOIL EOD",
-        "historical_mark_date": "2026-10-23",
-        "historical_mark_usd": "103.45",
-        "historical_realized_pnl_usd": "0.00",
-        "historical_unrealized_pnl_usd": "6614.56",
-        "live_mark_date": "2026-10-23",
-        "live_mark_usd": "100.94",
-        "live_quote_basis": "User-provided approximate quote; provider/time not specified",
-        "live_realized_pnl_usd": "0.00",
-        "live_unrealized_pnl_usd": "4998.30",
-        "change_from_historical_mark_usd": "-1616.26",
-        "open_lots": "6",
-        "open_units": "6"
-      }
-    ]
-  },
   "us10y_adjustment": {
     "status": "legacy additive reference; not used by whole-portfolio multiplier scenarios",
     "baseline_yield_pct": 4.865,
