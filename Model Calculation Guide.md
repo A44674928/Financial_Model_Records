@@ -119,7 +119,7 @@ The oil-desk hypothetical is a separate long-only accumulation schedule for BREN
 - Buy 10U ($100,000 notional) of each energy ticker at every supplied EOD session in its covered series.
 - Each new lot starts at that session's EOD mark. It has zero mark-to-market PnL at that purchase close, then remains open and is marked on later covered sessions through October 23.
 - No sidecar lots are closed, and PnL is not reinvested into later buys. Fees, financing, and margin are not modeled.
-- The active-position marks use the user-provided exact BlackBull Brent Cash and TradingView TVC:USOIL series. Pre-entry context remains labeled proxy data and is not used to mark active lots.
+- The core replay and oil-desk sidecar use the same exact daily marks from [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv): user-provided BlackBull Markets Brent Cash for BRENT (Sep. 23–Oct. 23, 23 sessions; terminal $117.345) and TradingView TVC:USOIL for OIL (Sep. 10–Oct. 23, 32 sessions; terminal $103.45). The sidecar buys each 10U tranche at that instrument's supplied EOD close. Yahoo BZ=F/CL=F are pre-entry context proxies only; they are not used to mark active lots or sidecar purchases.
 
 The sidecar report shows daily-buy PnL separately from the chart-opened energy positions. When the sidecar is combined with a core variant, only the **incremental daily-buy lots** are added: chart-opened energy lots already belong to the core replay and must not be counted twice.
 

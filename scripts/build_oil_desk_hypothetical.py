@@ -1,7 +1,8 @@
 """Build a separate daily EOD accumulation hypothetical for Brent and USOIL.
 
-For each exact user-supplied energy EOD, the hypothetical buys 10 units at that
-close (one 1U lot) and holds all daily lots through Oct. 23. The
+For each exact user-supplied energy EOD in `data/energy_provider_eod_marks_v1.csv`
+(the same source consumed by the core replay), the hypothetical buys 10 units at
+that close (one 1U lot) and holds all daily lots through Oct. 23. The
 logged chart positions are shown separately and in the combined energy subtotal.
 This sidecar is intentionally excluded from the four core strategy/DXY account
 bases because it is a separate hypothetical capital deployment.
@@ -151,6 +152,7 @@ def write_chart(rows=None):
 
 def write_report(rows=None):
     rows = rows or build_rows()
+    marks = load_energy_marks()
     write_csv(rows)
     write_chart(rows)
     lines = [
@@ -166,14 +168,29 @@ def write_report(rows=None):
         "- One new long lot is opened at each session's EOD close and remains open through Oct. 23; no exits, fees, financing, or scaling from PnL.",
         "- The daily buy at a given close starts accruing PnL after that close; therefore it has zero mark-to-market PnL at its purchase EOD.",
         "- Chart-opened positions are shown separately and then added to the daily-buy hypothetical for a combined energy subtotal.",
-        "- The supplied benchmark series are exact user-provided BlackBull Brent Cash and TradingView TVC:USOIL EOD marks over the active-position periods. Pre-entry context remains proxy data and is not used to mark these lots.",
+        "- Both the core replay and this sidecar use the same exact daily energy marks from `data/energy_provider_eod_marks_v1.csv`; the sidecar buys each tranche at that instrument's supplied EOD close.",
+        "- Yahoo `BZ=F` / `CL=F` values are pre-entry context proxies only; they are not used to mark active energy positions or sidecar purchases.",
+        "",
+        "## Exact EOD mark coverage",
+        "",
+        "| Ticker | Instrument / source | Active-period coverage | Sessions | Oct. 23 EOD mark |",
+        "|---|---|---|---:|---:|",
+    ]
+    for ticker in TICKERS:
+        days = sorted(marks[ticker])
+        end_mark = marks[ticker][days[-1]]["close"]
+        end_mark_text = f"${end_mark:,.3f}".rstrip("0").rstrip(".")
+        lines.append(
+            f"| `{ticker}` | {marks[ticker][days[-1]]['source']} (`{marks[ticker][days[-1]]['instrument']}`) | "
+            f"{days[0]}–{days[-1]} | {len(days)} | {end_mark_text} |"
+        )
+    lines.extend([
         "",
         "## Terminal summary — Oct. 23, 2026",
         "",
         "| Instrument | EOD sessions | Daily-buy units | Daily-buy notional | Daily-buy PnL | Chart units | Chart-position PnL | Combined energy PnL |",
         "|---|---:|---:|---:|---:|---:|---:|---:|",
-    ]
-    marks = load_energy_marks()
+    ])
     chart_lots, _ = build_lots("V1", parse_trades())
     total_sessions = total_daily_units = total_chart_units = 0
     total_daily_notional = Decimal("0")

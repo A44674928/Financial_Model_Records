@@ -215,7 +215,8 @@ class ModelTradeScopeTests(unittest.TestCase):
             self.assertEqual(archive.read("trades/index.txt"), (root / "trades/index.txt").read_bytes())
 
     def test_comparison_report_states_model_coverage_and_unreconciled_master(self):
-        report = Path(__file__).resolve().parents[1] / "Model Performance Comparison.md"
+        root = Path(__file__).resolve().parents[1]
+        report = root / "Model Performance Comparison.md"
         text = report.read_text(encoding="utf-8")
         self.assertIn("`88` in-window price-covered events out of `95` total 2026 log events", text)
         self.assertIn("`0` after cutoff", text)
@@ -235,6 +236,31 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertIn("84.5U ($845,000)", text)
         self.assertIn("master PnL report remains", text)
         self.assertIn("unrecalculated and unreconciled", text)
+        self.assertIn("Energy EOD Marks Used for the Core Replay and Oil Sidecar", text)
+        self.assertIn("energy_provider_eod_marks_v1.csv", text)
+        self.assertIn("Sep. 23–Oct. 23, 2026 | 23 | $117.345", text)
+        self.assertIn("Sep. 10–Oct. 23, 2026 | 32 | $103.45", text)
+        self.assertIn("14-energy-eod-mark-history.png", text)
+        self.assertNotIn("14-energy-live-mark-overlay.png", text)
+        self.assertNotIn("Separate Approximate Quotes", text)
+        self.assertNotIn("$115.72", text)
+        explorer = (root / "Model Performance Explorer.html").read_text(encoding="utf-8")
+        self.assertIn("same exact user-provided daily marks", explorer)
+        self.assertIn("data/energy_provider_eod_marks_v1.csv", explorer)
+        self.assertIn("14-energy-eod-mark-history.png", explorer)
+        chart = root / "Charts/performance/14-energy-eod-mark-history.png"
+        self.assertTrue(chart.is_file())
+        self.assertEqual(chart.read_bytes()[:8], b"\x89PNG\r\n\x1a\n")
+        self.assertFalse((root / "Charts/performance/14-energy-live-mark-overlay.png").exists())
+        for chart in sorted((root / "Charts/performance").glob("*.png")):
+            chart_path = chart.relative_to(root).as_posix()
+            self.assertIn(chart_path, text, f"comparison report is missing {chart_path}")
+        self.assertIn("all **16 Core × variant-specific 1U/EOD pairings**", text)
+        self.assertIn("all **32 series**", text)
+        self.assertIn("deployed-notional ratio, **not an account return**", text)
+        self.assertIn("fixed-$500/EOD model and 1U/EOD alternatives are separate", text)
+        self.assertNotIn("$115.72", explorer)
+        self.assertNotIn("100.94", explorer)
 
 
 if __name__ == "__main__":

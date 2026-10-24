@@ -47,13 +47,18 @@ This inherited per-model additive overlay is retained for audit comparison, but 
 
 Session-level rates, forward-fill dates, actual/365 accruals, and adjusted totals: [`model_performance_us10y_adjustment.csv`](data/model_performance_us10y_adjustment.csv).
 
-## Energy EOD Marks and Separate Approximate Quotes
+## Energy EOD Marks Used for the Core Replay and Oil Sidecar
 
-> The Oct 23 exact user-provided EOD marks ($117.345 BlackBull Brent Cash / $103.45 TVC:USOIL) and the full active-position-period history are included in daily model totals. Only pre-entry context uses Yahoo BZ=F/CL=F proxies. Separate approximate user quotes ($115.72 / $100.94; provider/time unspecified) remain outside those totals.
+The core energy replay and the daily-buy oil sidecar use the same exact user-provided daily EOD source file, [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv). Each sidecar lot is bought at that instrument's supplied EOD close.
 
-![Separate energy mark and PnL comparison](Charts/performance/14-energy-live-mark-overlay.png)
+| Ticker | EOD instrument/source | Active-position coverage | Sessions | Oct. 23 EOD mark |
+|---|---|---|---:|---:|
+| `BRENT` | BlackBull Markets Brent Cash | Sep. 23–Oct. 23, 2026 | 23 | $117.345 |
+| `OIL` | TradingView `TVC:USOIL` | Sep. 10–Oct. 23, 2026 | 32 | $103.45 |
 
-Detailed marks and calculations: [`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv).
+![Exact user-provided energy EOD mark history by active period](Charts/performance/14-energy-eod-mark-history.png)
+
+Yahoo `BZ=F` / `CL=F` values are retained only for pre-entry historical context; they do not mark active energy positions or sidecar buys. No separate approximate quote series is used in current model or sidecar totals.
 
 All four models agree on `29` of the `33` tickers. They diverge only on **`CAT`, `INTC`, `META` and `PLTR`** — the four symbols where a short is followed by a long (or a full exit is compounded into a short). Everything below is driven by those four.
 
@@ -241,6 +246,44 @@ Intraday per-ticker contribution at the Oct 22 close (the hourly archive has no 
 
 Full per-bar series: [`model_performance_intraday.csv`](data/model_performance_intraday.csv) (245 rows).
 
+## Supplemental Portfolio, Pilot, and Sidecar Graphs
+
+The following views extend beyond the four core direct-price variants. They use distinct account bases or sidecar schedules where noted; they are not all on a common capital base, and their positions/capital must not be netted or stacked implicitly.
+
+### Whole-Portfolio DXY Numeraire and Yield Scenarios
+
+These whole-book scenarios use the separate DXY-equivalent portfolio basis and explicit US10Y / US30Y whole-account factors. DXY is a numeraire, not an added position; this view is separate from the four core model totals. See [`DXY-Equivalent Portfolio Snapshot.md`](DXY-Equivalent%20Portfolio%20Snapshot.md) and the [interactive Yield Multiplier Explorer](Whole%20Portfolio%20Yield%20Multiplier%20Explorer.html) for definitions and session data.
+
+![DXY close vs whole-portfolio PnL in dollars](Charts/performance/17-dxy-close-vs-whole-portfolio-pnl-usd.png)
+
+![Whole-portfolio unrealized PnL and USD/DXY returns](Charts/performance/16-whole-portfolio-dxy-vs-usd-pnl.png)
+
+### LCID Small-Caps Pilot
+
+The five-entry LCID pilot is already included in the four-model replay through the corrected Oct. 23 mark; this graph is a focused component view, not another add-on to the core totals. See [`Small Caps [Buyout & Reorganization Offering Test Pilot].md`](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md) for entry and mark details.
+
+![LCID small-caps pilot daily PnL and marks](Charts/performance/18-lcid-small-caps-pilot-pnl.png)
+
+### Oil Desk EOD Accumulation Sidecar
+
+This separate hypothetical adds 10U ($100,000 notional) per supplied EOD session for each energy instrument, using the same exact marks as the core replay. Its daily-buy lots have a separate capital schedule; chart-opened core energy positions are shown for context and must not be counted again when adding the sidecar. See [`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md).
+
+![Oil desk daily EOD accumulation and chart positions](Charts/performance/19-oil-desk-daily-accumulation.png)
+
+### EOD Add-On and Variant-Specific 1U/EOD Comparisons
+
+The fixed-$500/EOD model and 1U/EOD alternatives are separate model families, not stacked on top of one another. The broad comparison distinguishes standalone results from additive composites; composites sum PnL and gross notionals without netting positions or capital. See [`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md) and [`Model Calculation Guide.md`](Model%20Calculation%20Guide.md) for full rules and tables.
+
+![Core models, separate $500 and 1U direction-following models, and sidecar combinations](Charts/performance/20-strategy-sidecar-comparison.png)
+
+The next chart contains all **16 Core × variant-specific 1U/EOD pairings**, including matching and cross-variant pairs, each with the exact-mark oil daily-buy sidecar. These are additive USD totals; positions and capital are not netted, and the core's chart-opened energy lots are not duplicated in the sidecar.
+
+![All 16 Core × 1U variant pairings with oil sidecar](Charts/performance/21-force-variant-oil-comparison.png)
+
+The percentage-gain view plots all **32 series**: the same 16 Core × 1U pairings, each with and without oil. Gain is cumulative PnL divided by cumulative gross notional added—a deployed-notional ratio, **not an account return**. Only the top four terminal performers are named in the legend; all 32 are plotted. The leading terminal ratios are Core V3A + 1U V3A with oil, **8.88%**; the same pairing without oil, **8.74%**; Core V1 + 1U V3A with oil, **8.62%**; and Core V3A + 1U V1 with oil, **8.61%**.
+
+![All 32 Core × 1U variant pairings with and without oil, shown as deployed-notional percentage gain](Charts/performance/22-force-variant-oil-percent-gain.png)
+
 ## 1-Minute Close-Up — INTC Hazard-Flip Window
 
 A focused **60-bar, one-minute** view around the Sep 24 `10:00 MST` INTC short. This is a zoom into one high-signal hour, not a replacement for the 35-session hourly sub-book. The lower panel carries INTC-only cumulative realized + open PnL for each model; V1/V2 and V3A/V3B overlap here because their SAR paths have not yet diverged on this date.
@@ -254,7 +297,6 @@ A focused **60-bar, one-minute** view around the Sep 24 `10:00 MST` INTC short. 
 - **Model coverage:** the four variants directly price the `33` symbols with configured daily market series. `88` price-covered events dated on or before the Oct. 23 mark are replayed; `0` price-covered events after the mark are excluded from this current daily replay. `7` DXY, EURUSD, JPYUSD, US10Y and US30Y log events are not replayed as standalone price positions. The two US10Y events establish yield-adjustment context; this report's additive carry is retained only as a legacy reference. Whole-account US10Y and compounded US30Y multiplier scenarios are in the DXY snapshot and linked explorer. DXY/FX/US30Y positions remain outside the four direct-price variants and require their own quote/valuation treatment.
 - **Price source:** cached Yahoo Finance histories provide pre-entry context (`BRENT = BZ=F`, `OIL = CL=F`, `BTC = BTC-USD`, `ETH = ETH-USD`). Exact user-provided BlackBull Brent Cash and TVC:USOIL EOD marks override the energy proxies from the first active position date through Oct. 23. Other Oct. 23 endpoints use the consolidated v7 file's per-ticker `Source` labels. LCID retains its separate pilot mark series, which matches the user-corrected consolidated mark at $3.52. `BZ=F`/`CL=F` are only pre-entry context proxies.
 - **Oct. 23 price reconciliation:** `data/consolidated_portfolio_closes_v7.csv` is the active close set; v1 through v6 remain preserved. Earlier audits record selected v1 marks for CVX `$233.21`, WMT `$119.89`, TMO `$673.82`, and UPS `$101.06`. User-provided exact energy EOD values are in [`data/energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv); the v6-to-v7 audit records the endpoint changes. Exact marks begin on each instrument's first active position date; pre-entry context remains a futures proxy. The active source map is [`data/active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv). The saved TradingView/Yahoo comparison candidate remains audit-only. DXY, FX, and yield inputs remain local user-provided daily series and are not independently provider-verified.
-- **Approximate energy quotes (separate overlay):** their open-lot calculations versus the exact user-provided EOD marks are in [`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv). They remain excluded from model totals.
 - **Session calendar:** the `36` U.S. equity regular sessions from `2026-09-03` to `2026-10-23`. Futures and crypto are mapped onto the same session index by trade date.
 - **`XRH0`** (db Physical Rhodium ETC, LSE) is too illiquid for a usable daily history, so it remains at the `$790.00` log-entry mark through Oct. 22; the user-corrected Oct. 23 endpoint is `$785.00`. No interim daily prices are invented.
 - **Oct. 22 historical marks** remain pinned to the verified settlement set from [`Trades Zip PnL.md`](Trades%20Zip%20PnL.md); the Oct. 23 endpoint uses the user-supplied EOD file above. The Oct. 23 ORCL and LCID entries are now included at that date's close. The master PnL report remains unrecalculated and unreconciled; do not interpret this model replay as a refresh of its totals.

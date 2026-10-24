@@ -45,7 +45,7 @@ UNMODELED_SYMBOLS = frozenset({"DXY", "EURUSD", "JPYUSD", "US10Y", "US30Y"})
 # used by `Trades Zip PnL.md` (Yahoo's crypto snapshot drifts from settlement).
 # Energy marks instead come from the user-provided exact BlackBull/TVC EOD rows
 # from the first active position date onward; only pre-entry context remains a
-# labeled BZ=F/CL=F proxy. Approximate energy quotes remain a separate overlay.
+# labeled BZ=F/CL=F proxy. The oil sidecar consumes the same exact EOD source file.
 VERIFIED_OCT22 = {
     "BTC": 81263.73,
     "ETH": 2381.38,

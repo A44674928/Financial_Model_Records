@@ -6,9 +6,8 @@ Reads `trades/` through `model_perf_core.py` and writes:
   data/model_performance_daily.csv      full per-session series, all variants
   data/model_performance_tickers.csv    per-ticker terminal contribution
   data/model_performance_summary.json   machine-readable summary + series
-  Charts/performance/*.png              static charts, including energy live-mark overlay
+  Charts/performance/*.png              static model-performance charts
   data/model_performance_minute_intc.csv one-minute INTC event-window series
-  data/energy_live_mark_overlay.csv    separate user-quoted energy mark check
   Model Performance Comparison.md       written report
   Model Performance Explorer.html       standalone interactive explorer
 
@@ -27,6 +26,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import matplotlib.ticker as mticker
 from matplotlib.ticker import FuncFormatter
 
@@ -39,7 +39,6 @@ from intraday_core import (  # noqa: E402
     intraday_series, spread,
 )
 from minute_closeup import inject_minute_section, write_minute_closeup
-from energy_live_overlay import inject_html_overlay, overlay_rows, write_overlay
 from us10y_adjustment import (
     BASELINE_PCT as US10Y_BASELINE_PCT,
     START_DATE as US10Y_ADJUSTMENT_START,
@@ -310,52 +309,51 @@ def make_us10y_adjustment_chart(series, yield_rows):
     return path
 
 
-def make_energy_overlay_chart(rows):
-    """Render an energy-only, separately dated historical/live mark comparison."""
+def make_energy_eod_history_chart():
+    """Plot only exact user-provided EOD marks over each active energy period."""
     CHARTS_DIR.mkdir(parents=True, exist_ok=True)
-    symbols = [row["symbol"] for row in rows]
-    hist_marks = [float(row["historical_mark_usd"]) for row in rows]
-    live_marks = [float(row["live_mark_usd"]) for row in rows]
-    hist_pnl = [float(row["historical_unrealized_pnl_usd"]) for row in rows]
-    live_pnl = [float(row["live_unrealized_pnl_usd"]) for row in rows]
+    source_path = DATA_DIR / "energy_provider_eod_marks_v1.csv"
+    marks = {"BRENT": [], "OIL": []}
+    with source_path.open(newline="", encoding="utf-8") as fh:
+        for row in csv.DictReader(fh):
+            ticker = row["Ticker"]
+            if ticker in marks:
+                marks[ticker].append((
+                    datetime.strptime(row["Date"], "%Y-%m-%d"),
+                    float(row["EOD_Close"]),
+                ))
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5.5))
-    x = [0, 1]
-    width = 0.34
-    series = [
-        (axes[0], hist_marks, live_marks, "Mark price (USD)", "Energy marks"),
-        (axes[1], hist_pnl, live_pnl, "Unrealized PnL (USD)", "Open-position PnL"),
-    ]
-    for ax, historical, live, ylabel, title in series:
-        old = ax.bar([i - width / 2 for i in x], historical, width,
-                     label="Oct 23 EOD close", color="#64748b")
-        new = ax.bar([i + width / 2 for i in x], live, width,
-                     label="Approx. Oct 23 user quote", color="#38bdf8")
-        _style(ax, title, ylabel, USDFMT)
-        ax.set_xlabel("")
-        ax.set_xticks(x)
-        ax.set_xticklabels(symbols, color=FG, fontsize=11, fontweight="bold")
-        ax.legend(facecolor=PANEL, edgecolor=GRID, labelcolor=FG, fontsize=8)
-        top = max(historical + live)
-        ax.set_ylim(0, top * 1.22)
-        for bars, values, is_pnl in ((old, historical, title == "Open-position PnL"),
-                                     (new, live, title == "Open-position PnL")):
-            for bar, value in zip(bars, values):
-                price_label = f"${value:,.3f}".rstrip("0").rstrip(".")
-                label = (f"{'+' if value >= 0 else '−'}${abs(value):,.2f}" if is_pnl
-                         else price_label)
-                ax.annotate(label, (bar.get_x() + bar.get_width() / 2, bar.get_height()),
-                            xytext=(0, 4), textcoords="offset points", ha="center",
-                            va="bottom", color=FG, fontsize=8)
+    fig, ax = plt.subplots(figsize=(12, 5.6))
+    colors = {"BRENT": "#38bdf8", "OIL": "#f59e0b"}
+    sources = {
+        "BRENT": "BlackBull Markets Brent Cash",
+        "OIL": "TradingView TVC:USOIL",
+    }
+    for ticker in ("BRENT", "OIL"):
+        points = sorted(marks[ticker])
+        if not points:
+            raise ValueError(f"No exact EOD marks found for {ticker} in {source_path}")
+        dates = [point[0] for point in points]
+        prices = [point[1] for point in points]
+        ax.plot(dates, prices, color=colors[ticker], lw=2.2, marker="o", ms=4,
+                label=f"{ticker} — {sources[ticker]} ({len(points)} sessions)")
+        offset = (0, 10) if ticker == "BRENT" else (0, -16)
+        ax.annotate(f"${prices[-1]:,.3f}".rstrip("0").rstrip("."),
+                    (dates[-1], prices[-1]), xytext=offset,
+                    textcoords="offset points", color=FG, fontsize=9,
+                    ha="right", va="center")
 
-    fig.suptitle("Energy EOD Close and Approximate Quote Comparison",
-                 color=FG, fontsize=14, fontweight="bold", y=0.98)
+    _style(ax, "Exact Energy EOD Mark History — Active Periods", "EOD mark (USD)", USDFMT)
+    ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
+    fig.autofmt_xdate(rotation=0, ha="center")
+    ax.legend(facecolor=PANEL, edgecolor=GRID, labelcolor=FG, fontsize=8, loc="best")
     fig.text(0.5, 0.015,
-             "Oct 23 EOD marks use the user-provided BlackBull Brent Cash / TVC:USOIL series; pre-entry context is proxy-labeled. "
-             "Approximate user quotes remain separate from model totals.",
+             "Exact user-provided daily marks from data/energy_provider_eod_marks_v1.csv; "
+             "each line starts on its first active-position date. No proxy or approximate quotes shown.",
              ha="center", color=MUTED, fontsize=8)
-    fig.tight_layout(rect=(0, 0.06, 1, 0.92))
-    path = CHARTS_DIR / "14-energy-live-mark-overlay.png"
+    fig.tight_layout(rect=(0, 0.07, 1, 1))
+    path = CHARTS_DIR / "14-energy-eod-mark-history.png"
     fig.savefig(path, dpi=150, facecolor=BG, bbox_inches="tight")
     plt.close(fig)
     return path
@@ -539,7 +537,7 @@ def write_ticker_csv(contrib):
     return path
 
 
-def write_json(series, contrib, iser=None, co=None, energy_rows=None, yield_rows=None):
+def write_json(series, contrib, iser=None, co=None, yield_rows=None):
     path = DATA_DIR / "model_performance_summary.json"
     payload = {
         "generated_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -548,12 +546,6 @@ def write_json(series, contrib, iser=None, co=None, energy_rows=None, yield_rows
         "unit_notional_usd": UNIT,
         "sessions": SESSION_DATES,
         "divergence_tickers": DIVERGENCE,
-        "energy_live_overlay": {
-            "historical_mark_date": "2026-10-23",
-            "live_mark_date": "2026-10-23",
-            "scope_note": "Exact Oct 23 EOD marks are in the main daily model; approximate quotes are a separate energy-only overlay.",
-            "rows": energy_rows or [],
-        },
         "us10y_adjustment": {
             "status": "legacy additive reference; not used by whole-portfolio multiplier scenarios",
             "baseline_yield_pct": US10Y_BASELINE_PCT,
@@ -617,7 +609,7 @@ def _bl(i):
 
 def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
                    iser=None, co=None, icharts=None, intraday_csv=None,
-                   energy_chart=None, yield_chart=None, yield_csv=None):
+                   yield_chart=None, yield_csv=None):
     n = len(SESSION_DATES)
     last = n - 1
     symbol_count = len(PRICES)
@@ -728,16 +720,19 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
         A(f"Session-level rates, forward-fill dates, actual/365 accruals, and adjusted totals: "
           f"[`{yield_csv.name}`](data/{yield_csv.name}).")
         A("")
-    if energy_chart is not None:
-        A("## Energy EOD Marks and Separate Approximate Quotes")
-        A("")
-        A("> The Oct 23 exact user-provided EOD marks ($117.345 BlackBull Brent Cash / $103.45 TVC:USOIL) and the full active-position-period history are included in daily model totals. "
-          "Only pre-entry context uses Yahoo BZ=F/CL=F proxies. Separate approximate user quotes ($115.72 / $100.94; provider/time unspecified) remain outside those totals.")
-        A("")
-        A(f"![Separate energy mark and PnL comparison]({energy_chart.relative_to(ROOT).as_posix()})")
-        A("")
-        A("Detailed marks and calculations: [`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv).")
-        A("")
+    A("## Energy EOD Marks Used for the Core Replay and Oil Sidecar")
+    A("")
+    A("The core energy replay and the daily-buy oil sidecar use the same exact user-provided daily EOD source file, [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv). Each sidecar lot is bought at that instrument's supplied EOD close.")
+    A("")
+    A("| Ticker | EOD instrument/source | Active-position coverage | Sessions | Oct. 23 EOD mark |")
+    A("|---|---|---|---:|---:|")
+    A("| `BRENT` | BlackBull Markets Brent Cash | Sep. 23–Oct. 23, 2026 | 23 | $117.345 |")
+    A("| `OIL` | TradingView `TVC:USOIL` | Sep. 10–Oct. 23, 2026 | 32 | $103.45 |")
+    A("")
+    A("![Exact user-provided energy EOD mark history by active period](Charts/performance/14-energy-eod-mark-history.png)")
+    A("")
+    A("Yahoo `BZ=F` / `CL=F` values are retained only for pre-entry historical context; they do not mark active energy positions or sidecar buys. No separate approximate quote series is used in current model or sidecar totals.")
+    A("")
     A(f"All four models agree on `{invariant_symbol_count}` of the `{symbol_count}` tickers. They diverge only on "
       "**`CAT`, `INTC`, `META` and `PLTR`** — the four symbols where a short is followed by a "
       "long (or a full exit is compounded into a short). Everything below is driven by those four.")
@@ -934,6 +929,45 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
           f"({N_BARS} rows).")
         A("")
 
+    A("## Supplemental Portfolio, Pilot, and Sidecar Graphs")
+    A("")
+    A("The following views extend beyond the four core direct-price variants. They use distinct account bases or sidecar schedules where noted; they are not all on a common capital base, and their positions/capital must not be netted or stacked implicitly.")
+    A("")
+    A("### Whole-Portfolio DXY Numeraire and Yield Scenarios")
+    A("")
+    A("These whole-book scenarios use the separate DXY-equivalent portfolio basis and explicit US10Y / US30Y whole-account factors. DXY is a numeraire, not an added position; this view is separate from the four core model totals. See [`DXY-Equivalent Portfolio Snapshot.md`](DXY-Equivalent%20Portfolio%20Snapshot.md) and the [interactive Yield Multiplier Explorer](Whole%20Portfolio%20Yield%20Multiplier%20Explorer.html) for definitions and session data.")
+    A("")
+    A("![DXY close vs whole-portfolio PnL in dollars](Charts/performance/17-dxy-close-vs-whole-portfolio-pnl-usd.png)")
+    A("")
+    A("![Whole-portfolio unrealized PnL and USD/DXY returns](Charts/performance/16-whole-portfolio-dxy-vs-usd-pnl.png)")
+    A("")
+    A("### LCID Small-Caps Pilot")
+    A("")
+    A("The five-entry LCID pilot is already included in the four-model replay through the corrected Oct. 23 mark; this graph is a focused component view, not another add-on to the core totals. See [`Small Caps [Buyout & Reorganization Offering Test Pilot].md`](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md) for entry and mark details.")
+    A("")
+    A("![LCID small-caps pilot daily PnL and marks](Charts/performance/18-lcid-small-caps-pilot-pnl.png)")
+    A("")
+    A("### Oil Desk EOD Accumulation Sidecar")
+    A("")
+    A("This separate hypothetical adds 10U ($100,000 notional) per supplied EOD session for each energy instrument, using the same exact marks as the core replay. Its daily-buy lots have a separate capital schedule; chart-opened core energy positions are shown for context and must not be counted again when adding the sidecar. See [`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md).")
+    A("")
+    A("![Oil desk daily EOD accumulation and chart positions](Charts/performance/19-oil-desk-daily-accumulation.png)")
+    A("")
+    A("### EOD Add-On and Variant-Specific 1U/EOD Comparisons")
+    A("")
+    A("The fixed-$500/EOD model and 1U/EOD alternatives are separate model families, not stacked on top of one another. The broad comparison distinguishes standalone results from additive composites; composites sum PnL and gross notionals without netting positions or capital. See [`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md) and [`Model Calculation Guide.md`](Model%20Calculation%20Guide.md) for full rules and tables.")
+    A("")
+    A("![Core models, separate $500 and 1U direction-following models, and sidecar combinations](Charts/performance/20-strategy-sidecar-comparison.png)")
+    A("")
+    A("The next chart contains all **16 Core × variant-specific 1U/EOD pairings**, including matching and cross-variant pairs, each with the exact-mark oil daily-buy sidecar. These are additive USD totals; positions and capital are not netted, and the core's chart-opened energy lots are not duplicated in the sidecar.")
+    A("")
+    A("![All 16 Core × 1U variant pairings with oil sidecar](Charts/performance/21-force-variant-oil-comparison.png)")
+    A("")
+    A("The percentage-gain view plots all **32 series**: the same 16 Core × 1U pairings, each with and without oil. Gain is cumulative PnL divided by cumulative gross notional added—a deployed-notional ratio, **not an account return**. Only the top four terminal performers are named in the legend; all 32 are plotted. The leading terminal ratios are Core V3A + 1U V3A with oil, **8.88%**; the same pairing without oil, **8.74%**; Core V1 + 1U V3A with oil, **8.62%**; and Core V3A + 1U V1 with oil, **8.61%**.")
+    A("")
+    A("![All 32 Core × 1U variant pairings with and without oil, shown as deployed-notional percentage gain](Charts/performance/22-force-variant-oil-percent-gain.png)")
+    A("")
+
     A("## Method & Caveats")
     A("")
     A(f"- **Model coverage:** the four variants directly price the `{symbol_count}` symbols with configured "
@@ -951,8 +985,6 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       "which matches the user-corrected consolidated mark at $3.52. `BZ=F`/`CL=F` are only pre-entry context proxies.")
     A("- **Oct. 23 price reconciliation:** `data/consolidated_portfolio_closes_v7.csv` is the active close set; v1 through v6 remain preserved. "
       "Earlier audits record selected v1 marks for CVX `$233.21`, WMT `$119.89`, TMO `$673.82`, and UPS `$101.06`. User-provided exact energy EOD values are in [`data/energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv); the v6-to-v7 audit records the endpoint changes. Exact marks begin on each instrument's first active position date; pre-entry context remains a futures proxy. The active source map is [`data/active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv). The saved TradingView/Yahoo comparison candidate remains audit-only. DXY, FX, and yield inputs remain local user-provided daily series and are not independently provider-verified.")
-    A("- **Approximate energy quotes (separate overlay):** their open-lot calculations versus the exact user-provided EOD marks are in "
-      "[`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv). They remain excluded from model totals.")
     A("- **Session calendar:** the `36` U.S. equity regular sessions from "
       f"`{SESSION_DATES[0]}` to `{SESSION_DATES[-1]}`. Futures and crypto are mapped onto the "
       "same session index by trade date.")
@@ -1050,6 +1082,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <p class="sub">*Fall (Arizona) [2026]* paper-trade book &middot; __NSESS__ sessions
      (__START__ &rarr; __END__, MST) &middot; __NSYMS__ symbols &middot; 1U = $10,000.00
      &middot; daily marks through the Oct 23, 2026 close; hourly intraday charts through Oct 22</p>
+
+  <div class="card">
+    <h2>Energy EOD marks used in the core replay and oil sidecar</h2>
+    <p class="hint">Both use the same exact user-provided daily marks from <code>data/energy_provider_eod_marks_v1.csv</code>. BRENT: BlackBull Markets Brent Cash, Sep 23–Oct 23 (23 sessions), terminal $117.345. OIL: TradingView <code>TVC:USOIL</code>, Sep 10–Oct 23 (32 sessions), terminal $103.45. Yahoo <code>BZ=F</code>/<code>CL=F</code> are pre-entry context only; no separate approximate quote series is used in current totals.</p>
+    <p><img src="Charts/performance/14-energy-eod-mark-history.png" alt="Exact user-provided energy EOD mark history by active period" style="max-width:100%;height:auto"></p>
+  </div>
 
   <div class="card">
     <h2>Terminal results</h2>
@@ -1481,7 +1519,6 @@ def write_html(series, contrib, summary_json, iser=None):
     payload = json.loads(summary_json.read_text(encoding="utf-8"))
     slim = {
         "sessions": payload["sessions"],
-        "energy_live_overlay": payload.get("energy_live_overlay", {}),
         "variants": {
             v: {
                 "label": d["label"],
@@ -1535,8 +1572,7 @@ def main():
     contrib = ticker_contributions(series)
 
     charts = make_charts(series, contrib)
-    energy_rows = overlay_rows()
-    energy_chart = make_energy_overlay_chart(energy_rows)
+    energy_chart = make_energy_eod_history_chart()
     yield_chart = make_us10y_adjustment_chart(series, yield_rows)
 
     events = parse_trades()
@@ -1550,19 +1586,17 @@ def main():
     yield_csv = write_adjustment_csv(
         yield_rows, series, DATA_DIR / "model_performance_us10y_adjustment.csv"
     )
-    summary_json = write_json(series, contrib, iser, co, energy_rows, yield_rows)
-    energy_overlay_csv = write_overlay()
+    summary_json = write_json(series, contrib, iser, co, yield_rows)
     md = write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
-                        iser, co, icharts, intraday_csv, energy_chart, yield_chart, yield_csv)
+                        iser, co, icharts, intraday_csv, yield_chart, yield_csv)
     html = write_html(series, contrib, summary_json, iser)
     minute_image, minute_csv, minute_rows, minute_pnl = write_minute_closeup()
     inject_minute_section(md, html, minute_image, minute_csv, minute_rows, minute_pnl)
-    inject_html_overlay(html, rows=energy_rows, chart_path=energy_chart)
 
     print("Wrote:")
     for p in charts + [energy_chart, yield_chart] + icharts + [minute_image]:
         print(f"  {p.relative_to(ROOT)}")
-    for p in (daily_csv, intraday_csv, minute_csv, energy_overlay_csv, yield_csv,
+    for p in (daily_csv, intraday_csv, minute_csv, yield_csv,
               ticker_csv, summary_json, md, html):
         print(f"  {p.relative_to(ROOT)}")
 

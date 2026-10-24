@@ -1,9 +1,10 @@
-"""Compare exact user-supplied energy EOD marks with separate approximate live marks.
+"""Legacy audit of the temporary approximate energy quote comparison.
 
-The active terminal set is `data/consolidated_portfolio_closes_v7.csv`, while
-`data/energy_provider_eod_marks_v1.csv` records exact BlackBull Brent Cash and
-TVC:USOIL closes from the first active position date. Pre-entry context remains
-Yahoo BZ=F/CL=F proxy data; approximate live marks stay separate.
+This module is not imported by current model or sidecar builders. Current active
+marks for both use the exact daily series in
+`data/energy_provider_eod_marks_v1.csv`; Yahoo BZ=F/CL=F are pre-entry proxies
+only. The older overlay data is retained solely for audit traceability and is
+not a current valuation source.
 """
 
 import csv

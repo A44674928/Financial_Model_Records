@@ -1,8 +1,8 @@
 # Standardized Paper-Trades Ledger — *Fall (Arizona) [2026]* (`1 Unit = $10,000.00`)
 
-Complete mark-to-market ledger for [`trades/`](trades/) and [`trades.zip`](trades.zip) covering ***Fall (Arizona) [2026]* exclusively** (**32 symbols**, **77 standardized log lines** through `2026-10-19`; all timestamps recorded in Arizona year-round **`MST` / `UTC-07:00`** without Daylight Saving Time, where `06:30 MST = 09:30 EDT` U.S. regular-session open and `13:00 MST = 16:00 EDT` close), marked against **Thursday, October 22, 2026** closing prices (`1:00 PM MST` / `4:00 PM EDT`). The separate approximate Oct 23 live-energy quote overlay below does **not** change these historical close-based totals.
+Complete mark-to-market ledger for [`trades/`](trades/) and [`trades.zip`](trades.zip) covering ***Fall (Arizona) [2026]* exclusively** (**32 symbols**, **77 standardized log lines** through `2026-10-19`; all timestamps recorded in Arizona year-round **`MST` / `UTC-07:00`** without Daylight Saving Time, where `06:30 MST = 09:30 EDT` U.S. regular-session open and `13:00 MST = 16:00 EDT` close), marked against **Thursday, October 22, 2026** closing prices (`1:00 PM MST` / `4:00 PM EDT`). These historical totals remain on the Oct. 22 basis; the active daily energy marks and sidecar source are documented separately in [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md).
 
-> **Oct 22 equity EOD recheck (Oct 23):** I rechecked all **26 stock symbols plus the XLE ETF** against Yahoo Finance daily chart closes for Oct 22. **26 of 27 matched** the prior ledger marks; `NET` was stale at `$306.60` and the source close was `$303.61`. The NET mark and dependent PnL have been corrected; symbol-by-symbol source URLs and deltas are in [`data/oct22_equity_eod_recheck.csv`](data/oct22_equity_eod_recheck.csv). The separate energy-proxy caveat below still applies.
+> **Oct 22 equity EOD recheck (Oct 23):** I rechecked all **26 stock symbols plus the XLE ETF** against Yahoo Finance daily chart closes for Oct 22. **26 of 27 matched** the prior ledger marks; `NET` was stale at `$306.60` and the source close was `$303.61`. The NET mark and dependent PnL have been corrected; symbol-by-symbol source URLs and deltas are in [`data/oct22_equity_eod_recheck.csv`](data/oct22_equity_eod_recheck.csv). This ledger's oil rows remain on their historical Oct. 22 proxy-based basis; the active exact daily marks are in the linked model comparison and sidecar source file.
 
 > **Cohort Scope — *Fall (Arizona) [2026]* Exclusively:** These trades are ***Fall (Arizona) [2026]* exclusively** (`America/Phoenix`, `MST` — not a full-year 2026 calendar book; includes the Sep 3–posted `BTC` chart carrying an author-estimated `2026-08-01` entry alongside the 76 `2026-09-03` to `2026-10-19` lines). The pre-season `2024-08-19 PLTR @ $24.00` long entry has been separated into [`trades/2024/PLTR.txt`](trades/2024/PLTR.txt) (see standalone [`2024 Trades PnL.md`](reports/2024/2024%20Trades%20PnL.md)) so all tables, rankings, and return percentages below reflect ***Fall (Arizona) [2026]* exclusively** with zero multi-year skew.
 
@@ -37,18 +37,18 @@ Complete mark-to-market ledger for [`trades/`](trades/) and [`trades.zip`](trade
 
 ---
 
-## Live Energy Quote Reconciliation — Approximate Oct 23 Marks
+## Energy EOD Source Note — Current Marks Are Separate from This Oct. 22 Ledger
 
-The historical tables in this ledger remain marked to the **Oct 22 close/settlement**. A source audit found that the historical series uses **Yahoo `BZ=F` (Brent futures)** for `BRENT` and **Yahoo `CL=F` (WTI futures)** for `OIL`; the trade metadata instead identifies **Brent Cash / ICE Brent** and **`TVC:USOIL`**. These are related markets, but not guaranteed to be quote-identical instruments.
+The approximate Oct. 23 quote comparison formerly shown here was a temporary working note and is withdrawn as a current valuation source. This ledger's existing historical tables remain marked to Oct. 22 and have not been recalculated.
 
-For a separate current snapshot, the following calculation uses the approximate prices supplied by the user on **Oct 23, 2026**. Provider and exact quote time were not supplied. Each position remains sized at `$10,000` notional; realized PnL is unchanged at `$0.00` because all four lots in each symbol remain open.
+The active core replay and the oil-desk sidecar use the same exact user-provided EOD rows in [`data/energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv):
 
-| Symbol | Trade instrument | Historical series proxy | Open lots | Historical mark (Oct 22) | Historical realized / unrealized | Approx. live mark (Oct 23) | Live realized / unrealized estimate | Change in unrealized |
-|---|---|---|---:|---:|---:|---:|---:|---:|
-| [`BRENT`](trades/BRENT.txt) | Brent Cash / ICE Brent | Yahoo `BZ=F` futures | 4 long | `$113.17` | `$0.00 / +$2,437.10` | **`$115.72`** | `$0.00 / +$3,393.31` | **+$956.21** |
-| [`OIL`](trades/OIL.txt) | `TVC:USOIL` WTI CFD | Yahoo `CL=F` futures | 4 long | `$99.47` | `$0.00 / +$3,219.53` | **`$100.94`** | `$0.00 / +$3,858.25` | **+$638.71** |
+| Symbol | Active EOD source | Coverage | Sessions | Oct. 23 EOD mark |
+|---|---|---|---:|---:|
+| [`BRENT`](trades/BRENT.txt) | BlackBull Markets Brent Cash | Sep. 23–Oct. 23, 2026 | 23 | `$117.345` |
+| [`OIL`](trades/OIL.txt) | TradingView `TVC:USOIL` | Sep. 10–Oct. 23, 2026 | 32 | `$103.45` |
 
-The detailed, reproducible overlay is [`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv); its inputs are explicitly marked as user-provided estimates with no verified timestamp. **Do not add these two updated marks to the Oct 22 portfolio totals above**: the remaining symbols are still at the Oct 22 close. Historical model performance continues to use a consistent Oct 22 close basis.
+Yahoo `BZ=F` / `CL=F` prices remain pre-entry context proxies only; the active model and sidecar do not use the former approximate quote pair.
 
 ## 1. *Fall (Arizona) [2026]* Realized PnL — Closed Exits & Stop-and-Reverse Covers (`1 Unit = $10,000.00`)
 
