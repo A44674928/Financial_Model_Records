@@ -3,13 +3,13 @@
 
 Four model variants are compared over the *Fall (Arizona) [2026]* book:
 
-  V1  1u Open  - logged entry units at $10,000 each; no LONG-triggered short cover.
-  V2  1u SAR   - same logged sizing; LONG / REBUY closes open shorts.
+  V1  1U Open  - logged entry units; no LONG-triggered short cover.
+  V2  1U SAR   - same logged sizing; LONG / REBUY closes open shorts.
   V3A Nu Open  - natural units (compounded shorts sized to the preceding
                  full exit); positions stay open.
   V3B Nu SAR   - natural units, plus stop-and-reverse on LONG / REBUY.
 
-`1 unit` = $10,000.00 initial notional; quantity Q = $10,000 / entry price.
+`1U` is the standard $10,000.00 initial notional; quantity Q = 1U / entry price.
 """
 
 import bisect
@@ -29,8 +29,8 @@ MST = timezone(timedelta(hours=-7))
 UNIT = 10_000.00
 VARIANTS = ("V1", "V2", "V3A", "V3B")
 VARIANT_LABEL = {
-    "V1": "Variant 1 — 1u Open",
-    "V2": "Variant 2 — 1u SAR",
+    "V1": "Variant 1 — 1U Open",
+    "V2": "Variant 2 — 1U SAR",
     "V3A": "Variant 3A — Nu Open",
     "V3B": "Variant 3B — Nu SAR",
 }

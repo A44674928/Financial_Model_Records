@@ -58,7 +58,7 @@ class StrategySidecarComparisonTests(unittest.TestCase):
         terminal = rows[-1]
         self.assertEqual(terminal["oil_desk_daily_buy_pnl_usd"], "499705.92")
         self.assertEqual(terminal["exponential_500_pnl_usd"], "21118.86")
-        self.assertEqual(terminal["force_multiplier_10k_pnl_usd"], "422377.26")
+        self.assertEqual(terminal["force_multiplier_1u_pnl_usd"], "422377.26")
         self.assertEqual(terminal["exponential_500_plus_oil_pnl_usd"], "520824.78")
         self.assertEqual(terminal["force_multiplier_plus_oil_pnl_usd"], "922083.18")
         self.assertEqual(terminal["V1_core_pnl_usd"], f"{core['V1']['total'][-1]:.2f}")
@@ -70,10 +70,10 @@ class StrategySidecarComparisonTests(unittest.TestCase):
         self.assertEqual(terminal["force_multiplier_plus_oil_open_notional_usd"], "11810000.00")
         report = Path(__file__).resolve().parents[1] / "Strategy and Sidecar Comparison.md"
         report_text = report.read_text(encoding="utf-8")
-        self.assertIn("Force multiplier ($10,000/EOD)", report_text)
+        self.assertIn("Force multiplier (1U/EOD)", report_text)
         self.assertIn("Model Calculation Guide.md", report_text)
         self.assertIn("force_multiplier_eod_positions_v1.csv", report_text)
-        self.assertIn("Force multiplier — $10,000 / 1 unit per EOD", report_text)
+        self.assertIn("Force multiplier — 1U per EOD", report_text)
         audit_path = Path(__file__).resolve().parents[1] / "data" / "force_multiplier_eod_positions_v1.csv"
         with audit_path.open(newline="", encoding="utf-8") as handle:
             force_audit = list(csv.DictReader(handle))

@@ -6,7 +6,7 @@ For the daily position and PnL methodology across all variants and sidecars, see
 
 ## Assumptions
 
-- Buy **10 units ($10,000 per unit; $100,000 notional)** in each instrument at every supplied EOD session.
+- Buy **10 units (10U; $100,000 notional)** in each instrument at every supplied EOD session.
 - One new long lot is opened at each session's EOD close and remains open through Oct. 23; no exits, fees, financing, or scaling from PnL.
 - The daily buy at a given close starts accruing PnL after that close; therefore it has zero mark-to-market PnL at its purchase EOD.
 - Chart-opened positions are shown separately and then added to the daily-buy hypothetical for a combined energy subtotal.

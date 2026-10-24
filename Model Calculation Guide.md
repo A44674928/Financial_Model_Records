@@ -6,15 +6,15 @@ This guide explains how the repository's portfolio models turn the trade logs in
 
 | Book | What determines a new position? | How does an open position close? | Unit / sizing |
 |---|---|---|---|
-| Core V1 — 1u Open | Each logged `LONG`, `REBUY`, or `SHORT` entry | Explicit EXIT/TAKE PROFIT closes open longs. No automatic short cover on a later LONG/REBUY. | Logged entry units × $10,000 |
-| Core V2 — 1u SAR | Same entries and logged sizes as V1 | Explicit exit closes open longs; a LONG/REBUY also closes all open shorts. | Logged entry units × $10,000 |
+| Core V1 — 1U Open | Each logged `LONG`, `REBUY`, or `SHORT` entry | Explicit EXIT/TAKE PROFIT closes open longs. No automatic short cover on a later LONG/REBUY. | Logged entry units × 1U notional |
+| Core V2 — 1U SAR | Same entries and logged sizes as V1 | Explicit exit closes open longs; a LONG/REBUY also closes all open shorts. | Logged entry units × 1U notional |
 | Core V3A — Nu Open | Same as V1, except qualifying compounded shorts can be larger | Same close behavior as V1 | Logged units, except a qualifying compounded short uses the preceding full-exit unit count |
 | Core V3B — Nu SAR | Same as V3A | Same close behavior as V2 | Same short compounding as V3A |
 | Exponential alternative | Latest logged direction, carried forward; add a lot each priced EOD | Close all old lots at EOD when the carried direction flips | Fixed $500 per active symbol per EOD |
-| Force-multiplier alternative | Same direction path and daily schedule as the $500 model | Same flip rule | Fixed $10,000 (one unit) per active symbol per EOD |
-| Oil-desk daily-buy sidecar | Add an energy long at every supplied energy EOD | No exits during the replay window | 10 units / $100,000 notional per energy ticker per covered EOD |
+| Force-multiplier alternative | Same direction path and daily schedule as the $500 model | Same flip rule | Fixed 1U per active symbol per EOD |
+| Oil-desk daily-buy sidecar | Add an energy long at every supplied energy EOD | No exits during the replay window | 10U / $100,000 notional per energy ticker per covered EOD |
 
-The $500 and $10,000 direction-following models are **alternatives**. They are not added together. Oil sidecar composites add the daily-buy lots only; they do not add the energy chart positions a second time.
+The $500 and 1U direction-following models are **alternatives**. They are not added together. Oil sidecar composites add the daily-buy lots only; they do not add the energy chart positions a second time.
 
 ## 1. Common inputs and daily timeline
 
@@ -22,16 +22,16 @@ The $500 and $10,000 direction-following models are **alternatives**. They are n
 - Each event's entry or exit date is assigned to the first priced session on or after that date. This carries weekend and market-holiday events to the next priced session. Events after the October 23, 2026 cutoff are outside this replay.
 - The entry/exit event price in the log is used as the lot's entry basis or close price. Open lots are marked against that ticker's configured EOD price series. The source registry and the underlying data files document the price source by ticker; the marks should not all be assumed to be TradingView-exact.
 - The four core models cover the 33 directly price-covered symbols. DXY, EURUSD, JPYUSD, US10Y, and US30Y are outside these position replays; the whole-account DXY/yield scenarios are separate analyses.
-- A logged unit is a $10,000 **notional sizing unit**, not a fixed number of shares. Core V1/V2 use each entry's logged unit size; V3A/V3B normally do too, subject to the compounded-short override below. Most current entries are 1 unit, and the 2.5-unit ORCL entry is 2.5 × $10,000. The `1u` labels describe the standard unit sizing, not a rule that overrides a different size written in the log.
+- A unit is a notional sizing measure, not a fixed number of shares. In these calculations, **1U corresponds to $10,000 of entry notional**. Core V1/V2 use each entry's logged unit size; V3A/V3B normally do too, subject to the compounded-short override below. Most current entries are 1U, and the ORCL entry is 2.5U. The `1U` labels describe standard sizing, not a rule that overrides a different size written in the log.
 
 On a session, the replay processes that session's mapped events, applies any closes and new entries, then marks the remaining open lots to the session's EOD price. A same-day entry can therefore have a gain or loss at EOD if the configured close differs from its logged entry price.
 
 ## 2. Core lot and PnL calculations
 
-A core lot sized at `q` units after applying the variant's sizing rule has entry notional `q × $10,000`. With entry price `E` and the applicable mark or close price `P`:
+A core lot sized at `q` units after applying the variant's sizing rule has entry notional `q × 1U`. With entry price `E` and the applicable mark or close price `P`:
 
-- **Long PnL:** `q × $10,000 × (P / E − 1)`
-- **Short PnL:** `q × $10,000 × (1 − P / E)`
+- **Long PnL:** `q × 1U × (P / E − 1)`
+- **Short PnL:** `q × 1U × (1 − P / E)`
 
 For example, a 1-unit long entered at $100 and marked at $105 has +$500 PnL. A 1-unit short entered at $100 and marked at $105 has −$500 PnL. The calculation is proportional to the price move; it does not recalculate the entry notional as the position gains or loses.
 
@@ -49,14 +49,14 @@ The replay does not deduct commissions, spread, borrow costs, financing, taxes, 
 
 All four use the same logs, unit notional, price marks, explicit exit events, and PnL formulas. They differ in whether a LONG/REBUY closes an existing short, and whether a qualifying short after a multi-unit full exit is sized up.
 
-### V1 — 1u Open
+### V1 — 1U Open
 
 - Opens a lot for each logged LONG, REBUY, or SHORT entry using that entry's logged unit count.
 - An explicit EXIT or TAKE PROFIT event closes all currently open **long** lots for that ticker.
 - Does not automatically close short lots when a later LONG/REBUY appears. A long and short for the same ticker can therefore be open at the same time.
 - The name “Open” means no LONG-triggered short-cover rule; explicit exit records still close long lots.
 
-### V2 — 1u SAR
+### V2 — 1U SAR
 
 - Uses the same logged entry sizes and explicit long exits as V1.
 - In addition, a LONG or REBUY entry closes all currently open **short** lots for that ticker at the new entry's logged price, then opens the new long.
@@ -94,7 +94,7 @@ For each priced EOD:
 A weekend or holiday signal begins on the first priced EOD session on or after its logged date. Unlike the core lot models, this daily-addition model ignores the trade log's position-size field: the tranche is fixed by the chosen alternative.
 
 - **Exponential ($500/EOD):** one new $500-notional tranche per active ticker per priced EOD. The tranche size is fixed; PnL is not compounded into later tranche size.
-- **Force multiplier ($10,000/EOD):** identical signals, timing, and flip logic, but one $10,000 tranche per active ticker per priced EOD. Its unrounded PnL and notional are 20× the $500 model's; displayed cents can differ slightly when totals are rounded separately.
+- **Force multiplier (1U/EOD):** identical signals, timing, and flip logic, but one 1U tranche per active ticker per priced EOD. Its unrounded PnL and notional are 20× the $500 model's; displayed cents can differ slightly when totals are rounded separately.
 
 For either model, an active ticker can accumulate several same-direction lots. On a flip, all old-direction lots close at that EOD mark before the first new-direction tranche is added. A close is not triggered merely because the source trade log contains an EXIT or TAKE PROFIT row.
 
@@ -102,7 +102,7 @@ For either model, an active ticker can accumulate several same-direction lots. O
 
 The oil-desk hypothetical is a separate long-only accumulation schedule for BRENT and OIL:
 
-- Buy 10 units ($100,000 notional) of each energy ticker at every supplied EOD session in its covered series.
+- Buy 10U ($100,000 notional) of each energy ticker at every supplied EOD session in its covered series.
 - Each new lot starts at that session's EOD mark. It has zero mark-to-market PnL at that purchase close, then remains open and is marked on later covered sessions through October 23.
 - No sidecar lots are closed, and PnL is not reinvested into later buys. Fees, financing, and margin are not modeled.
 - The active-position marks use the user-provided exact BlackBull Brent Cash and TradingView TVC:USOIL series. Pre-entry context remains labeled proxy data and is not used to mark active lots.
@@ -115,7 +115,7 @@ A composite line is additive PnL, session by session:
 
 `composite PnL = core-variant PnL + selected independent add-on PnL(s)`
 
-The selected add-on is either the $500 model, the $10,000 force multiplier, or the oil daily-buy sidecar. A valid model-plus-oil composite adds one direction-following alternative and the oil daily buys to the core PnL. The two direction-following sizes are never added to each other. These lines are not capital-normalized account simulations; comparing their raw dollar PnL without considering deployed/open notional can be misleading. They are not included in the separate whole-portfolio DXY/yield multiplier scenarios.
+The selected add-on is either the $500 model, the 1U force multiplier, or the oil daily-buy sidecar. A valid model-plus-oil composite adds one direction-following alternative and the oil daily buys to the core PnL. The two direction-following sizes are never added to each other. These lines are not capital-normalized account simulations; comparing their raw dollar PnL without considering deployed/open notional can be misleading. They are not included in the separate whole-portfolio DXY/yield multiplier scenarios.
 
 ## 7. Where to inspect the calculations
 

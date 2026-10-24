@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-10-24T04:28:35Z",
+  "generated_utc": "2026-10-24T05:16:27Z",
   "cohort": "Fall (Arizona) [2026]",
   "timezone": "America/Phoenix \u2014 MST / UTC-07:00 (no DST)",
   "unit_notional_usd": 10000.0,
@@ -502,7 +502,7 @@
   },
   "variants": {
     "V1": {
-      "label": "Variant 1 \u2014 1u Open",
+      "label": "Variant 1 \u2014 1U Open",
       "color": "#38bdf8",
       "series": {
         "total": [
@@ -1264,7 +1264,7 @@
       }
     },
     "V2": {
-      "label": "Variant 2 \u2014 1u SAR",
+      "label": "Variant 2 \u2014 1U SAR",
       "color": "#f472b6",
       "series": {
         "total": [

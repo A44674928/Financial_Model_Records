@@ -12,8 +12,8 @@ The whole-book base PnL includes realized and open unrealized PnL (including FX 
 
 | Variant | Capital basis | Open unrealized PnL (USD) | Realized PnL (USD) | Base PnL (no yield factors) | Base USD return | DXY-equivalent account value | DXY-numeraire return |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| **Variant 1 — 1u Open** | $830,000 | $+73,391.74 | $+25,561.44 | $+98,953.18 | +11.508% | 9,064.77 DXY-eq units | +8.067% |
-| **Variant 2 — 1u SAR** | $830,000 | $+42,850.29 | $+31,385.57 | $+74,235.86 | +8.530% | 8,822.68 DXY-eq units | +5.181% |
+| **Variant 1 — 1U Open** | $830,000 | $+73,391.74 | $+25,561.44 | $+98,953.18 | +11.508% | 9,064.77 DXY-eq units | +8.067% |
+| **Variant 2 — 1U SAR** | $830,000 | $+42,850.29 | $+31,385.57 | $+74,235.86 | +8.530% | 8,822.68 DXY-eq units | +5.181% |
 | **Variant 3A — Nu Open** | $920,000 | $+117,595.09 | $+25,561.44 | $+143,156.52 | +15.187% | 10,379.20 DXY-eq units | +11.633% |
 | **Variant 3B — Nu SAR** | $920,000 | $+42,850.29 | $+42,552.27 | $+85,402.56 | +8.909% | 9,813.54 DXY-eq units | +5.549% |
 
@@ -27,8 +27,8 @@ The base case is the portfolio account value without either yield multiplier. Th
 
 | Variant | No multiplier: account / USD return / DXY return | US10Y: account / USD return / DXY return | US10Y × US30Y: account / USD return / DXY return |
 |---|---:|---:|---:|
-| **Variant 1 — 1u Open** | $925,513.26 / +11.508% / +8.067% | $925,811.11 / +11.544% / +8.102% | $925,945.81 / +11.560% / +8.118% |
-| **Variant 2 — 1u SAR** | $900,795.94 / +8.530% / +5.181% | $901,085.84 / +8.565% / +5.215% | $901,216.94 / +8.580% / +5.230% |
+| **Variant 1 — 1U Open** | $925,513.26 / +11.508% / +8.067% | $925,811.11 / +11.544% / +8.102% | $925,945.81 / +11.560% / +8.118% |
+| **Variant 2 — 1U SAR** | $900,795.94 / +8.530% / +5.181% | $901,085.84 / +8.565% / +5.215% | $901,216.94 / +8.580% / +5.230% |
 | **Variant 3A — Nu Open** | $1,059,716.60 / +15.187% / +11.633% | $1,060,057.65 / +15.224% / +11.669% | $1,060,211.88 / +15.240% / +11.685% |
 | **Variant 3B — Nu SAR** | $1,001,962.64 / +8.909% / +5.549% | $1,002,285.10 / +8.944% / +5.583% | $1,002,430.92 / +8.960% / +5.598% |
 

@@ -197,7 +197,7 @@ def make_charts(series, contrib):
 
     # 4. Pairwise spreads
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(11, 8.4), sharex=True)
-    pairs = [("V1", "V2", "V1 − V2 : stop-and-reverse effect (1-unit book)"),
+    pairs = [("V1", "V2", "V1 − V2 : stop-and-reverse effect (1U book)"),
              ("V3A", "V3B", "V3A − V3B : stop-and-reverse effect (natural-unit book)")]
     for ax, (a, b, title) in zip((ax1, ax2), pairs):
         spread = [series[a]["total"][i] - series[b]["total"][i] for i in x]
@@ -396,7 +396,7 @@ def make_intraday_charts(iser, co):
     # 10. Intraday spreads with crossover markers
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(13, 8.6), sharex=True)
     for ax, key, title in [
-        (ax1, "V1-V2", "V1 − V2 : stop-and-reverse effect (1-unit book)"),
+        (ax1, "V1-V2", "V1 − V2 : stop-and-reverse effect (1U book)"),
         (ax2, "V3A-V3B", "V3A − V3B : stop-and-reverse effect (natural-unit book)"),
     ]:
         d = co[key]
@@ -650,7 +650,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"`{symbol_count}` price-covered symbols, "
       f"`{modeled_event_count}` in-window price-covered events out of `{book_event_count}` total 2026 log events "
       f"(`{price_unmodeled_event_count}` outside direct-price scope; `{post_terminal_event_count}` after cutoff), "
-      "`1 unit = $10,000.00` initial notional, all timestamps in Arizona year-round "
+      "`1U = $10,000.00` standard notional, all timestamps in Arizona year-round "
       "**`MST` / `UTC-07:00`**, marked against the **Friday, October 23, 2026** close. Intraday plots remain on their supplied Oct. 22 hourly scope.")
     A("")
     A("> **Interactive version:** open **[`Model Performance Explorer.html`](Model%20Performance%20Explorer.html)** "
@@ -661,8 +661,8 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"[`{summary_json.name}`](data/{summary_json.name}).")
     A("> **Whole-portfolio DXY and yield-multiplier scenarios:** **[`DXY-Equivalent Portfolio Snapshot.md`](DXY-Equivalent%20Portfolio%20Snapshot.md)** includes the daily DXY-numeraire comparison and the toggleable whole-account scenarios (no factor, US10Y, US10Y × US30Y) in **[`Whole Portfolio Yield Multiplier Explorer.html`](Whole%20Portfolio%20Yield%20Multiplier%20Explorer.html)**.")
     A("> **Small Caps pilot:** **[`Small Caps [Buyout & Reorganization Offering Test Pilot].md`](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md)** tracks the five LCID entries; all five are included in the Oct. 23 four-model comparison.")
-    A("> **Oil desk hypothetical:** **[`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md)** shows 10 new $10,000 long units per supplied EOD session for each exact energy benchmark, separately and combined with the chart-opened energy positions.")
-    A("> **Strategy and sidecar comparison:** **[`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md)** compares the existing variants, fixed-$500/EOD exponential model, $10,000 (1-unit) force-multiplier variant, oil-desk daily buys, and their additive composites.")
+    A("> **Oil desk hypothetical:** **[`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md)** shows 10U of new long exposure per supplied EOD session for each exact energy benchmark, separately and combined with the chart-opened energy positions.")
+    A("> **Strategy and sidecar comparison:** **[`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md)** compares the existing variants, fixed-$500/EOD exponential model, 1U/EOD force-multiplier variant, oil-desk daily buys, and their additive composites.")
     A("> **How the models work:** **[`Model Calculation Guide.md`](Model%20Calculation%20Guide.md)** explains unit sizing, day-by-day lot handling, close/reversal behavior, and PnL formulas.")
     A("")
     A("## The Four Models")
@@ -672,11 +672,11 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     for v in VARIANTS:
         s = series[v]
         A(f"| **{VARIANT_LABEL[v]}** | "
-          f"{'logged entry sizes at $10,000/unit; explicit exits close longs' if v == 'V1' else ''}"
+          f"{'logged entry sizes; explicit exits close longs' if v == 'V1' else ''}"
           f"{'V1 sizing plus LONG/REBUY closes open shorts' if v == 'V2' else ''}"
           f"{'V1 behavior; qualifying compounded shorts use preceding full-exit units' if v == 'V3A' else ''}"
           f"{'V2 behavior plus qualifying compounded shorts' if v == 'V3B' else ''} | "
-          f"{s['stats']['units']:.1f}u (${s['stats']['deployed']:,.0f}) | "
+          f"{s['stats']['units']:.1f}U (${s['stats']['deployed']:,.0f}) | "
           f"{_money(s['realized'][last])} | {_money(s['unrealized'][last])} | "
           f"{_money(term[v])} | {_money(s['yield_adjustment'][last])} | "
           f"**{_money(s['adjusted_total'][last])}** | "
@@ -841,7 +841,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("|---|---:|---:|---:|---:|")
     top = sorted(contrib["V3A"].items(), key=lambda kv: -kv[1]["total"])[:10]
     for sym, d in top:
-        A(f"| `{sym}` | {d['units']:.0f}u | {_money(d['realized'])} | "
+        A(f"| `{sym}` | {d['units']:.0f}U | {_money(d['realized'])} | "
           f"{_money(d['unrealized'])} | **{_money(d['total'])}** |")
     A("")
     A("### Bottom contributors (V3A)")
@@ -850,7 +850,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("|---|---:|---:|---:|---:|")
     bot = sorted(contrib["V3A"].items(), key=lambda kv: kv[1]["total"])[:10]
     for sym, d in bot:
-        A(f"| `{sym}` | {d['units']:.0f}u | {_money(d['realized'])} | "
+        A(f"| `{sym}` | {d['units']:.0f}U | {_money(d['realized'])} | "
           f"{_money(d['unrealized'])} | **{_money(d['total'])}** |")
     A("")
     if iser is not None and co is not None:
@@ -963,7 +963,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       "The Oct. 23 ORCL and LCID entries are now included at that date's close. The master PnL report remains "
       "unrecalculated and unreconciled; do not interpret this model replay as a refresh of its totals.")
     A("- **ROI** is cumulative PnL divided by notional deployed *to date* "
-      "(units opened on or before that session × `$10,000`), so early sessions show larger "
+      "(units opened on or before that session × 1U standard notional), so early sessions show larger "
       "percentages on less capital.")
     A("- Entry fills use the log's own market prices, not session closes; exits are realised on "
       "their log date.")
@@ -1048,7 +1048,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <div class="wrap">
   <h1>Model Performance Explorer</h1>
   <p class="sub">*Fall (Arizona) [2026]* paper-trade book &middot; __NSESS__ sessions
-     (__START__ &rarr; __END__, MST) &middot; __NSYMS__ symbols &middot; 1 unit = $10,000.00
+     (__START__ &rarr; __END__, MST) &middot; __NSYMS__ symbols &middot; 1U = $10,000.00
      &middot; daily marks through the Oct 23, 2026 close; hourly intraday charts through Oct 22</p>
 
   <div class="card">

@@ -1,8 +1,7 @@
 """Compare core variants with fixed-$500 and 1-unit EOD direction-following models.
 
 The "Exponential" and "Force Multiplier" labels follow the user's naming. Each
-model adds a fixed-notional tranche per EOD: $500 for Exponential and $10,000
-(1 unit) for Force Multiplier. The latest LONG/SHORT/REBUY trade-log direction
+model adds a fixed-notional tranche per EOD: $500 for Exponential and 1U for Force Multiplier. The latest LONG/SHORT/REBUY trade-log direction
 carries forward; when it changes, opposite open lots close at that day's EOD.
 Oil-desk composites add only its daily-buy lots because chart positions already
 exist in the core books.
@@ -177,7 +176,7 @@ def exponential_daily_model(events=None):
 
 
 def force_multiplier_daily_model(events=None):
-    """The force-multiplier alternative, using one $10,000 unit per active EOD."""
+    """The force-multiplier alternative, using one 1U tranche per active EOD."""
     return direction_following_daily_model(events, FORCE_MULTIPLIER_TRANCHE_USD, "force_multiplier")
 
 
@@ -213,7 +212,7 @@ def comparison_rows():
         row = {
             "date": day,
             "exponential_500_pnl_usd": f"{exp_pnl:.2f}",
-            "force_multiplier_10k_pnl_usd": f"{force_pnl:.2f}",
+            "force_multiplier_1u_pnl_usd": f"{force_pnl:.2f}",
             "oil_desk_daily_buy_pnl_usd": f"{oil_today:.2f}",
             "exponential_500_plus_oil_pnl_usd": f"{exp_pnl + oil_today:.2f}",
             "force_multiplier_plus_oil_pnl_usd": f"{force_pnl + oil_today:.2f}",
@@ -269,7 +268,7 @@ def write_chart(rows):
     dates = [row["date"] for row in rows]
     core_lines = {variant: [float(row[f"{variant}_core_pnl_usd"]) for row in rows] for variant in VARIANTS}
     exp = [float(row["exponential_500_pnl_usd"]) for row in rows]
-    force = [float(row["force_multiplier_10k_pnl_usd"]) for row in rows]
+    force = [float(row["force_multiplier_1u_pnl_usd"]) for row in rows]
     oil = [float(row["oil_desk_daily_buy_pnl_usd"]) for row in rows]
     exp_oil = [float(row["exponential_500_plus_oil_pnl_usd"]) for row in rows]
     force_oil = [float(row["force_multiplier_plus_oil_pnl_usd"]) for row in rows]
@@ -295,24 +294,24 @@ def write_chart(rows):
     }
     drawdown_lines = {variant: _drawdown(values) for variant, values in core_lines.items()}
     drawdown_lines["Exponential (500 USD)"] = _drawdown(exp)
-    drawdown_lines["Force multiplier (10,000 USD)"] = _drawdown(force)
+    drawdown_lines["Force multiplier (1U)"] = _drawdown(force)
 
     panels = [
         ("Core variants and both direction-following sizes", [
             (VARIANT_LABEL[v], core_lines[v], VARIANT_COLORS[v]) for v in VARIANTS
-        ] + [("Exponential — 500 USD/EOD", exp, EXP_COLOR), ("Force multiplier — 10,000 USD/EOD", force, FORCE_COLOR)]),
+        ] + [("Exponential — 500 USD/EOD", exp, EXP_COLOR), ("Force multiplier — 1U/EOD", force, FORCE_COLOR)]),
         ("Standalone models and sidecar combinations", [
             ("Exponential — 500 USD/EOD", exp, EXP_COLOR),
-            ("Force multiplier — 10,000 USD/EOD", force, FORCE_COLOR),
+            ("Force multiplier — 1U/EOD", force, FORCE_COLOR),
             ("Oil-desk daily buys", oil, OIL_COLOR),
             ("500 USD model + oil buys", exp_oil, "#a3e635"),
-            ("10,000 USD model + oil buys", force_oil, BOTH_COLOR),
+            ("1U model + oil buys", force_oil, BOTH_COLOR),
         ]),
         ("Each core variant + 500 USD exponential model", [
             (f"{VARIANT_LABEL[v]} + 500 USD", exp_composites[v], VARIANT_COLORS[v]) for v in VARIANTS
         ]),
-        ("Each core variant + 10,000 USD force multiplier", [
-            (f"{VARIANT_LABEL[v]} + 10,000 USD", force_composites[v], VARIANT_COLORS[v]) for v in VARIANTS
+        ("Each core variant + 1U force multiplier", [
+            (f"{VARIANT_LABEL[v]} + 1U", force_composites[v], VARIANT_COLORS[v]) for v in VARIANTS
         ]),
         ("Each core variant + oil-desk daily-buy sidecar", [
             (f"{VARIANT_LABEL[v]} + oil desk", oil_composites[v], VARIANT_COLORS[v]) for v in VARIANTS
@@ -320,13 +319,13 @@ def write_chart(rows):
         ("Each core variant + 500 USD model + oil-desk daily buys", [
             (f"{VARIANT_LABEL[v]} + 500 USD + oil", exp_oil_composites[v], VARIANT_COLORS[v]) for v in VARIANTS
         ]),
-        ("Each core variant + 10,000 USD force multiplier + oil-desk daily buys", [
-            (f"{VARIANT_LABEL[v]} + 10,000 USD + oil", force_oil_composites[v], VARIANT_COLORS[v]) for v in VARIANTS
+        ("Each core variant + 1U force multiplier + oil-desk daily buys", [
+            (f"{VARIANT_LABEL[v]} + 1U + oil", force_oil_composites[v], VARIANT_COLORS[v]) for v in VARIANTS
         ]),
         ("Drawdown from running PnL peak — core and direction-following models", [
             (VARIANT_LABEL[v], drawdown_lines[v], VARIANT_COLORS[v]) for v in VARIANTS
         ] + [("Exponential (500 USD)", drawdown_lines["Exponential (500 USD)"], EXP_COLOR),
-             ("Force multiplier (10,000 USD)", drawdown_lines["Force multiplier (10,000 USD)"], FORCE_COLOR)]),
+             ("Force multiplier (1U)", drawdown_lines["Force multiplier (1U)"], FORCE_COLOR)]),
     ]
 
     fig, axes = plt.subplots(len(panels), 1, figsize=(16, 29), sharex=True)
@@ -345,7 +344,7 @@ def write_chart(rows):
         ax.legend(facecolor="#0d131e", edgecolor="#26344a", labelcolor="#edf2f7", fontsize=8, ncol=3 if len(lines) > 4 else 2)
     axes[-1].set_xlabel("EOD session date", color="#edf2f7")
     axes[-1].tick_params(axis="x", rotation=25)
-    fig.suptitle("Core Variants, 500 USD Exponential Model, 10,000 USD Force Multiplier, and Oil Sidecar", color="#edf2f7", fontsize=15)
+    fig.suptitle("Core Variants, 500 USD Exponential Model, 1U Force Multiplier, and Oil Sidecar", color="#edf2f7", fontsize=15)
     fig.tight_layout(rect=(0, 0, 1, 0.97))
     fig.savefig(GRAPH, dpi=150, facecolor=fig.get_facecolor(), bbox_inches="tight")
     plt.close(fig)
@@ -369,7 +368,7 @@ def write_report(rows):
         "",
         "- **Core variants:** existing V1, V2, V3A, and V3B model replays from the main comparison.",
         "- **Exponential ($500/EOD):** after a ticker first has a logged direction, add a new fixed **$500 notional** lot in its latest LONG/SHORT/REBUY direction each EOD. $500 does not compound.",
-        "- **Force multiplier ($10,000/EOD):** same direction state, EOD additions, and close/reverse rule, but each new tranche is **1 unit = $10,000 notional**. It is an alternative 20× sizing of the $500 model—not an extra tranche stacked on top of it.",
+        "- **Force multiplier (1U/EOD):** same direction state, EOD additions, and close/reverse rule, but each new tranche is **1U**. It is an alternative 20× sizing of the $500 model—not an extra tranche stacked on top of it.",
         "- **Direction and reversal:** carry the latest direction-bearing entry tag in `trades/*.txt`; REBUY is LONG. On a direction change, close all prior opposite-direction lots at that EOD close before adding the new tranche. EXIT / TAKE PROFIT events do not clear the direction. Weekend/holiday signals apply at the first priced EOD on or after the event date. The repository has no separate authorization feed.",
         "- **Oil-desk sidecar:** adds only its daily-buy lots to composites. Its chart-opened maintenance positions are already in each core replay and are not counted twice.",
         "- **Composite lines:** each core model is compared with each sizing variant, oil buys, and the two valid model-plus-oil combinations. The two direction-following sizes are alternatives and are never summed together. Composites are additive USD PnL, not capital-normalized account simulations.",
@@ -382,21 +381,21 @@ def write_report(rows):
     ]
     standalone = [
         ("Exponential — fixed $500/EOD", float(last["exponential_500_pnl_usd"]), float(last["exponential_cumulative_notional_added_usd"]), float(last["exponential_open_notional_usd"])),
-        ("Force multiplier — $10,000 / 1 unit per EOD", float(last["force_multiplier_10k_pnl_usd"]), float(last["force_multiplier_cumulative_notional_added_usd"]), float(last["force_multiplier_open_notional_usd"])),
+        ("Force multiplier — 1U per EOD", float(last["force_multiplier_1u_pnl_usd"]), float(last["force_multiplier_cumulative_notional_added_usd"]), float(last["force_multiplier_open_notional_usd"])),
         ("Oil-desk daily-buy add-on", float(last["oil_desk_daily_buy_pnl_usd"]), float(last["oil_desk_cumulative_notional_usd"]), float(last["oil_desk_open_notional_usd"])),
         ("$500 model + oil daily buys", float(last["exponential_500_plus_oil_pnl_usd"]), float(last["exponential_500_plus_oil_cumulative_notional_usd"]), float(last["exponential_500_plus_oil_open_notional_usd"])),
-        ("$10,000 model + oil daily buys", float(last["force_multiplier_plus_oil_pnl_usd"]), float(last["force_multiplier_plus_oil_cumulative_notional_usd"]), float(last["force_multiplier_plus_oil_open_notional_usd"])),
+        ("1U model + oil daily buys", float(last["force_multiplier_plus_oil_pnl_usd"]), float(last["force_multiplier_plus_oil_cumulative_notional_usd"]), float(last["force_multiplier_plus_oil_open_notional_usd"])),
     ]
     for name, pnl, added, open_notional in standalone:
         lines.append(f"| {name} | ${pnl:+,.2f} | ${added:,.2f} | ${open_notional:,.2f} |")
 
     lines.extend([
         "",
-        f"The $500 model ends at **${float(last['exponential_500_pnl_usd']):+,.2f}** (realized ${exp_realized:+,.2f}; unrealized ${exp_unrealized:+,.2f}). The force-multiplier model ends at **${float(last['force_multiplier_10k_pnl_usd']):+,.2f}** (realized ${force_realized:+,.2f}; unrealized ${force_unrealized:+,.2f}). With identical direction state and no tranche compounding, force-multiplier PnL and exposure are exactly 20× the $500 model before display rounding.",
+        f"The $500 model ends at **${float(last['exponential_500_pnl_usd']):+,.2f}** (realized ${exp_realized:+,.2f}; unrealized ${exp_unrealized:+,.2f}). The force-multiplier model ends at **${float(last['force_multiplier_1u_pnl_usd']):+,.2f}** (realized ${force_realized:+,.2f}; unrealized ${force_unrealized:+,.2f}). With identical direction state and no tranche compounding, force-multiplier PnL and exposure are exactly 20× the $500 model before display rounding.",
         "",
         "## Core variants with add-ons — terminal PnL",
         "",
-        "| Core variant | Core only | + $500 model | + $10,000 force multiplier | + oil desk | + $500 and oil | + force multiplier and oil |",
+        "| Core variant | Core only | + $500 model | + 1U force multiplier | + oil desk | + $500 and oil | + force multiplier and oil |",
         "|---|---:|---:|---:|---:|---:|---:|",
     ])
     for variant in VARIANTS:
@@ -416,7 +415,7 @@ def write_report(rows):
         "",
         "- Daily all-strategy PnL and exposure comparison: [`strategy_sidecar_comparison_daily_v1.csv`](data/strategy_sidecar_comparison_daily_v1.csv).",
         "- Exponential $500 per-symbol EOD audit: [`exponential_eod_positions_v1.csv`](data/exponential_eod_positions_v1.csv).",
-        "- Force multiplier $10,000 per-symbol EOD audit: [`force_multiplier_eod_positions_v1.csv`](data/force_multiplier_eod_positions_v1.csv).",
+        "- Force multiplier 1U per-symbol EOD audit: [`force_multiplier_eod_positions_v1.csv`](data/force_multiplier_eod_positions_v1.csv).",
         "- Price source map: [`active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv); exact energy closes: [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv).",
         "- Core models: [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md). Oil sidecar assumptions and source rows: [`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md).",
         "",
