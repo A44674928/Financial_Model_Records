@@ -34,8 +34,10 @@ CHARTS = ROOT / "Charts" / "performance"
 DAILY_CSV = DATA / "strategy_sidecar_comparison_daily_v1.csv"
 POSITION_CSV = DATA / "exponential_eod_positions_v1.csv"
 FORCE_POSITION_CSV = DATA / "force_multiplier_eod_positions_v1.csv"
+VARIANT_FORCE_POSITION_CSV = DATA / "force_multiplier_variant_eod_positions_v1.csv"
 REPORT = ROOT / "Strategy and Sidecar Comparison.md"
 GRAPH = CHARTS / "20-strategy-sidecar-comparison.png"
+VARIANT_GRAPH = CHARTS / "21-force-variant-oil-comparison.png"
 EXPONENTIAL_TRANCHE_USD = 500.0
 FORCE_MULTIPLIER_TRANCHE_USD = UNIT
 VARIANT_COLORS = {
@@ -176,27 +178,171 @@ def exponential_daily_model(events=None):
 
 
 def force_multiplier_daily_model(events=None):
-    """The force-multiplier alternative, using one 1U tranche per active EOD."""
+    """The shared direction-following alternative, using one 1U per active EOD."""
     return direction_following_daily_model(events, FORCE_MULTIPLIER_TRANCHE_USD, "force_multiplier")
 
 
+def variant_force_multiplier_daily_model(variant, events=None):
+    """Run a 1U-per-active-EOD model with one core variant's close/size rules.
+
+    Daily additions remain one 1U lot. On a V3A/V3B compounded-short event,
+    only that event-day tranche uses the previous full-exit unit count; later
+    carried SHORT days return to 1U additions. Explicit exits close open longs
+    for every variant. V2/V3B also close shorts on LONG/REBUY events.
+    """
+    if variant not in VARIANTS:
+        raise ValueError(f"Unknown core variant: {variant}")
+    events = events if events is not None else parse_trades()
+    natural = variant in ("V3A", "V3B")
+    sar = variant in ("V2", "V3B")
+    events_by_day = defaultdict(list)
+    for event in events:
+        if event["date"] > SESSION_DATES[-1]:
+            continue
+        target = bisect.bisect_left(SESSION_DATES, event["date"])
+        if target < len(SESSION_DATES):
+            events_by_day[SESSION_DATES[target]].append(event)
+    for day in events_by_day:
+        events_by_day[day].sort(key=lambda e: (e["date"], e["time"], e["sym"], e["order"]))
+
+    symbols = sorted(PRICES)
+    current_direction = {}
+    lots = {symbol: [] for symbol in symbols}
+    last_exit_units = {}
+    realized_total = 0.0
+    cumulative_added = 0.0
+    daily_rows = []
+    position_rows = []
+
+    def close_lots(symbol, side, price, day):
+        nonlocal realized_total
+        for lot in lots[symbol]:
+            if lot["open"] and lot["direction"] == side:
+                sign = 1.0 if side == "long" else -1.0
+                realized_total += lot["notional_usd"] * sign * (price / lot["entry_price"] - 1.0)
+                lot["open"] = False
+                lot["close_date"] = day
+                lot["close_price"] = price
+
+    for index, day in enumerate(SESSION_DATES):
+        event_day_units = {}
+        for event in events_by_day.get(day, []):
+            symbol = event["sym"]
+            if event["kind"] == "exit":
+                last_exit_units[symbol] = float(event["units"])
+                close_lots(symbol, "long", float(event["px"]), day)
+            elif event["tag"] in {"LONG", "REBUY"}:
+                if sar:
+                    close_lots(symbol, "short", float(event["px"]), day)
+                current_direction[symbol] = "long"
+                event_day_units[symbol] = 1.0
+            elif event["tag"] == "SHORT":
+                tranche_units = 1.0
+                if natural and "Compounded short" in event["note"] and last_exit_units.get(symbol, 0) > 1:
+                    tranche_units = last_exit_units[symbol]
+                current_direction[symbol] = "short"
+                event_day_units[symbol] = tranche_units
+
+        daily_adds = 0.0
+        for symbol in symbols:
+            direction = current_direction.get(symbol)
+            tranche_units = event_day_units.get(symbol, 1.0) if direction else 0.0
+            if direction:
+                price = PRICES[symbol][index]
+                notional = tranche_units * UNIT
+                lots[symbol].append({
+                    "entry_date": day,
+                    "entry_price": price,
+                    "direction": direction,
+                    "units": tranche_units,
+                    "notional_usd": notional,
+                    "open": True,
+                    "close_date": None,
+                    "close_price": None,
+                })
+                cumulative_added += notional
+                daily_adds += notional
+
+        unrealized = 0.0
+        open_notional = 0.0
+        active_symbols = 0
+        for symbol in symbols:
+            direction = current_direction.get(symbol)
+            tranche_units = event_day_units.get(symbol, 1.0) if direction else 0.0
+            price = PRICES[symbol][index]
+            symbol_open = [lot for lot in lots[symbol] if lot["open"]]
+            if symbol_open:
+                active_symbols += 1
+            symbol_unrealized = sum(
+                lot["notional_usd"]
+                * (1.0 if lot["direction"] == "long" else -1.0)
+                * (price / lot["entry_price"] - 1.0)
+                for lot in symbol_open
+            )
+            symbol_open_notional = sum(lot["notional_usd"] for lot in symbol_open)
+            unrealized += symbol_unrealized
+            open_notional += symbol_open_notional
+            position_rows.append({
+                "model": f"force_multiplier_variant_{variant.lower()}",
+                "variant": variant,
+                "date": day,
+                "ticker": symbol,
+                "direction": current_direction.get(symbol, ""),
+                "eod_close": f"{price:.8f}",
+                "daily_tranche_units": f"{tranche_units if direction else 0.0:.2f}",
+                "daily_add_notional_usd": f"{tranche_units * UNIT if direction else 0.0:.2f}",
+                "open_lot_count": len(symbol_open),
+                "open_notional_usd": f"{symbol_open_notional:.2f}",
+                "ticker_unrealized_pnl_usd": f"{symbol_unrealized:.2f}",
+                "signal_basis": "Trade-log direction with core variant-specific close and size rules",
+            })
+
+        daily_rows.append({
+            "date": day,
+            f"{variant}_force_1u_realized_pnl_usd": f"{realized_total:.2f}",
+            f"{variant}_force_1u_unrealized_pnl_usd": f"{unrealized:.2f}",
+            f"{variant}_force_1u_pnl_usd": f"{realized_total + unrealized:.2f}",
+            f"{variant}_force_1u_cumulative_notional_added_usd": f"{cumulative_added:.2f}",
+            f"{variant}_force_1u_open_notional_usd": f"{open_notional:.2f}",
+            f"{variant}_force_1u_active_symbols": active_symbols,
+            f"{variant}_force_1u_daily_adds_usd": f"{daily_adds:.2f}",
+        })
+    return daily_rows, position_rows
+
+
 def oil_sidecar_daily_pnl():
-    """Return only new oil-desk daily-buy PnL; core maintenance lots are not duplicated."""
-    by_date = defaultdict(float)
+    """Return carried daily-buy PnL and exposure; chart lots are excluded."""
+    pnl_marks = defaultdict(float)
+    notional_marks = defaultdict(float)
     rows = build_oil_rows()
     for row in rows:
-        by_date[row["date"]] += float(row["daily_buys_unrealized_pnl_usd"])
-    terminal_notional = sum(
-        float(row["cumulative_daily_buy_notional_usd"])
-        for row in rows if row["date"] == SESSION_DATES[-1]
-    )
-    return {day: by_date.get(day, 0.0) for day in SESSION_DATES}, terminal_notional
+        day = row["date"]
+        pnl_marks[day] += float(row["daily_buys_unrealized_pnl_usd"])
+        notional_marks[day] += float(row["cumulative_daily_buy_notional_usd"])
+    pnl_by_date = {}
+    notional_by_date = {}
+    last_pnl = 0.0
+    last_notional = 0.0
+    for day in SESSION_DATES:
+        if day in pnl_marks:
+            last_pnl = pnl_marks[day]
+        if day in notional_marks:
+            last_notional = notional_marks[day]
+        pnl_by_date[day] = last_pnl
+        notional_by_date[day] = last_notional
+    return pnl_by_date, notional_by_date
 
 
 def comparison_rows():
     core, events = all_series()
     exp_daily, exp_positions = exponential_daily_model(events)
     force_daily, force_positions = force_multiplier_daily_model(events)
+    variant_daily = {}
+    variant_positions = []
+    for variant in VARIANTS:
+        daily, positions = variant_force_multiplier_daily_model(variant, events)
+        variant_daily[variant] = daily
+        variant_positions.extend(positions)
     oil_pnl, oil_notional = oil_sidecar_daily_pnl()
     rows = []
     for i, day in enumerate(SESSION_DATES):
@@ -209,6 +355,7 @@ def comparison_rows():
         exp_open = float(exp["exponential_open_notional_usd"])
         force_open = float(force["force_multiplier_open_notional_usd"])
         oil_today = oil_pnl[day]
+        oil_open_today = oil_notional[day]
         row = {
             "date": day,
             "exponential_500_pnl_usd": f"{exp_pnl:.2f}",
@@ -216,25 +363,43 @@ def comparison_rows():
             "oil_desk_daily_buy_pnl_usd": f"{oil_today:.2f}",
             "exponential_500_plus_oil_pnl_usd": f"{exp_pnl + oil_today:.2f}",
             "force_multiplier_plus_oil_pnl_usd": f"{force_pnl + oil_today:.2f}",
-            "oil_desk_cumulative_notional_usd": f"{oil_notional:.2f}",
-            "oil_desk_open_notional_usd": f"{oil_notional:.2f}",
-            "exponential_500_plus_oil_cumulative_notional_usd": f"{exp_added + oil_notional:.2f}",
-            "exponential_500_plus_oil_open_notional_usd": f"{exp_open + oil_notional:.2f}",
-            "force_multiplier_plus_oil_cumulative_notional_usd": f"{force_added + oil_notional:.2f}",
-            "force_multiplier_plus_oil_open_notional_usd": f"{force_open + oil_notional:.2f}",
+            "oil_desk_cumulative_notional_usd": f"{oil_open_today:.2f}",
+            "oil_desk_open_notional_usd": f"{oil_open_today:.2f}",
+            "exponential_500_plus_oil_cumulative_notional_usd": f"{exp_added + oil_open_today:.2f}",
+            "exponential_500_plus_oil_open_notional_usd": f"{exp_open + oil_open_today:.2f}",
+            "force_multiplier_plus_oil_cumulative_notional_usd": f"{force_added + oil_open_today:.2f}",
+            "force_multiplier_plus_oil_open_notional_usd": f"{force_open + oil_open_today:.2f}",
         }
         for variant in VARIANTS:
             base = core[variant]["total"][i]
+            variant_row = variant_daily[variant][i]
+            variant_pnl = float(variant_row[f"{variant}_force_1u_pnl_usd"])
+            variant_added = float(variant_row[f"{variant}_force_1u_cumulative_notional_added_usd"])
+            variant_open = float(variant_row[f"{variant}_force_1u_open_notional_usd"])
+            core_open = sum(
+                lot["qty"] * UNIT
+                for lot in core[variant]["lots"]
+                if lot["entry_idx"] <= i
+                and (lot["close_idx"] is None or i < lot["close_idx"])
+            )
+            core_added = float(core[variant]["deployed"][i])
             row[f"{variant}_core_pnl_usd"] = f"{base:.2f}"
             row[f"{variant}_plus_exponential_500_pnl_usd"] = f"{base + exp_pnl:.2f}"
             row[f"{variant}_plus_force_multiplier_pnl_usd"] = f"{base + force_pnl:.2f}"
             row[f"{variant}_plus_oil_desk_pnl_usd"] = f"{base + oil_today:.2f}"
             row[f"{variant}_plus_exponential_500_and_oil_pnl_usd"] = f"{base + exp_pnl + oil_today:.2f}"
             row[f"{variant}_plus_force_multiplier_and_oil_pnl_usd"] = f"{base + force_pnl + oil_today:.2f}"
+            row[f"{variant}_force_1u_plus_oil_pnl_usd"] = f"{variant_pnl + oil_today:.2f}"
+            row[f"{variant}_force_1u_plus_oil_cumulative_notional_usd"] = f"{variant_added + oil_open_today:.2f}"
+            row[f"{variant}_force_1u_plus_oil_open_notional_usd"] = f"{variant_open + oil_open_today:.2f}"
+            row[f"{variant}_core_plus_matching_force_1u_and_oil_pnl_usd"] = f"{base + variant_pnl + oil_today:.2f}"
+            row[f"{variant}_core_plus_matching_force_1u_and_oil_cumulative_notional_usd"] = f"{core_added + variant_added + oil_open_today:.2f}"
+            row[f"{variant}_core_plus_matching_force_1u_and_oil_open_notional_usd"] = f"{core_open + variant_open + oil_open_today:.2f}"
+            row.update({key: value for key, value in variant_row.items() if key != "date"})
         row.update(exp)
         row.update(force)
         rows.append(row)
-    return rows, exp_positions, force_positions, core
+    return rows, exp_positions, force_positions, variant_positions, core
 
 
 def _write_dict_csv(path, rows):
@@ -247,11 +412,12 @@ def _write_dict_csv(path, rows):
         writer.writerows(rows)
 
 
-def write_csvs(rows, exponential_positions, force_positions):
+def write_csvs(rows, exponential_positions, force_positions, variant_positions):
     _write_dict_csv(DAILY_CSV, rows)
     _write_dict_csv(POSITION_CSV, exponential_positions)
     _write_dict_csv(FORCE_POSITION_CSV, force_positions)
-    return DAILY_CSV, POSITION_CSV, FORCE_POSITION_CSV
+    _write_dict_csv(VARIANT_FORCE_POSITION_CSV, variant_positions)
+    return DAILY_CSV, POSITION_CSV, FORCE_POSITION_CSV, VARIANT_FORCE_POSITION_CSV
 
 
 def _drawdown(values):
@@ -351,6 +517,62 @@ def write_chart(rows):
     return GRAPH
 
 
+def write_variant_chart(rows):
+    """Focused chart for variant-specific 1U/EOD force models and oil composites."""
+    CHARTS.mkdir(parents=True, exist_ok=True)
+    dates = [row["date"] for row in rows]
+    variants = {
+        variant: [float(row[f"{variant}_force_1u_pnl_usd"]) for row in rows]
+        for variant in VARIANTS
+    }
+    with_oil = {
+        variant: [float(row[f"{variant}_force_1u_plus_oil_pnl_usd"]) for row in rows]
+        for variant in VARIANTS
+    }
+    matched = {
+        variant: [float(row[f"{variant}_core_plus_matching_force_1u_and_oil_pnl_usd"]) for row in rows]
+        for variant in VARIANTS
+    }
+    oil = [float(row["oil_desk_daily_buy_pnl_usd"]) for row in rows]
+    panels = [
+        ("1U/EOD force model with each core variant's position rules", [
+            (f"{variant} — {VARIANT_LABEL[variant]}", variants[variant], VARIANT_COLORS[variant])
+            for variant in VARIANTS
+        ]),
+        ("Variant-specific 1U/EOD model + oil daily-buy sidecar", [
+            ("Oil daily buys only", oil, OIL_COLOR)
+        ] + [
+            (f"{variant} 1U/EOD + oil", with_oil[variant], VARIANT_COLORS[variant])
+            for variant in VARIANTS
+        ]),
+        ("Matching core variant + its 1U/EOD version + oil", [
+            (f"{variant} core + {variant} 1U + oil", matched[variant], VARIANT_COLORS[variant])
+            for variant in VARIANTS
+        ]),
+    ]
+    fig, axes = plt.subplots(len(panels), 1, figsize=(16, 13), sharex=True)
+    fig.patch.set_facecolor("#0d131e")
+    for ax, (title, lines) in zip(axes, panels):
+        ax.set_facecolor("#141c2b")
+        ax.grid(True, color="#26344a", alpha=0.8)
+        ax.tick_params(colors="#93a4bd")
+        for spine in ax.spines.values():
+            spine.set_color("#26344a")
+        for label, values, color in lines:
+            ax.plot(dates, values, color=color, linewidth=2.0, label=label)
+        ax.axhline(0, color="#93a4bd", linewidth=0.8)
+        ax.set_title(title, color="#edf2f7", loc="left", fontsize=12)
+        ax.set_ylabel("Cumulative PnL (USD)", color="#edf2f7")
+        ax.legend(facecolor="#0d131e", edgecolor="#26344a", labelcolor="#edf2f7", fontsize=9, ncol=2)
+    axes[-1].set_xlabel("EOD session date", color="#edf2f7")
+    axes[-1].tick_params(axis="x", rotation=25)
+    fig.suptitle("Variant-Specific 1U/EOD Force Models — with Oil Sidecar", color="#edf2f7", fontsize=15)
+    fig.tight_layout(rect=(0, 0, 1, 0.95))
+    fig.savefig(VARIANT_GRAPH, dpi=150, facecolor=fig.get_facecolor(), bbox_inches="tight")
+    plt.close(fig)
+    return VARIANT_GRAPH
+
+
 def write_report(rows):
     last = rows[-1]
     exp_realized = float(last["exponential_realized_pnl_usd"])
@@ -368,10 +590,10 @@ def write_report(rows):
         "",
         "- **Core variants:** existing V1, V2, V3A, and V3B model replays from the main comparison.",
         "- **Exponential ($500/EOD):** after a ticker first has a logged direction, add a new fixed **$500 notional** lot in its latest LONG/SHORT/REBUY direction each EOD. $500 does not compound.",
-        "- **Force multiplier (1U/EOD):** same direction state, EOD additions, and close/reverse rule, but each new tranche is **1U**. It is an alternative 20× sizing of the $500 model—not an extra tranche stacked on top of it.",
-        "- **Direction and reversal:** carry the latest direction-bearing entry tag in `trades/*.txt`; REBUY is LONG. On a direction change, close all prior opposite-direction lots at that EOD close before adding the new tranche. EXIT / TAKE PROFIT events do not clear the direction. Weekend/holiday signals apply at the first priced EOD on or after the event date. The repository has no separate authorization feed.",
-        "- **Oil-desk sidecar:** adds only its daily-buy lots to composites. Its chart-opened maintenance positions are already in each core replay and are not counted twice.",
-        "- **Composite lines:** each core model is compared with each sizing variant, oil buys, and the two valid model-plus-oil combinations. The two direction-following sizes are alternatives and are never summed together. Composites are additive USD PnL, not capital-normalized account simulations.",
+        "- **Shared-direction force multiplier (1U/EOD):** one 1U tranche per symbol with a carried direction each priced EOD; close all prior lots at the EOD mark on any LONG/SHORT flip. This remains a separate alternative to the $500 model.",
+        "- **Variant-specific 1U/EOD force family:** four separate daily-addition replays apply V1, V2, V3A, or V3B position handling to the 1U schedule. Explicit EXIT/TAKE PROFIT records close open long lots at their logged prices in all four; the carried direction remains active, so the scheduled EOD addition still occurs. V1/V3A leave opposite-side lots open on direction changes. V2/V3B cover shorts on LONG/REBUY at the logged signal price; as in the core implementation, SHORT does not close open longs. A qualifying V3A/V3B compounded-short entry uses the preceding full-exit unit count for that event-day tranche only; subsequent carried days return to 1U additions.",
+        "- **Signal timing:** direction-bearing LONG/SHORT/REBUY events map to the first priced session on or after their log date; the last directional event for a ticker on that session selects the EOD addition direction. EXIT / TAKE PROFIT rows do not clear carried direction. No separate authorization feed exists.",
+        "- **Additive comparisons:** core models are shown with shared $500/1U add-ons and oil; variant-specific force models are shown alone, with oil, and with their matching core variant plus oil. These are separately modeled PnL/notional sums: do not net positions or capital, duplicate core chart-opened energy positions in the oil sidecar, or stack alternative force models or variant rules.",
         "- Universe: all 33 directly price-covered core tickers; DXY, EURUSD, JPYUSD, US10Y, and US30Y are outside this price-position comparison.",
         "",
         "## Standalone model and sidecar terminal comparison — Oct. 23, 2026",
@@ -381,7 +603,7 @@ def write_report(rows):
     ]
     standalone = [
         ("Exponential — fixed $500/EOD", float(last["exponential_500_pnl_usd"]), float(last["exponential_cumulative_notional_added_usd"]), float(last["exponential_open_notional_usd"])),
-        ("Force multiplier — 1U per EOD", float(last["force_multiplier_1u_pnl_usd"]), float(last["force_multiplier_cumulative_notional_added_usd"]), float(last["force_multiplier_open_notional_usd"])),
+        ("Shared-direction force — 1U per EOD", float(last["force_multiplier_1u_pnl_usd"]), float(last["force_multiplier_cumulative_notional_added_usd"]), float(last["force_multiplier_open_notional_usd"])),
         ("Oil-desk daily-buy add-on", float(last["oil_desk_daily_buy_pnl_usd"]), float(last["oil_desk_cumulative_notional_usd"]), float(last["oil_desk_open_notional_usd"])),
         ("$500 model + oil daily buys", float(last["exponential_500_plus_oil_pnl_usd"]), float(last["exponential_500_plus_oil_cumulative_notional_usd"]), float(last["exponential_500_plus_oil_open_notional_usd"])),
         ("1U model + oil daily buys", float(last["force_multiplier_plus_oil_pnl_usd"]), float(last["force_multiplier_plus_oil_cumulative_notional_usd"]), float(last["force_multiplier_plus_oil_open_notional_usd"])),
@@ -391,7 +613,50 @@ def write_report(rows):
 
     lines.extend([
         "",
-        f"The $500 model ends at **${float(last['exponential_500_pnl_usd']):+,.2f}** (realized ${exp_realized:+,.2f}; unrealized ${exp_unrealized:+,.2f}). The force-multiplier model ends at **${float(last['force_multiplier_1u_pnl_usd']):+,.2f}** (realized ${force_realized:+,.2f}; unrealized ${force_unrealized:+,.2f}). With identical direction state and no tranche compounding, force-multiplier PnL and exposure are exactly 20× the $500 model before display rounding.",
+        f"The $500 model ends at **${float(last['exponential_500_pnl_usd']):+,.2f}** (realized ${exp_realized:+,.2f}; unrealized ${exp_unrealized:+,.2f}). The shared-direction 1U force model ends at **${float(last['force_multiplier_1u_pnl_usd']):+,.2f}** (realized ${force_realized:+,.2f}; unrealized ${force_unrealized:+,.2f}). With identical direction state and no tranche compounding, its PnL and exposure are 20× the $500 model before display rounding.",
+        "",
+        "## Variant-specific 1U/EOD force models and oil combinations — terminal",
+        "",
+        "These four alternative daily-addition books keep the 1U/EOD schedule but apply each core variant's exit/SAR/short-compounding behavior. The oil line adds only the daily-buy sidecar. The last table adds each variant-based force model to its matching core variant plus oil; it is an additive comparison, not a netted or capital-normalized account.",
+        "",
+        "![Variant-specific 1U EOD force models with oil sidecar](Charts/performance/21-force-variant-oil-comparison.png)",
+        "",
+        "| Variant rule set | Standalone force PnL | Cumulative notional added | Open notional |",
+        "|---|---:|---:|---:|",
+    ])
+    for variant in VARIANTS:
+        lines.append(
+            f"| {VARIANT_LABEL[variant]} | ${float(last[f'{variant}_force_1u_pnl_usd']):+,.2f} | "
+            f"${float(last[f'{variant}_force_1u_cumulative_notional_added_usd']):,.2f} | "
+            f"${float(last[f'{variant}_force_1u_open_notional_usd']):,.2f} |"
+        )
+    lines.extend([
+        "",
+        "| Variant rule set | Force model + oil PnL | Combined cumulative notional | Combined open notional |",
+        "|---|---:|---:|---:|",
+    ])
+    for variant in VARIANTS:
+        lines.append(
+            f"| {VARIANT_LABEL[variant]} + oil | ${float(last[f'{variant}_force_1u_plus_oil_pnl_usd']):+,.2f} | "
+            f"${float(last[f'{variant}_force_1u_plus_oil_cumulative_notional_usd']):,.2f} | "
+            f"${float(last[f'{variant}_force_1u_plus_oil_open_notional_usd']):,.2f} |"
+        )
+    lines.extend([
+        "",
+        "| Matched core + force variant + oil | Core PnL | Force PnL | Oil PnL | Composite PnL | Gross cumulative notional | Gross open notional |",
+        "|---|---:|---:|---:|---:|---:|---:|",
+    ])
+    for variant in VARIANTS:
+        lines.append(
+            f"| {VARIANT_LABEL[variant]} + matching 1U/EOD rules + oil | "
+            f"${float(last[f'{variant}_core_pnl_usd']):+,.2f} | "
+            f"${float(last[f'{variant}_force_1u_pnl_usd']):+,.2f} | "
+            f"${float(last['oil_desk_daily_buy_pnl_usd']):+,.2f} | "
+            f"${float(last[f'{variant}_core_plus_matching_force_1u_and_oil_pnl_usd']):+,.2f} | "
+            f"${float(last[f'{variant}_core_plus_matching_force_1u_and_oil_cumulative_notional_usd']):,.2f} | "
+            f"${float(last[f'{variant}_core_plus_matching_force_1u_and_oil_open_notional_usd']):,.2f} |"
+        )
+    lines.extend([
         "",
         "## Core variants with add-ons — terminal PnL",
         "",
@@ -415,7 +680,8 @@ def write_report(rows):
         "",
         "- Daily all-strategy PnL and exposure comparison: [`strategy_sidecar_comparison_daily_v1.csv`](data/strategy_sidecar_comparison_daily_v1.csv).",
         "- Exponential $500 per-symbol EOD audit: [`exponential_eod_positions_v1.csv`](data/exponential_eod_positions_v1.csv).",
-        "- Force multiplier 1U per-symbol EOD audit: [`force_multiplier_eod_positions_v1.csv`](data/force_multiplier_eod_positions_v1.csv).",
+        "- Shared-direction force model audit: [`force_multiplier_eod_positions_v1.csv`](data/force_multiplier_eod_positions_v1.csv).",
+        "- Variant-specific 1U EOD position audit: [`force_multiplier_variant_eod_positions_v1.csv`](data/force_multiplier_variant_eod_positions_v1.csv).",
         "- Price source map: [`active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv); exact energy closes: [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv).",
         "- Core models: [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md). Oil sidecar assumptions and source rows: [`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md).",
         "",
@@ -426,14 +692,17 @@ def write_report(rows):
 
 
 def main():
-    rows, exponential_positions, force_positions, core = comparison_rows()
-    write_csvs(rows, exponential_positions, force_positions)
+    rows, exponential_positions, force_positions, variant_positions, core = comparison_rows()
+    write_csvs(rows, exponential_positions, force_positions, variant_positions)
     graph = write_chart(rows)
+    variant_graph = write_variant_chart(rows)
     report = write_report(rows)
     print(f"Wrote {DAILY_CSV.relative_to(ROOT)}")
     print(f"Wrote {POSITION_CSV.relative_to(ROOT)}")
     print(f"Wrote {FORCE_POSITION_CSV.relative_to(ROOT)}")
+    print(f"Wrote {VARIANT_FORCE_POSITION_CSV.relative_to(ROOT)}")
     print(f"Wrote {graph.relative_to(ROOT)}")
+    print(f"Wrote {variant_graph.relative_to(ROOT)}")
     print(f"Wrote {report.relative_to(ROOT)}")
 
 

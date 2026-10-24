@@ -1,6 +1,6 @@
 # Model Calculation Guide
 
-This guide explains how the repository's portfolio models turn the trade logs into daily lots, PnL, exposure, and comparison lines. It covers the four core variants, the two direction-following alternatives, and the oil-desk daily-buy sidecar. The calculations are a historical paper-trade replay—not a live execution system, forecast, or investment recommendation.
+This guide explains how the repository's portfolio models turn the trade logs into daily lots, PnL, exposure, and comparison lines. It covers the four core variants, the shared-direction $500/1U models, four variant-specific 1U/EOD force models, and the oil-desk daily-buy sidecar. The calculations are a historical paper-trade replay—not a live execution system, forecast, or investment recommendation.
 
 ## At a glance
 
@@ -11,10 +11,11 @@ This guide explains how the repository's portfolio models turn the trade logs in
 | Core V3A — Nu Open | Same as V1, except qualifying compounded shorts can be larger | Same close behavior as V1 | Logged units, except a qualifying compounded short uses the preceding full-exit unit count |
 | Core V3B — Nu SAR | Same as V3A | Same close behavior as V2 | Same short compounding as V3A |
 | Exponential alternative | Latest logged direction, carried forward; add a lot each priced EOD | Close all old lots at EOD when the carried direction flips | Fixed $500 per active symbol per EOD |
-| Force-multiplier alternative | Same direction path and daily schedule as the $500 model | Same flip rule | Fixed 1U per active symbol per EOD |
+| Shared-direction force alternative | Same direction path and daily schedule as the $500 model | Close all old-direction lots on any direction flip | Fixed 1U per active symbol per EOD |
+| Variant-specific force family | Same 1U/EOD schedule with V1, V2, V3A, or V3B close/short-compounding rules | Variant-specific | One 1U tranche per active symbol/EOD; V3 compounding can size the event-day short tranche up |
 | Oil-desk daily-buy sidecar | Add an energy long at every supplied energy EOD | No exits during the replay window | 10U / $100,000 notional per energy ticker per covered EOD |
 
-The $500 and 1U direction-following models are **alternatives**. They are not added together. Oil sidecar composites add the daily-buy lots only; they do not add the energy chart positions a second time.
+The $500 model, shared-direction 1U model, and four variant-specific 1U/EOD models are separate alternatives; do not stack those force-model families or the four variant rules together. Oil sidecar composites add the daily-buy lots only; they do not add the energy chart positions a second time.
 
 ## 1. Common inputs and daily timeline
 
@@ -96,9 +97,22 @@ A weekend or holiday signal begins on the first priced EOD session on or after i
 - **Exponential ($500/EOD):** one new $500-notional tranche per active ticker per priced EOD. The tranche size is fixed; PnL is not compounded into later tranche size.
 - **Force multiplier (1U/EOD):** identical signals, timing, and flip logic, but one 1U tranche per active ticker per priced EOD. Its unrounded PnL and notional are 20× the $500 model's; displayed cents can differ slightly when totals are rounded separately.
 
-For either model, an active ticker can accumulate several same-direction lots. On a flip, all old-direction lots close at that EOD mark before the first new-direction tranche is added. A close is not triggered merely because the source trade log contains an EXIT or TAKE PROFIT row.
+For either shared-direction model, an active ticker can accumulate several same-direction lots. On a flip, all old-direction lots close at that EOD mark before the first new-direction tranche is added. A close is not triggered merely because the source trade log contains an EXIT or TAKE PROFIT row.
 
-## 5. Oil-desk daily-buy sidecar
+## 5. Variant-specific 1U/EOD force models
+
+These are four additional alternatives that retain the one-per-active-symbol-per-EOD schedule but apply the core variants' position handling. They are distinct from the shared-direction force model above; neither family is stacked with the other.
+
+On every priced EOD with a carried direction, the variant model adds one 1U lot. Trade-log entry sizes are ignored except for the V3A/V3B compounded-short rule below. Explicit EXIT/TAKE PROFIT events close all open long lots at the event's logged price, but do not erase the carried direction; if a direction remains active after processing the day's events, its scheduled EOD lot is still added. A new lot is opened at the EOD mark and marked from that close.
+
+- **V1/V3A Open behavior:** a new opposite-direction signal does not close the previously accumulated lots. Longs and shorts for a ticker may coexist until an explicit long exit closes the longs.
+- **V2/V3B SAR behavior:** LONG/REBUY closes all accumulated short lots at that event's logged price before the day's EOD long lot is added. SHORT does not close open long lots, matching the asymmetry in the core implementation.
+- **V3A/V3B natural-unit behavior:** if a SHORT event is tagged “Compounded short” and the preceding full exit recorded more than 1 unit, that event-day tranche uses the preceding exit's unit count (for example, 2U or 5U). Subsequent carried SHORT days return to 1U additions. This is a one-day sizing override to the baseline daily 1U schedule, not a compounded or reinvested PnL amount.
+- If several directional events for a ticker occur on one session, process them in log order; the final direction determines that session's EOD addition. Weekend/holiday events apply on the first priced session on or after the event date.
+
+The comparison includes each variant-specific model alone, that model plus the incremental oil daily-buy sidecar, and an additive matched composite of core V1 + its V1-based daily model + oil (likewise for V2, V3A, and V3B). The matched composite is illustrative additive PnL; it is not an account simulation and does not net or merge overlapping lots.
+
+## 6. Oil-desk daily-buy sidecar
 
 The oil-desk hypothetical is a separate long-only accumulation schedule for BRENT and OIL:
 
@@ -109,19 +123,19 @@ The oil-desk hypothetical is a separate long-only accumulation schedule for BREN
 
 The sidecar report shows daily-buy PnL separately from the chart-opened energy positions. When the sidecar is combined with a core variant, only the **incremental daily-buy lots** are added: chart-opened energy lots already belong to the core replay and must not be counted twice.
 
-## 6. How composite lines are formed
+## 7. How composite lines are formed
 
 A composite line is additive PnL, session by session:
 
 `composite PnL = core-variant PnL + selected independent add-on PnL(s)`
 
-The selected add-on is either the $500 model, the 1U force multiplier, or the oil daily-buy sidecar. A valid model-plus-oil composite adds one direction-following alternative and the oil daily buys to the core PnL. The two direction-following sizes are never added to each other. These lines are not capital-normalized account simulations; comparing their raw dollar PnL without considering deployed/open notional can be misleading. They are not included in the separate whole-portfolio DXY/yield multiplier scenarios.
+A composite adds the core PnL to a selected 1U/$500 force-model alternative and/or the oil daily-buy sidecar, as labeled in the comparison. The four variant-specific 1U/EOD models are alternatives to one another and to the shared-direction 1U model; they are never stacked together. Matched core-plus-variant-model-plus-oil lines are shown separately. These are not capital-normalized account simulations; comparing raw dollar PnL without considering deployed/open notional can be misleading. They are not included in the separate whole-portfolio DXY/yield multiplier scenarios.
 
-## 7. Where to inspect the calculations
+## 8. Where to inspect the calculations
 
 - Core definitions and daily calculations: [`scripts/model_perf_core.py`](scripts/model_perf_core.py).
-- Direction-following models, their per-symbol audit files, and composites: [`scripts/build_strategy_sidecar_comparison.py`](scripts/build_strategy_sidecar_comparison.py), [`data/exponential_eod_positions_v1.csv`](data/exponential_eod_positions_v1.csv), and [`data/force_multiplier_eod_positions_v1.csv`](data/force_multiplier_eod_positions_v1.csv).
-- Daily composite PnL and exposure series: [`data/strategy_sidecar_comparison_daily_v1.csv`](data/strategy_sidecar_comparison_daily_v1.csv).
+- Direction-following models and variant-specific EOD alternatives: [`scripts/build_strategy_sidecar_comparison.py`](scripts/build_strategy_sidecar_comparison.py), [`data/exponential_eod_positions_v1.csv`](data/exponential_eod_positions_v1.csv), [`data/force_multiplier_eod_positions_v1.csv`](data/force_multiplier_eod_positions_v1.csv), and [`data/force_multiplier_variant_eod_positions_v1.csv`](data/force_multiplier_variant_eod_positions_v1.csv).
+- Daily composite PnL and exposure series: [`data/strategy_sidecar_comparison_daily_v1.csv`](data/strategy_sidecar_comparison_daily_v1.csv); focused variant/sidecar chart: [`Charts/performance/21-force-variant-oil-comparison.png`](Charts/performance/21-force-variant-oil-comparison.png).
 - Oil daily-buy lot audit: [`data/oil_desk_eod_accumulation_v1.csv`](data/oil_desk_eod_accumulation_v1.csv).
 - Price-source details: [`data/active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv) and [`data/energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv).
 - Latest results: [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md), [`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md), and [`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md).

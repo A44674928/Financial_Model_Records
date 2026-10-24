@@ -6,7 +6,7 @@ Day-by-day (and, where market data supports it, intraday) comparison of the four
 > **Whole-portfolio DXY and yield-multiplier scenarios:** **[`DXY-Equivalent Portfolio Snapshot.md`](DXY-Equivalent%20Portfolio%20Snapshot.md)** includes the daily DXY-numeraire comparison and the toggleable whole-account scenarios (no factor, US10Y, US10Y × US30Y) in **[`Whole Portfolio Yield Multiplier Explorer.html`](Whole%20Portfolio%20Yield%20Multiplier%20Explorer.html)**.
 > **Small Caps pilot:** **[`Small Caps [Buyout & Reorganization Offering Test Pilot].md`](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md)** tracks the five LCID entries; all five are included in the Oct. 23 four-model comparison.
 > **Oil desk hypothetical:** **[`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md)** shows 10U of new long exposure per supplied EOD session for each exact energy benchmark, separately and combined with the chart-opened energy positions.
-> **Strategy and sidecar comparison:** **[`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md)** compares the existing variants, fixed-$500/EOD exponential model, 1U/EOD force-multiplier variant, oil-desk daily buys, and their additive composites.
+> **Strategy and sidecar comparison:** **[`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md)** compares the existing variants, the fixed-$500/EOD and shared/variant-specific 1U/EOD force models, oil-desk daily buys, and their additive composites.
 > **How the models work:** **[`Model Calculation Guide.md`](Model%20Calculation%20Guide.md)** explains unit sizing, day-by-day lot handling, close/reversal behavior, and PnL formulas.
 
 ## The Four Models

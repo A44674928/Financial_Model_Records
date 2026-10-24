@@ -10,6 +10,7 @@ from build_strategy_sidecar_comparison import (  # noqa: E402
     comparison_rows,
     exponential_daily_model,
     force_multiplier_daily_model,
+    variant_force_multiplier_daily_model,
 )
 from model_perf_core import SESSION_DATES, parse_trades  # noqa: E402
 
@@ -53,8 +54,40 @@ class StrategySidecarComparisonTests(unittest.TestCase):
         self.assertEqual(pos(exp_positions, "CAT", "2026-10-06")["open_notional_usd"], "500.00")
         self.assertEqual(pos(force_positions, "CAT", "2026-10-06")["open_notional_usd"], "10000.00")
 
+    def test_variant_specific_1u_models_apply_open_sar_and_compounding_rules(self):
+        events = parse_trades()
+        daily = {}
+        audits = {}
+        for variant in ("V1", "V2", "V3A", "V3B"):
+            daily[variant], audits[variant] = variant_force_multiplier_daily_model(variant, events)
+
+        def audit(variant, ticker, day):
+            return next(row for row in audits[variant] if row["ticker"] == ticker and row["date"] == day)
+
+        # CAT's Oct. 6 full exit records 2 units. Only Nu variants size the
+        # compounded-short event-day tranche at 2U; carried days return to 1U.
+        self.assertEqual(audit("V1", "CAT", "2026-10-06")["daily_tranche_units"], "1.00")
+        self.assertEqual(audit("V3A", "CAT", "2026-10-06")["daily_tranche_units"], "2.00")
+        self.assertEqual(audit("V3B", "CAT", "2026-10-06")["daily_tranche_units"], "2.00")
+        self.assertEqual(audit("V3A", "CAT", "2026-10-07")["daily_tranche_units"], "1.00")
+
+        # On the Oct. 19 CAT LONG, open models retain old shorts; SAR models
+        # cover them and finish the session with only the fresh long tranche.
+        for variant in ("V1", "V3A"):
+            self.assertEqual(audit(variant, "CAT", "2026-10-19")["direction"], "long")
+            self.assertGreater(int(audit(variant, "CAT", "2026-10-19")["open_lot_count"]), 1)
+        for variant in ("V2", "V3B"):
+            self.assertEqual(audit(variant, "CAT", "2026-10-19")["direction"], "long")
+            self.assertEqual(audit(variant, "CAT", "2026-10-19")["open_lot_count"], 1)
+
+        terminal = {variant: rows[-1] for variant, rows in daily.items()}
+        self.assertEqual(terminal["V1"]["V1_force_1u_cumulative_notional_added_usd"], "7280000.00")
+        self.assertEqual(terminal["V2"]["V2_force_1u_pnl_usd"], "429919.69")
+        self.assertEqual(terminal["V3A"]["V3A_force_1u_pnl_usd"], "582278.04")
+        self.assertEqual(terminal["V3B"]["V3B_force_1u_cumulative_notional_added_usd"], "7370000.00")
+
     def test_sidecar_and_core_composites_are_additive_without_chart_double_count(self):
-        rows, _, _, core = comparison_rows()
+        rows, _, _, _, core = comparison_rows()
         terminal = rows[-1]
         self.assertEqual(terminal["oil_desk_daily_buy_pnl_usd"], "499705.92")
         self.assertEqual(terminal["exponential_500_pnl_usd"], "21118.86")
@@ -68,17 +101,39 @@ class StrategySidecarComparisonTests(unittest.TestCase):
         )
         self.assertEqual(terminal["force_multiplier_plus_oil_cumulative_notional_usd"], "12780000.00")
         self.assertEqual(terminal["force_multiplier_plus_oil_open_notional_usd"], "11810000.00")
+        self.assertEqual(terminal["V1_force_1u_pnl_usd"], "537937.28")
+        self.assertEqual(terminal["V2_force_1u_pnl_usd"], "429919.69")
+        self.assertEqual(terminal["V3A_force_1u_pnl_usd"], "582278.04")
+        self.assertEqual(terminal["V3B_force_1u_pnl_usd"], "440601.08")
+        self.assertEqual(terminal["V1_force_1u_plus_oil_pnl_usd"], "1037643.20")
+        self.assertEqual(terminal["V3A_force_1u_plus_oil_pnl_usd"], "1081983.96")
+        self.assertEqual(terminal["V1_core_plus_matching_force_1u_and_oil_pnl_usd"], "1137242.87")
+        self.assertEqual(terminal["V3A_core_plus_matching_force_1u_and_oil_pnl_usd"], "1225786.98")
+        self.assertEqual(terminal["oil_desk_cumulative_notional_usd"], "5500000.00")
+        before_oil = next(row for row in rows if row["date"] == "2026-09-09")
+        first_oil = next(row for row in rows if row["date"] == "2026-09-10")
+        self.assertEqual(before_oil["oil_desk_cumulative_notional_usd"], "0.00")
+        self.assertEqual(first_oil["oil_desk_cumulative_notional_usd"], "100000.00")
         report = Path(__file__).resolve().parents[1] / "Strategy and Sidecar Comparison.md"
         report_text = report.read_text(encoding="utf-8")
-        self.assertIn("Force multiplier (1U/EOD)", report_text)
+        self.assertIn("Shared-direction force multiplier (1U/EOD)", report_text)
         self.assertIn("Model Calculation Guide.md", report_text)
         self.assertIn("force_multiplier_eod_positions_v1.csv", report_text)
-        self.assertIn("Force multiplier — 1U per EOD", report_text)
+        self.assertIn("Shared-direction force — 1U per EOD", report_text)
+        self.assertIn("Variant-specific 1U/EOD force models and oil combinations", report_text)
+        self.assertIn("force_multiplier_variant_eod_positions_v1.csv", report_text)
+        self.assertIn("21-force-variant-oil-comparison.png", report_text)
         audit_path = Path(__file__).resolve().parents[1] / "data" / "force_multiplier_eod_positions_v1.csv"
         with audit_path.open(newline="", encoding="utf-8") as handle:
             force_audit = list(csv.DictReader(handle))
         self.assertEqual(len(force_audit), 36 * 33)
         self.assertTrue(all(row["model"] == "force_multiplier" for row in force_audit))
+        variant_audit_path = Path(__file__).resolve().parents[1] / "data" / "force_multiplier_variant_eod_positions_v1.csv"
+        with variant_audit_path.open(newline="", encoding="utf-8") as handle:
+            variant_audit = list(csv.DictReader(handle))
+        self.assertEqual(len(variant_audit), 4 * 36 * 33)
+        self.assertEqual({row["variant"] for row in variant_audit}, {"V1", "V2", "V3A", "V3B"})
+        self.assertTrue((Path(__file__).resolve().parents[1] / "Charts/performance/21-force-variant-oil-comparison.png").exists())
 
 
 if __name__ == "__main__":
