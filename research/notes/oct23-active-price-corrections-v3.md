@@ -1,5 +1,7 @@
 # Oct. 23 Active Price Corrections — v3
 
+> Superseded as the active close set by [`consolidated_portfolio_closes_v4.csv`](../../data/consolidated_portfolio_closes_v4.csv); this note records the preceding v3 reconciliation. See [the v4 note](oct23-active-price-corrections-v4.md) for the current endpoint decisions.
+
 ## Decision and scope
 
 The active close source is `data/consolidated_portfolio_closes_v3.csv`. It is based on v2, changes only six Oct. 23 endpoint marks, and preserves v2 and the original v1 source unchanged. The historical daily price series and all Oct. 22 marks remain as before; no price was interpolated into earlier dates.
