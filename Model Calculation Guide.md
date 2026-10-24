@@ -110,7 +110,7 @@ On every priced EOD with a carried direction, the variant model adds one 1U lot.
 - **V3A/V3B natural-unit behavior:** if a SHORT event is tagged “Compounded short” and the preceding full exit recorded more than 1 unit, that event-day tranche uses the preceding exit's unit count (for example, 2U or 5U). Subsequent carried SHORT days return to 1U additions. This is a one-day sizing override to the baseline daily 1U schedule, not a compounded or reinvested PnL amount.
 - If several directional events for a ticker occur on one session, process them in log order; the final direction determines that session's EOD addition. Weekend/holiday events apply on the first priced session on or after the event date.
 
-The comparison includes each variant-specific model alone, that model plus the incremental oil daily-buy sidecar, and an additive matched composite of core V1 + its V1-based daily model + oil (likewise for V2, V3A, and V3B). The matched composite is illustrative additive PnL; it is not an account simulation and does not net or merge overlapping lots.
+The comparison includes each variant-specific model alone and with the incremental oil daily-buy sidecar, plus all 16 additive pairings of a core variant with any of the four variant-specific 1U models and oil. Matching and cross-variant pairings are shown separately. These are illustrative additive PnL/gross-notional comparisons, not account simulations; positions and capital are not netted or merged.
 
 ## 6. Oil-desk daily-buy sidecar
 
@@ -129,13 +129,13 @@ A composite line is additive PnL, session by session:
 
 `composite PnL = core-variant PnL + selected independent add-on PnL(s)`
 
-A composite adds the core PnL to a selected 1U/$500 force-model alternative and/or the oil daily-buy sidecar, as labeled in the comparison. The four variant-specific 1U/EOD models are alternatives to one another and to the shared-direction 1U model; they are never stacked together. Matched core-plus-variant-model-plus-oil lines are shown separately. These are not capital-normalized account simulations; comparing raw dollar PnL without considering deployed/open notional can be misleading. They are not included in the separate whole-portfolio DXY/yield multiplier scenarios.
+A composite adds the core PnL to a selected 1U/$500 force-model alternative and/or the oil daily-buy sidecar, as labeled in the comparison. The four variant-specific 1U/EOD models are alternatives to one another and to the shared-direction 1U model; they are never stacked together. The comparison shows all 16 core-variant × 1U-variant pairings with oil, including both matching and cross-variant combinations. These are not capital-normalized account simulations; comparing raw dollar PnL without considering gross deployed/open notional can be misleading. They are not included in the separate whole-portfolio DXY/yield multiplier scenarios.
 
 ## 8. Where to inspect the calculations
 
 - Core definitions and daily calculations: [`scripts/model_perf_core.py`](scripts/model_perf_core.py).
 - Direction-following models and variant-specific EOD alternatives: [`scripts/build_strategy_sidecar_comparison.py`](scripts/build_strategy_sidecar_comparison.py), [`data/exponential_eod_positions_v1.csv`](data/exponential_eod_positions_v1.csv), [`data/force_multiplier_eod_positions_v1.csv`](data/force_multiplier_eod_positions_v1.csv), and [`data/force_multiplier_variant_eod_positions_v1.csv`](data/force_multiplier_variant_eod_positions_v1.csv).
-- Daily composite PnL and exposure series: [`data/strategy_sidecar_comparison_daily_v1.csv`](data/strategy_sidecar_comparison_daily_v1.csv); focused variant/sidecar chart: [`Charts/performance/21-force-variant-oil-comparison.png`](Charts/performance/21-force-variant-oil-comparison.png).
+- Daily composite PnL and exposure series: [`data/strategy_sidecar_comparison_daily_v1.csv`](data/strategy_sidecar_comparison_daily_v1.csv); all 16 core/1U variant pairings with oil: [`Charts/performance/21-force-variant-oil-comparison.png`](Charts/performance/21-force-variant-oil-comparison.png).
 - Oil daily-buy lot audit: [`data/oil_desk_eod_accumulation_v1.csv`](data/oil_desk_eod_accumulation_v1.csv).
 - Price-source details: [`data/active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv) and [`data/energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv).
 - Latest results: [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md), [`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md), and [`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md).

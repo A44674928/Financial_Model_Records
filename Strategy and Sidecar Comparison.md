@@ -11,7 +11,7 @@ Calculation detail for the core variants and daily lot rules: [`Model Calculatio
 - **Shared-direction force multiplier (1U/EOD):** one 1U tranche per symbol with a carried direction each priced EOD; close all prior lots at the EOD mark on any LONG/SHORT flip. This remains a separate alternative to the $500 model.
 - **Variant-specific 1U/EOD force family:** four separate daily-addition replays apply V1, V2, V3A, or V3B position handling to the 1U schedule. Explicit EXIT/TAKE PROFIT records close open long lots at their logged prices in all four; the carried direction remains active, so the scheduled EOD addition still occurs. V1/V3A leave opposite-side lots open on direction changes. V2/V3B cover shorts on LONG/REBUY at the logged signal price; as in the core implementation, SHORT does not close open longs. A qualifying V3A/V3B compounded-short entry uses the preceding full-exit unit count for that event-day tranche only; subsequent carried days return to 1U additions.
 - **Signal timing:** direction-bearing LONG/SHORT/REBUY events map to the first priced session on or after their log date; the last directional event for a ticker on that session selects the EOD addition direction. EXIT / TAKE PROFIT rows do not clear carried direction. No separate authorization feed exists.
-- **Additive comparisons:** core models are shown with shared $500/1U add-ons and oil; variant-specific force models are shown alone, with oil, and with their matching core variant plus oil. These are separately modeled PnL/notional sums: do not net positions or capital, duplicate core chart-opened energy positions in the oil sidecar, or stack alternative force models or variant rules.
+- **Additive comparisons:** core models are shown with shared $500/1U add-ons and oil; variant-specific force models are shown alone, with oil, and in all 16 core-variant × 1U-variant pairings plus oil. Matching and cross-variant combinations are included. These are separately modeled PnL/notional sums: do not net positions or capital, duplicate core chart-opened energy positions in the oil sidecar, or stack alternative force models or variant rules.
 - Universe: all 33 directly price-covered core tickers; DXY, EURUSD, JPYUSD, US10Y, and US30Y are outside this price-position comparison.
 
 ## Standalone model and sidecar terminal comparison — Oct. 23, 2026
@@ -28,30 +28,72 @@ The $500 model ends at **$+21,118.86** (realized $+4,356.35; unrealized $+16,762
 
 ## Variant-specific 1U/EOD force models and oil combinations — terminal
 
-These four alternative daily-addition books keep the 1U/EOD schedule but apply each core variant's exit/SAR/short-compounding behavior. The oil line adds only the daily-buy sidecar. The last table adds each variant-based force model to its matching core variant plus oil; it is an additive comparison, not a netted or capital-normalized account.
+The four separate 1U/EOD models apply V1, V2, V3A, or V3B exit/SAR/short-compounding behavior. The oil sidecar contributes only its daily-buy PnL and gross notional. The graph below covers all 16 core-variant × 1U-variant pairings; each panel fixes the core variant and plots all four 1U models. Matching pairings are labeled, while the cross-variant pairings expose alternative position-management combinations.
 
-![Variant-specific 1U EOD force models with oil sidecar](Charts/performance/21-force-variant-oil-comparison.png)
+All composite PnL/notional figures are additive USD totals. Positions and capital are not netted, and energy chart-opened core positions are not duplicated in the sidecar.
 
-| Variant rule set | Standalone force PnL | Cumulative notional added | Open notional |
+![All core variant and 1U force variant pairings with oil sidecar](Charts/performance/21-force-variant-oil-comparison.png)
+
+| 1U/EOD variant rule | Standalone force PnL | Cumulative notional added | Open notional |
 |---|---:|---:|---:|
 | Variant 1 — 1U Open | $+537,937.28 | $7,280,000.00 | $6,510,000.00 |
 | Variant 2 — 1U SAR | $+429,919.69 | $7,280,000.00 | $6,310,000.00 |
 | Variant 3A — Nu Open | $+582,278.04 | $7,370,000.00 | $6,600,000.00 |
 | Variant 3B — Nu SAR | $+440,601.08 | $7,370,000.00 | $6,310,000.00 |
 
-| Variant rule set | Force model + oil PnL | Combined cumulative notional | Combined open notional |
+| 1U/EOD variant rule | Force model + oil PnL | Combined cumulative notional | Combined open notional |
 |---|---:|---:|---:|
 | Variant 1 — 1U Open + oil | $+1,037,643.20 | $12,780,000.00 | $12,010,000.00 |
 | Variant 2 — 1U SAR + oil | $+929,625.61 | $12,780,000.00 | $11,810,000.00 |
 | Variant 3A — Nu Open + oil | $+1,081,983.96 | $12,870,000.00 | $12,100,000.00 |
 | Variant 3B — Nu SAR + oil | $+940,307.00 | $12,870,000.00 | $11,810,000.00 |
 
-| Matched core + force variant + oil | Core PnL | Force PnL | Oil PnL | Composite PnL | Gross cumulative notional | Gross open notional |
-|---|---:|---:|---:|---:|---:|---:|
-| Variant 1 — 1U Open + matching 1U/EOD rules + oil | $+99,599.67 | $+537,937.28 | $+499,705.92 | $+1,137,242.87 | $13,625,000.00 | $12,705,000.00 |
-| Variant 2 — 1U SAR + matching 1U/EOD rules + oil | $+74,882.36 | $+429,919.69 | $+499,705.92 | $+1,004,507.97 | $13,625,000.00 | $12,455,000.00 |
-| Variant 3A — Nu Open + matching 1U/EOD rules + oil | $+143,803.02 | $+582,278.04 | $+499,705.92 | $+1,225,786.98 | $13,805,000.00 | $12,885,000.00 |
-| Variant 3B — Nu SAR + matching 1U/EOD rules + oil | $+86,049.06 | $+440,601.08 | $+499,705.92 | $+1,026,356.06 | $13,805,000.00 | $12,455,000.00 |
+## All core + 1U force variant pairings + oil — terminal
+
+### Core V1 — Variant 1 — 1U Open
+
+Core PnL: **$+99,599.67**; oil sidecar PnL: **$+499,705.92**.
+
+| 1U/EOD force variant | Pairing | Force PnL | Composite PnL | Gross cumulative notional | Gross open notional |
+|---|---|---:|---:|---:|---:|
+| Variant 1 — 1U Open | Matching | $+537,937.28 | $+1,137,242.87 | $13,625,000.00 | $12,705,000.00 |
+| Variant 2 — 1U SAR | Cross-variant | $+429,919.69 | $+1,029,225.28 | $13,625,000.00 | $12,505,000.00 |
+| Variant 3A — Nu Open | Cross-variant | $+582,278.04 | $+1,181,583.63 | $13,715,000.00 | $12,795,000.00 |
+| Variant 3B — Nu SAR | Cross-variant | $+440,601.08 | $+1,039,906.67 | $13,715,000.00 | $12,505,000.00 |
+
+### Core V2 — Variant 2 — 1U SAR
+
+Core PnL: **$+74,882.36**; oil sidecar PnL: **$+499,705.92**.
+
+| 1U/EOD force variant | Pairing | Force PnL | Composite PnL | Gross cumulative notional | Gross open notional |
+|---|---|---:|---:|---:|---:|
+| Variant 1 — 1U Open | Cross-variant | $+537,937.28 | $+1,112,525.56 | $13,625,000.00 | $12,655,000.00 |
+| Variant 2 — 1U SAR | Matching | $+429,919.69 | $+1,004,507.97 | $13,625,000.00 | $12,455,000.00 |
+| Variant 3A — Nu Open | Cross-variant | $+582,278.04 | $+1,156,866.32 | $13,715,000.00 | $12,745,000.00 |
+| Variant 3B — Nu SAR | Cross-variant | $+440,601.08 | $+1,015,189.36 | $13,715,000.00 | $12,455,000.00 |
+
+### Core V3A — Variant 3A — Nu Open
+
+Core PnL: **$+143,803.02**; oil sidecar PnL: **$+499,705.92**.
+
+| 1U/EOD force variant | Pairing | Force PnL | Composite PnL | Gross cumulative notional | Gross open notional |
+|---|---|---:|---:|---:|---:|
+| Variant 1 — 1U Open | Cross-variant | $+537,937.28 | $+1,181,446.22 | $13,715,000.00 | $12,795,000.00 |
+| Variant 2 — 1U SAR | Cross-variant | $+429,919.69 | $+1,073,428.63 | $13,715,000.00 | $12,595,000.00 |
+| Variant 3A — Nu Open | Matching | $+582,278.04 | $+1,225,786.98 | $13,805,000.00 | $12,885,000.00 |
+| Variant 3B — Nu SAR | Cross-variant | $+440,601.08 | $+1,084,110.02 | $13,805,000.00 | $12,595,000.00 |
+
+### Core V3B — Variant 3B — Nu SAR
+
+Core PnL: **$+86,049.06**; oil sidecar PnL: **$+499,705.92**.
+
+| 1U/EOD force variant | Pairing | Force PnL | Composite PnL | Gross cumulative notional | Gross open notional |
+|---|---|---:|---:|---:|---:|
+| Variant 1 — 1U Open | Cross-variant | $+537,937.28 | $+1,123,692.26 | $13,715,000.00 | $12,655,000.00 |
+| Variant 2 — 1U SAR | Cross-variant | $+429,919.69 | $+1,015,674.67 | $13,715,000.00 | $12,455,000.00 |
+| Variant 3A — Nu Open | Cross-variant | $+582,278.04 | $+1,168,033.02 | $13,805,000.00 | $12,745,000.00 |
+| Variant 3B — Nu SAR | Matching | $+440,601.08 | $+1,026,356.06 | $13,805,000.00 | $12,455,000.00 |
+
 
 ## Core variants with add-ons — terminal PnL
 

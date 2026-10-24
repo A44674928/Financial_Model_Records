@@ -12,7 +12,7 @@ from build_strategy_sidecar_comparison import (  # noqa: E402
     force_multiplier_daily_model,
     variant_force_multiplier_daily_model,
 )
-from model_perf_core import SESSION_DATES, parse_trades  # noqa: E402
+from model_perf_core import SESSION_DATES, UNIT, parse_trades  # noqa: E402
 
 
 class StrategySidecarComparisonTests(unittest.TestCase):
@@ -107,8 +107,39 @@ class StrategySidecarComparisonTests(unittest.TestCase):
         self.assertEqual(terminal["V3B_force_1u_pnl_usd"], "440601.08")
         self.assertEqual(terminal["V1_force_1u_plus_oil_pnl_usd"], "1037643.20")
         self.assertEqual(terminal["V3A_force_1u_plus_oil_pnl_usd"], "1081983.96")
-        self.assertEqual(terminal["V1_core_plus_matching_force_1u_and_oil_pnl_usd"], "1137242.87")
-        self.assertEqual(terminal["V3A_core_plus_matching_force_1u_and_oil_pnl_usd"], "1225786.98")
+        combo_count = 0
+        for core_variant in ("V1", "V2", "V3A", "V3B"):
+            core_added = float(core[core_variant]["deployed"][-1])
+            core_open = sum(
+                lot["qty"] * UNIT
+                for lot in core[core_variant]["lots"]
+                if lot["entry_idx"] <= len(rows) - 1
+                and (lot["close_idx"] is None or len(rows) - 1 < lot["close_idx"])
+            )
+            for force_variant in ("V1", "V2", "V3A", "V3B"):
+                prefix = f"{core_variant}_core_plus_{force_variant}_force_1u_and_oil"
+                expected_pnl = (
+                    float(terminal[f"{core_variant}_core_pnl_usd"])
+                    + float(terminal[f"{force_variant}_force_1u_pnl_usd"])
+                    + float(terminal["oil_desk_daily_buy_pnl_usd"])
+                )
+                expected_added = (
+                    core_added
+                    + float(terminal[f"{force_variant}_force_1u_cumulative_notional_added_usd"])
+                    + float(terminal["oil_desk_cumulative_notional_usd"])
+                )
+                expected_open = (
+                    core_open
+                    + float(terminal[f"{force_variant}_force_1u_open_notional_usd"])
+                    + float(terminal["oil_desk_open_notional_usd"])
+                )
+                self.assertEqual(terminal[f"{prefix}_pnl_usd"], f"{expected_pnl:.2f}")
+                self.assertEqual(terminal[f"{prefix}_cumulative_notional_usd"], f"{expected_added:.2f}")
+                self.assertEqual(terminal[f"{prefix}_open_notional_usd"], f"{expected_open:.2f}")
+                combo_count += 1
+        self.assertEqual(combo_count, 16)
+        self.assertEqual(terminal["V1_core_plus_V1_force_1u_and_oil_pnl_usd"], "1137242.87")
+        self.assertEqual(terminal["V3A_core_plus_V3A_force_1u_and_oil_pnl_usd"], "1225786.98")
         self.assertEqual(terminal["oil_desk_cumulative_notional_usd"], "5500000.00")
         before_oil = next(row for row in rows if row["date"] == "2026-09-09")
         first_oil = next(row for row in rows if row["date"] == "2026-09-10")
@@ -123,6 +154,10 @@ class StrategySidecarComparisonTests(unittest.TestCase):
         self.assertIn("Variant-specific 1U/EOD force models and oil combinations", report_text)
         self.assertIn("force_multiplier_variant_eod_positions_v1.csv", report_text)
         self.assertIn("21-force-variant-oil-comparison.png", report_text)
+        self.assertIn("All core + 1U force variant pairings + oil", report_text)
+        self.assertIn("Cross-variant", report_text)
+        self.assertEqual(report_text.count("| Matching |"), 4)
+        self.assertEqual(report_text.count("| Cross-variant |"), 12)
         audit_path = Path(__file__).resolve().parents[1] / "data" / "force_multiplier_eod_positions_v1.csv"
         with audit_path.open(newline="", encoding="utf-8") as handle:
             force_audit = list(csv.DictReader(handle))

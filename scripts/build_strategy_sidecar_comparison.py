@@ -376,13 +376,6 @@ def comparison_rows():
             variant_pnl = float(variant_row[f"{variant}_force_1u_pnl_usd"])
             variant_added = float(variant_row[f"{variant}_force_1u_cumulative_notional_added_usd"])
             variant_open = float(variant_row[f"{variant}_force_1u_open_notional_usd"])
-            core_open = sum(
-                lot["qty"] * UNIT
-                for lot in core[variant]["lots"]
-                if lot["entry_idx"] <= i
-                and (lot["close_idx"] is None or i < lot["close_idx"])
-            )
-            core_added = float(core[variant]["deployed"][i])
             row[f"{variant}_core_pnl_usd"] = f"{base:.2f}"
             row[f"{variant}_plus_exponential_500_pnl_usd"] = f"{base + exp_pnl:.2f}"
             row[f"{variant}_plus_force_multiplier_pnl_usd"] = f"{base + force_pnl:.2f}"
@@ -392,10 +385,32 @@ def comparison_rows():
             row[f"{variant}_force_1u_plus_oil_pnl_usd"] = f"{variant_pnl + oil_today:.2f}"
             row[f"{variant}_force_1u_plus_oil_cumulative_notional_usd"] = f"{variant_added + oil_open_today:.2f}"
             row[f"{variant}_force_1u_plus_oil_open_notional_usd"] = f"{variant_open + oil_open_today:.2f}"
-            row[f"{variant}_core_plus_matching_force_1u_and_oil_pnl_usd"] = f"{base + variant_pnl + oil_today:.2f}"
-            row[f"{variant}_core_plus_matching_force_1u_and_oil_cumulative_notional_usd"] = f"{core_added + variant_added + oil_open_today:.2f}"
-            row[f"{variant}_core_plus_matching_force_1u_and_oil_open_notional_usd"] = f"{core_open + variant_open + oil_open_today:.2f}"
             row.update({key: value for key, value in variant_row.items() if key != "date"})
+
+        for core_variant in VARIANTS:
+            core_pnl = float(core[core_variant]["total"][i])
+            core_added = float(core[core_variant]["deployed"][i])
+            core_open = sum(
+                lot["qty"] * UNIT
+                for lot in core[core_variant]["lots"]
+                if lot["entry_idx"] <= i
+                and (lot["close_idx"] is None or i < lot["close_idx"])
+            )
+            for force_variant in VARIANTS:
+                force_variant_row = variant_daily[force_variant][i]
+                force_variant_pnl = float(force_variant_row[f"{force_variant}_force_1u_pnl_usd"])
+                force_variant_added = float(
+                    force_variant_row[f"{force_variant}_force_1u_cumulative_notional_added_usd"]
+                )
+                force_variant_open = float(force_variant_row[f"{force_variant}_force_1u_open_notional_usd"])
+                prefix = f"{core_variant}_core_plus_{force_variant}_force_1u_and_oil"
+                row[f"{prefix}_pnl_usd"] = f"{core_pnl + force_variant_pnl + oil_today:.2f}"
+                row[f"{prefix}_cumulative_notional_usd"] = (
+                    f"{core_added + force_variant_added + oil_open_today:.2f}"
+                )
+                row[f"{prefix}_open_notional_usd"] = (
+                    f"{core_open + force_variant_open + oil_open_today:.2f}"
+                )
         row.update(exp)
         row.update(force)
         rows.append(row)
@@ -518,56 +533,47 @@ def write_chart(rows):
 
 
 def write_variant_chart(rows):
-    """Focused chart for variant-specific 1U/EOD force models and oil composites."""
+    """Plot every core-variant x 1U-variant pairing with the oil sidecar."""
     CHARTS.mkdir(parents=True, exist_ok=True)
     dates = [row["date"] for row in rows]
-    variants = {
-        variant: [float(row[f"{variant}_force_1u_pnl_usd"]) for row in rows]
-        for variant in VARIANTS
-    }
-    with_oil = {
-        variant: [float(row[f"{variant}_force_1u_plus_oil_pnl_usd"]) for row in rows]
-        for variant in VARIANTS
-    }
-    matched = {
-        variant: [float(row[f"{variant}_core_plus_matching_force_1u_and_oil_pnl_usd"]) for row in rows]
-        for variant in VARIANTS
-    }
-    oil = [float(row["oil_desk_daily_buy_pnl_usd"]) for row in rows]
-    panels = [
-        ("1U/EOD force model with each core variant's position rules", [
-            (f"{variant} — {VARIANT_LABEL[variant]}", variants[variant], VARIANT_COLORS[variant])
-            for variant in VARIANTS
-        ]),
-        ("Variant-specific 1U/EOD model + oil daily-buy sidecar", [
-            ("Oil daily buys only", oil, OIL_COLOR)
-        ] + [
-            (f"{variant} 1U/EOD + oil", with_oil[variant], VARIANT_COLORS[variant])
-            for variant in VARIANTS
-        ]),
-        ("Matching core variant + its 1U/EOD version + oil", [
-            (f"{variant} core + {variant} 1U + oil", matched[variant], VARIANT_COLORS[variant])
-            for variant in VARIANTS
-        ]),
-    ]
-    fig, axes = plt.subplots(len(panels), 1, figsize=(16, 13), sharex=True)
+    fig, axes = plt.subplots(len(VARIANTS), 1, figsize=(16, 16), sharex=True, sharey=True)
     fig.patch.set_facecolor("#0d131e")
-    for ax, (title, lines) in zip(axes, panels):
+    for ax, core_variant in zip(axes, VARIANTS):
         ax.set_facecolor("#141c2b")
         ax.grid(True, color="#26344a", alpha=0.8)
         ax.tick_params(colors="#93a4bd")
         for spine in ax.spines.values():
             spine.set_color("#26344a")
-        for label, values, color in lines:
-            ax.plot(dates, values, color=color, linewidth=2.0, label=label)
+        for force_variant in VARIANTS:
+            prefix = f"{core_variant}_core_plus_{force_variant}_force_1u_and_oil"
+            values = [float(row[f"{prefix}_pnl_usd"]) for row in rows]
+            pairing = " (matching)" if core_variant == force_variant else ""
+            matching = core_variant == force_variant
+            ax.plot(
+                dates,
+                values,
+                color=VARIANT_COLORS[force_variant],
+                linewidth=2.2 if matching else 1.7,
+                linestyle="-" if matching else "--",
+                label=f"{force_variant} 1U + oil{pairing}",
+            )
         ax.axhline(0, color="#93a4bd", linewidth=0.8)
-        ax.set_title(title, color="#edf2f7", loc="left", fontsize=12)
+        ax.set_title(
+            f"Core {core_variant} — {VARIANT_LABEL[core_variant]} paired with each 1U force variant",
+            color="#edf2f7",
+            loc="left",
+            fontsize=11,
+        )
         ax.set_ylabel("Cumulative PnL (USD)", color="#edf2f7")
-        ax.legend(facecolor="#0d131e", edgecolor="#26344a", labelcolor="#edf2f7", fontsize=9, ncol=2)
+        ax.legend(facecolor="#0d131e", edgecolor="#26344a", labelcolor="#edf2f7", fontsize=8, ncol=2)
     axes[-1].set_xlabel("EOD session date", color="#edf2f7")
     axes[-1].tick_params(axis="x", rotation=25)
-    fig.suptitle("Variant-Specific 1U/EOD Force Models — with Oil Sidecar", color="#edf2f7", fontsize=15)
-    fig.tight_layout(rect=(0, 0, 1, 0.95))
+    fig.suptitle(
+        "All Core Variant × 1U Force Variant Pairings + Oil Sidecar",
+        color="#edf2f7",
+        fontsize=15,
+    )
+    fig.tight_layout(rect=(0, 0, 1, 0.96))
     fig.savefig(VARIANT_GRAPH, dpi=150, facecolor=fig.get_facecolor(), bbox_inches="tight")
     plt.close(fig)
     return VARIANT_GRAPH
@@ -593,7 +599,7 @@ def write_report(rows):
         "- **Shared-direction force multiplier (1U/EOD):** one 1U tranche per symbol with a carried direction each priced EOD; close all prior lots at the EOD mark on any LONG/SHORT flip. This remains a separate alternative to the $500 model.",
         "- **Variant-specific 1U/EOD force family:** four separate daily-addition replays apply V1, V2, V3A, or V3B position handling to the 1U schedule. Explicit EXIT/TAKE PROFIT records close open long lots at their logged prices in all four; the carried direction remains active, so the scheduled EOD addition still occurs. V1/V3A leave opposite-side lots open on direction changes. V2/V3B cover shorts on LONG/REBUY at the logged signal price; as in the core implementation, SHORT does not close open longs. A qualifying V3A/V3B compounded-short entry uses the preceding full-exit unit count for that event-day tranche only; subsequent carried days return to 1U additions.",
         "- **Signal timing:** direction-bearing LONG/SHORT/REBUY events map to the first priced session on or after their log date; the last directional event for a ticker on that session selects the EOD addition direction. EXIT / TAKE PROFIT rows do not clear carried direction. No separate authorization feed exists.",
-        "- **Additive comparisons:** core models are shown with shared $500/1U add-ons and oil; variant-specific force models are shown alone, with oil, and with their matching core variant plus oil. These are separately modeled PnL/notional sums: do not net positions or capital, duplicate core chart-opened energy positions in the oil sidecar, or stack alternative force models or variant rules.",
+        "- **Additive comparisons:** core models are shown with shared $500/1U add-ons and oil; variant-specific force models are shown alone, with oil, and in all 16 core-variant × 1U-variant pairings plus oil. Matching and cross-variant combinations are included. These are separately modeled PnL/notional sums: do not net positions or capital, duplicate core chart-opened energy positions in the oil sidecar, or stack alternative force models or variant rules.",
         "- Universe: all 33 directly price-covered core tickers; DXY, EURUSD, JPYUSD, US10Y, and US30Y are outside this price-position comparison.",
         "",
         "## Standalone model and sidecar terminal comparison — Oct. 23, 2026",
@@ -617,11 +623,13 @@ def write_report(rows):
         "",
         "## Variant-specific 1U/EOD force models and oil combinations — terminal",
         "",
-        "These four alternative daily-addition books keep the 1U/EOD schedule but apply each core variant's exit/SAR/short-compounding behavior. The oil line adds only the daily-buy sidecar. The last table adds each variant-based force model to its matching core variant plus oil; it is an additive comparison, not a netted or capital-normalized account.",
+        "The four separate 1U/EOD models apply V1, V2, V3A, or V3B exit/SAR/short-compounding behavior. The oil sidecar contributes only its daily-buy PnL and gross notional. The graph below covers all 16 core-variant × 1U-variant pairings; each panel fixes the core variant and plots all four 1U models. Matching pairings are labeled, while the cross-variant pairings expose alternative position-management combinations.",
         "",
-        "![Variant-specific 1U EOD force models with oil sidecar](Charts/performance/21-force-variant-oil-comparison.png)",
+        "All composite PnL/notional figures are additive USD totals. Positions and capital are not netted, and energy chart-opened core positions are not duplicated in the sidecar.",
         "",
-        "| Variant rule set | Standalone force PnL | Cumulative notional added | Open notional |",
+        "![All core variant and 1U force variant pairings with oil sidecar](Charts/performance/21-force-variant-oil-comparison.png)",
+        "",
+        "| 1U/EOD variant rule | Standalone force PnL | Cumulative notional added | Open notional |",
         "|---|---:|---:|---:|",
     ])
     for variant in VARIANTS:
@@ -632,7 +640,7 @@ def write_report(rows):
         )
     lines.extend([
         "",
-        "| Variant rule set | Force model + oil PnL | Combined cumulative notional | Combined open notional |",
+        "| 1U/EOD variant rule | Force model + oil PnL | Combined cumulative notional | Combined open notional |",
         "|---|---:|---:|---:|",
     ])
     for variant in VARIANTS:
@@ -643,19 +651,29 @@ def write_report(rows):
         )
     lines.extend([
         "",
-        "| Matched core + force variant + oil | Core PnL | Force PnL | Oil PnL | Composite PnL | Gross cumulative notional | Gross open notional |",
-        "|---|---:|---:|---:|---:|---:|---:|",
+        "## All core + 1U force variant pairings + oil — terminal",
+        "",
     ])
-    for variant in VARIANTS:
-        lines.append(
-            f"| {VARIANT_LABEL[variant]} + matching 1U/EOD rules + oil | "
-            f"${float(last[f'{variant}_core_pnl_usd']):+,.2f} | "
-            f"${float(last[f'{variant}_force_1u_pnl_usd']):+,.2f} | "
-            f"${float(last['oil_desk_daily_buy_pnl_usd']):+,.2f} | "
-            f"${float(last[f'{variant}_core_plus_matching_force_1u_and_oil_pnl_usd']):+,.2f} | "
-            f"${float(last[f'{variant}_core_plus_matching_force_1u_and_oil_cumulative_notional_usd']):,.2f} | "
-            f"${float(last[f'{variant}_core_plus_matching_force_1u_and_oil_open_notional_usd']):,.2f} |"
-        )
+    for core_variant in VARIANTS:
+        lines.extend([
+            f"### Core {core_variant} — {VARIANT_LABEL[core_variant]}",
+            "",
+            f"Core PnL: **${float(last[f'{core_variant}_core_pnl_usd']):+,.2f}**; oil sidecar PnL: **${float(last['oil_desk_daily_buy_pnl_usd']):+,.2f}**.",
+            "",
+            "| 1U/EOD force variant | Pairing | Force PnL | Composite PnL | Gross cumulative notional | Gross open notional |",
+            "|---|---|---:|---:|---:|---:|",
+        ])
+        for force_variant in VARIANTS:
+            prefix = f"{core_variant}_core_plus_{force_variant}_force_1u_and_oil"
+            pairing = "Matching" if core_variant == force_variant else "Cross-variant"
+            lines.append(
+                f"| {VARIANT_LABEL[force_variant]} | {pairing} | "
+                f"${float(last[f'{force_variant}_force_1u_pnl_usd']):+,.2f} | "
+                f"${float(last[f'{prefix}_pnl_usd']):+,.2f} | "
+                f"${float(last[f'{prefix}_cumulative_notional_usd']):,.2f} | "
+                f"${float(last[f'{prefix}_open_notional_usd']):,.2f} |"
+            )
+        lines.append("")
     lines.extend([
         "",
         "## Core variants with add-ons — terminal PnL",
