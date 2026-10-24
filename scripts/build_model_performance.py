@@ -634,6 +634,10 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A = lines.append
     A("# THE ONE MODEL")
     A("")
+    A("![THE ONE MODEL 32-portfolio split-strategy superstructure](Charts/superstructure/the-one-model.png)")
+    A("")
+    A("*Four-by-four Core × variant-specific 1U/EOD pairings, each tracked with and without its own oil sidecar; all 32 portfolios are summed without netting.*")
+    A("")
     A("![THE ONE MODEL 32-portfolio split-strategy aggregate PnL, gross notional, and deployed-notional ratio](Charts/superstructure/the-one-model-split-portfolio.png)")
     A("")
     A("*Aggregate of 32 independent portfolios; percentage is PnL ÷ gross notional added, not an account return.*")

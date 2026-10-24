@@ -219,14 +219,20 @@ class ModelTradeScopeTests(unittest.TestCase):
         report = root / "Model Performance Comparison.md"
         text = report.read_text(encoding="utf-8")
         self.assertTrue(text.startswith(
-            "# THE ONE MODEL\n\n![THE ONE MODEL 32-portfolio split-strategy aggregate PnL, gross notional, and deployed-notional ratio](Charts/superstructure/the-one-model-split-portfolio.png)"
+            "# THE ONE MODEL\n\n![THE ONE MODEL 32-portfolio split-strategy superstructure](Charts/superstructure/the-one-model.png)"
         ))
+        self.assertIn("the-one-model-split-portfolio.png", text)
         generator = (root / "scripts/build_model_performance.py").read_text(encoding="utf-8")
         self.assertIn('A("# THE ONE MODEL")', generator)
+        self.assertIn("the-one-model.png", generator)
         self.assertIn("the-one-model-split-portfolio.png", generator)
-        one_model_graph = root / "Charts/superstructure/the-one-model-split-portfolio.png"
-        self.assertTrue(one_model_graph.is_file())
-        self.assertEqual(one_model_graph.read_bytes()[:8], b"\x89PNG\r\n\x1a\n")
+        for relpath in (
+            "Charts/superstructure/the-one-model.png",
+            "Charts/superstructure/the-one-model-split-portfolio.png",
+        ):
+            graph = root / relpath
+            self.assertTrue(graph.is_file())
+            self.assertEqual(graph.read_bytes()[:8], b"\x89PNG\r\n\x1a\n")
         self.assertIn("`88` in-window price-covered events out of `95` total 2026 log events", text)
         self.assertIn("`0` after cutoff", text)
         self.assertIn("`33` price-covered symbols", text)
