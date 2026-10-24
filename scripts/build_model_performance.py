@@ -7,7 +7,6 @@ Reads `trades/` through `model_perf_core.py` and writes:
   data/model_performance_tickers.csv    per-ticker terminal contribution
   data/model_performance_summary.json   machine-readable summary + series
   Charts/performance/*.png              static model-performance charts
-  data/model_performance_minute_intc.csv one-minute INTC event-window series
   Model Performance Comparison.md       written report
   Model Performance Explorer.html       standalone interactive explorer
 
@@ -38,7 +37,6 @@ from intraday_core import (  # noqa: E402
     BAR_LABELS, BAR_SESSION, BARS_PER_SESSION, N_BARS, crossovers,
     intraday_series, spread,
 )
-from minute_closeup import inject_minute_section, write_minute_closeup
 from us10y_adjustment import (
     BASELINE_PCT as US10Y_BASELINE_PCT,
     START_DATE as US10Y_ADJUSTMENT_START,
@@ -997,8 +995,8 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("- **ROI** is cumulative PnL divided by notional deployed *to date* "
       "(units opened on or before that session × 1U standard notional), so early sessions show larger "
       "percentages on less capital.")
-    A("- Entry fills use the log's own market prices, not session closes; exits are realised on "
-      "their log date.")
+    A("- Entry fills use the chart-posting prices recorded in the trade log, not later minute or session closes; "
+      "the Sep. 24 INTC short uses the chart-posting price `$115.11`. Exits are realised on their log date.")
     A("- Excludes commissions, borrow fees, and overnight financing.")
     A("")
     A("---")
@@ -1590,13 +1588,14 @@ def main():
     md = write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
                         iser, co, icharts, intraday_csv, yield_chart, yield_csv)
     html = write_html(series, contrib, summary_json, iser)
-    minute_image, minute_csv, minute_rows, minute_pnl = write_minute_closeup()
-    inject_minute_section(md, html, minute_image, minute_csv, minute_rows, minute_pnl)
+    # Keep the one-minute INTC source series as audit data only. The active replay
+    # uses the chart-posting price recorded in trades/INTC.txt, not a later Yahoo
+    # minute close, so do not generate or inject that comparison chart/card here.
 
     print("Wrote:")
-    for p in charts + [energy_chart, yield_chart] + icharts + [minute_image]:
+    for p in charts + [energy_chart, yield_chart] + icharts:
         print(f"  {p.relative_to(ROOT)}")
-    for p in (daily_csv, intraday_csv, minute_csv, yield_csv,
+    for p in (daily_csv, intraday_csv, yield_csv,
               ticker_csv, summary_json, md, html):
         print(f"  {p.relative_to(ROOT)}")
 
