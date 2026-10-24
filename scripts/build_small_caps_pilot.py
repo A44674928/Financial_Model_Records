@@ -166,7 +166,7 @@ def write_report(entries, rows):
         f"- At the Oct. 22 historical comparison cutoff, four entries are active: **${oct22['deployed_notional_usd']:,.0f} deployed**, marked at **${oct22['lcid_mark_usd']:.2f}**, with **${oct22['unrealized_pnl_usd']:+,.2f}** open PnL.",
         f"- The Oct. 23 EOD view includes all five entries: **${terminal['deployed_notional_usd']:,.0f} deployed**, marked at **${terminal['lcid_mark_usd']:.2f}**, with **${terminal['unrealized_pnl_usd']:+,.2f}** open PnL. This is the LCID mark used in the current four-model daily replay.",
         "- The four model variants have the same LCID contribution because the pilot contains LONG entries only; this adds exposure and PnL but does not alter the variants' relative LCID path.",
-        "- Daily marks `$3.27`, `$3.21`, `$3.46`, and `$3.55` map in order to Oct. 20, 21, 22, and 23, as supplied. They are kept separately from the five entry fills in `trades/LCID.txt`.",
+        "- Daily marks are `$3.27`, `$3.21`, `$3.46`, and the user-corrected `$3.52` for Oct. 20–23, respectively. The prior Oct. 23 `$3.55` mark is preserved in `data/lcid_small_caps_pilot_daily_marks_v1.csv`; the active correction is separate from the five entry fills in `trades/LCID.txt`.",
         "- Entry fills use the user's provided prices; PnL is `notional × (daily mark / entry price − 1)`. No commissions or other costs are included.",
         "",
         f"Daily export: [`{DAILY_CSV.name}`](data/{DAILY_CSV.name}).",

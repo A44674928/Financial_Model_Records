@@ -1,7 +1,7 @@
 """Compare exact Oct 23 EOD energy closes with separate approximate live marks.
 
-The current EOD marks are in `data/consolidated_portfolio_closes_v2.csv`; BRENT
-and OIL use its explicitly labeled BlackBull and TradingView overrides. Earlier
+The current EOD marks are in `data/consolidated_portfolio_closes_v3.csv`; BRENT
+and OIL retain the explicitly labeled BlackBull and TradingView overrides. Earlier
 daily series use Yahoo BZ=F/CL=F futures proxies. Approximate live marks remain
 separate because provider/time were not supplied.
 """

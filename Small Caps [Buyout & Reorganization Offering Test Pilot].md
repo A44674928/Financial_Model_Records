@@ -21,12 +21,12 @@ A separate small-cap pilot book for five user-specified LCID LONG entries. All f
 | 2026-10-20 | $3.27 | 2 | $20,000 | $+2,062.42 | +10.312% |
 | 2026-10-21 | $3.21 | 3 | $30,000 | $+1,384.88 | +4.616% |
 | 2026-10-22 | $3.46 | 4 | $40,000 | $+3,916.64 | +9.792% |
-| 2026-10-23 | $3.55 | 5 | $50,000 | $+5,289.53 | +10.579% |
+| 2026-10-23 | $3.52 | 5 | $50,000 | $+4,822.30 | +9.645% |
 
 - At the Oct. 22 historical comparison cutoff, four entries are active: **$40,000 deployed**, marked at **$3.46**, with **$+3,916.64** open PnL.
-- The Oct. 23 EOD view includes all five entries: **$50,000 deployed**, marked at **$3.55**, with **$+5,289.53** open PnL. This is the LCID mark used in the current four-model daily replay.
+- The Oct. 23 EOD view includes all five entries: **$50,000 deployed**, marked at **$3.52**, with **$+4,822.30** open PnL. This is the LCID mark used in the current four-model daily replay.
 - The four model variants have the same LCID contribution because the pilot contains LONG entries only; this adds exposure and PnL but does not alter the variants' relative LCID path.
-- Daily marks `$3.27`, `$3.21`, `$3.46`, and `$3.55` map in order to Oct. 20, 21, 22, and 23, as supplied. They are kept separately from the five entry fills in `trades/LCID.txt`.
+- Daily marks are `$3.27`, `$3.21`, `$3.46`, and the user-corrected `$3.52` for Oct. 20–23, respectively. The prior Oct. 23 `$3.55` mark is preserved in `data/lcid_small_caps_pilot_daily_marks_v1.csv`; the active correction is separate from the five entry fills in `trades/LCID.txt`.
 - Entry fills use the user's provided prices; PnL is `notional × (daily mark / entry price − 1)`. No commissions or other costs are included.
 
 Daily export: [`lcid_small_caps_pilot_daily_pnl.csv`](data/lcid_small_caps_pilot_daily_pnl.csv).

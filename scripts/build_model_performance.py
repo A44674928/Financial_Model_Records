@@ -679,6 +679,24 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
           f"**{_money(s['adjusted_total'][last])}** | "
           f"**{s['adjusted_roi'][last]:.2f}%** |")
     A("")
+    A("## Oct. 23 Endpoint Price Corrections Applied")
+    A("")
+    A("The performance calculations, charts, and ticker contribution exports below use the active v3 endpoint source. v1 and v2 are preserved; this is a six-row endpoint correction, not adoption of the comprehensive-history candidate.")
+    A("")
+    A("| Ticker | v2 close | Active v3 close | Basis |")
+    A("|---|---:|---:|---|")
+    for ticker, old, new, basis in [
+        ("NFLX", "$762.10", "$65.85", "User-confirmed v1"),
+        ("BTC", "$68,250.00", "$81,227.04", "User-confirmed v1"),
+        ("ETH", "$2,640.00", "$2,408.47", "User-confirmed v1"),
+        ("RIVN", "$11.25", "$11.83", "User-confirmed v1"),
+        ("LCID", "$3.55", "$3.52", "User-provided Oct. 23 correction"),
+        ("XRH0", "$790.00", "$785.00", "User-provided Oct. 23 correction"),
+    ]:
+        A(f"| `{ticker}` | {old} | **{new}** | {basis} |")
+    A("")
+    A("LCID's Oct. 20–22 marks remain $3.27, $3.21, and $3.46. XRH0 remains $790 through Oct. 22 and changes only at the Oct. 23 endpoint; no interim marks are invented. Full row-level audit: [`eod_close_reconciliation_20261023_v2_to_v3.csv`](data/eod_close_reconciliation_20261023_v2_to_v3.csv).")
+    A("")
     if yield_chart is not None and yield_csv is not None:
         A("## Legacy Model-Level US10Y Additive Carry (Reference Only)")
         A("")
@@ -704,7 +722,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     if energy_chart is not None:
         A("## Energy EOD Marks and Separate Approximate Quotes")
         A("")
-        A("> The Oct 23 EOD closes ($117.345 BRENT / $103.45 OIL) from `consolidated_portfolio_closes_v2.csv` are included in daily model totals. "
+        A("> The Oct 23 EOD closes ($117.345 BRENT / $103.45 OIL) from `consolidated_portfolio_closes_v3.csv` are included in daily model totals. "
           "BRENT uses the BlackBull Markets override and OIL uses the TradingView TVC:USOIL override. "
           "Separate approximate user quotes ($115.72 / $100.94; provider/time unspecified) remain outside those totals. "
           "Earlier history uses BZ=F and CL=F futures proxies, not guaranteed cash/CFD matches.")
@@ -922,23 +940,18 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"variants and require their own quote/valuation treatment.")
     A("- **Price source:** historical daily series through Oct. 22 use the configured Yahoo Finance histories "
       "(`BRENT = BZ=F`, `OIL = CL=F`, `BTC = BTC-USD`, `ETH = ETH-USD`); the Oct. 23 endpoint uses the "
-      "user-supplied consolidated file's per-ticker `Source` labels. LCID retains its separate pilot mark series, "
-      "which matches the consolidated file at $3.55. `BZ=F`/`CL=F` remain historical proxies, not exact matches "
+      "user-supplied consolidated v3 file's per-ticker `Source` labels. LCID retains its separate pilot mark series, "
+      "which matches the user-corrected consolidated mark at $3.52. `BZ=F`/`CL=F` remain historical proxies, not exact matches "
       "for the logged Brent Cash / ICE Brent and `TVC:USOIL` instruments.")
-    A("- **Oct. 23 price reconciliation:** `data/consolidated_portfolio_closes_v2.csv` is the active close set; "
-      "[`data/eod_close_reconciliation_20261023.csv`](data/eod_close_reconciliation_20261023.csv) compares it to "
-      "the preserved v1 source and records close/source changes. Twenty-six prices changed and two source labels "
-      "changed with the same value. The prior file is preserved as "
-      "[`data/eod_closes_20261023_v1.csv`](data/eod_closes_20261023_v1.csv). Historical Oct. 22 equity checks remain in "
-      "[`data/oct22_equity_eod_recheck.csv`](data/oct22_equity_eod_recheck.csv).")
+    A("- **Oct. 23 price reconciliation:** `data/consolidated_portfolio_closes_v3.csv` is the active close set; v2 remains preserved. "
+      "[`data/eod_close_reconciliation_20261023_v2_to_v3.csv`](data/eod_close_reconciliation_20261023_v2_to_v3.csv) documents six endpoint corrections: NFLX `$65.85`, BTC `$81,227.04`, ETH `$2,408.47`, RIVN `$11.83` (the user-confirmed v1 values), LCID `$3.52`, and XRH0 `$785.00`. The earlier v1-to-v2 audit remains [`data/eod_close_reconciliation_20261023.csv`](data/eod_close_reconciliation_20261023.csv); v1 and v2 are retained. Historical Oct. 22 equity checks remain in [`data/oct22_equity_eod_recheck.csv`](data/oct22_equity_eod_recheck.csv).")
     A("- **Approximate energy quotes (separate overlay):** their open-lot calculations versus the exact EOD marks are in "
       "[`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv). They remain excluded from model totals.")
     A("- **Session calendar:** the `36` U.S. equity regular sessions from "
       f"`{SESSION_DATES[0]}` to `{SESSION_DATES[-1]}`. Futures and crypto are mapped onto the "
       "same session index by trade date.")
     A("- **`XRH0`** (db Physical Rhodium ETC, LSE) is too illiquid for a usable daily history, "
-      "so it is held flat at its `$790.00` log entry — matching the "
-      "[`Trades Zip PnL.md`](Trades%20Zip%20PnL.md) convention.")
+      "so it remains at the `$790.00` log-entry mark through Oct. 22; the user-corrected Oct. 23 endpoint is `$785.00`. No interim daily prices are invented.")
     A("- **Oct. 22 historical marks** remain pinned to the verified settlement set from "
       "[`Trades Zip PnL.md`](Trades%20Zip%20PnL.md); the Oct. 23 endpoint uses the user-supplied EOD file above. "
       "The Oct. 23 ORCL and LCID entries are now included at that date's close. The master PnL report remains "
