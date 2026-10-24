@@ -30,19 +30,17 @@ The file's average for BRENT/OIL is **$115.425 / $100.81**, while the active sou
 
 It also conflicts with confirmed constraints: LCID's Oct. 23 average is $3.52 versus the specified $3.55, and XRH0's is $780 versus the $790 system constraint. The 10/23 match counts do not resolve the broader historical concerns.
 
-## Live Yahoo endpoint spot-check (partial)
+## Live Yahoo endpoint refresh (partial; audit candidate only)
 
-A live Yahoo Finance chart-data check of the **Oct. 23, 2026** daily bars verified three representative U.S. equities:
+Live Yahoo Finance chart data for **Oct. 23, 2026** was used to update the Yahoo field in a separate 1,365-row refresh candidate for **28 U.S.-listed equities/ETFs plus BTC and ETH**. The crypto values use the last fully completed UTC daily close, not the then-current partial quote. Thirty instruments were updated; six already matched to cents. Their arithmetic means were recalculated from the displayed TradingView, refreshed Yahoo, and custom inputs. This is an endpoint-only update: historical rows other than identified no-session rows were not refreshed.
 
-| Ticker | Yahoo daily close | Candidate Yahoo column | Active v2 | v6 |
-|---|---:|---:|---:|---:|
-| AAPL | $347.73 | $347.73 | $347.73 | $347.73 |
-| AMZN | $248.00 | $248.00 | $192.45 | $185.20 |
-| NFLX | $65.85 | $65.85 | $762.10 | $65.85 |
+Examples of material Yahoo-column changes include GEV **$172.40 → $815.00**, LLY **$780.50 → $1,273.46**, CAT **$321.40 → $687.00**, VLO **$128.40 → $419.28**, and LULU **$315.20 → $99.01**. This reinforces that the original series should not be treated as verified history. The unchanged candidate itself remains preserved at v1.
 
-The candidate Yahoo values match the live closes for all three. This spot-check also flags likely wrong active-reference endpoints for AMZN and NFLX; **no active model input or output was changed**. Full 39-date × 35-ticker live verification has not been completed, and no broad historical refresh is represented by this three-row spot-check. The row-level live evidence is in [`data/multi_source_portfolio_live_yahoo_endpoint_check.csv`](../../data/multi_source_portfolio_live_yahoo_endpoint_check.csv).
+Two Treasury benchmark values were also checked on Yahoo (^TNX **4.988%**, ^TYX **5.315%**) but **not substituted** because the user-provided Treasury close files remain authoritative. The Yahoo energy-futures feeds were still in-session at retrieval, so they were not used to replace source-specific BRENT/OIL marks or calculate an energy mean. Yahoo returned no data for XRH0. LCID's user-specified marks ($3.27, $3.21, $3.46, $3.55), XRH0's $790 constraint, the separate US30Y entry at 5.311%, and ORCL's $125.83 entry quote remain explicitly noted in the refreshed file; none is overridden by an arithmetic mean. **No active model input or output was changed.**
 
-The Sep. 7 U.S. holiday rows remain invalid for listed U.S. equities/ETFs and U.S. Treasury yields; a refreshed file must retain the date grid but mark those rows as no-session, not use their supplied values as closes. The original candidate remains preserved unchanged.
+The refresh keeps all 39 dates. It blanks the unsupported Sep. 7 U.S. equity/ETF closes and the Treasury rows on Sep. 7 and Oct. 12, labeling them no-session; their supplied candidate values are retained in a companion audit CSV. BRENT/OIL averages are left blank rather than blending unlike energy marks. Files: [`data/multi_source_portfolio_live_refresh_v2.csv`](../../data/multi_source_portfolio_live_refresh_v2.csv), [`data/multi_source_portfolio_no_session_source_values_v2.csv`](../../data/multi_source_portfolio_no_session_source_values_v2.csv), and the row-level Yahoo evidence [`data/multi_source_portfolio_live_yahoo_endpoint_check.csv`](../../data/multi_source_portfolio_live_yahoo_endpoint_check.csv).
+
+This does **not** complete live verification across all 39 dates × 35 tickers; unverified historical source values remain candidate-only. The refreshed file is not adopted for any model, report, chart, or portfolio result.
 
 ## Row-level audit artifacts
 
