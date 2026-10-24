@@ -632,7 +632,9 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
 
     lines = []
     A = lines.append
-    A("# Model Performance Comparison — *Fall (Arizona) [2026]*")
+    A("# THE ONE MODEL")
+    A("")
+    A("## Model Performance Comparison — *Fall (Arizona) [2026]*")
     A("")
     A("Day-by-day (and, where market data supports it, intraday) comparison of the four "
       "portfolio models carried on the same standardized book: "
