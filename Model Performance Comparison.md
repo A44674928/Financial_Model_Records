@@ -3,21 +3,21 @@
 Day-by-day (and, where market data supports it, intraday) comparison of the four portfolio models carried on the same standardized book: **[`trades/`](trades/)** / **[`trades.zip`](trades.zip)** — `33` price-covered symbols, `88` in-window price-covered events out of `95` total 2026 log events (`7` outside direct-price scope; `0` after cutoff), `1 unit = $10,000.00` initial notional, all timestamps in Arizona year-round **`MST` / `UTC-07:00`**, marked against the **Friday, October 23, 2026** close. Intraday plots remain on their supplied Oct. 22 hourly scope.
 
 > **Interactive version:** open **[`Model Performance Explorer.html`](Model%20Performance%20Explorer.html)** for a self-contained explorer with toggleable series, a hover crosshair, and per-ticker breakdowns. Machine-readable exports live in [`data/`](data/): [`model_performance_daily.csv`](data/model_performance_daily.csv), [`model_performance_tickers.csv`](data/model_performance_tickers.csv), [`model_performance_summary.json`](data/model_performance_summary.json).
-> **Whole-portfolio DXY view:** **[`DXY-Equivalent Portfolio Snapshot.md`](DXY-Equivalent%20Portfolio%20Snapshot.md)** includes the daily DXY-numeraire comparison, graph, Oct. 23 results, and supporting CSV exports.
+> **Whole-portfolio DXY and yield-multiplier scenarios:** **[`DXY-Equivalent Portfolio Snapshot.md`](DXY-Equivalent%20Portfolio%20Snapshot.md)** includes the daily DXY-numeraire comparison and the toggleable whole-account scenarios (no factor, US10Y, US10Y × US30Y) in **[`Whole Portfolio Yield Multiplier Explorer.html`](Whole%20Portfolio%20Yield%20Multiplier%20Explorer.html)**.
 > **Small Caps pilot:** **[`Small Caps [Buyout & Reorganization Offering Test Pilot].md`](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md)** tracks the five LCID entries; all five are included in the Oct. 23 four-model comparison.
 
 ## The Four Models
 
-| Model | Rule | Units deployed | Realized | Unrealized | Base PnL | US10Y adjustment | **Adjusted PnL** | **Adjusted ROI** |
+| Model | Rule | Units deployed | Realized | Unrealized | Base PnL | Legacy additive US10Y carry (reference) | **Legacy adjusted PnL** | **Legacy adjusted ROI** |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
 | **Variant 1 — 1u Open** | every line is 1 unit; positions stay open | 84u ($845,000) | $25,561.44 | $150,467.70 | $176,029.14 | $160.90 | **$176,190.04** | **20.85%** |
 | **Variant 2 — 1u SAR** | every line is 1 unit; LONG/REBUY stops-and-reverses open shorts | 84u ($845,000) | $31,385.57 | $119,926.25 | $151,311.82 | $160.90 | **$151,472.72** | **17.93%** |
 | **Variant 3A — Nu Open** | compounded shorts sized to the preceding full exit; positions stay open | 94u ($935,000) | $25,561.44 | $194,671.05 | $220,232.48 | $184.13 | **$220,416.62** | **23.57%** |
 | **Variant 3B — Nu SAR** | compounded shorts *and* stop-and-reverse | 94u ($935,000) | $42,552.27 | $119,926.25 | $162,478.52 | $184.13 | **$162,662.66** | **17.40%** |
 
-## US10Y Baseline Adjustment
+## Legacy Model-Level US10Y Additive Carry (Reference Only)
 
-This user-requested, yield-based inflation-style carry is a model adjustment, not a CPI inflation measure or a Treasury total-return calculation. It treats the user-provided daily US10Y closes as annualized carry relative to the `4.865%` baseline from `2026-09-10`. For each interval, the adjustment is the model's cumulative deployed notional (the same denominator used for ROI; it does not fall after a position closes) × ((yield close − 4.865) / 100) × actual calendar days / 365. Values above baseline add positive adjustment; below baseline subtract. Per your confirmation, the Oct 9 close (5.24%) is carried across the Oct 12 Treasury holiday; the export records the original source date. The Oct 23 close (4.986%) is marked at the latest session; the Oct 22-to-Oct 23 carry interval uses the Oct 22 close (4.96%) under the existing start-of-interval convention.
+This inherited per-model additive overlay is retained for audit comparison, but it is not the active whole-portfolio blanket factor and is not included in the new DXY-view scenarios. Use the linked Whole Portfolio Yield Multiplier Explorer to compare the full account value with no yield factor, US10Y alone, and US10Y compounded with US30Y. This yield-based overlay is not a CPI inflation measure or Treasury total-return calculation. It treats the user-provided daily US10Y closes as annualized carry relative to the `4.865%` baseline from `2026-09-10`. For each interval, the adjustment is the model's cumulative deployed notional (the same denominator used for ROI; it does not fall after a position closes) × ((yield close − 4.865) / 100) × actual calendar days / 365. Values above baseline add positive adjustment; below baseline subtract. Per your confirmation, the Oct 9 close (5.24%) is carried across the Oct 12 Treasury holiday; the export records the original source date. The Oct 23 close (4.986%) is marked at the latest session; the Oct 22-to-Oct 23 carry interval uses the Oct 22 close (4.96%) under the existing start-of-interval convention.
 
 ![US10Y yield baseline and cumulative adjustment](Charts/performance/15-us10y-baseline-adjustment.png)
 
@@ -37,13 +37,13 @@ All four models agree on `29` of the `33` tickers. They diverge only on **`CAT`,
 
 ![Cumulative base trading PnL by session](Charts/performance/01-cumulative-pnl-by-session.png)
 
-**Reading it:** the models begin close together, then spread as the reversal-sensitive positions develop. At the Oct. 23 close the base and US10Y-adjusted rankings are **V3A > V1 > V3B > V2** and **V3A > V1 > V3B > V2**, respectively.
+**Reading it:** the models begin close together, then spread as the reversal-sensitive positions develop. At the Oct. 23 close the base and legacy additive US10Y-adjusted rankings are **V3A > V1 > V3B > V2** and **V3A > V1 > V3B > V2**, respectively.
 
 ## Base Return on Capital
 
 ![Cumulative base ROI by session](Charts/performance/02-cumulative-roi-by-session.png)
 
-This chart shows trading PnL before the US10Y carry; the adjusted ROI is shown in the model table above and is selectable in the interactive explorer.
+This chart shows base trading PnL before the legacy additive US10Y carry; the legacy adjusted ROI is shown for reference in the model table above and selectable in the interactive explorer. For whole-account factor scenarios, use the linked Yield Multiplier Explorer.
 
 Raw dollars flatter V3A/V3B because they deploy more capital — `94` units (`$935,000.00`) against V1/V2's `84` units (`$845,000.00`). ROI normalises for that, and the terminal ranking is unchanged: compounding shorts into full exits beats flat sizing on both capital bases, and *not* stop-and-reversing beats stop-and-reversing on both.
 
@@ -227,7 +227,7 @@ A focused **60-bar, one-minute** view around the Sep 24 `10:00 MST` INTC short. 
 
 ## Method & Caveats
 
-- **Model coverage:** the four variants directly price the `33` symbols with configured daily market series. `88` price-covered events dated on or before the Oct. 23 mark are replayed; `0` price-covered events after the mark are excluded from this current daily replay. `7` DXY, EURUSD, JPYUSD, US10Y and US30Y log events are not replayed as standalone price positions. The two US10Y events establish the yield-adjustment context; its separate daily rate series applies the baseline carry to the portfolio. DXY/FX/US30Y positions remain outside the four direct-price variants and require their own quote/valuation treatment.
+- **Model coverage:** the four variants directly price the `33` symbols with configured daily market series. `88` price-covered events dated on or before the Oct. 23 mark are replayed; `0` price-covered events after the mark are excluded from this current daily replay. `7` DXY, EURUSD, JPYUSD, US10Y and US30Y log events are not replayed as standalone price positions. The two US10Y events establish yield-adjustment context; this report's additive carry is retained only as a legacy reference. Whole-account US10Y and compounded US30Y multiplier scenarios are in the DXY snapshot and linked explorer. DXY/FX/US30Y positions remain outside the four direct-price variants and require their own quote/valuation treatment.
 - **Price source:** historical daily series through Oct. 22 use the configured Yahoo Finance histories (`BRENT = BZ=F`, `OIL = CL=F`, `BTC = BTC-USD`, `ETH = ETH-USD`); the Oct. 23 endpoint uses the user-supplied consolidated file's per-ticker `Source` labels. LCID retains its separate pilot mark series, which matches the consolidated file at $3.55. `BZ=F`/`CL=F` remain historical proxies, not exact matches for the logged Brent Cash / ICE Brent and `TVC:USOIL` instruments.
 - **Oct. 23 price reconciliation:** `data/consolidated_portfolio_closes_v2.csv` is the active close set; [`data/eod_close_reconciliation_20261023.csv`](data/eod_close_reconciliation_20261023.csv) compares it to the preserved v1 source and records close/source changes. Twenty-six prices changed and two source labels changed with the same value. The prior file is preserved as [`data/eod_closes_20261023_v1.csv`](data/eod_closes_20261023_v1.csv). Historical Oct. 22 equity checks remain in [`data/oct22_equity_eod_recheck.csv`](data/oct22_equity_eod_recheck.csv).
 - **Approximate energy quotes (separate overlay):** their open-lot calculations versus the exact EOD marks are in [`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv). They remain excluded from model totals.

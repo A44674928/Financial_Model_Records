@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-10-24T00:12:25Z",
+  "generated_utc": "2026-10-24T02:31:28Z",
   "cohort": "Fall (Arizona) [2026]",
   "timezone": "America/Phoenix \u2014 MST / UTC-07:00 (no DST)",
   "unit_notional_usd": 10000.0,
@@ -91,6 +91,7 @@
     ]
   },
   "us10y_adjustment": {
+    "status": "legacy additive reference; not used by whole-portfolio multiplier scenarios",
     "baseline_yield_pct": 4.865,
     "start_date": "2026-09-10",
     "day_count": "actual/365",

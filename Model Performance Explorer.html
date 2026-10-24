@@ -66,7 +66,7 @@
 
   <div class="card">
     <h2>Terminal results</h2>
-    <p class="hint">Oct 23, 2026 close. Base ROI = trading PnL &divide; notional deployed; adjusted ROI includes the US10Y baseline carry. The hourly intraday archive stops at Oct 22.</p>
+    <p class="hint">Oct 23, 2026 close. This model-level view includes a legacy additive US10Y carry reference. For the active whole-account toggle scenarios (none, US10Y, US10Y × US30Y), open <a href="Whole%20Portfolio%20Yield%20Multiplier%20Explorer.html">the Yield Multiplier Explorer</a>. The hourly intraday archive stops at Oct 22.</p>
     <div class="row" id="terminal"></div>
   </div>
 
@@ -120,10 +120,9 @@
   </div>
 
   <footer>
-    Generated 2026-10-23 17:12 MST. Prices: Yahoo Finance <code>interval=1d</code>. The four variants model
+    Generated 2026-10-23 19:31 MST. Prices: Yahoo Finance <code>interval=1d</code>. The four variants model
     the 33 symbols with configured daily marks; DXY, EURUSD, JPYUSD and US30Y are not directly
-    marked. LCID pilot marks are user-provided. US10Y drives a separate excess-yield adjustment above
-    the 4.865% baseline. The Oct 23 ORCL LONG and fifth LCID LONG are included in this EOD model replay.
+    marked. LCID pilot marks are user-provided. The per-model US10Y additive overlay is retained as a legacy reference only; whole-account US10Y and US30Y multiplier scenarios live in the linked explorer. The Oct 23 ORCL LONG and fifth LCID LONG are included in this EOD model replay.
     Intraday source charts remain through Oct 22. The master <b>Trades Zip PnL.md</b> has not been recalculated for
     the newly reconciled positions, so its totals do not currently match this comparison. Excludes commissions,
     borrow fees and financing.
@@ -134,10 +133,10 @@ const DATA = {"sessions":["2026-09-03","2026-09-04","2026-09-08","2026-09-09","2
 const VARS = ["V1","V2","V3A","V3B"];
 const METRICS = {
   total:      {label:"Base cumulative trading PnL", fmt:v=>(v>=0?"+":"−")+"$"+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), axis:v=>"$"+Math.round(v).toLocaleString()},
-  adjusted_total: {label:"US10Y-adjusted cumulative PnL", fmt:v=>(v>=0?"+":"−")+"$"+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), axis:v=>"$"+Math.round(v).toLocaleString()},
-  yield_adjustment: {label:"Cumulative US10Y baseline adjustment", fmt:v=>(v>=0?"+":"−")+"$"+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), axis:v=>"$"+Math.round(v).toLocaleString()},
+  adjusted_total: {label:"Legacy additive US10Y-adjusted cumulative PnL", fmt:v=>(v>=0?"+":"−")+"$"+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), axis:v=>"$"+Math.round(v).toLocaleString()},
+  yield_adjustment: {label:"Legacy cumulative US10Y carry reference", fmt:v=>(v>=0?"+":"−")+"$"+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), axis:v=>"$"+Math.round(v).toLocaleString()},
   roi:        {label:"Base return on deployed capital", fmt:v=>(v>=0?"+":"")+v.toFixed(3)+"%", axis:v=>v.toFixed(1)+"%"},
-  adjusted_roi: {label:"US10Y-adjusted return on deployed capital", fmt:v=>(v>=0?"+":"")+v.toFixed(3)+"%", axis:v=>v.toFixed(1)+"%"},
+  adjusted_roi: {label:"Legacy additive US10Y-adjusted return on deployed capital", fmt:v=>(v>=0?"+":"")+v.toFixed(3)+"%", axis:v=>v.toFixed(1)+"%"},
   realized:   {label:"Realized PnL (cumulative)", fmt:v=>(v>=0?"+":"−")+"$"+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), axis:v=>"$"+Math.round(v).toLocaleString()},
   unrealized: {label:"Unrealized PnL", fmt:v=>(v>=0?"+":"−")+"$"+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), axis:v=>"$"+Math.round(v).toLocaleString()},
   delta:      {label:"Day-over-day change", fmt:v=>(v>=0?"+":"−")+"$"+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), axis:v=>"$"+Math.round(v).toLocaleString()},
@@ -162,7 +161,7 @@ const pct = v => (v>=0?"+":"")+v.toFixed(2)+"%";
       <div class="v" style="font-size:16px;color:${s.roi[s.roi.length-1]>=0?'#4ade80':'#f87171'}">${pct(s.roi[s.roi.length-1])}</div>
       <div class="k" style="margin-top:8px">realized / unrealized</div>
       <div style="font-size:13px;font-variant-numeric:tabular-nums">${usd(s.realized[s.realized.length-1])} / ${usd(s.unrealized[s.unrealized.length-1])}</div>
-      <div class="k" style="margin-top:8px">US10Y adjustment / adjusted PnL</div>
+      <div class="k" style="margin-top:8px">Legacy additive US10Y carry / PnL (reference only)</div>
       <div style="font-size:13px;font-variant-numeric:tabular-nums">${usd(s.yield_adjustment[s.yield_adjustment.length-1])} / ${usd(s.adjusted_total[s.adjusted_total.length-1])}</div>
       <div class="k" style="margin-top:8px">adjusted ROI</div>
       <div style="font-size:13px">${pct(s.adjusted_roi[s.adjusted_roi.length-1])}</div>

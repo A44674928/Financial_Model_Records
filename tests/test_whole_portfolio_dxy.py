@@ -82,16 +82,28 @@ def test_us10y_carry_preserves_established_core_model_basis():
         assert cumulative[variant] == expected[variant]["yield_adjustment"]
 
 
-def test_total_usd_pnl_includes_realized_unrealized_and_established_carry():
+def test_base_pnl_excludes_legacy_carry_and_scenarios_scale_full_account_value():
     _, _, _, _, _, result = dxy_view.build_daily_series()
     for variant in VARIANTS:
+        row = result[variant]
         for i in range(len(SESSION_DATES)):
-            expected = (
-                result[variant]["realized_usd"][i]
-                + result[variant]["unrealized_usd"][i]
-                + result[variant]["us10y_carry_usd"][i]
-            )
-            assert abs(result[variant]["total_pnl_usd"][i] - expected) < 1e-8
+            expected = row["realized_usd"][i] + row["unrealized_usd"][i]
+            assert abs(row["total_pnl_usd"][i] - expected) < 1e-8
+            base_value = row["usd_account_value"][i]
+            assert row["yield_scenarios"]["none"]["account_value_usd"][i] == base_value
+            assert abs(
+                row["yield_scenarios"]["us10y"]["account_value_usd"][i]
+                - base_value * row["yield_factor_us10y"][i]
+            ) < 1e-7
+            assert abs(
+                row["yield_scenarios"]["us10y_us30y"]["account_value_usd"][i]
+                - base_value * row["yield_factor_combined"][i]
+            ) < 1e-7
+            assert abs(
+                row["yield_factor_combined"][i]
+                - row["yield_factor_us10y"][i] * row["yield_factor_us30y"][i]
+            ) < 1e-12
+        assert row["legacy_us10y_carry_reference_usd"][-1] > 0
 
 
 def test_requested_total_pnl_chart_is_generated():
@@ -116,8 +128,18 @@ def test_exported_csvs_are_complete_and_oct23_values_reconcile():
     assert daily_rows[-1]["jpyusd_daily_close"] == "0.006727"
     assert daily_rows[-1]["us30y_daily_close_pct"] == "5.43"
     assert abs(float(daily_rows[-1]["us30y_long_unrealized_pnl_usd"]) - 224.0632649218588) < 1e-8
+    assert "us10y_blanket_factor" in daily_rows[-1]
+    assert "us10y_us30y_account_value_usd" in daily_rows[-1]
     oct22_v3b = next(row for row in daily_rows if row["variant"] == "V3B" and row["session_date"] == "2026-10-22")
     assert oct22_v3b["dxy_close"] == "102.22"
     assert oct22_v3b["us30y_long_unrealized_pnl_usd"] == "0.0"
     holiday = next(row for row in daily_rows if row["session_date"] == "2026-10-12")
     assert holiday["us30y_source_date"] == "2026-10-09"
+    with dxy_view.YIELD_SCENARIO_CSV.open(newline="", encoding="utf-8") as fh:
+        scenario_rows = list(csv.DictReader(fh))
+    assert len(scenario_rows) == len(VARIANTS) * len(SESSION_DATES) * 3
+    assert scenario_rows[-1]["scenario"] == "us10y_us30y"
+    assert dxy_view.YIELD_EXPLORER.exists()
+    html = dxy_view.YIELD_EXPLORER.read_text(encoding="utf-8")
+    assert "No yield multiplier" in html
+    assert "US10Y × US30Y blanket multipliers" in html

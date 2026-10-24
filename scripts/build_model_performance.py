@@ -555,6 +555,7 @@ def write_json(series, contrib, iser=None, co=None, energy_rows=None, yield_rows
             "rows": energy_rows or [],
         },
         "us10y_adjustment": {
+            "status": "legacy additive reference; not used by whole-portfolio multiplier scenarios",
             "baseline_yield_pct": US10Y_BASELINE_PCT,
             "start_date": US10Y_ADJUSTMENT_START,
             "day_count": "actual/365",
@@ -658,12 +659,12 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"[`{daily_csv.name}`](data/{daily_csv.name}), "
       f"[`{ticker_csv.name}`](data/{ticker_csv.name}), "
       f"[`{summary_json.name}`](data/{summary_json.name}).")
-    A("> **Whole-portfolio DXY view:** **[`DXY-Equivalent Portfolio Snapshot.md`](DXY-Equivalent%20Portfolio%20Snapshot.md)** includes the daily DXY-numeraire comparison, graph, Oct. 23 results, and supporting CSV exports.")
+    A("> **Whole-portfolio DXY and yield-multiplier scenarios:** **[`DXY-Equivalent Portfolio Snapshot.md`](DXY-Equivalent%20Portfolio%20Snapshot.md)** includes the daily DXY-numeraire comparison and the toggleable whole-account scenarios (no factor, US10Y, US10Y × US30Y) in **[`Whole Portfolio Yield Multiplier Explorer.html`](Whole%20Portfolio%20Yield%20Multiplier%20Explorer.html)**.")
     A("> **Small Caps pilot:** **[`Small Caps [Buyout & Reorganization Offering Test Pilot].md`](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md)** tracks the five LCID entries; all five are included in the Oct. 23 four-model comparison.")
     A("")
     A("## The Four Models")
     A("")
-    A("| Model | Rule | Units deployed | Realized | Unrealized | Base PnL | US10Y adjustment | **Adjusted PnL** | **Adjusted ROI** |")
+    A("| Model | Rule | Units deployed | Realized | Unrealized | Base PnL | Legacy additive US10Y carry (reference) | **Legacy adjusted PnL** | **Legacy adjusted ROI** |")
     A("|---|---|---:|---:|---:|---:|---:|---:|---:|")
     for v in VARIANTS:
         s = series[v]
@@ -679,10 +680,13 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
           f"**{s['adjusted_roi'][last]:.2f}%** |")
     A("")
     if yield_chart is not None and yield_csv is not None:
-        A("## US10Y Baseline Adjustment")
+        A("## Legacy Model-Level US10Y Additive Carry (Reference Only)")
         A("")
-        A("This user-requested, yield-based inflation-style carry is a model adjustment, not a CPI "
-          "inflation measure or a Treasury total-return calculation. It treats the user-provided "
+        A("This inherited per-model additive overlay is retained for audit comparison, but it is "
+          "not the active whole-portfolio blanket factor and is not included in the new DXY-view "
+          "scenarios. Use the linked Whole Portfolio Yield Multiplier Explorer to compare the "
+          "full account value with no yield factor, US10Y alone, and US10Y compounded with US30Y. "
+          "This yield-based overlay is not a CPI inflation measure or Treasury total-return calculation. It treats the user-provided "
           f"daily US10Y closes as annualized carry relative to the `{US10Y_BASELINE_PCT:.3f}%` "
           f"baseline from `{US10Y_ADJUSTMENT_START}`. For each interval, the adjustment is the "
           "model's cumulative deployed notional (the same denominator used for ROI; it does not "
@@ -718,7 +722,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A(f"![Cumulative base trading PnL by session]({charts[0].relative_to(ROOT).as_posix()})")
     A("")
     A("**Reading it:** the models begin close together, then spread as the reversal-sensitive "
-      "positions develop. At the Oct. 23 close the base and US10Y-adjusted rankings are "
+      "positions develop. At the Oct. 23 close the base and legacy additive US10Y-adjusted rankings are "
       f"**{' > '.join(sorted(VARIANTS, key=lambda v: term[v], reverse=True))}** and "
       f"**{' > '.join(sorted(VARIANTS, key=lambda v: series[v]['adjusted_total'][last], reverse=True))}**, respectively.")
     A("")
@@ -726,8 +730,9 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("")
     A(f"![Cumulative base ROI by session]({charts[1].relative_to(ROOT).as_posix()})")
     A("")
-    A("This chart shows trading PnL before the US10Y carry; the adjusted ROI is shown in the "
-      "model table above and is selectable in the interactive explorer.")
+    A("This chart shows base trading PnL before the legacy additive US10Y carry; the legacy adjusted ROI "
+      "is shown for reference in the model table above and selectable in the interactive explorer. "
+      "For whole-account factor scenarios, use the linked Yield Multiplier Explorer.")
     A("")
     A(f"Raw dollars flatter V3A/V3B because they deploy more capital — `{natural_units:.0f}` units "
       f"(`{_money(natural_deployed)}`) against V1/V2's `{flat_units:.0f}` units "
@@ -911,8 +916,9 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"Oct. 23 mark are replayed; `{post_terminal_event_count}` price-covered events after the mark "
       f"are excluded from this current daily replay. `{price_unmodeled_event_count}` DXY, EURUSD, JPYUSD, "
       f"US10Y and US30Y log events are not replayed as standalone price positions. The two US10Y "
-      f"events establish the yield-adjustment context; its separate daily rate series applies the "
-      f"baseline carry to the portfolio. DXY/FX/US30Y positions remain outside the four direct-price "
+      f"events establish yield-adjustment context; this report's additive carry is retained only as "
+      f"a legacy reference. Whole-account US10Y and compounded US30Y multiplier scenarios are in "
+      f"the DXY snapshot and linked explorer. DXY/FX/US30Y positions remain outside the four direct-price "
       f"variants and require their own quote/valuation treatment.")
     A("- **Price source:** historical daily series through Oct. 22 use the configured Yahoo Finance histories "
       "(`BRENT = BZ=F`, `OIL = CL=F`, `BTC = BTC-USD`, `ETH = ETH-USD`); the Oct. 23 endpoint uses the "
@@ -1028,7 +1034,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   <div class="card">
     <h2>Terminal results</h2>
-    <p class="hint">Oct 23, 2026 close. Base ROI = trading PnL &divide; notional deployed; adjusted ROI includes the US10Y baseline carry. The hourly intraday archive stops at Oct 22.</p>
+    <p class="hint">Oct 23, 2026 close. This model-level view includes a legacy additive US10Y carry reference. For the active whole-account toggle scenarios (none, US10Y, US10Y × US30Y), open <a href="Whole%20Portfolio%20Yield%20Multiplier%20Explorer.html">the Yield Multiplier Explorer</a>. The hourly intraday archive stops at Oct 22.</p>
     <div class="row" id="terminal"></div>
   </div>
 
@@ -1063,8 +1069,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <footer>
     Generated __GEN__. Prices: Yahoo Finance <code>interval=1d</code>. The four variants model
     the __NSYMS__ symbols with configured daily marks; DXY, EURUSD, JPYUSD and US30Y are not directly
-    marked. LCID pilot marks are user-provided. US10Y drives a separate excess-yield adjustment above
-    the 4.865% baseline. The Oct 23 ORCL LONG and fifth LCID LONG are included in this EOD model replay.
+    marked. LCID pilot marks are user-provided. The per-model US10Y additive overlay is retained as a legacy reference only; whole-account US10Y and US30Y multiplier scenarios live in the linked explorer. The Oct 23 ORCL LONG and fifth LCID LONG are included in this EOD model replay.
     Intraday source charts remain through Oct 22. The master <b>Trades Zip PnL.md</b> has not been recalculated for
     the newly reconciled positions, so its totals do not currently match this comparison. Excludes commissions,
     borrow fees and financing.
@@ -1075,10 +1080,10 @@ const DATA = __DATA__;
 const VARS = ["V1","V2","V3A","V3B"];
 const METRICS = {
   total:      {label:"Base cumulative trading PnL", fmt:v=>(v>=0?"+":"−")+"$"+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), axis:v=>"$"+Math.round(v).toLocaleString()},
-  adjusted_total: {label:"US10Y-adjusted cumulative PnL", fmt:v=>(v>=0?"+":"−")+"$"+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), axis:v=>"$"+Math.round(v).toLocaleString()},
-  yield_adjustment: {label:"Cumulative US10Y baseline adjustment", fmt:v=>(v>=0?"+":"−")+"$"+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), axis:v=>"$"+Math.round(v).toLocaleString()},
+  adjusted_total: {label:"Legacy additive US10Y-adjusted cumulative PnL", fmt:v=>(v>=0?"+":"−")+"$"+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), axis:v=>"$"+Math.round(v).toLocaleString()},
+  yield_adjustment: {label:"Legacy cumulative US10Y carry reference", fmt:v=>(v>=0?"+":"−")+"$"+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), axis:v=>"$"+Math.round(v).toLocaleString()},
   roi:        {label:"Base return on deployed capital", fmt:v=>(v>=0?"+":"")+v.toFixed(3)+"%", axis:v=>v.toFixed(1)+"%"},
-  adjusted_roi: {label:"US10Y-adjusted return on deployed capital", fmt:v=>(v>=0?"+":"")+v.toFixed(3)+"%", axis:v=>v.toFixed(1)+"%"},
+  adjusted_roi: {label:"Legacy additive US10Y-adjusted return on deployed capital", fmt:v=>(v>=0?"+":"")+v.toFixed(3)+"%", axis:v=>v.toFixed(1)+"%"},
   realized:   {label:"Realized PnL (cumulative)", fmt:v=>(v>=0?"+":"−")+"$"+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), axis:v=>"$"+Math.round(v).toLocaleString()},
   unrealized: {label:"Unrealized PnL", fmt:v=>(v>=0?"+":"−")+"$"+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), axis:v=>"$"+Math.round(v).toLocaleString()},
   delta:      {label:"Day-over-day change", fmt:v=>(v>=0?"+":"−")+"$"+Math.abs(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}), axis:v=>"$"+Math.round(v).toLocaleString()},
@@ -1103,7 +1108,7 @@ const pct = v => (v>=0?"+":"")+v.toFixed(2)+"%";
       <div class="v" style="font-size:16px;color:${s.roi[s.roi.length-1]>=0?'#4ade80':'#f87171'}">${pct(s.roi[s.roi.length-1])}</div>
       <div class="k" style="margin-top:8px">realized / unrealized</div>
       <div style="font-size:13px;font-variant-numeric:tabular-nums">${usd(s.realized[s.realized.length-1])} / ${usd(s.unrealized[s.unrealized.length-1])}</div>
-      <div class="k" style="margin-top:8px">US10Y adjustment / adjusted PnL</div>
+      <div class="k" style="margin-top:8px">Legacy additive US10Y carry / PnL (reference only)</div>
       <div style="font-size:13px;font-variant-numeric:tabular-nums">${usd(s.yield_adjustment[s.yield_adjustment.length-1])} / ${usd(s.adjusted_total[s.adjusted_total.length-1])}</div>
       <div class="k" style="margin-top:8px">adjusted ROI</div>
       <div style="font-size:13px">${pct(s.adjusted_roi[s.adjusted_roi.length-1])}</div>
