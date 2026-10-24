@@ -1,6 +1,6 @@
 # Oct. 23 Active Price Corrections — v3
 
-> Superseded as an active close set by [`consolidated_portfolio_closes_v6.csv`](../../data/consolidated_portfolio_closes_v6.csv); this note records the preceding v3 reconciliation. See [the v6 source-benchmark note](oct23-active-price-benchmarks-v6.md).
+> Superseded as an active close set by [`consolidated_portfolio_closes_v7.csv`](../../data/consolidated_portfolio_closes_v7.csv); this note records the preceding v3 reconciliation. See [the v7 exact energy marks note](oct23-active-price-marks-v7.md).
 
 ## Decision and scope
 

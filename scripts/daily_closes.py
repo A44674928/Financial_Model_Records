@@ -2,13 +2,15 @@
 """Daily closing prices for the *Fall (Arizona) [2026]* paper-trade book.
 
 Historical Yahoo Finance daily series through 2026-10-22, extended by the
-active Oct. 23 consolidated EOD close set in `data/consolidated_portfolio_closes_v6.csv`.
-The v6 file preserves prior versions, carries forward selected v1 marks, corrects UPS to its preserved v1 endpoint, and uses Yahoo BZ=F/CL=F benchmark closes through the terminal date for energy.
+active Oct. 23 consolidated EOD close set in `data/consolidated_portfolio_closes_v7.csv`.
+Exact user-provided BlackBull Brent Cash EOD marks replace the Brent proxy from Sep. 23,
+and exact user-provided TradingView TVC:USOIL marks replace the WTI proxy from Sep. 10.
+Before those active-position ranges, BZ=F/CL=F remain labeled historical context proxies.
 Equity/ETF session timestamps (MST regular-session open, UTC-07:00) are the
 union calendar; futures (BZ=F Brent, CL=F WTI) and crypto (BTC-USD, ETH-USD)
-are mapped onto the same session index by trade date. BZ=F/CL=F remain historical
-futures proxies for the book's BRENT Cash / ICE Brent and TVC:USOIL WTI CFD
-entries, respectively; do not interpret them as exact cash/CFD tickers.
+are mapped onto the same session index by trade date. BZ=F/CL=F are historical
+proxies only before the exact user-provided BlackBull Brent Cash / TVC:USOIL
+active-position EOD ranges; do not interpret them as exact cash/CFD tickers.
 
 XRH0 (db Physical Rhodium ETC, LSE) is too illiquid for a daily history
 (Yahoo returns a single bar). Keep the $790.00 log-entry mark through Oct. 22;
@@ -221,14 +223,15 @@ ETH_CLOSES = [
 
 
 
-# Append the user's authoritative Oct 23 EOD close set without rewriting the
-# frozen historical series above. DXY/FX and US10Y/US30Y inputs are consumed by
-# their dedicated report builders; the core book takes the 33 priced symbols.
+# Append the user's authoritative Oct 23 EOD close set. Exact energy EOD rows
+# override the cached Yahoo futures proxies from each instrument's first active
+# position date; the pre-entry context remains proxy-labeled. DXY/FX and yields
+# are consumed by their dedicated report builders.
 import csv as _csv
 from datetime import datetime as _datetime, timezone as _timezone
 from pathlib import Path as _Path
 
-OCT23_EOD_FILE = _Path(__file__).resolve().parents[1] / "data" / "consolidated_portfolio_closes_v6.csv"
+OCT23_EOD_FILE = _Path(__file__).resolve().parents[1] / "data" / "consolidated_portfolio_closes_v7.csv"
 OCT23_EOD_DATE = "2026-10-23"
 _OCT23_EQUITY_OPEN_UTC = 1792762200  # 06:30 MST / 13:30 UTC
 _OCT23_MARKS = {}
@@ -261,6 +264,50 @@ if _datetime.fromtimestamp(_OCT23_EQUITY_OPEN_UTC, _timezone.utc).strftime("%Y-%
     raise ValueError("Oct 23 equity session timestamp is inconsistent with the EOD source date")
 if _datetime.fromtimestamp(EQUITY_TS[-1], _timezone.utc).strftime("%Y-%m-%d") != "2026-10-22":
     raise ValueError("Expected the historical equity series to end on Oct 22 before appending Oct 23")
+
+# Use the exact, manually supplied provider series for every active energy
+# session. Keep only pre-entry context on the historical futures proxies.
+ENERGY_EOD_FILE = _Path(__file__).resolve().parents[1] / "data" / "energy_provider_eod_marks_v1.csv"
+_HIST_EQUITY_DATES = [_datetime.fromtimestamp(_ts, _timezone.utc).strftime("%Y-%m-%d") for _ts in EQUITY_TS]
+_ALL_EQUITY_DATES = _HIST_EQUITY_DATES + [OCT23_EOD_DATE]
+_HIST_DATE_TO_INDEX = {day: i for i, day in enumerate(_HIST_EQUITY_DATES)}
+_ENERGY_FIRST_ACTIVE_DATE = {"BRENT": "2026-09-23", "OIL": "2026-09-10"}
+_ENERGY_ROWS = {"BRENT": {}, "OIL": {}}
+with ENERGY_EOD_FILE.open(newline="", encoding="utf-8") as _fh:
+    _reader = _csv.DictReader(_fh)
+    _energy_required = {"Date", "Ticker", "EOD_Close", "Source", "Instrument"}
+    if not _reader.fieldnames or not _energy_required.issubset(_reader.fieldnames):
+        raise ValueError(f"{ENERGY_EOD_FILE.name} must contain {sorted(_energy_required)}")
+    for _row in _reader:
+        _day = _row["Date"].strip()
+        _sym = _row["Ticker"].strip().upper()
+        if _sym not in _ENERGY_ROWS or _day not in _ALL_EQUITY_DATES:
+            raise ValueError(f"Unexpected exact-energy row: {_sym} {_day}")
+        if _day in _ENERGY_ROWS[_sym]:
+            raise ValueError(f"Duplicate exact-energy close for {_sym} on {_day}")
+        _close = float(_row["EOD_Close"].strip())
+        _expected_instrument = {"BRENT": "BlackBull Brent Cash", "OIL": "TVC:USOIL"}[_sym]
+        _expected_source = {
+            "BRENT": "User-provided BlackBull Markets Brent Cash EOD",
+            "OIL": "User-provided TradingView TVC:USOIL EOD",
+        }[_sym]
+        if (
+            _close <= 0
+            or _row["Source"].strip() != _expected_source
+            or _row["Instrument"].strip() != _expected_instrument
+        ):
+            raise ValueError(f"Invalid source, instrument, or close for exact-energy row {_sym} on {_day}")
+        _ENERGY_ROWS[_sym][_day] = _close
+        if _day == OCT23_EOD_DATE:
+            if abs(_close - _OCT23_MARKS[_sym]) > 1e-9:
+                raise ValueError(f"Consolidated endpoint conflicts with exact-energy input for {_sym}")
+        else:
+            CLOSES[_sym][_HIST_DATE_TO_INDEX[_day]] = _close
+for _sym, _start in _ENERGY_FIRST_ACTIVE_DATE.items():
+    _expected_days = [d for d in _ALL_EQUITY_DATES if d >= _start]
+    if sorted(_ENERGY_ROWS[_sym]) != _expected_days:
+        raise ValueError(f"Exact {_sym} history must cover {_start} through {OCT23_EOD_DATE} without gaps")
+
 EQUITY_TS.append(_OCT23_EQUITY_OPEN_UTC)
 for _sym, _series in CLOSES.items():
     _series.append(_OCT23_MARKS[_sym])

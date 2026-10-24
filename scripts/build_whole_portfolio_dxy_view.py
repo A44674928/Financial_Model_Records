@@ -311,7 +311,7 @@ def write_daily_csv(dxy, fx, us30y, us30y_source_dates, core, result):
         "us10y_us30y_dxy_return_pct",
     ]
     with DAILY_CSV.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=fields)
+        writer = csv.DictWriter(fh, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         for variant in VARIANTS:
             for i, day in enumerate(SESSION_DATES):
@@ -361,7 +361,7 @@ def write_yield_scenario_csv(result, dxy):
         "scenario_dxy_equivalent_account_value", "scenario_dxy_return_pct",
     ]
     with YIELD_SCENARIO_CSV.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=fields)
+        writer = csv.DictWriter(fh, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         for variant in VARIANTS:
             row = result[variant]
@@ -402,7 +402,7 @@ def write_yield_scenario_summary_csv(result):
         "terminal_dxy_return_pct",
     ]
     with YIELD_SCENARIO_SUMMARY_CSV.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=fields)
+        writer = csv.DictWriter(fh, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         last = len(SESSION_DATES) - 1
         for variant in VARIANTS:
@@ -613,7 +613,7 @@ def write_yield_multiplier_explorer(result):
 <p class="sub">Interactive account-value comparison · Sep. 3–Oct. 23, 2026 · capital bases $830k / $920k · rates are blanket factors, not extra $10,000 positions</p>
 <section class="card"><h2>Choose the blanket adjustment</h2><p class="hint">The selected factor scales the full account value. The US30Y scenario compounds on top of US10Y.</p><div class="controls" id="scenarios"></div><div class="controls" id="metrics"></div><div class="variants" id="variants"></div><div class="chartbox"><canvas id="chart"></canvas><div id="tip" class="tip"></div></div></section>
 <section class="card"><h2>Oct. 23 comparison</h2><p class="hint">Each cell shows account value, USD return, and DXY-numeraire return. The no-multiplier case is the baseline.</p><div class="scroll"><table id="summary"></table></div></section>
-<footer>US10Y baseline 4.865% from Sep. 10; US30Y baseline 5.350% from Sep. 15 (first logged US30Y event). Each interval compounds 1 + ((yield close − baseline) / 100) × actual calendar days / 365 using the start-of-interval close and last available close on Treasury holidays. US30Y position PnL remains separate. These yield-spread factors are not CPI inflation or Treasury total-return calculations. DXY/FX/yield inputs are local daily files whose provider and close convention are not independently verified; source map: data/active_price_source_registry_v1.csv.</footer>
+<footer>US10Y baseline 4.865% from Sep. 10; US30Y baseline 5.350% from Sep. 15 (first logged US30Y event). Each interval compounds 1 + ((yield close − baseline) / 100) × actual calendar days / 365 using the start-of-interval close and last available close on Treasury holidays. US30Y position PnL remains separate. These yield-spread factors are not CPI inflation or Treasury total-return calculations. DXY/FX/yield inputs are local daily files whose provider and close convention are not independently verified; source map: data/active_price_source_registry_v2.csv.</footer>
 </main><script>
 const DATA=__DATA__;
 const VARS=Object.keys(DATA.variants);let scenario="none",metric="account_value_usd",shown=new Set(VARS);
@@ -700,7 +700,9 @@ def build_report(dxy, fx, us30y, result):
         "## DXY and FX Basis",
         "",
         f"- DXY daily closes run from `{SESSION_DATES[0]}` (`{dxy[SESSION_DATES[0]]:.2f}`) through `{TERMINAL_DATE}` (`{dxy[TERMINAL_DATE]:.2f}`). The Oct. 23 close of 102.10 is used for the new endpoint; the prior Oct. 22 close of 102.22 remains preserved in the daily series and Oct. 22 audit file.",
-        "- **Input provenance:** DXY, EUR/USD, JPY/USD, US10Y, and US30Y use the existing local daily input files; their provider and candle/close convention are not independently verified. The source map and proxy limitations are in [`data/active_price_source_registry_v1.csv`](data/active_price_source_registry_v1.csv). These local inputs were retained, not externally refreshed.",
+        "- **Input provenance:** DXY, EUR/USD, JPY/USD, US10Y, and US30Y use the existing local daily input files; their provider and candle/close convention are not independently verified. The source map and proxy limitations are in [`data/active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv). These local inputs were retained, not externally refreshed.",
+        "- **Energy marks:** the core logged Brent/USOIL positions use exact user-provided BlackBull Brent Cash and TVC:USOIL EOD values from their first active-position dates; only pre-entry context remains on the Yahoo futures proxies. The separate daily 10-unit oil-desk accumulation is in [`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md) and is not included in the four account bases or yield-factor scenarios.",
+        "- FX, DXY, and yield series remain local and unverified; the user-provided energy marks are not treated as DXY/FX or yield data.",
         "- The yield multiplier is a yield-spread scenario, not CPI inflation or a Treasury total-return estimate. A literal inflation-adjusted PnL series would require a specified CPI index and convention.",
         f"- EUR/USD PnL uses the uploaded daily close on its entry date as its cost basis: `{FX_ENTRIES['EURUSD']['date']}` close `{eur_base}`. The original chart quote `1.15388` remains in the trade log as source evidence; the graph does not use it as the PnL basis, per your instruction.",
         f"- JPY/USD PnL uses the uploaded daily close on its entry date as its cost basis: `{FX_ENTRIES['JPYUSD']['date']}` close `{jpy_base}`. The original chart quote `0.010160` remains in the trade log as source evidence; the graph does not use it as the PnL basis, per your instruction.",
@@ -742,7 +744,7 @@ def write_summary_csv(result, fx, dxy):
         "us10y_us30y_terminal_dxy_return_pct",
     ]
     with SUMMARY_CSV.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=fields)
+        writer = csv.DictWriter(fh, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         for variant in VARIANTS:
             last = len(SESSION_DATES) - 1

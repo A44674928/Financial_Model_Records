@@ -144,4 +144,4 @@ def test_exported_csvs_are_complete_and_oct23_values_reconcile():
     assert "No yield multiplier" in html
     assert "US10Y × US30Y blanket multipliers" in html
     assert "provider and close convention are not independently verified" in html
-    assert "active_price_source_registry_v1.csv" in html
+    assert "active_price_source_registry_v2.csv" in html

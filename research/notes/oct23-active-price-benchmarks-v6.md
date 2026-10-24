@@ -1,5 +1,7 @@
 # Active Price Benchmarks — v6
 
+> Historical decision, superseded as the active energy source by [v7 exact user-provided marks](oct23-active-price-marks-v7.md). v6 remains preserved for audit.
+
 ## Decision and scope
 
 The active consolidated endpoint is `data/consolidated_portfolio_closes_v6.csv`. It copies v5, preserves all earlier versions, and changes only the Oct. 23 BRENT and OIL endpoints to the Yahoo futures benchmark closes already used by the historical series.

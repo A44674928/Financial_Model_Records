@@ -1,0 +1,56 @@
+Date,Ticker,EOD_Close,Source,Instrument,Session_Basis
+2026-09-10,OIL,103.94,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-09-11,OIL,99.98,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-09-14,OIL,101.88,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-09-15,OIL,105.49,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-09-16,OIL,102.03,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-09-17,OIL,101.1,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-09-18,OIL,95.46,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-09-21,OIL,91.98,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-09-22,OIL,89.84,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-09-23,BRENT,103.158,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-09-23,OIL,92.7,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-09-24,BRENT,105.197,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-09-24,OIL,94.77,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-09-25,BRENT,101.885,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-09-25,OIL,92.45,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-09-28,BRENT,103.676,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-09-28,OIL,93.3,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-09-29,BRENT,99.504,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-09-29,OIL,88.93,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-09-30,BRENT,101.754,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-09-30,OIL,90.33,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-10-01,BRENT,106.122,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-10-01,OIL,92.9,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-10-02,BRENT,106.446,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-10-02,OIL,91.25,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-10-05,BRENT,103.599,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-10-05,OIL,89.29,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-10-06,BRENT,104.3,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-10-06,OIL,89.92,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-10-07,BRENT,103.974,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-10-07,OIL,88.93,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-10-08,BRENT,106.906,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-10-08,OIL,91.17,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-10-09,BRENT,107.188,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-10-09,OIL,91.67,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-10-12,BRENT,108.446,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-10-12,OIL,93.17,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-10-13,BRENT,108.725,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-10-13,OIL,94.78,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-10-14,BRENT,108.323,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-10-14,OIL,95.16,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-10-15,BRENT,107.795,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-10-15,OIL,97.54,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-10-16,BRENT,111.771,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-10-16,OIL,99.05,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-10-19,BRENT,110.84,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-10-19,OIL,98.23,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-10-20,BRENT,110.575,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-10-20,OIL,98.17,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-10-21,BRENT,111.075,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-10-21,OIL,97.7,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-10-22,BRENT,114.136,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-10-22,OIL,99.09,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
+2026-10-23,BRENT,117.345,User-provided BlackBull Markets Brent Cash EOD,BlackBull Brent Cash,1D EOD; one value per confirmed market session
+2026-10-23,OIL,103.45,User-provided TradingView TVC:USOIL EOD,TVC:USOIL,1D EOD; one value per confirmed market session
