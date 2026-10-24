@@ -38,6 +38,7 @@ VARIANT_FORCE_POSITION_CSV = DATA / "force_multiplier_variant_eod_positions_v1.c
 REPORT = ROOT / "Strategy and Sidecar Comparison.md"
 GRAPH = CHARTS / "20-strategy-sidecar-comparison.png"
 VARIANT_GRAPH = CHARTS / "21-force-variant-oil-comparison.png"
+PERCENT_GAIN_GRAPH = CHARTS / "22-force-variant-oil-percent-gain.png"
 EXPONENTIAL_TRANCHE_USD = 500.0
 FORCE_MULTIPLIER_TRANCHE_USD = UNIT
 VARIANT_COLORS = {
@@ -50,6 +51,13 @@ EXP_COLOR = "#f97316"
 FORCE_COLOR = "#ec4899"
 OIL_COLOR = "#22c55e"
 BOTH_COLOR = "#f8fafc"
+
+
+def _return_on_notional_pct(pnl, notional):
+    """Format percentage gain using the PnL/notional values displayed in the CSV."""
+    pnl = float(f"{pnl:.2f}")
+    notional = float(f"{notional:.2f}")
+    return f"{pnl / notional * 100:.6f}" if notional > 0 else ""
 
 
 def _direction(tag):
@@ -403,13 +411,24 @@ def comparison_rows():
                     force_variant_row[f"{force_variant}_force_1u_cumulative_notional_added_usd"]
                 )
                 force_variant_open = float(force_variant_row[f"{force_variant}_force_1u_open_notional_usd"])
-                prefix = f"{core_variant}_core_plus_{force_variant}_force_1u_and_oil"
-                row[f"{prefix}_pnl_usd"] = f"{core_pnl + force_variant_pnl + oil_today:.2f}"
-                row[f"{prefix}_cumulative_notional_usd"] = (
-                    f"{core_added + force_variant_added + oil_open_today:.2f}"
+                no_oil_prefix = f"{core_variant}_core_plus_{force_variant}_force_1u"
+                no_oil_pnl = core_pnl + force_variant_pnl
+                no_oil_added = core_added + force_variant_added
+                row[f"{no_oil_prefix}_pnl_usd"] = f"{no_oil_pnl:.2f}"
+                row[f"{no_oil_prefix}_cumulative_notional_usd"] = f"{no_oil_added:.2f}"
+                row[f"{no_oil_prefix}_open_notional_usd"] = f"{core_open + force_variant_open:.2f}"
+                row[f"{no_oil_prefix}_return_on_cumulative_notional_pct"] = _return_on_notional_pct(
+                    no_oil_pnl, no_oil_added
                 )
-                row[f"{prefix}_open_notional_usd"] = (
-                    f"{core_open + force_variant_open + oil_open_today:.2f}"
+
+                prefix = f"{core_variant}_core_plus_{force_variant}_force_1u_and_oil"
+                oil_composite_pnl = no_oil_pnl + oil_today
+                oil_composite_added = no_oil_added + oil_open_today
+                row[f"{prefix}_pnl_usd"] = f"{oil_composite_pnl:.2f}"
+                row[f"{prefix}_cumulative_notional_usd"] = f"{oil_composite_added:.2f}"
+                row[f"{prefix}_open_notional_usd"] = f"{core_open + force_variant_open + oil_open_today:.2f}"
+                row[f"{prefix}_return_on_cumulative_notional_pct"] = _return_on_notional_pct(
+                    oil_composite_pnl, oil_composite_added
                 )
         row.update(exp)
         row.update(force)
@@ -579,6 +598,119 @@ def write_variant_chart(rows):
     return VARIANT_GRAPH
 
 
+def percent_gain_scenarios(rows):
+    """Return the 32 core/force pairings, ranked by terminal PnL/notional-added ratio."""
+    last = rows[-1]
+    scenarios = []
+    for core_variant in VARIANTS:
+        for force_variant in VARIANTS:
+            for with_oil in (False, True):
+                prefix = f"{core_variant}_core_plus_{force_variant}_force_1u"
+                if with_oil:
+                    prefix += "_and_oil"
+                field = f"{prefix}_return_on_cumulative_notional_pct"
+                scenarios.append({
+                    "core_variant": core_variant,
+                    "force_variant": force_variant,
+                    "with_oil": with_oil,
+                    "field": field,
+                    "name": (
+                        f"Core {core_variant} + 1U {force_variant} "
+                        f"{'with oil' if with_oil else 'no oil'}"
+                    ),
+                    "terminal_pct": float(last[field]) if last[field] else float("-inf"),
+                })
+    return sorted(scenarios, key=lambda item: item["terminal_pct"], reverse=True)
+
+
+def write_percent_gain_chart(rows):
+    """Plot all 32 core/1U pairings, with oil and no-oil variants."""
+    CHARTS.mkdir(parents=True, exist_ok=True)
+    dates = [row["date"] for row in rows]
+    ranked = percent_gain_scenarios(rows)
+    top = ranked[:4]
+    top_keys = {
+        (item["core_variant"], item["force_variant"], item["with_oil"]): item
+        for item in top
+    }
+    highlight_colors = ("#22d3ee", "#facc15", "#fb7185", "#a78bfa")
+    fig, ax = plt.subplots(figsize=(16, 9))
+    fig.patch.set_facecolor("#0d131e")
+    ax.set_facecolor("#141c2b")
+    ax.grid(True, color="#26344a", alpha=0.8)
+    ax.tick_params(colors="#93a4bd")
+    for spine in ax.spines.values():
+        spine.set_color("#26344a")
+
+    highlighted_handles = []
+    for scenario in reversed(ranked):
+        core_variant = scenario["core_variant"]
+        force_variant = scenario["force_variant"]
+        with_oil = scenario["with_oil"]
+        key = (core_variant, force_variant, with_oil)
+        values = [
+            float(row[scenario["field"]]) if row[scenario["field"]] else float("nan")
+            for row in rows
+        ]
+        is_top = key in top_keys
+        linestyle = "--" if with_oil else "-"
+        if is_top:
+            rank = next(i for i, item in enumerate(top) if item == scenario)
+            label = f"{scenario['name']} ({scenario['terminal_pct']:.2f}%)"
+            (line,) = ax.plot(
+                dates,
+                values,
+                color=highlight_colors[rank],
+                linewidth=2.7,
+                linestyle=linestyle,
+                alpha=0.98,
+                zorder=4,
+                label=label,
+            )
+            highlighted_handles.append(line)
+        else:
+            ax.plot(
+                dates,
+                values,
+                color="#9aa7b8",
+                linewidth=0.9,
+                linestyle=linestyle,
+                alpha=0.30,
+                zorder=1,
+                label="_nolegend_",
+            )
+    ax.set_title(
+        "All 32 Core × 1U/EOD Pairings — Cumulative PnL / Gross Notional Added",
+        color="#edf2f7",
+        loc="left",
+        fontsize=13,
+    )
+    ax.set_ylabel("Gain on cumulative gross notional added (%)", color="#edf2f7")
+    ax.set_xlabel("EOD session date", color="#edf2f7")
+    ax.tick_params(axis="x", rotation=25)
+    ax.legend(
+        handles=highlighted_handles,
+        facecolor="#0d131e",
+        edgecolor="#26344a",
+        labelcolor="#edf2f7",
+        fontsize=9,
+        loc="best",
+    )
+    fig.text(
+        0.5,
+        0.925,
+        "All 32 lines are shown; gray lines are other pairings. Solid = no oil, dashed = oil sidecar. "
+        "Only the top four terminal gain ratios are named.",
+        color="#bdc8d8",
+        ha="center",
+        fontsize=10,
+    )
+    fig.tight_layout(rect=(0, 0, 1, 0.90))
+    fig.savefig(PERCENT_GAIN_GRAPH, dpi=150, facecolor=fig.get_facecolor(), bbox_inches="tight")
+    plt.close(fig)
+    return PERCENT_GAIN_GRAPH
+
+
 def write_report(rows):
     last = rows[-1]
     exp_realized = float(last["exponential_realized_pnl_usd"])
@@ -676,6 +808,22 @@ def write_report(rows):
         lines.append("")
     lines.extend([
         "",
+        "## Percent gain across all 32 combinations",
+        "",
+        "Percent gain is cumulative composite PnL divided by cumulative gross notional added, expressed as a percentage. It is a deployed-notional ratio, not an account return or capital-normalized ROI. The chart plots all 16 core × 1U variant pairings both without oil and with the oil daily-buy sidecar (32 lines total). Solid lines omit oil; dashed lines include oil. The top four terminal gain ratios are named in the legend; the other 28 pairings remain visible in gray.",
+        "",
+        "![All 32 core and 1U variant pairings with and without oil, shown as percentage gain](Charts/performance/22-force-variant-oil-percent-gain.png)",
+        "",
+        "| Rank | Pairing | Oil sidecar | Terminal gain on cumulative notional added |",
+        "|---:|---|---|---:|",
+    ])
+    for rank, scenario in enumerate(percent_gain_scenarios(rows)[:4], 1):
+        lines.append(
+            f"| {rank} | Core {scenario['core_variant']} + 1U {scenario['force_variant']} | "
+            f"{'Included' if scenario['with_oil'] else 'Omitted'} | {scenario['terminal_pct']:.2f}% |"
+        )
+    lines.extend([
+        "",
         "## Core variants with add-ons — terminal PnL",
         "",
         "| Core variant | Core only | + $500 model | + 1U force multiplier | + oil desk | + $500 and oil | + force multiplier and oil |",
@@ -700,6 +848,7 @@ def write_report(rows):
         "- Exponential $500 per-symbol EOD audit: [`exponential_eod_positions_v1.csv`](data/exponential_eod_positions_v1.csv).",
         "- Shared-direction force model audit: [`force_multiplier_eod_positions_v1.csv`](data/force_multiplier_eod_positions_v1.csv).",
         "- Variant-specific 1U EOD position audit: [`force_multiplier_variant_eod_positions_v1.csv`](data/force_multiplier_variant_eod_positions_v1.csv).",
+        "- Percent-gain chart for all 32 core/1U pairings with and without oil: [`22-force-variant-oil-percent-gain.png`](Charts/performance/22-force-variant-oil-percent-gain.png).",
         "- Price source map: [`active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv); exact energy closes: [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv).",
         "- Core models: [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md). Oil sidecar assumptions and source rows: [`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md).",
         "",
@@ -714,6 +863,7 @@ def main():
     write_csvs(rows, exponential_positions, force_positions, variant_positions)
     graph = write_chart(rows)
     variant_graph = write_variant_chart(rows)
+    percent_gain_graph = write_percent_gain_chart(rows)
     report = write_report(rows)
     print(f"Wrote {DAILY_CSV.relative_to(ROOT)}")
     print(f"Wrote {POSITION_CSV.relative_to(ROOT)}")
@@ -721,6 +871,7 @@ def main():
     print(f"Wrote {VARIANT_FORCE_POSITION_CSV.relative_to(ROOT)}")
     print(f"Wrote {graph.relative_to(ROOT)}")
     print(f"Wrote {variant_graph.relative_to(ROOT)}")
+    print(f"Wrote {percent_gain_graph.relative_to(ROOT)}")
     print(f"Wrote {report.relative_to(ROOT)}")
 
 

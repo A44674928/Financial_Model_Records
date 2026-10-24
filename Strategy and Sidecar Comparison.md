@@ -95,6 +95,19 @@ Core PnL: **$+86,049.06**; oil sidecar PnL: **$+499,705.92**.
 | Variant 3B — Nu SAR | Matching | $+440,601.08 | $+1,026,356.06 | $13,805,000.00 | $12,455,000.00 |
 
 
+## Percent gain across all 32 combinations
+
+Percent gain is cumulative composite PnL divided by cumulative gross notional added, expressed as a percentage. It is a deployed-notional ratio, not an account return or capital-normalized ROI. The chart plots all 16 core × 1U variant pairings both without oil and with the oil daily-buy sidecar (32 lines total). Solid lines omit oil; dashed lines include oil. The top four terminal gain ratios are named in the legend; the other 28 pairings remain visible in gray.
+
+![All 32 core and 1U variant pairings with and without oil, shown as percentage gain](Charts/performance/22-force-variant-oil-percent-gain.png)
+
+| Rank | Pairing | Oil sidecar | Terminal gain on cumulative notional added |
+|---:|---|---|---:|
+| 1 | Core V3A + 1U V3A | Included | 8.88% |
+| 2 | Core V3A + 1U V3A | Omitted | 8.74% |
+| 3 | Core V1 + 1U V3A | Included | 8.62% |
+| 4 | Core V3A + 1U V1 | Included | 8.61% |
+
 ## Core variants with add-ons — terminal PnL
 
 | Core variant | Core only | + $500 model | + 1U force multiplier | + oil desk | + $500 and oil | + force multiplier and oil |
@@ -112,6 +125,7 @@ The oil desk sidecar alone adds **$499,705.92** on $5.5M of daily-buy notional, 
 - Exponential $500 per-symbol EOD audit: [`exponential_eod_positions_v1.csv`](data/exponential_eod_positions_v1.csv).
 - Shared-direction force model audit: [`force_multiplier_eod_positions_v1.csv`](data/force_multiplier_eod_positions_v1.csv).
 - Variant-specific 1U EOD position audit: [`force_multiplier_variant_eod_positions_v1.csv`](data/force_multiplier_variant_eod_positions_v1.csv).
+- Percent-gain chart for all 32 core/1U pairings with and without oil: [`22-force-variant-oil-percent-gain.png`](Charts/performance/22-force-variant-oil-percent-gain.png).
 - Price source map: [`active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv); exact energy closes: [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv).
 - Core models: [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md). Oil sidecar assumptions and source rows: [`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md).
 

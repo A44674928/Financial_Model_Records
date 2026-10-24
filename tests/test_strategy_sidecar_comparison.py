@@ -10,6 +10,7 @@ from build_strategy_sidecar_comparison import (  # noqa: E402
     comparison_rows,
     exponential_daily_model,
     force_multiplier_daily_model,
+    percent_gain_scenarios,
     variant_force_multiplier_daily_model,
 )
 from model_perf_core import SESSION_DATES, UNIT, parse_trades  # noqa: E402
@@ -138,6 +139,19 @@ class StrategySidecarComparisonTests(unittest.TestCase):
                 self.assertEqual(terminal[f"{prefix}_open_notional_usd"], f"{expected_open:.2f}")
                 combo_count += 1
         self.assertEqual(combo_count, 16)
+        scenarios = percent_gain_scenarios(rows)
+        self.assertEqual(len(scenarios), 32)
+        self.assertEqual(scenarios, sorted(scenarios, key=lambda item: item["terminal_pct"], reverse=True))
+        for scenario in scenarios:
+            prefix = f"{scenario['core_variant']}_core_plus_{scenario['force_variant']}_force_1u"
+            if scenario["with_oil"]:
+                prefix += "_and_oil"
+            pnl = float(terminal[f"{prefix}_pnl_usd"])
+            notional = float(terminal[f"{prefix}_cumulative_notional_usd"])
+            self.assertEqual(
+                terminal[f"{prefix}_return_on_cumulative_notional_pct"],
+                f"{pnl / notional * 100:.6f}",
+            )
         self.assertEqual(terminal["V1_core_plus_V1_force_1u_and_oil_pnl_usd"], "1137242.87")
         self.assertEqual(terminal["V3A_core_plus_V3A_force_1u_and_oil_pnl_usd"], "1225786.98")
         self.assertEqual(terminal["oil_desk_cumulative_notional_usd"], "5500000.00")
@@ -158,6 +172,9 @@ class StrategySidecarComparisonTests(unittest.TestCase):
         self.assertIn("Cross-variant", report_text)
         self.assertEqual(report_text.count("| Matching |"), 4)
         self.assertEqual(report_text.count("| Cross-variant |"), 12)
+        self.assertIn("Percent gain across all 32 combinations", report_text)
+        self.assertIn("22-force-variant-oil-percent-gain.png", report_text)
+        self.assertIn("not an account return", report_text)
         audit_path = Path(__file__).resolve().parents[1] / "data" / "force_multiplier_eod_positions_v1.csv"
         with audit_path.open(newline="", encoding="utf-8") as handle:
             force_audit = list(csv.DictReader(handle))
@@ -168,7 +185,9 @@ class StrategySidecarComparisonTests(unittest.TestCase):
             variant_audit = list(csv.DictReader(handle))
         self.assertEqual(len(variant_audit), 4 * 36 * 33)
         self.assertEqual({row["variant"] for row in variant_audit}, {"V1", "V2", "V3A", "V3B"})
-        self.assertTrue((Path(__file__).resolve().parents[1] / "Charts/performance/21-force-variant-oil-comparison.png").exists())
+        charts_dir = Path(__file__).resolve().parents[1] / "Charts" / "performance"
+        self.assertTrue((charts_dir / "21-force-variant-oil-comparison.png").exists())
+        self.assertTrue((charts_dir / "22-force-variant-oil-percent-gain.png").exists())
 
 
 if __name__ == "__main__":
