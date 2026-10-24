@@ -218,6 +218,9 @@ class ModelTradeScopeTests(unittest.TestCase):
         root = Path(__file__).resolve().parents[1]
         report = root / "Model Performance Comparison.md"
         text = report.read_text(encoding="utf-8")
+        self.assertTrue(text.startswith("# THE ONE MODEL\n\n## Model Performance Comparison"))
+        generator = (root / "scripts/build_model_performance.py").read_text(encoding="utf-8")
+        self.assertIn('A("# THE ONE MODEL")', generator)
         self.assertIn("`88` in-window price-covered events out of `95` total 2026 log events", text)
         self.assertIn("`0` after cutoff", text)
         self.assertIn("`33` price-covered symbols", text)
