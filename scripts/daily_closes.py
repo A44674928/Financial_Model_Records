@@ -2,8 +2,8 @@
 """Daily closing prices for the *Fall (Arizona) [2026]* paper-trade book.
 
 Historical Yahoo Finance daily series through 2026-10-22, extended by the
-active Oct. 23 consolidated EOD close set in `data/consolidated_portfolio_closes_v5.csv`.
-The v5 file preserves prior versions, carries forward the selected v1 marks for CVX, WMT, and TMO, and corrects UPS to its preserved v1 endpoint.
+active Oct. 23 consolidated EOD close set in `data/consolidated_portfolio_closes_v6.csv`.
+The v6 file preserves prior versions, carries forward selected v1 marks, corrects UPS to its preserved v1 endpoint, and uses Yahoo BZ=F/CL=F benchmark closes through the terminal date for energy.
 Equity/ETF session timestamps (MST regular-session open, UTC-07:00) are the
 union calendar; futures (BZ=F Brent, CL=F WTI) and crypto (BTC-USD, ETH-USD)
 are mapped onto the same session index by trade date. BZ=F/CL=F remain historical
@@ -228,7 +228,7 @@ import csv as _csv
 from datetime import datetime as _datetime, timezone as _timezone
 from pathlib import Path as _Path
 
-OCT23_EOD_FILE = _Path(__file__).resolve().parents[1] / "data" / "consolidated_portfolio_closes_v5.csv"
+OCT23_EOD_FILE = _Path(__file__).resolve().parents[1] / "data" / "consolidated_portfolio_closes_v6.csv"
 OCT23_EOD_DATE = "2026-10-23"
 _OCT23_EQUITY_OPEN_UTC = 1792762200  # 06:30 MST / 13:30 UTC
 _OCT23_MARKS = {}

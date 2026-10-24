@@ -27,7 +27,7 @@ class ModelTradeScopeTests(unittest.TestCase):
         import csv
 
         root = Path(__file__).resolve().parents[1]
-        with (root / "data/consolidated_portfolio_closes_v5.csv").open(newline="", encoding="utf-8") as fh:
+        with (root / "data/consolidated_portfolio_closes_v6.csv").open(newline="", encoding="utf-8") as fh:
             rows = list(csv.DictReader(fh))
         marks = {row["Ticker"]: float(row["EOD_Close"]) for row in rows if row["Date"] == "2026-10-23"}
         sources = {row["Ticker"]: row["Source"] for row in rows if row["Date"] == "2026-10-23"}
@@ -49,12 +49,12 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertEqual(PRICES["XRH0"][-1], 785.0)
         self.assertEqual(PRICES["XRH0"][SESSION_DATES.index("2026-10-22")], 790.0)
         self.assertEqual(PRICES["ORCL"][-1], 175.4)
-        self.assertEqual(PRICES["BRENT"][-1], 117.345)
-        self.assertEqual(PRICES["OIL"][-1], 103.45)
+        self.assertEqual(PRICES["BRENT"][-1], 113.81)
+        self.assertEqual(PRICES["OIL"][-1], 97.53)
         self.assertEqual(marks["US10Y"], 4.986)
         self.assertEqual(marks["US30Y"], 5.43)
-        self.assertEqual(sources["BRENT"], "BlackBull Markets (Override)")
-        self.assertEqual(sources["OIL"], "TradingView TVC:USOIL (Override)")
+        self.assertEqual(sources["BRENT"], "Yahoo Finance BZ=F Brent futures benchmark (cash-market proxy)")
+        self.assertEqual(sources["OIL"], "Yahoo Finance CL=F WTI futures benchmark (CFD proxy)")
         self.assertEqual(sources["LCID"], "User-provided mark correction")
         self.assertEqual(sources["XRH0"], "User-provided EOD correction")
         with (root / "data/consolidated_portfolio_closes_v2.csv").open(newline="", encoding="utf-8") as fh:
@@ -77,6 +77,17 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertEqual(len(v5_audit), 35)
         self.assertEqual(sum(row["Price_Status"] == "price_changed" for row in v5_audit), 1)
         self.assertEqual({row["Ticker"] for row in v5_audit if row["Price_Status"] == "price_changed"}, {"UPS"})
+        with (root / "data/eod_close_reconciliation_20261023_v5_to_v6.csv").open(newline="", encoding="utf-8") as fh:
+            v6_audit = list(csv.DictReader(fh))
+        self.assertEqual(len(v6_audit), 35)
+        self.assertEqual({row["Ticker"] for row in v6_audit if row["Price_Status"] == "price_changed"}, {"BRENT", "OIL"})
+        self.assertEqual(sum(row["Source_Status"] == "source_changed" for row in v6_audit), 2)
+        with (root / "data/active_price_source_registry_v1.csv").open(newline="", encoding="utf-8") as fh:
+            registry = list(csv.DictReader(fh))
+        registry_by_ticker = {row["Internal_Ticker"]: row for row in registry}
+        self.assertEqual(registry_by_ticker["BRENT"]["Historical_Instrument"], "Yahoo Finance BZ=F Brent futures")
+        self.assertEqual(registry_by_ticker["OIL"]["Historical_Instrument"], "Yahoo Finance CL=F WTI futures")
+        self.assertIn("not the user chart instrument", registry_by_ticker["BRENT"]["Verification_Status"])
         with (root / "data/model_performance_tickers.csv").open(newline="", encoding="utf-8") as fh:
             ticker_pnl = list(csv.DictReader(fh))
         v1_pnl = {row["ticker"]: float(row["total_usd"]) for row in ticker_pnl if row["variant"] == "V1"}
@@ -86,6 +97,8 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertAlmostEqual(v1_pnl["AAPL"], 2037.22, places=2)
         self.assertAlmostEqual(v1_pnl["NVDA"], -811.45, places=2)
         self.assertAlmostEqual(v1_pnl["UPS"], -1422.48, places=2)
+        self.assertAlmostEqual(v1_pnl["BRENT"], 3368.90, places=2)
+        self.assertAlmostEqual(v1_pnl["OIL"], 2802.50, places=2)
         with (root / "data/eod_close_reconciliation_20261023.csv").open(newline="", encoding="utf-8") as fh:
             audit = list(csv.DictReader(fh))
         self.assertEqual(len(audit), 35)
@@ -195,11 +208,12 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertIn("DXY, EURUSD, JPYUSD, US10Y and US30Y", text)
         self.assertIn("Legacy Model-Level US10Y Additive Carry (Reference Only)", text)
         self.assertIn("Whole Portfolio Yield Multiplier Explorer.html", text)
-        self.assertIn("consolidated_portfolio_closes_v5.csv", text)
+        self.assertIn("consolidated_portfolio_closes_v6.csv", text)
         self.assertIn("Selected preserved v1 Yahoo mark (v3→v4)", text)
-        self.assertIn("CVX `$233.21`, WMT `$119.89`, and TMO `$673.82`", text)
+        self.assertIn("CVX `$233.21`, WMT `$119.89`, TMO `$673.82`, and UPS `$101.06`", text)
         self.assertIn("saved TradingView-vs-Yahoo candidate remains audit-only", text)
-        self.assertIn("corrects UPS from `$134.60` to the preserved v1 mark `$101.06`", text)
+        self.assertIn("Yahoo BZ=F `$113.81` and CL=F `$97.53` benchmarks", text)
+        self.assertIn("active_price_source_registry_v1.csv", text)
         self.assertIn("master PnL report remains", text)
         self.assertIn("unrecalculated and unreconciled", text)
 

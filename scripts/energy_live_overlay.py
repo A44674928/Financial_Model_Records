@@ -1,8 +1,8 @@
-"""Compare exact Oct 23 EOD energy closes with separate approximate live marks.
+"""Compare Yahoo futures benchmark closes with separate approximate live marks.
 
-The current EOD marks are in `data/consolidated_portfolio_closes_v5.csv`; BRENT
-and OIL retain the explicitly labeled BlackBull and TradingView overrides. Earlier
-daily series use Yahoo BZ=F/CL=F futures proxies. Approximate live marks remain
+The current EOD marks are in `data/consolidated_portfolio_closes_v6.csv`; BRENT
+and OIL use Yahoo BZ=F/CL=F futures benchmark closes consistently through Oct. 23. These
+are not exact BlackBull Brent Cash or TVC:USOIL CFD values. Approximate live marks remain
 separate because provider/time were not supplied.
 """
 
@@ -129,11 +129,11 @@ def inject_html_overlay(html_path, rows=None, chart_path=None):
         )
     card = f'''{card_id}
     <h2>Energy EOD and approximate-quote comparison</h2>
-    <p class="hint">The exact Oct 23 EOD closes from consolidated v2 are used in the daily model charts;
-       the source column identifies the BlackBull BRENT and TradingView OIL overrides. This card
-       compares them with separate approximate user quotes whose provider/time were not specified.
-       Earlier history uses Yahoo <code>BZ=F</code>/<code>CL=F</code> futures proxies for logged cash/CFD
-       instruments. Approximate quotes are not mixed into the portfolio totals.</p>
+    <p class="hint">The Oct 23 closes from consolidated v6 use the same Yahoo <code>BZ=F</code>/<code>CL=F</code>
+       futures benchmarks used by the historical daily series. These proxy the logged BlackBull Brent Cash
+       and TVC:USOIL CFDs and are not exact chart-feed matches. The card compares them with separate
+       approximate user quotes whose provider/time were not specified. Approximate quotes are not mixed
+       into portfolio totals.</p>
     <p><img src="{chart_rel}" alt="Oct 23 EOD and separate approximate energy quotes" style="max-width:100%;height:auto"></p>
     <div class="scroll"><table><thead><tr><th>Symbol</th><th>EOD source</th><th>Oct 23 EOD close</th>
       <th>EOD unrealized</th><th>Approx. quote</th><th>Approx. unrealized</th>

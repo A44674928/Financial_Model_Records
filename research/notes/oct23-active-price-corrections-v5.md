@@ -1,5 +1,7 @@
 # Oct. 23 Active Price Corrections — v5
 
+> Superseded as the active endpoint set by [`consolidated_portfolio_closes_v6.csv`](../../data/consolidated_portfolio_closes_v6.csv); this note records the preceding v5 reconciliation. See [the v6 source-benchmark note](oct23-active-price-benchmarks-v6.md).
+
 ## Decision and scope
 
 The active close source is `data/consolidated_portfolio_closes_v5.csv`. It copies v4 and changes only the Oct. 23 UPS mark to the preserved v1 close of $101.06. This is consistent with the user's reported approximate $101 quote and the prior Oct. 22 close of $101.52; v1–v4 and their audits remain preserved.
