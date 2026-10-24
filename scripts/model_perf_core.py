@@ -3,13 +3,13 @@
 
 Four model variants are compared over the *Fall (Arizona) [2026]* book:
 
-  V1  1u Open  - every log line is 1 unit ($10,000); positions stay open.
-  V2  1u SAR   - 1 unit; a LONG / REBUY stops-and-reverses open shorts.
+  V1  1U Open  - logged entry units; no LONG-triggered short cover.
+  V2  1U SAR   - same logged sizing; LONG / REBUY closes open shorts.
   V3A Nu Open  - natural units (compounded shorts sized to the preceding
                  full exit); positions stay open.
   V3B Nu SAR   - natural units, plus stop-and-reverse on LONG / REBUY.
 
-`1 unit` = $10,000.00 initial notional; quantity Q = $10,000 / entry price.
+`1U` is the standard $10,000.00 initial notional; quantity Q = 1U / entry price.
 """
 
 import bisect
@@ -29,8 +29,8 @@ MST = timezone(timedelta(hours=-7))
 UNIT = 10_000.00
 VARIANTS = ("V1", "V2", "V3A", "V3B")
 VARIANT_LABEL = {
-    "V1": "Variant 1 — 1u Open",
-    "V2": "Variant 2 — 1u SAR",
+    "V1": "Variant 1 — 1U Open",
+    "V2": "Variant 2 — 1U SAR",
     "V3A": "Variant 3A — Nu Open",
     "V3B": "Variant 3B — Nu SAR",
 }
@@ -41,11 +41,11 @@ VARIANT_COLOR = {"V1": "#38bdf8", "V2": "#f472b6", "V3A": "#34d399", "V3B": "#fb
 # canonical ledger while excluding them explicitly from model PnL replay.
 UNMODELED_SYMBOLS = frozenset({"DXY", "EURUSD", "JPYUSD", "US10Y", "US30Y"})
 
-# Oct 22, 2026 historical marks pinned to the verified settlement set used by
-# `Trades Zip PnL.md` (Yahoo's crypto snapshot drifts from settlement). These
-# remain pinned at the Oct 22 index after the user-supplied Oct 23 EOD session
-# is appended. BRENT/OIL are historical futures proxies (BZ=F/CL=F), not exact
-# cash/CFD tickers; approximate Oct 23 quotes remain a separate overlay.
+# Oct 22, 2026 BTC/ETH historical marks pinned to the verified settlement set
+# used by `Trades Zip PnL.md` (Yahoo's crypto snapshot drifts from settlement).
+# Energy marks instead come from the user-provided exact BlackBull/TVC EOD rows
+# from the first active position date onward; only pre-entry context remains a
+# labeled BZ=F/CL=F proxy. Approximate energy quotes remain a separate overlay.
 VERIFIED_OCT22 = {
     "BTC": 81263.73,
     "ETH": 2381.38,
@@ -79,10 +79,10 @@ _OCT22_INDEX = SESSION_DATES.index("2026-10-22")
 for _sym, _px in VERIFIED_OCT22.items():
     PRICES[_sym][_OCT22_INDEX] = _px
 for _sym, _px in {
-    "AAPL": 348.22, "AMZN": 250.38, "BRENT": 113.17, "CAT": 704.05, "CVX": 226.68,
+    "AAPL": 348.22, "AMZN": 250.38, "CAT": 704.05, "CVX": 226.68,
     "DIS": 113.13, "GEV": 827.42, "HD": 327.73, "INTC": 85.49, "LLY": 1306.69,
     "LMT": 589.91, "LULU": 104.06, "META": 648.85, "NET": 303.61, "NFLX": 67.05,
-    "NVDA": 212.21, "OIL": 99.47, "ORCL": 125.54, "PEP": 138.83, "PLTR": 196.19,
+    "NVDA": 212.21, "ORCL": 125.54, "PEP": 138.83, "PLTR": 196.19,
     "RIVN": 12.06, "SPCX": 144.75, "TMO": 676.54, "TSLA": 374.58, "UPS": 101.52,
     "V": 414.34, "VLO": 426.28, "WMT": 121.12, "XLE": 67.57, "XRH0": 790.00,
 }.items():

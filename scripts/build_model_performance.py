@@ -197,7 +197,7 @@ def make_charts(series, contrib):
 
     # 4. Pairwise spreads
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(11, 8.4), sharex=True)
-    pairs = [("V1", "V2", "V1 − V2 : stop-and-reverse effect (1-unit book)"),
+    pairs = [("V1", "V2", "V1 − V2 : stop-and-reverse effect (1U book)"),
              ("V3A", "V3B", "V3A − V3B : stop-and-reverse effect (natural-unit book)")]
     for ax, (a, b, title) in zip((ax1, ax2), pairs):
         spread = [series[a]["total"][i] - series[b]["total"][i] for i in x]
@@ -351,7 +351,7 @@ def make_energy_overlay_chart(rows):
     fig.suptitle("Energy EOD Close and Approximate Quote Comparison",
                  color=FG, fontsize=14, fontweight="bold", y=0.98)
     fig.text(0.5, 0.015,
-             "Oct 23 EOD closes use consolidated v2; BRENT and OIL carry the listed BlackBull/TradingView overrides. "
+             "Oct 23 EOD marks use the user-provided BlackBull Brent Cash / TVC:USOIL series; pre-entry context is proxy-labeled. "
              "Approximate user quotes remain separate from model totals.",
              ha="center", color=MUTED, fontsize=8)
     fig.tight_layout(rect=(0, 0.06, 1, 0.92))
@@ -396,7 +396,7 @@ def make_intraday_charts(iser, co):
     # 10. Intraday spreads with crossover markers
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(13, 8.6), sharex=True)
     for ax, key, title in [
-        (ax1, "V1-V2", "V1 − V2 : stop-and-reverse effect (1-unit book)"),
+        (ax1, "V1-V2", "V1 − V2 : stop-and-reverse effect (1U book)"),
         (ax2, "V3A-V3B", "V3A − V3B : stop-and-reverse effect (natural-unit book)"),
     ]:
         d = co[key]
@@ -477,7 +477,7 @@ def write_intraday_csv(iser, co):
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     path = DATA_DIR / "model_performance_intraday.csv"
     with path.open("w", newline="", encoding="utf-8") as fh:
-        w = csv.writer(fh)
+        w = csv.writer(fh, lineterminator="\n")
         w.writerow(["bar_index", "bar_close_mst", "session_date", "bar_in_session"]
                    + [f"{v}_subtotal_usd" for v in VARIANTS]
                    + [f"{v}_{s}_usd" for v in VARIANTS for s in DIVERGENCE]
@@ -497,7 +497,7 @@ def write_csv(series):
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     path = DATA_DIR / "model_performance_daily.csv"
     with path.open("w", newline="", encoding="utf-8") as fh:
-        w = csv.writer(fh)
+        w = csv.writer(fh, lineterminator="\n")
         w.writerow(["variant", "session_date", "session_index",
                     "realized_cum_usd", "unrealized_usd", "total_pnl_usd",
                     "daily_delta_usd", "roi_pct", "deployed_usd",
@@ -527,7 +527,7 @@ def write_csv(series):
 def write_ticker_csv(contrib):
     path = DATA_DIR / "model_performance_tickers.csv"
     with path.open("w", newline="", encoding="utf-8") as fh:
-        w = csv.writer(fh)
+        w = csv.writer(fh, lineterminator="\n")
         w.writerow(["variant", "ticker", "units_deployed",
                     "realized_usd", "unrealized_usd", "total_usd"])
         for v in VARIANTS:
@@ -650,7 +650,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"`{symbol_count}` price-covered symbols, "
       f"`{modeled_event_count}` in-window price-covered events out of `{book_event_count}` total 2026 log events "
       f"(`{price_unmodeled_event_count}` outside direct-price scope; `{post_terminal_event_count}` after cutoff), "
-      "`1 unit = $10,000.00` initial notional, all timestamps in Arizona year-round "
+      "`1U = $10,000.00` standard notional, all timestamps in Arizona year-round "
       "**`MST` / `UTC-07:00`**, marked against the **Friday, October 23, 2026** close. Intraday plots remain on their supplied Oct. 22 hourly scope.")
     A("")
     A("> **Interactive version:** open **[`Model Performance Explorer.html`](Model%20Performance%20Explorer.html)** "
@@ -661,6 +661,9 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"[`{summary_json.name}`](data/{summary_json.name}).")
     A("> **Whole-portfolio DXY and yield-multiplier scenarios:** **[`DXY-Equivalent Portfolio Snapshot.md`](DXY-Equivalent%20Portfolio%20Snapshot.md)** includes the daily DXY-numeraire comparison and the toggleable whole-account scenarios (no factor, US10Y, US10Y × US30Y) in **[`Whole Portfolio Yield Multiplier Explorer.html`](Whole%20Portfolio%20Yield%20Multiplier%20Explorer.html)**.")
     A("> **Small Caps pilot:** **[`Small Caps [Buyout & Reorganization Offering Test Pilot].md`](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md)** tracks the five LCID entries; all five are included in the Oct. 23 four-model comparison.")
+    A("> **Oil desk hypothetical:** **[`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md)** shows 10U of new long exposure per supplied EOD session for each exact energy benchmark, separately and combined with the chart-opened energy positions.")
+    A("> **Strategy and sidecar comparison:** **[`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md)** compares the existing variants, the fixed-$500/EOD and shared/variant-specific 1U/EOD force models, oil-desk daily buys, and their additive composites.")
+    A("> **How the models work:** **[`Model Calculation Guide.md`](Model%20Calculation%20Guide.md)** explains unit sizing, day-by-day lot handling, close/reversal behavior, and PnL formulas.")
     A("")
     A("## The Four Models")
     A("")
@@ -669,15 +672,39 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     for v in VARIANTS:
         s = series[v]
         A(f"| **{VARIANT_LABEL[v]}** | "
-          f"{'every line is 1 unit; positions stay open' if v == 'V1' else ''}"
-          f"{'every line is 1 unit; LONG/REBUY stops-and-reverses open shorts' if v == 'V2' else ''}"
-          f"{'compounded shorts sized to the preceding full exit; positions stay open' if v == 'V3A' else ''}"
-          f"{'compounded shorts *and* stop-and-reverse' if v == 'V3B' else ''} | "
-          f"{s['stats']['units']:.0f}u (${s['stats']['deployed']:,.0f}) | "
+          f"{'logged entry sizes; explicit exits close longs' if v == 'V1' else ''}"
+          f"{'V1 sizing plus LONG/REBUY closes open shorts' if v == 'V2' else ''}"
+          f"{'V1 behavior; qualifying compounded shorts use preceding full-exit units' if v == 'V3A' else ''}"
+          f"{'V2 behavior plus qualifying compounded shorts' if v == 'V3B' else ''} | "
+          f"{s['stats']['units']:.1f}U (${s['stats']['deployed']:,.0f}) | "
           f"{_money(s['realized'][last])} | {_money(s['unrealized'][last])} | "
           f"{_money(term[v])} | {_money(s['yield_adjustment'][last])} | "
           f"**{_money(s['adjusted_total'][last])}** | "
           f"**{s['adjusted_roi'][last]:.2f}%** |")
+    A("")
+    A("## Oct. 23 Endpoint Price Corrections Applied")
+    A("")
+    A("The performance calculations, charts, and ticker-contribution exports below use the active v7 endpoint source. Versioned v1–v6 close sets remain preserved. Exact user-provided BlackBull Brent Cash marks cover every session from the first Brent position (Sep. 23) through Oct. 23; exact TVC:USOIL marks cover every session from the first WTI position (Sep. 10) through Oct. 23. Only pre-entry context retains Yahoo futures proxies.")
+    A("")
+    A("| Ticker | Prior mark | Active v7 mark | Correction basis |")
+    A("|---|---:|---:|---|")
+    for ticker, old, new, basis in [
+        ("NFLX", "$762.10", "$65.85", "User-confirmed v1 (v2→v3)"),
+        ("BTC", "$68,250.00", "$81,227.04", "User-confirmed v1 (v2→v3)"),
+        ("ETH", "$2,640.00", "$2,408.47", "User-confirmed v1 (v2→v3)"),
+        ("RIVN", "$11.25", "$11.83", "User-confirmed v1 (v2→v3)"),
+        ("LCID", "$3.55", "$3.52", "User-provided correction (v2→v3)"),
+        ("XRH0", "$790.00", "$785.00", "User-provided correction (v2→v3)"),
+        ("CVX", "$151.30", "$233.21", "Selected preserved v1 Yahoo mark (v3→v4)"),
+        ("WMT", "$81.15", "$119.89", "Selected preserved v1 Yahoo mark (v3→v4)"),
+        ("TMO", "$524.30", "$673.82", "Selected preserved v1 Yahoo mark (v3→v4)"),
+        ("UPS", "$134.60", "$101.06", "Reported ~$101 corroborated by v1 (v4→v5)"),
+        ("BRENT", "$113.81", "$117.345", "User-provided exact BlackBull Brent Cash EOD (v6→v7)"),
+        ("OIL", "$97.53", "$103.45", "User-provided exact TradingView TVC:USOIL EOD (v6→v7)"),
+    ]:
+        A(f"| `{ticker}` | {old} | **{new}** | {basis} |")
+    A("")
+    A("LCID's Oct. 20–22 marks remain $3.27, $3.21, and $3.46. XRH0 remains $790 through Oct. 22 and changes only at the Oct. 23 endpoint; no interim marks are invented. Endpoint audits: [`eod_close_reconciliation_20261023_v2_to_v3.csv`](data/eod_close_reconciliation_20261023_v2_to_v3.csv), [`eod_close_reconciliation_20261023_v3_to_v4.csv`](data/eod_close_reconciliation_20261023_v3_to_v4.csv), [`eod_close_reconciliation_20261023_v4_to_v5.csv`](data/eod_close_reconciliation_20261023_v4_to_v5.csv), [`eod_close_reconciliation_20261023_v5_to_v6.csv`](data/eod_close_reconciliation_20261023_v5_to_v6.csv), and [`eod_close_reconciliation_20261023_v6_to_v7.csv`](data/eod_close_reconciliation_20261023_v6_to_v7.csv). Exact daily energy data: [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv).")
     A("")
     if yield_chart is not None and yield_csv is not None:
         A("## Legacy Model-Level US10Y Additive Carry (Reference Only)")
@@ -704,10 +731,8 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     if energy_chart is not None:
         A("## Energy EOD Marks and Separate Approximate Quotes")
         A("")
-        A("> The Oct 23 EOD closes ($117.345 BRENT / $103.45 OIL) from `consolidated_portfolio_closes_v2.csv` are included in daily model totals. "
-          "BRENT uses the BlackBull Markets override and OIL uses the TradingView TVC:USOIL override. "
-          "Separate approximate user quotes ($115.72 / $100.94; provider/time unspecified) remain outside those totals. "
-          "Earlier history uses BZ=F and CL=F futures proxies, not guaranteed cash/CFD matches.")
+        A("> The Oct 23 exact user-provided EOD marks ($117.345 BlackBull Brent Cash / $103.45 TVC:USOIL) and the full active-position-period history are included in daily model totals. "
+          "Only pre-entry context uses Yahoo BZ=F/CL=F proxies. Separate approximate user quotes ($115.72 / $100.94; provider/time unspecified) remain outside those totals.")
         A("")
         A(f"![Separate energy mark and PnL comparison]({energy_chart.relative_to(ROOT).as_posix()})")
         A("")
@@ -816,7 +841,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("|---|---:|---:|---:|---:|")
     top = sorted(contrib["V3A"].items(), key=lambda kv: -kv[1]["total"])[:10]
     for sym, d in top:
-        A(f"| `{sym}` | {d['units']:.0f}u | {_money(d['realized'])} | "
+        A(f"| `{sym}` | {d['units']:.0f}U | {_money(d['realized'])} | "
           f"{_money(d['unrealized'])} | **{_money(d['total'])}** |")
     A("")
     A("### Bottom contributors (V3A)")
@@ -825,7 +850,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("|---|---:|---:|---:|---:|")
     bot = sorted(contrib["V3A"].items(), key=lambda kv: kv[1]["total"])[:10]
     for sym, d in bot:
-        A(f"| `{sym}` | {d['units']:.0f}u | {_money(d['realized'])} | "
+        A(f"| `{sym}` | {d['units']:.0f}U | {_money(d['realized'])} | "
           f"{_money(d['unrealized'])} | **{_money(d['total'])}** |")
     A("")
     if iser is not None and co is not None:
@@ -920,31 +945,25 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"a legacy reference. Whole-account US10Y and compounded US30Y multiplier scenarios are in "
       f"the DXY snapshot and linked explorer. DXY/FX/US30Y positions remain outside the four direct-price "
       f"variants and require their own quote/valuation treatment.")
-    A("- **Price source:** historical daily series through Oct. 22 use the configured Yahoo Finance histories "
-      "(`BRENT = BZ=F`, `OIL = CL=F`, `BTC = BTC-USD`, `ETH = ETH-USD`); the Oct. 23 endpoint uses the "
-      "user-supplied consolidated file's per-ticker `Source` labels. LCID retains its separate pilot mark series, "
-      "which matches the consolidated file at $3.55. `BZ=F`/`CL=F` remain historical proxies, not exact matches "
-      "for the logged Brent Cash / ICE Brent and `TVC:USOIL` instruments.")
-    A("- **Oct. 23 price reconciliation:** `data/consolidated_portfolio_closes_v2.csv` is the active close set; "
-      "[`data/eod_close_reconciliation_20261023.csv`](data/eod_close_reconciliation_20261023.csv) compares it to "
-      "the preserved v1 source and records close/source changes. Twenty-six prices changed and two source labels "
-      "changed with the same value. The prior file is preserved as "
-      "[`data/eod_closes_20261023_v1.csv`](data/eod_closes_20261023_v1.csv). Historical Oct. 22 equity checks remain in "
-      "[`data/oct22_equity_eod_recheck.csv`](data/oct22_equity_eod_recheck.csv).")
-    A("- **Approximate energy quotes (separate overlay):** their open-lot calculations versus the exact EOD marks are in "
+    A("- **Price source:** cached Yahoo Finance histories provide pre-entry context "
+      "(`BRENT = BZ=F`, `OIL = CL=F`, `BTC = BTC-USD`, `ETH = ETH-USD`). Exact user-provided BlackBull Brent Cash and TVC:USOIL EOD marks override the energy proxies from the first active position date through Oct. 23. Other Oct. 23 endpoints use the "
+      "consolidated v7 file's per-ticker `Source` labels. LCID retains its separate pilot mark series, "
+      "which matches the user-corrected consolidated mark at $3.52. `BZ=F`/`CL=F` are only pre-entry context proxies.")
+    A("- **Oct. 23 price reconciliation:** `data/consolidated_portfolio_closes_v7.csv` is the active close set; v1 through v6 remain preserved. "
+      "Earlier audits record selected v1 marks for CVX `$233.21`, WMT `$119.89`, TMO `$673.82`, and UPS `$101.06`. User-provided exact energy EOD values are in [`data/energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv); the v6-to-v7 audit records the endpoint changes. Exact marks begin on each instrument's first active position date; pre-entry context remains a futures proxy. The active source map is [`data/active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv). The saved TradingView/Yahoo comparison candidate remains audit-only. DXY, FX, and yield inputs remain local user-provided daily series and are not independently provider-verified.")
+    A("- **Approximate energy quotes (separate overlay):** their open-lot calculations versus the exact user-provided EOD marks are in "
       "[`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv). They remain excluded from model totals.")
     A("- **Session calendar:** the `36` U.S. equity regular sessions from "
       f"`{SESSION_DATES[0]}` to `{SESSION_DATES[-1]}`. Futures and crypto are mapped onto the "
       "same session index by trade date.")
     A("- **`XRH0`** (db Physical Rhodium ETC, LSE) is too illiquid for a usable daily history, "
-      "so it is held flat at its `$790.00` log entry — matching the "
-      "[`Trades Zip PnL.md`](Trades%20Zip%20PnL.md) convention.")
+      "so it remains at the `$790.00` log-entry mark through Oct. 22; the user-corrected Oct. 23 endpoint is `$785.00`. No interim daily prices are invented.")
     A("- **Oct. 22 historical marks** remain pinned to the verified settlement set from "
       "[`Trades Zip PnL.md`](Trades%20Zip%20PnL.md); the Oct. 23 endpoint uses the user-supplied EOD file above. "
       "The Oct. 23 ORCL and LCID entries are now included at that date's close. The master PnL report remains "
       "unrecalculated and unreconciled; do not interpret this model replay as a refresh of its totals.")
     A("- **ROI** is cumulative PnL divided by notional deployed *to date* "
-      "(units opened on or before that session × `$10,000`), so early sessions show larger "
+      "(units opened on or before that session × 1U standard notional), so early sessions show larger "
       "percentages on less capital.")
     A("- Entry fills use the log's own market prices, not session closes; exits are realised on "
       "their log date.")
@@ -1029,7 +1048,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <div class="wrap">
   <h1>Model Performance Explorer</h1>
   <p class="sub">*Fall (Arizona) [2026]* paper-trade book &middot; __NSESS__ sessions
-     (__START__ &rarr; __END__, MST) &middot; __NSYMS__ symbols &middot; 1 unit = $10,000.00
+     (__START__ &rarr; __END__, MST) &middot; __NSYMS__ symbols &middot; 1U = $10,000.00
      &middot; daily marks through the Oct 23, 2026 close; hourly intraday charts through Oct 22</p>
 
   <div class="card">

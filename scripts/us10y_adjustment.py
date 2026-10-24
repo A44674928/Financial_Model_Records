@@ -165,7 +165,7 @@ def write_adjustment_csv(rows, series, path):
         "adjusted_total_pnl_usd", "adjusted_roi_pct",
     ]
     with path.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=fields)
+        writer = csv.DictWriter(fh, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         for i, row in enumerate(rows):
             for variant in VARIANTS:

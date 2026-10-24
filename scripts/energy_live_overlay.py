@@ -1,9 +1,9 @@
-"""Compare exact Oct 23 EOD energy closes with separate approximate live marks.
+"""Compare exact user-supplied energy EOD marks with separate approximate live marks.
 
-The current EOD marks are in `data/consolidated_portfolio_closes_v2.csv`; BRENT
-and OIL use its explicitly labeled BlackBull and TradingView overrides. Earlier
-daily series use Yahoo BZ=F/CL=F futures proxies. Approximate live marks remain
-separate because provider/time were not supplied.
+The active terminal set is `data/consolidated_portfolio_closes_v7.csv`, while
+`data/energy_provider_eod_marks_v1.csv` records exact BlackBull Brent Cash and
+TVC:USOIL closes from the first active position date. Pre-entry context remains
+Yahoo BZ=F/CL=F proxy data; approximate live marks stay separate.
 """
 
 import csv
@@ -20,12 +20,12 @@ LIVE_MARK_DATE = "2026-10-23"
 LIVE_MARKS = {"BRENT": Decimal("115.72"), "OIL": Decimal("100.94")}
 DISPLAY = {
     "BRENT": {
-        "instrument": "Brent Cash / ICE Brent (trade log)",
-        "history_proxy": "Yahoo BZ=F Brent futures",
+        "instrument": "BlackBull Brent Cash (trade log)",
+        "price_source": "User-provided BlackBull Brent Cash daily EOD",
     },
     "OIL": {
-        "instrument": "TVC:USOIL WTI CFD (trade index)",
-        "history_proxy": "Yahoo CL=F WTI futures",
+        "instrument": "TradingView TVC:USOIL WTI CFD (trade index)",
+        "price_source": "User-provided TradingView TVC:USOIL daily EOD",
     },
 }
 QUOTE_BASIS = "User-provided approximate quote; provider/time not specified"
@@ -61,7 +61,7 @@ def overlay_rows():
         out.append({
             "symbol": sym,
             "trade_instrument": DISPLAY[sym]["instrument"],
-            "historical_price_proxy": DISPLAY[sym]["history_proxy"],
+            "historical_price_source_basis": DISPLAY[sym]["price_source"],
             "eod_source": OCT23_EOD_SOURCES[sym],
             "historical_mark_date": EOD_MARK_DATE,
             "historical_mark_usd": str(eod_mark),
@@ -85,7 +85,7 @@ def write_overlay(path=None):
     rows = overlay_rows()
     fields = list(rows[0])
     with path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=fields)
+        writer = csv.DictWriter(f, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
     return path
@@ -129,11 +129,11 @@ def inject_html_overlay(html_path, rows=None, chart_path=None):
         )
     card = f'''{card_id}
     <h2>Energy EOD and approximate-quote comparison</h2>
-    <p class="hint">The exact Oct 23 EOD closes from consolidated v2 are used in the daily model charts;
-       the source column identifies the BlackBull BRENT and TradingView OIL overrides. This card
-       compares them with separate approximate user quotes whose provider/time were not specified.
-       Earlier history uses Yahoo <code>BZ=F</code>/<code>CL=F</code> futures proxies for logged cash/CFD
-       instruments. Approximate quotes are not mixed into the portfolio totals.</p>
+    <p class="hint">The Oct 23 closes and all active-position dates use the exact user-provided BlackBull Brent Cash
+       and TradingView <code>TVC:USOIL</code> EOD marks. Before each series begins (pre-entry context only),
+       the historical arrays retain Yahoo <code>BZ=F</code>/<code>CL=F</code> proxies. The card compares the
+       exact terminal marks with separate approximate user quotes whose provider/time were not specified.
+       Approximate quotes are not mixed into portfolio totals.</p>
     <p><img src="{chart_rel}" alt="Oct 23 EOD and separate approximate energy quotes" style="max-width:100%;height:auto"></p>
     <div class="scroll"><table><thead><tr><th>Symbol</th><th>EOD source</th><th>Oct 23 EOD close</th>
       <th>EOD unrealized</th><th>Approx. quote</th><th>Approx. unrealized</th>

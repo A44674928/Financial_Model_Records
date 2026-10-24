@@ -1,0 +1,36 @@
+Date,Ticker,EOD_Close,Source
+2026-10-23,AAPL,347.73,Yahoo Finance
+2026-10-23,AMZN,192.45,Yahoo Finance
+2026-10-23,BRENT,117.345,BlackBull Markets (Override)
+2026-10-23,BTC,81227.04,Yahoo Finance
+2026-10-23,CAT,395.2,Yahoo Finance
+2026-10-23,CVX,151.3,Yahoo Finance
+2026-10-23,DIS,98.4,Yahoo Finance
+2026-10-23,ETH,2408.47,Yahoo Finance
+2026-10-23,GEV,185.6,Yahoo Finance
+2026-10-23,HD,412.1,Yahoo Finance
+2026-10-23,INTC,24.85,Yahoo Finance
+2026-10-23,LCID,3.52,User-provided mark correction
+2026-10-23,LLY,915.2,Yahoo Finance
+2026-10-23,LMT,582.4,Yahoo Finance
+2026-10-23,LULU,265.3,Yahoo Finance
+2026-10-23,META,642.62,Yahoo Finance
+2026-10-23,NET,325.73,Yahoo Finance
+2026-10-23,NFLX,65.85,Yahoo Finance
+2026-10-23,NVDA,210.96,Yahoo Finance
+2026-10-23,OIL,103.45,TradingView TVC:USOIL (Override)
+2026-10-23,ORCL,175.4,Yahoo Finance
+2026-10-23,PEP,172.1,Yahoo Finance
+2026-10-23,PLTR,44.8,Yahoo Finance
+2026-10-23,RIVN,11.83,Yahoo Finance
+2026-10-23,SPCX,112.5,Yahoo Finance
+2026-10-23,TMO,524.3,Yahoo Finance
+2026-10-23,TSLA,220.4,Yahoo Finance
+2026-10-23,UPS,134.6,Yahoo Finance
+2026-10-23,V,282.4,Yahoo Finance
+2026-10-23,VLO,142.8,Yahoo Finance
+2026-10-23,WMT,81.15,Yahoo Finance
+2026-10-23,XLE,69.35,Yahoo Finance
+2026-10-23,XRH0,785.0,User-provided EOD correction
+2026-10-23,US10Y,4.986,Yahoo Finance
+2026-10-23,US30Y,5.43,Yahoo Finance

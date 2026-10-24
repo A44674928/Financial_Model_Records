@@ -1,0 +1,36 @@
+Date,Ticker,V2_Close,V2_Source,V3_Close,V3_Source,Delta,Pct_Change,Price_Status,Source_Status,Correction_Basis
+2026-10-23,AAPL,347.73,Yahoo Finance,347.73,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,AMZN,192.45,Yahoo Finance,192.45,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,BRENT,117.345,BlackBull Markets (Override),117.345,BlackBull Markets (Override),0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,BTC,68250.0,Yahoo Finance,81227.04,Yahoo Finance,12977.04,19.0140,price_changed,unchanged,User-confirmed prior v1 value
+2026-10-23,CAT,395.2,Yahoo Finance,395.2,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,CVX,151.3,Yahoo Finance,151.3,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,DIS,98.4,Yahoo Finance,98.4,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,ETH,2640.0,Yahoo Finance,2408.47,Yahoo Finance,-231.53,-8.7701,price_changed,unchanged,User-confirmed prior v1 value
+2026-10-23,GEV,185.6,Yahoo Finance,185.6,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,HD,412.1,Yahoo Finance,412.1,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,INTC,24.85,Yahoo Finance,24.85,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,LCID,3.55,System Constraint,3.52,User-provided mark correction,-0.03,-0.8451,price_changed,source_changed,User-provided Oct. 23 mark correction
+2026-10-23,LLY,915.2,Yahoo Finance,915.2,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,LMT,582.4,Yahoo Finance,582.4,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,LULU,265.3,Yahoo Finance,265.3,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,META,642.62,Yahoo Finance,642.62,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,NET,325.73,Yahoo Finance,325.73,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,NFLX,762.1,Yahoo Finance,65.85,Yahoo Finance,-696.25,-91.3594,price_changed,unchanged,User-confirmed prior v1 value
+2026-10-23,NVDA,210.96,Yahoo Finance,210.96,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,OIL,103.45,TradingView TVC:USOIL (Override),103.45,TradingView TVC:USOIL (Override),0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,ORCL,175.4,Yahoo Finance,175.4,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,PEP,172.1,Yahoo Finance,172.1,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,PLTR,44.8,Yahoo Finance,44.8,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,RIVN,11.25,Yahoo Finance,11.83,Yahoo Finance,0.58,5.1556,price_changed,unchanged,User-confirmed prior v1 value
+2026-10-23,SPCX,112.5,Yahoo Finance,112.5,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,TMO,524.3,Yahoo Finance,524.3,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,TSLA,220.4,Yahoo Finance,220.4,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,UPS,134.6,Yahoo Finance,134.6,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,US10Y,4.986,Yahoo Finance,4.986,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,US30Y,5.43,Yahoo Finance,5.43,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,V,282.4,Yahoo Finance,282.4,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,VLO,142.8,Yahoo Finance,142.8,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,WMT,81.15,Yahoo Finance,81.15,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,XLE,69.35,Yahoo Finance,69.35,Yahoo Finance,0.00,0.0000,unchanged,unchanged,Unchanged from v2
+2026-10-23,XRH0,790.0,System Constraint,785.0,User-provided EOD correction,-5.00,-0.6329,price_changed,source_changed,User-provided Oct. 23 EOD correction

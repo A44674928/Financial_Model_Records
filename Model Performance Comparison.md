@@ -1,19 +1,43 @@
 # Model Performance Comparison — *Fall (Arizona) [2026]*
 
-Day-by-day (and, where market data supports it, intraday) comparison of the four portfolio models carried on the same standardized book: **[`trades/`](trades/)** / **[`trades.zip`](trades.zip)** — `33` price-covered symbols, `88` in-window price-covered events out of `95` total 2026 log events (`7` outside direct-price scope; `0` after cutoff), `1 unit = $10,000.00` initial notional, all timestamps in Arizona year-round **`MST` / `UTC-07:00`**, marked against the **Friday, October 23, 2026** close. Intraday plots remain on their supplied Oct. 22 hourly scope.
+Day-by-day (and, where market data supports it, intraday) comparison of the four portfolio models carried on the same standardized book: **[`trades/`](trades/)** / **[`trades.zip`](trades.zip)** — `33` price-covered symbols, `88` in-window price-covered events out of `95` total 2026 log events (`7` outside direct-price scope; `0` after cutoff), `1U = $10,000.00` standard notional, all timestamps in Arizona year-round **`MST` / `UTC-07:00`**, marked against the **Friday, October 23, 2026** close. Intraday plots remain on their supplied Oct. 22 hourly scope.
 
 > **Interactive version:** open **[`Model Performance Explorer.html`](Model%20Performance%20Explorer.html)** for a self-contained explorer with toggleable series, a hover crosshair, and per-ticker breakdowns. Machine-readable exports live in [`data/`](data/): [`model_performance_daily.csv`](data/model_performance_daily.csv), [`model_performance_tickers.csv`](data/model_performance_tickers.csv), [`model_performance_summary.json`](data/model_performance_summary.json).
 > **Whole-portfolio DXY and yield-multiplier scenarios:** **[`DXY-Equivalent Portfolio Snapshot.md`](DXY-Equivalent%20Portfolio%20Snapshot.md)** includes the daily DXY-numeraire comparison and the toggleable whole-account scenarios (no factor, US10Y, US10Y × US30Y) in **[`Whole Portfolio Yield Multiplier Explorer.html`](Whole%20Portfolio%20Yield%20Multiplier%20Explorer.html)**.
 > **Small Caps pilot:** **[`Small Caps [Buyout & Reorganization Offering Test Pilot].md`](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md)** tracks the five LCID entries; all five are included in the Oct. 23 four-model comparison.
+> **Oil desk hypothetical:** **[`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md)** shows 10U of new long exposure per supplied EOD session for each exact energy benchmark, separately and combined with the chart-opened energy positions.
+> **Strategy and sidecar comparison:** **[`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md)** compares the existing variants, the fixed-$500/EOD and shared/variant-specific 1U/EOD force models, oil-desk daily buys, and their additive composites.
+> **How the models work:** **[`Model Calculation Guide.md`](Model%20Calculation%20Guide.md)** explains unit sizing, day-by-day lot handling, close/reversal behavior, and PnL formulas.
 
 ## The Four Models
 
 | Model | Rule | Units deployed | Realized | Unrealized | Base PnL | Legacy additive US10Y carry (reference) | **Legacy adjusted PnL** | **Legacy adjusted ROI** |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
-| **Variant 1 — 1u Open** | every line is 1 unit; positions stay open | 84u ($845,000) | $25,561.44 | $150,467.70 | $176,029.14 | $160.90 | **$176,190.04** | **20.85%** |
-| **Variant 2 — 1u SAR** | every line is 1 unit; LONG/REBUY stops-and-reverses open shorts | 84u ($845,000) | $31,385.57 | $119,926.25 | $151,311.82 | $160.90 | **$151,472.72** | **17.93%** |
-| **Variant 3A — Nu Open** | compounded shorts sized to the preceding full exit; positions stay open | 94u ($935,000) | $25,561.44 | $194,671.05 | $220,232.48 | $184.13 | **$220,416.62** | **23.57%** |
-| **Variant 3B — Nu SAR** | compounded shorts *and* stop-and-reverse | 94u ($935,000) | $42,552.27 | $119,926.25 | $162,478.52 | $184.13 | **$162,662.66** | **17.40%** |
+| **Variant 1 — 1U Open** | logged entry sizes; explicit exits close longs | 84.5U ($845,000) | $25,561.44 | $74,038.24 | $99,599.67 | $160.90 | **$99,760.58** | **11.81%** |
+| **Variant 2 — 1U SAR** | V1 sizing plus LONG/REBUY closes open shorts | 84.5U ($845,000) | $31,385.57 | $43,496.78 | $74,882.36 | $160.90 | **$75,043.26** | **8.88%** |
+| **Variant 3A — Nu Open** | V1 behavior; qualifying compounded shorts use preceding full-exit units | 93.5U ($935,000) | $25,561.44 | $118,241.58 | $143,803.02 | $184.13 | **$143,987.15** | **15.40%** |
+| **Variant 3B — Nu SAR** | V2 behavior plus qualifying compounded shorts | 93.5U ($935,000) | $42,552.27 | $43,496.78 | $86,049.06 | $184.13 | **$86,233.19** | **9.22%** |
+
+## Oct. 23 Endpoint Price Corrections Applied
+
+The performance calculations, charts, and ticker-contribution exports below use the active v7 endpoint source. Versioned v1–v6 close sets remain preserved. Exact user-provided BlackBull Brent Cash marks cover every session from the first Brent position (Sep. 23) through Oct. 23; exact TVC:USOIL marks cover every session from the first WTI position (Sep. 10) through Oct. 23. Only pre-entry context retains Yahoo futures proxies.
+
+| Ticker | Prior mark | Active v7 mark | Correction basis |
+|---|---:|---:|---|
+| `NFLX` | $762.10 | **$65.85** | User-confirmed v1 (v2→v3) |
+| `BTC` | $68,250.00 | **$81,227.04** | User-confirmed v1 (v2→v3) |
+| `ETH` | $2,640.00 | **$2,408.47** | User-confirmed v1 (v2→v3) |
+| `RIVN` | $11.25 | **$11.83** | User-confirmed v1 (v2→v3) |
+| `LCID` | $3.55 | **$3.52** | User-provided correction (v2→v3) |
+| `XRH0` | $790.00 | **$785.00** | User-provided correction (v2→v3) |
+| `CVX` | $151.30 | **$233.21** | Selected preserved v1 Yahoo mark (v3→v4) |
+| `WMT` | $81.15 | **$119.89** | Selected preserved v1 Yahoo mark (v3→v4) |
+| `TMO` | $524.30 | **$673.82** | Selected preserved v1 Yahoo mark (v3→v4) |
+| `UPS` | $134.60 | **$101.06** | Reported ~$101 corroborated by v1 (v4→v5) |
+| `BRENT` | $113.81 | **$117.345** | User-provided exact BlackBull Brent Cash EOD (v6→v7) |
+| `OIL` | $97.53 | **$103.45** | User-provided exact TradingView TVC:USOIL EOD (v6→v7) |
+
+LCID's Oct. 20–22 marks remain $3.27, $3.21, and $3.46. XRH0 remains $790 through Oct. 22 and changes only at the Oct. 23 endpoint; no interim marks are invented. Endpoint audits: [`eod_close_reconciliation_20261023_v2_to_v3.csv`](data/eod_close_reconciliation_20261023_v2_to_v3.csv), [`eod_close_reconciliation_20261023_v3_to_v4.csv`](data/eod_close_reconciliation_20261023_v3_to_v4.csv), [`eod_close_reconciliation_20261023_v4_to_v5.csv`](data/eod_close_reconciliation_20261023_v4_to_v5.csv), [`eod_close_reconciliation_20261023_v5_to_v6.csv`](data/eod_close_reconciliation_20261023_v5_to_v6.csv), and [`eod_close_reconciliation_20261023_v6_to_v7.csv`](data/eod_close_reconciliation_20261023_v6_to_v7.csv). Exact daily energy data: [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv).
 
 ## Legacy Model-Level US10Y Additive Carry (Reference Only)
 
@@ -25,7 +49,7 @@ Session-level rates, forward-fill dates, actual/365 accruals, and adjusted total
 
 ## Energy EOD Marks and Separate Approximate Quotes
 
-> The Oct 23 EOD closes ($117.345 BRENT / $103.45 OIL) from `consolidated_portfolio_closes_v2.csv` are included in daily model totals. BRENT uses the BlackBull Markets override and OIL uses the TradingView TVC:USOIL override. Separate approximate user quotes ($115.72 / $100.94; provider/time unspecified) remain outside those totals. Earlier history uses BZ=F and CL=F futures proxies, not guaranteed cash/CFD matches.
+> The Oct 23 exact user-provided EOD marks ($117.345 BlackBull Brent Cash / $103.45 TVC:USOIL) and the full active-position-period history are included in daily model totals. Only pre-entry context uses Yahoo BZ=F/CL=F proxies. Separate approximate user quotes ($115.72 / $100.94; provider/time unspecified) remain outside those totals.
 
 ![Separate energy mark and PnL comparison](Charts/performance/14-energy-live-mark-overlay.png)
 
@@ -57,38 +81,38 @@ Raw dollars flatter V3A/V3B because they deploy more capital — `94` units (`$9
 | `2026-09-04` | -318.25 | -318.25 | -318.25 | -318.25 |  |
 | `2026-09-08` | +440.82 | +440.82 | +440.82 | +440.82 |  |
 | `2026-09-09` | +1,097.81 | +1,097.81 | +1,097.81 | +1,097.81 |  |
-| `2026-09-10` | -399.19 | -399.19 | -399.19 | -399.19 |  |
-| `2026-09-11` | +1,406.43 | +1,406.43 | +1,406.43 | +1,406.43 |  |
-| `2026-09-14` | -393.25 | -64.44 | -393.25 | -64.44 |  |
-| `2026-09-15` | -792.08 | -832.64 | -792.08 | -832.64 |  |
-| `2026-09-16` | +466.73 | +563.00 | +466.73 | +563.00 |  |
-| `2026-09-17` | +5,158.63 | +5,261.38 | +5,158.63 | +5,261.38 |  |
-| `2026-09-18` | -212.25 | -136.54 | -212.25 | -136.54 |  |
-| `2026-09-21` | +14,473.56 | +14,768.30 | +14,473.56 | +14,768.30 |  |
-| `2026-09-22` | +2,805.00 | +2,907.75 | +3,827.74 | +3,930.49 | widest split (V3B best, V1 worst) |
-| `2026-09-23` | -1,059.98 | -692.24 | -663.48 | -295.73 | widest split (V3B best, V1 worst) |
-| `2026-09-24` | +1,229.60 | +1,272.86 | -700.39 | -657.13 | widest split (V2 best, V3A worst) |
-| `2026-09-25` | +1,073.31 | +1,322.04 | +3,802.74 | +5,678.07 | widest split (V3B best, V1 worst) |
-| `2026-09-28` | +2,055.78 | +3,344.59 | +6,122.68 | +9,103.39 | widest split (V3B best, V1 worst) |
-| `2026-09-29` | -2,915.77 | -2,658.79 | -4,088.78 | -2,658.79 | widest split (V2 best, V3A worst) |
-| `2026-09-30` | +116.01 | +655.30 | -529.64 | +655.30 | widest split (V2 best, V3A worst) |
-| `2026-10-01` | +2,200.22 | +2,333.59 | +2,233.61 | +2,333.59 |  |
-| `2026-10-02` | -582.11 | -734.85 | -483.04 | -734.85 |  |
-| `2026-10-05` | -550.56 | -855.61 | -280.86 | -855.61 | widest split (V3A best, V2 worst) |
-| `2026-10-06` | +1,365.84 | +860.12 | +2,698.60 | +874.69 | widest split (V3A best, V2 worst) |
-| `2026-10-07` | -1,781.81 | -1,796.64 | -489.82 | -1,222.92 | widest split (V3A best, V2 worst) |
-| `2026-10-08` | +4,948.39 | +4,195.06 | +7,075.06 | +4,399.17 | widest split (V3A best, V2 worst) |
-| `2026-10-09` | -57.60 | +74.95 | +757.15 | +25.34 | widest split (V3A best, V1 worst) |
-| `2026-10-12` | +2,239.07 | +1,997.46 | +2,043.29 | +2,010.18 |  |
-| `2026-10-13` | +2,647.45 | +3,125.25 | +1,479.74 | +3,432.75 | widest split (V3B best, V3A worst) |
-| `2026-10-14` | +1,708.59 | +191.38 | +4,757.26 | +466.62 | widest split (V3A best, V2 worst) |
-| `2026-10-15` | +3,085.92 | +2,594.60 | +4,148.22 | +2,748.87 | widest split (V3A best, V2 worst) |
-| `2026-10-16` | +5,454.72 | +3,402.40 | +8,672.09 | +3,458.84 | widest split (V3A best, V2 worst) |
-| `2026-10-19` | -86.60 | +619.04 | -512.92 | +632.68 | widest split (V3B best, V3A worst) |
-| `2026-10-20` | +876.21 | +584.31 | +1,571.27 | +584.31 | widest split (V3A best, V2 worst) |
-| `2026-10-21` | -6,078.83 | -5,159.75 | -6,821.60 | -5,159.75 | widest split (V2 best, V3A worst) |
-| `2026-10-22` | +9,574.57 | +6,988.18 | +14,873.55 | +6,988.18 | widest split (V3A best, V2 worst) |
-| `2026-10-23` | +123,392.85 | +101,514.22 | +146,371.16 | +101,514.22 | Terminal mark; widest split (V3A best, V2 worst) |
+| `2026-09-10` | -249.17 | -249.17 | -249.17 | -249.17 |  |
+| `2026-09-11` | +1,249.22 | +1,249.22 | +1,249.22 | +1,249.22 |  |
+| `2026-09-14` | -335.70 | -6.90 | -335.70 | -6.90 |  |
+| `2026-09-15` | -877.37 | -917.93 | -877.37 | -917.93 |  |
+| `2026-09-16` | +460.57 | +556.83 | +460.57 | +556.83 |  |
+| `2026-09-17` | +5,116.50 | +5,219.25 | +5,116.50 | +5,219.25 |  |
+| `2026-09-18` | -626.35 | -550.64 | -626.35 | -550.64 |  |
+| `2026-09-21` | +14,580.43 | +14,875.16 | +14,580.43 | +14,875.16 |  |
+| `2026-09-22` | +2,180.78 | +2,283.53 | +3,203.51 | +3,306.27 | widest split (V3B best, V1 worst) |
+| `2026-09-23` | +77.67 | +445.42 | +474.18 | +841.92 | widest split (V3B best, V1 worst) |
+| `2026-09-24` | +1,021.01 | +1,064.27 | -908.98 | -865.72 | widest split (V2 best, V3A worst) |
+| `2026-09-25` | +934.19 | +1,182.92 | +3,663.63 | +5,538.96 | widest split (V3B best, V1 worst) |
+| `2026-09-28` | +2,348.25 | +3,637.06 | +6,415.15 | +9,395.86 | widest split (V3B best, V1 worst) |
+| `2026-09-29` | -3,479.09 | -3,222.10 | -4,652.10 | -3,222.10 | widest split (V2 best, V3A worst) |
+| `2026-09-30` | +399.43 | +938.73 | -246.22 | +938.73 | widest split (V3B best, V3A worst) |
+| `2026-10-01` | +2,797.26 | +2,930.63 | +2,830.65 | +2,930.63 |  |
+| `2026-10-02` | -104.95 | -257.68 | -5.87 | -257.68 |  |
+| `2026-10-05` | -538.72 | -843.77 | -269.02 | -843.77 | widest split (V3A best, V2 worst) |
+| `2026-10-06` | +1,759.52 | +1,253.80 | +3,092.28 | +1,268.37 | widest split (V3A best, V2 worst) |
+| `2026-10-07` | -1,692.93 | -1,707.77 | -400.94 | -1,134.04 | widest split (V3A best, V2 worst) |
+| `2026-10-08` | +4,166.63 | +3,413.29 | +6,293.29 | +3,617.40 | widest split (V3A best, V2 worst) |
+| `2026-10-09` | +205.08 | +337.64 | +1,019.83 | +288.02 | widest split (V3A best, V1 worst) |
+| `2026-10-12` | +1,772.84 | +1,531.23 | +1,577.06 | +1,543.95 |  |
+| `2026-10-13` | +3,773.47 | +4,251.27 | +2,605.75 | +4,558.77 | widest split (V3B best, V3A worst) |
+| `2026-10-14` | +1,106.80 | -410.41 | +4,155.46 | -135.17 | widest split (V3A best, V2 worst) |
+| `2026-10-15` | +2,667.60 | +2,176.28 | +3,729.89 | +2,330.55 | widest split (V3A best, V2 worst) |
+| `2026-10-16` | +4,421.04 | +2,368.72 | +7,638.41 | +2,425.16 | widest split (V3A best, V2 worst) |
+| `2026-10-19` | -2,421.56 | -1,715.92 | -2,847.88 | -1,702.28 | widest split (V3B best, V3A worst) |
+| `2026-10-20` | +2,273.84 | +1,981.94 | +2,968.90 | +1,981.94 | widest split (V3A best, V2 worst) |
+| `2026-10-21` | -3,173.24 | -2,254.17 | -3,916.01 | -2,254.17 | widest split (V2 best, V3A worst) |
+| `2026-10-22` | +8,371.26 | +5,784.87 | +13,670.25 | +5,784.87 | widest split (V3A best, V2 worst) |
+| `2026-10-23` | +46,755.09 | +24,876.47 | +69,733.40 | +24,876.47 | Terminal mark; widest split (V3A best, V3B worst) |
 
 ## Where the Models Diverge
 
@@ -105,10 +129,10 @@ Raw dollars flatter V3A/V3B because they deploy more capital — `94` units (`$9
 
 | Model | Peak | Peak day | Trough | Trough day | Max drawdown | Max DD day | Best day | Worst day |
 |---|---:|---|---:|---:|---|---:|---|---:|
-| **Variant 1 — 1u Open** | $176,029.14 | `2026-10-23` | $3,121.67 | `2026-09-04` | -$6,078.83 | `2026-10-21` | $123,392.85 (`2026-10-23`) | -$6,078.83 (`2026-10-21`) |
-| **Variant 2 — 1u SAR** | $151,311.82 | `2026-10-23` | $3,121.67 | `2026-09-04` | -$5,159.75 | `2026-10-21` | $101,514.22 (`2026-10-23`) | -$5,159.75 (`2026-10-21`) |
-| **Variant 3A — Nu Open** | $220,232.48 | `2026-10-23` | $3,121.67 | `2026-09-04` | -$6,821.60 | `2026-10-21` | $146,371.16 (`2026-10-23`) | -$6,821.60 (`2026-10-21`) |
-| **Variant 3B — Nu SAR** | $162,478.52 | `2026-10-23` | $3,121.67 | `2026-09-04` | -$5,159.75 | `2026-10-21` | $101,514.22 (`2026-10-23`) | -$5,159.75 (`2026-10-21`) |
+| **Variant 1 — 1U Open** | $99,599.67 | `2026-10-23` | $3,121.67 | `2026-09-04` | -$3,479.09 | `2026-09-29` | $46,755.09 (`2026-10-23`) | -$3,479.09 (`2026-09-29`) |
+| **Variant 2 — 1U SAR** | $74,882.36 | `2026-10-23` | $3,121.67 | `2026-09-04` | -$3,222.10 | `2026-09-29` | $24,876.47 (`2026-10-23`) | -$3,222.10 (`2026-09-29`) |
+| **Variant 3A — Nu Open** | $143,803.02 | `2026-10-23` | $3,121.67 | `2026-09-04` | -$4,898.32 | `2026-09-30` | $69,733.40 (`2026-10-23`) | -$4,652.10 (`2026-09-29`) |
+| **Variant 3B — Nu SAR** | $86,049.06 | `2026-10-23` | $3,121.67 | `2026-09-04` | -$3,222.10 | `2026-09-29` | $24,876.47 (`2026-10-23`) | -$3,222.10 (`2026-09-29`) |
 
 ## Terminal Composition
 
@@ -116,10 +140,10 @@ Raw dollars flatter V3A/V3B because they deploy more capital — `94` units (`$9
 
 | Model | Realized (closed) | Unrealized (open) | Closed lots | Open lots |
 |---|---:|---:|---:|---:|
-| **Variant 1 — 1u Open** | $25,561.44 | $150,467.70 | 15 | 68 |
-| **Variant 2 — 1u SAR** | $31,385.57 | $119,926.25 | 20 | 63 |
-| **Variant 3A — Nu Open** | $25,561.44 | $194,671.05 | 15 | 68 |
-| **Variant 3B — Nu SAR** | $42,552.27 | $119,926.25 | 20 | 63 |
+| **Variant 1 — 1U Open** | $25,561.44 | $74,038.24 | 15 | 68 |
+| **Variant 2 — 1U SAR** | $31,385.57 | $43,496.78 | 20 | 63 |
+| **Variant 3A — Nu Open** | $25,561.44 | $118,241.58 | 15 | 68 |
+| **Variant 3B — Nu SAR** | $42,552.27 | $43,496.78 | 20 | 63 |
 
 ## Contribution by Ticker
 
@@ -138,31 +162,31 @@ Raw dollars flatter V3A/V3B because they deploy more capital — `94` units (`$9
 
 | Ticker | Units | Realized | Unrealized | **Total** |
 |---|---:|---:|---:|---:|
-| `NFLX` | 1u | $0.00 | $103,644.50 | **$103,644.50** |
-| `INTC` | 14u | $10,955.99 | $25,141.62 | **$36,097.60** |
-| `PLTR` | 4u | $2,500.75 | $23,126.68 | **$25,627.43** |
-| `LULU` | 1u | $0.00 | $17,646.94 | **$17,646.94** |
-| `META` | 13u | $10,430.36 | $6,100.53 | **$16,530.89** |
-| `ORCL` | 4u | $0.00 | $13,527.15 | **$13,527.15** |
-| `SPCX` | 3u | $0.00 | $8,960.45 | **$8,960.45** |
-| `CAT` | 5u | $1,984.84 | $6,276.07 | **$8,260.91** |
-| `OIL` | 6u | $0.00 | $6,614.56 | **$6,614.56** |
-| `LMT` | 4u | $0.00 | $5,296.12 | **$5,296.12** |
+| `INTC` | 14U | $10,955.99 | $25,141.62 | **$36,097.60** |
+| `PLTR` | 4U | $2,500.75 | $23,126.68 | **$25,627.43** |
+| `LULU` | 1U | $0.00 | $17,646.94 | **$17,646.94** |
+| `META` | 13U | $10,430.36 | $6,100.53 | **$16,530.89** |
+| `ORCL` | 4U | $0.00 | $13,527.15 | **$13,527.15** |
+| `SPCX` | 3U | $0.00 | $8,960.45 | **$8,960.45** |
+| `CAT` | 5U | $1,984.84 | $6,276.07 | **$8,260.91** |
+| `OIL` | 6U | $0.00 | $6,614.56 | **$6,614.56** |
+| `LMT` | 4U | $0.00 | $5,296.12 | **$5,296.12** |
+| `BRENT` | 5U | $0.00 | $5,026.57 | **$5,026.57** |
 
 ### Bottom contributors (V3A)
 
 | Ticker | Units | Realized | Unrealized | **Total** |
 |---|---:|---:|---:|---:|
-| `UPS` | 2u | $0.00 | -$8,532.22 | **-$8,532.22** |
-| `CVX` | 3u | $0.00 | -$8,326.91 | **-$8,326.91** |
-| `GEV` | 1u | $0.00 | -$8,156.11 | **-$8,156.11** |
-| `VLO` | 1u | $0.00 | -$6,632.87 | **-$6,632.87** |
-| `V` | 1u | $0.00 | -$2,673.50 | **-$2,673.50** |
-| `AMZN` | 1u | $0.00 | -$2,557.43 | **-$2,557.43** |
-| `LLY` | 1u | $0.00 | -$2,239.27 | **-$2,239.27** |
-| `WMT` | 1u | $0.00 | -$2,216.57 | **-$2,216.57** |
-| `RIVN` | 1u | $0.00 | -$2,132.87 | **-$2,132.87** |
-| `TMO` | 1u | $0.00 | -$2,091.89 | **-$2,091.89** |
+| `GEV` | 1U | $0.00 | -$8,156.11 | **-$8,156.11** |
+| `VLO` | 1U | $0.00 | -$6,632.87 | **-$6,632.87** |
+| `V` | 1U | $0.00 | -$2,673.50 | **-$2,673.50** |
+| `AMZN` | 1U | $0.00 | -$2,557.43 | **-$2,557.43** |
+| `LLY` | 1U | $0.00 | -$2,239.27 | **-$2,239.27** |
+| `RIVN` | 1U | $0.00 | -$1,727.27 | **-$1,727.27** |
+| `UPS` | 2U | $0.00 | -$1,422.48 | **-$1,422.48** |
+| `NVDA` | 1U | $0.00 | -$811.45 | **-$811.45** |
+| `NET` | 1U | $0.00 | -$206.26 | **-$206.26** |
+| `NFLX` | 1U | $0.00 | -$180.44 | **-$180.44** |
 
 ## Intraday — Hour by Hour
 
@@ -176,8 +200,8 @@ Daily closes hide *when* inside a session the models pull apart. Zooming to **ho
 
 | Model | Realized | Unrealized | **Sub-book total** |
 |---|---:|---:|---:|
-| **Variant 1 — 1u Open** | $25,871.93 | $1,195.66 | **$27,067.59** |
-| **Variant 2 — 1u SAR** | $31,696.07 | -$7,467.17 | **$24,228.90** |
+| **Variant 1 — 1U Open** | $25,871.93 | $1,195.66 | **$27,067.59** |
+| **Variant 2 — 1U SAR** | $31,696.07 | -$7,467.17 | **$24,228.90** |
 | **Variant 3A — Nu Open** | $25,871.93 | $22,420.70 | **$48,292.63** |
 | **Variant 3B — Nu SAR** | $42,862.77 | -$7,467.17 | **$35,395.60** |
 
@@ -228,13 +252,13 @@ A focused **60-bar, one-minute** view around the Sep 24 `10:00 MST` INTC short. 
 ## Method & Caveats
 
 - **Model coverage:** the four variants directly price the `33` symbols with configured daily market series. `88` price-covered events dated on or before the Oct. 23 mark are replayed; `0` price-covered events after the mark are excluded from this current daily replay. `7` DXY, EURUSD, JPYUSD, US10Y and US30Y log events are not replayed as standalone price positions. The two US10Y events establish yield-adjustment context; this report's additive carry is retained only as a legacy reference. Whole-account US10Y and compounded US30Y multiplier scenarios are in the DXY snapshot and linked explorer. DXY/FX/US30Y positions remain outside the four direct-price variants and require their own quote/valuation treatment.
-- **Price source:** historical daily series through Oct. 22 use the configured Yahoo Finance histories (`BRENT = BZ=F`, `OIL = CL=F`, `BTC = BTC-USD`, `ETH = ETH-USD`); the Oct. 23 endpoint uses the user-supplied consolidated file's per-ticker `Source` labels. LCID retains its separate pilot mark series, which matches the consolidated file at $3.55. `BZ=F`/`CL=F` remain historical proxies, not exact matches for the logged Brent Cash / ICE Brent and `TVC:USOIL` instruments.
-- **Oct. 23 price reconciliation:** `data/consolidated_portfolio_closes_v2.csv` is the active close set; [`data/eod_close_reconciliation_20261023.csv`](data/eod_close_reconciliation_20261023.csv) compares it to the preserved v1 source and records close/source changes. Twenty-six prices changed and two source labels changed with the same value. The prior file is preserved as [`data/eod_closes_20261023_v1.csv`](data/eod_closes_20261023_v1.csv). Historical Oct. 22 equity checks remain in [`data/oct22_equity_eod_recheck.csv`](data/oct22_equity_eod_recheck.csv).
-- **Approximate energy quotes (separate overlay):** their open-lot calculations versus the exact EOD marks are in [`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv). They remain excluded from model totals.
+- **Price source:** cached Yahoo Finance histories provide pre-entry context (`BRENT = BZ=F`, `OIL = CL=F`, `BTC = BTC-USD`, `ETH = ETH-USD`). Exact user-provided BlackBull Brent Cash and TVC:USOIL EOD marks override the energy proxies from the first active position date through Oct. 23. Other Oct. 23 endpoints use the consolidated v7 file's per-ticker `Source` labels. LCID retains its separate pilot mark series, which matches the user-corrected consolidated mark at $3.52. `BZ=F`/`CL=F` are only pre-entry context proxies.
+- **Oct. 23 price reconciliation:** `data/consolidated_portfolio_closes_v7.csv` is the active close set; v1 through v6 remain preserved. Earlier audits record selected v1 marks for CVX `$233.21`, WMT `$119.89`, TMO `$673.82`, and UPS `$101.06`. User-provided exact energy EOD values are in [`data/energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv); the v6-to-v7 audit records the endpoint changes. Exact marks begin on each instrument's first active position date; pre-entry context remains a futures proxy. The active source map is [`data/active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv). The saved TradingView/Yahoo comparison candidate remains audit-only. DXY, FX, and yield inputs remain local user-provided daily series and are not independently provider-verified.
+- **Approximate energy quotes (separate overlay):** their open-lot calculations versus the exact user-provided EOD marks are in [`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv). They remain excluded from model totals.
 - **Session calendar:** the `36` U.S. equity regular sessions from `2026-09-03` to `2026-10-23`. Futures and crypto are mapped onto the same session index by trade date.
-- **`XRH0`** (db Physical Rhodium ETC, LSE) is too illiquid for a usable daily history, so it is held flat at its `$790.00` log entry — matching the [`Trades Zip PnL.md`](Trades%20Zip%20PnL.md) convention.
+- **`XRH0`** (db Physical Rhodium ETC, LSE) is too illiquid for a usable daily history, so it remains at the `$790.00` log-entry mark through Oct. 22; the user-corrected Oct. 23 endpoint is `$785.00`. No interim daily prices are invented.
 - **Oct. 22 historical marks** remain pinned to the verified settlement set from [`Trades Zip PnL.md`](Trades%20Zip%20PnL.md); the Oct. 23 endpoint uses the user-supplied EOD file above. The Oct. 23 ORCL and LCID entries are now included at that date's close. The master PnL report remains unrecalculated and unreconciled; do not interpret this model replay as a refresh of its totals.
-- **ROI** is cumulative PnL divided by notional deployed *to date* (units opened on or before that session × `$10,000`), so early sessions show larger percentages on less capital.
+- **ROI** is cumulative PnL divided by notional deployed *to date* (units opened on or before that session × 1U standard notional), so early sessions show larger percentages on less capital.
 - Entry fills use the log's own market prices, not session closes; exits are realised on their log date.
 - Excludes commissions, borrow fees, and overnight financing.
 

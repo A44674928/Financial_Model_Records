@@ -6,9 +6,12 @@ This repository contains the Fall (Arizona) 2026 paper-trading ledger, model ana
 
 - [Model Performance Comparison](Model%20Performance%20Comparison.md) — four-model daily and intraday comparison.
 - [Model Performance Explorer](Model%20Performance%20Explorer.html) — interactive view of model results.
+- [Model Calculation Guide](Model%20Calculation%20Guide.md) — plain-language unit sizing, daily position handling, reversal logic, and PnL formulas.
 - [Trades Zip PnL](Trades%20Zip%20PnL.md) — master historical PnL report; see its scope note for reconciliation status.
 - [Whole-Portfolio DXY Snapshot](DXY-Equivalent%20Portfolio%20Snapshot.md) — USD and DXY-numeraire comparison.
 - [Small Caps pilot](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md) — LCID Buyout & Reorganization Offering test basket.
+- [Oil Desk EOD Accumulation Hypothetical](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md) — daily 10-unit energy buys, kept separate from the core models.
+- [Strategy and Sidecar Comparison](Strategy%20and%20Sidecar%20Comparison.md) — standard variants, $500 and shared/variant-specific 1U/EOD models, oil sidecar, and composites.
 - [Chart Archive Review](Chart%20Archive%20Review.md), [Triangle Signals](Triangle%20Signals.md), and [Unrealized PnL](Unrealized%20PnL.md) — source reconciliation and focused trade views.
 
 ## Repository layout
@@ -18,8 +21,8 @@ This repository contains the Fall (Arizona) 2026 paper-trading ledger, model ana
 - `Charts/` — original and labeled chart images, plus generated performance charts.
 - `Archive/` — source screenshot archives and duplicate captures.
 - `reports/` — historical standalone reports, including the 2024 trade report.
-- `data/` — user-provided input series, audit tables, and generated model exports. The active Oct. 23 close set is [`consolidated_portfolio_closes_v2.csv`](data/consolidated_portfolio_closes_v2.csv); its comparison against the preserved v1 set is [`eod_close_reconciliation_20261023.csv`](data/eod_close_reconciliation_20261023.csv). The chart-price transcription input is [`current_price_points.csv`](data/current_price_points.csv).
-- `scripts/` — model engines, report builders, and chart-label tooling.
+- `data/` — user-provided input series, audit tables, and generated model exports. The active Oct. 23 close set is [`consolidated_portfolio_closes_v7.csv`](data/consolidated_portfolio_closes_v7.csv); v1–v6 remain preserved with their audits. Exact user-provided BlackBull Brent Cash and TradingView TVC:USOIL active-position marks are in [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv). The active source map is [`active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv). The chart-price transcription input is [`current_price_points.csv`](data/current_price_points.csv).
+- `scripts/` — model engines, report builders, and chart-label tooling, including `build_oil_desk_hypothetical.py`.
 - `tests/` — regression tests for the ledgers, marks, model calculations, and generated outputs.
 - `research/` — topical research reports and working notes, grouped by subject.
 - `references/` — standalone reference documents, including the supplied ledger PDF.
@@ -32,6 +35,8 @@ Run the relevant builder from the repository root:
 PYTHONPATH=scripts python3 scripts/build_model_performance.py
 PYTHONPATH=scripts python3 scripts/build_whole_portfolio_dxy_view.py
 PYTHONPATH=scripts python3 scripts/build_small_caps_pilot.py
+PYTHONPATH=scripts python3 scripts/build_oil_desk_hypothetical.py
+PYTHONPATH=scripts python3 scripts/build_strategy_sidecar_comparison.py
 ```
 
 Some chart-generation and test dependencies (for example, Matplotlib and Pillow) may need to be installed in the local environment first.
