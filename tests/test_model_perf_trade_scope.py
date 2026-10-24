@@ -27,7 +27,7 @@ class ModelTradeScopeTests(unittest.TestCase):
         import csv
 
         root = Path(__file__).resolve().parents[1]
-        with (root / "data/consolidated_portfolio_closes_v4.csv").open(newline="", encoding="utf-8") as fh:
+        with (root / "data/consolidated_portfolio_closes_v5.csv").open(newline="", encoding="utf-8") as fh:
             rows = list(csv.DictReader(fh))
         marks = {row["Ticker"]: float(row["EOD_Close"]) for row in rows if row["Date"] == "2026-10-23"}
         sources = {row["Ticker"]: row["Source"] for row in rows if row["Date"] == "2026-10-23"}
@@ -39,6 +39,8 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertEqual(PRICES["CVX"][-1], 233.21)
         self.assertEqual(PRICES["WMT"][-1], 119.89)
         self.assertEqual(PRICES["TMO"][-1], 673.82)
+        self.assertEqual(marks["UPS"], 101.06)
+        self.assertEqual(PRICES["UPS"][-1], 101.06)
         self.assertEqual(PRICES["BTC"][-1], 81227.04)
         self.assertEqual(PRICES["ETH"][-1], 2408.47)
         self.assertEqual(PRICES["NFLX"][-1], 65.85)
@@ -70,6 +72,11 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertEqual(len(v4_audit), 35)
         self.assertEqual(sum(row["Price_Status"] == "price_changed" for row in v4_audit), 3)
         self.assertEqual({row["Ticker"] for row in v4_audit if row["Price_Status"] == "price_changed"}, {"CVX", "WMT", "TMO"})
+        with (root / "data/eod_close_reconciliation_20261023_v4_to_v5.csv").open(newline="", encoding="utf-8") as fh:
+            v5_audit = list(csv.DictReader(fh))
+        self.assertEqual(len(v5_audit), 35)
+        self.assertEqual(sum(row["Price_Status"] == "price_changed" for row in v5_audit), 1)
+        self.assertEqual({row["Ticker"] for row in v5_audit if row["Price_Status"] == "price_changed"}, {"UPS"})
         with (root / "data/model_performance_tickers.csv").open(newline="", encoding="utf-8") as fh:
             ticker_pnl = list(csv.DictReader(fh))
         v1_pnl = {row["ticker"]: float(row["total_usd"]) for row in ticker_pnl if row["variant"] == "V1"}
@@ -78,6 +85,7 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertAlmostEqual(v1_pnl["TMO"], 163.35, places=2)
         self.assertAlmostEqual(v1_pnl["AAPL"], 2037.22, places=2)
         self.assertAlmostEqual(v1_pnl["NVDA"], -811.45, places=2)
+        self.assertAlmostEqual(v1_pnl["UPS"], -1422.48, places=2)
         with (root / "data/eod_close_reconciliation_20261023.csv").open(newline="", encoding="utf-8") as fh:
             audit = list(csv.DictReader(fh))
         self.assertEqual(len(audit), 35)
@@ -187,10 +195,11 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertIn("DXY, EURUSD, JPYUSD, US10Y and US30Y", text)
         self.assertIn("Legacy Model-Level US10Y Additive Carry (Reference Only)", text)
         self.assertIn("Whole Portfolio Yield Multiplier Explorer.html", text)
-        self.assertIn("consolidated_portfolio_closes_v4.csv", text)
-        self.assertIn("user-selected preserved v1 Yahoo marks", text)
+        self.assertIn("consolidated_portfolio_closes_v5.csv", text)
+        self.assertIn("Selected preserved v1 Yahoo mark (v3→v4)", text)
         self.assertIn("CVX `$233.21`, WMT `$119.89`, and TMO `$673.82`", text)
         self.assertIn("saved TradingView-vs-Yahoo candidate remains audit-only", text)
+        self.assertIn("corrects UPS from `$134.60` to the preserved v1 mark `$101.06`", text)
         self.assertIn("master PnL report remains", text)
         self.assertIn("unrecalculated and unreconciled", text)
 

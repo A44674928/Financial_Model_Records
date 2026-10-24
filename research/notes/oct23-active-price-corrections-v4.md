@@ -1,5 +1,7 @@
 # Oct. 23 Active Price Corrections — v4
 
+> Superseded as the active close set by [`consolidated_portfolio_closes_v5.csv`](../../data/consolidated_portfolio_closes_v5.csv); this note records the preceding v4 reconciliation. See [the v5 note](oct23-active-price-corrections-v5.md) for the current endpoint decisions.
+
 ## Decision and scope
 
 The active close source is `data/consolidated_portfolio_closes_v4.csv`. It copies v3 and changes only the Oct. 23 marks for CVX, WMT, and TMO to their preserved v1 values, following the user's selection after the marks were found to conflict with the user's reported gains. All earlier dates and the other Oct. 23 marks remain unchanged. The v1, v2, and v3 source files remain intact.

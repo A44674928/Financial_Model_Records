@@ -12,10 +12,10 @@ The whole-book base PnL includes realized and open unrealized PnL (including FX 
 
 | Variant | Capital basis | Open unrealized PnL (USD) | Realized PnL (USD) | Base PnL (no yield factors) | Base USD return | DXY-equivalent account value | DXY-numeraire return |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| **Variant 1 — 1u Open** | $830,000 | $+66,282.00 | $+25,561.44 | $+91,843.44 | +10.651% | 8,995.14 DXY-eq units | +7.237% |
-| **Variant 2 — 1u SAR** | $830,000 | $+35,740.55 | $+31,385.57 | $+67,126.12 | +7.673% | 8,753.05 DXY-eq units | +4.351% |
-| **Variant 3A — Nu Open** | $920,000 | $+110,485.35 | $+25,561.44 | $+136,046.79 | +14.414% | 10,309.57 DXY-eq units | +10.884% |
-| **Variant 3B — Nu SAR** | $920,000 | $+35,740.55 | $+42,552.27 | $+78,292.83 | +8.136% | 9,743.91 DXY-eq units | +4.800% |
+| **Variant 1 — 1u Open** | $830,000 | $+73,391.74 | $+25,561.44 | $+98,953.18 | +11.508% | 9,064.77 DXY-eq units | +8.067% |
+| **Variant 2 — 1u SAR** | $830,000 | $+42,850.29 | $+31,385.57 | $+74,235.86 | +8.530% | 8,822.68 DXY-eq units | +5.181% |
+| **Variant 3A — Nu Open** | $920,000 | $+117,595.09 | $+25,561.44 | $+143,156.52 | +15.187% | 10,379.20 DXY-eq units | +11.633% |
+| **Variant 3B — Nu SAR** | $920,000 | $+42,850.29 | $+42,552.27 | $+85,402.56 | +8.909% | 9,813.54 DXY-eq units | +5.549% |
 
 ## Toggleable blanket yield-multiplier scenarios
 
@@ -27,10 +27,10 @@ The base case is the portfolio account value without either yield multiplier. Th
 
 | Variant | No multiplier: account / USD return / DXY return | US10Y: account / USD return / DXY return | US10Y × US30Y: account / USD return / DXY return |
 |---|---:|---:|---:|
-| **Variant 1 — 1u Open** | $918,403.52 / +10.651% / +7.237% | $918,699.09 / +10.687% / +7.272% | $918,832.75 / +10.703% / +7.287% |
-| **Variant 2 — 1u SAR** | $893,686.20 / +7.673% / +4.351% | $893,973.82 / +7.708% / +4.385% | $894,103.88 / +7.723% / +4.400% |
-| **Variant 3A — Nu Open** | $1,052,606.87 / +14.414% / +10.884% | $1,052,945.63 / +14.451% / +10.920% | $1,053,098.82 / +14.467% / +10.936% |
-| **Variant 3B — Nu SAR** | $994,852.90 / +8.136% / +4.800% | $995,173.08 / +8.171% / +4.834% | $995,317.86 / +8.187% / +4.849% |
+| **Variant 1 — 1u Open** | $925,513.26 / +11.508% / +8.067% | $925,811.11 / +11.544% / +8.102% | $925,945.81 / +11.560% / +8.118% |
+| **Variant 2 — 1u SAR** | $900,795.94 / +8.530% / +5.181% | $901,085.84 / +8.565% / +5.215% | $901,216.94 / +8.580% / +5.230% |
+| **Variant 3A — Nu Open** | $1,059,716.60 / +15.187% / +11.633% | $1,060,057.65 / +15.224% / +11.669% | $1,060,211.88 / +15.240% / +11.685% |
+| **Variant 3B — Nu SAR** | $1,001,962.64 / +8.909% / +5.549% | $1,002,285.10 / +8.944% / +5.583% | $1,002,430.92 / +8.960% / +5.598% |
 
 Interactive toggle and session-level scenario data: [`Whole Portfolio Yield Multiplier Explorer.html`](Whole Portfolio Yield Multiplier Explorer.html), [`whole_portfolio_yield_multiplier_scenarios.csv`](data/whole_portfolio_yield_multiplier_scenarios.csv), and [`whole_portfolio_yield_multiplier_summary.csv`](data/whole_portfolio_yield_multiplier_summary.csv).
 

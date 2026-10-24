@@ -681,21 +681,25 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("")
     A("## Oct. 23 Endpoint Price Corrections Applied")
     A("")
-    A("The performance calculations, charts, and ticker contribution exports below use the active v3 endpoint source. v1 and v2 are preserved; this is a six-row endpoint correction, not adoption of the comprehensive-history candidate.")
+    A("The performance calculations, charts, and ticker-contribution exports below use the active v5 endpoint source. Versioned v1–v4 source sets remain preserved; the active endpoint incorporates the original v2-to-v3 corrections, three selected v1 marks in v4, and the UPS v1 endpoint in v5. This is not adoption of the comprehensive-history candidate.")
     A("")
-    A("| Ticker | v2 close | Active v3 close | Basis |")
+    A("| Ticker | Prior mark | Active v5 mark | Correction basis |")
     A("|---|---:|---:|---|")
     for ticker, old, new, basis in [
-        ("NFLX", "$762.10", "$65.85", "User-confirmed v1"),
-        ("BTC", "$68,250.00", "$81,227.04", "User-confirmed v1"),
-        ("ETH", "$2,640.00", "$2,408.47", "User-confirmed v1"),
-        ("RIVN", "$11.25", "$11.83", "User-confirmed v1"),
-        ("LCID", "$3.55", "$3.52", "User-provided Oct. 23 correction"),
-        ("XRH0", "$790.00", "$785.00", "User-provided Oct. 23 correction"),
+        ("NFLX", "$762.10", "$65.85", "User-confirmed v1 (v2→v3)"),
+        ("BTC", "$68,250.00", "$81,227.04", "User-confirmed v1 (v2→v3)"),
+        ("ETH", "$2,640.00", "$2,408.47", "User-confirmed v1 (v2→v3)"),
+        ("RIVN", "$11.25", "$11.83", "User-confirmed v1 (v2→v3)"),
+        ("LCID", "$3.55", "$3.52", "User-provided correction (v2→v3)"),
+        ("XRH0", "$790.00", "$785.00", "User-provided correction (v2→v3)"),
+        ("CVX", "$151.30", "$233.21", "Selected preserved v1 Yahoo mark (v3→v4)"),
+        ("WMT", "$81.15", "$119.89", "Selected preserved v1 Yahoo mark (v3→v4)"),
+        ("TMO", "$524.30", "$673.82", "Selected preserved v1 Yahoo mark (v3→v4)"),
+        ("UPS", "$134.60", "$101.06", "Reported ~$101 corroborated by v1 (v4→v5)"),
     ]:
         A(f"| `{ticker}` | {old} | **{new}** | {basis} |")
     A("")
-    A("LCID's Oct. 20–22 marks remain $3.27, $3.21, and $3.46. XRH0 remains $790 through Oct. 22 and changes only at the Oct. 23 endpoint; no interim marks are invented. Full row-level audit: [`eod_close_reconciliation_20261023_v2_to_v3.csv`](data/eod_close_reconciliation_20261023_v2_to_v3.csv).")
+    A("LCID's Oct. 20–22 marks remain $3.27, $3.21, and $3.46. XRH0 remains $790 through Oct. 22 and changes only at the Oct. 23 endpoint; no interim marks are invented. Endpoint audits: [`eod_close_reconciliation_20261023_v2_to_v3.csv`](data/eod_close_reconciliation_20261023_v2_to_v3.csv), [`eod_close_reconciliation_20261023_v3_to_v4.csv`](data/eod_close_reconciliation_20261023_v3_to_v4.csv), and [`eod_close_reconciliation_20261023_v4_to_v5.csv`](data/eod_close_reconciliation_20261023_v4_to_v5.csv).")
     A("")
     if yield_chart is not None and yield_csv is not None:
         A("## Legacy Model-Level US10Y Additive Carry (Reference Only)")
@@ -722,7 +726,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     if energy_chart is not None:
         A("## Energy EOD Marks and Separate Approximate Quotes")
         A("")
-        A("> The Oct 23 EOD closes ($117.345 BRENT / $103.45 OIL) from `consolidated_portfolio_closes_v4.csv` are included in daily model totals. "
+        A("> The Oct 23 EOD closes ($117.345 BRENT / $103.45 OIL) from `consolidated_portfolio_closes_v5.csv` are included in daily model totals. "
           "BRENT uses the BlackBull Markets override and OIL uses the TradingView TVC:USOIL override. "
           "Separate approximate user quotes ($115.72 / $100.94; provider/time unspecified) remain outside those totals. "
           "Earlier history uses BZ=F and CL=F futures proxies, not guaranteed cash/CFD matches.")
@@ -940,11 +944,11 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"variants and require their own quote/valuation treatment.")
     A("- **Price source:** historical daily series through Oct. 22 use the configured Yahoo Finance histories "
       "(`BRENT = BZ=F`, `OIL = CL=F`, `BTC = BTC-USD`, `ETH = ETH-USD`); the Oct. 23 endpoint uses the "
-      "user-supplied consolidated v4 file's per-ticker `Source` labels. LCID retains its separate pilot mark series, "
+      "user-supplied consolidated v5 file's per-ticker `Source` labels. LCID retains its separate pilot mark series, "
       "which matches the user-corrected consolidated mark at $3.52. `BZ=F`/`CL=F` remain historical proxies, not exact matches "
       "for the logged Brent Cash / ICE Brent and `TVC:USOIL` instruments.")
-    A("- **Oct. 23 price reconciliation:** `data/consolidated_portfolio_closes_v4.csv` is the active close set; v1, v2, and v3 remain preserved. "
-      "The v2-to-v3 audit documents six earlier endpoint corrections; the v3-to-v4 audit records the user-selected preserved v1 Yahoo marks for CVX `$233.21`, WMT `$119.89`, and TMO `$673.82`. These replace v3 marks of `$151.30`, `$81.15`, and `$524.30` respectively. The earlier v1-to-v2 audit remains [`data/eod_close_reconciliation_20261023.csv`](data/eod_close_reconciliation_20261023.csv); historical Oct. 22 equity checks remain in [`data/oct22_equity_eod_recheck.csv`](data/oct22_equity_eod_recheck.csv). The saved TradingView-vs-Yahoo candidate remains audit-only pending a verified complete TradingView history; it is not used as the graph default in this refresh.")
+    A("- **Oct. 23 price reconciliation:** `data/consolidated_portfolio_closes_v5.csv` is the active close set; v1 through v4 remain preserved. "
+      "The v2-to-v3 audit documents six earlier endpoint corrections; v3-to-v4 records the selected preserved v1 Yahoo marks for CVX `$233.21`, WMT `$119.89`, and TMO `$673.82`. The v4-to-v5 audit corrects UPS from `$134.60` to the preserved v1 mark `$101.06`, consistent with the user's reported ~$101 quote and the Oct. 22 close of `$101.52`. The earlier v1-to-v2 audit remains [`data/eod_close_reconciliation_20261023.csv`](data/eod_close_reconciliation_20261023.csv); historical Oct. 22 equity checks remain in [`data/oct22_equity_eod_recheck.csv`](data/oct22_equity_eod_recheck.csv). The saved TradingView-vs-Yahoo candidate remains audit-only pending a verified complete TradingView history; it is not used as the graph default in this refresh.")
     A("- **Approximate energy quotes (separate overlay):** their open-lot calculations versus the exact EOD marks are in "
       "[`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv). They remain excluded from model totals.")
     A("- **Session calendar:** the `36` U.S. equity regular sessions from "
