@@ -83,6 +83,11 @@ class TheOneModelBriefingTests(unittest.TestCase):
             self.assertEqual(chart.read_bytes()[:8], b"\x89PNG\r\n\x1a\n")
             self.assertIn(relpath, self.briefing)
 
+    def test_hypothetical_instrument_price_is_at_briefing_end_and_distinguished_from_1u(self):
+        self.assertTrue(self.briefing.rstrip().endswith("**$10,000/Unit**"))
+        self.assertIn("not an actual offering price", self.briefing)
+        self.assertIn("separate from the model’s **1U / 1 Unit = $10,000 entry-notional** convention", self.briefing)
+
     def test_generated_csv_has_32_portfolio_series_plus_aggregate(self):
         path = ROOT / "data/the_one_model_split_portfolios_v1.csv"
         with path.open(newline="", encoding="utf-8") as handle:

@@ -2,13 +2,13 @@
 
 **Working discussion draft · Fall (Arizona) [2026] paper-trade model · Not an offering document**
 
-> **Important status notice.** This is an educational description of a hypothetical model architecture. It is not a prospectus, private-placement memorandum, offer to sell or solicitation to buy a security, investment recommendation, or promise of return. No issuer, security, price, minimum subscription, use of proceeds, fee schedule, redemption right, liquidity term, or offering authorization has been supplied. Do not circulate it as offering material without appropriate securities counsel, compliance review, complete offering terms, and substantiated performance disclosures.
+> **Important status notice.** This is an educational description of a hypothetical model architecture. It is not a prospectus, private-placement memorandum, offer to sell or solicitation to buy a security, investment recommendation, or promise of return. No actual issuer, security, price, minimum subscription, use of proceeds, fee schedule, redemption right, liquidity term, or offering authorization has been supplied; the illustrative unit price at the end is not an actual offering term. Do not circulate it as offering material without appropriate securities counsel, compliance review, complete offering terms, and substantiated performance disclosures.
 
 ## 1. Purpose and operating model
 
 The model is a set of historical paper-trade replays built from chart posts and manually entered trade records. The source ledger is maintained in [`trades/`](trades/) and [`trades.zip`](trades.zip); supporting assumptions and calculation rules are in [`Model Calculation Guide.md`](Model%20Calculation%20Guide.md). The covered book has 95 recorded 2026 events, of which 88 are in-scope, price-covered events in the four core replays through October 23, 2026. Seven currency/index/yield events are handled outside those direct-price replays.
 
-The scripts can replay logged records and produce reports. **A broker-connected automated trading system is hypothetical, not operational.** This model is built to be operated manually by **Harshal Priyavadan Patel**: he reviews chart posts, candidate-model outputs, and his current market context; makes the discretionary model choice at each live decision opportunity; records it; and manually reviews and places any paper or hypothetical order. No automated model chooser, connected live-data feed, broker routing, or independently verified execution is represented here; any live context is supplied and judged by the operator.
+The scripts can replay logged records and produce reports. **A broker-connected automated trading system is hypothetical, not operational.** This model is built to be operated manually by **Harshal Priyavadan Patel**: he reviews chart posts and trade records, makes discretionary decisions, enters or updates records, and manually reviews and places any paper or hypothetical order. No live automated order routing, real-time signal validation, or independently verified execution is represented here.
 
 For a logged trade, the chart-posting price recorded in the trade log is the entry basis used by the model. Later minute or EOD prices mark the open lot; they do not replace the chart-posting entry. For example, the September 24 INTC short uses the chart-posting price of **$115.11**. This is a model convention, not evidence of a broker fill.
 
@@ -230,3 +230,11 @@ Full daily audit series: [`the_one_model_split_portfolios_v1.csv`](data/the_one_
 - [DXY-Equivalent Portfolio Snapshot](DXY-Equivalent%20Portfolio%20Snapshot.md)
 - [`data/energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv)
 - [`data/active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv)
+
+---
+
+### Hypothetical instrument price
+
+Illustrative only; this is not an actual offering price or a commitment to issue a security. It is separate from the model’s **1U / 1 Unit = $10,000 entry-notional** convention unless final security terms explicitly equate them.
+
+**$10,000/Unit**
