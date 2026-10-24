@@ -6,18 +6,18 @@ The new first chart compares each variant's cumulative total PnL in dollars with
 
 ![Whole-portfolio unrealized PnL and USD/DXY returns](Charts/performance/16-whole-portfolio-dxy-vs-usd-pnl.png)
 
-## Oct. 22 Terminal Results
+## Oct. 23 Terminal Results
 
 | Variant | Capital basis | Open unrealized PnL (USD) | Realized PnL (USD) | US10Y carry | Total PnL (USD) | USD return | DXY-equivalent account value (index units) | DXY-numeraire return |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| **Variant 1 — 1u Open** | $830,000 | $+26,445.94 | $+25,561.44 | $+158.79 | $+52,166.17 | +5.871% | 8,596.42 DXY-eq units | +2.484% |
-| **Variant 2 — 1u SAR** | $830,000 | $+17,783.12 | $+31,385.57 | $+158.79 | $+49,327.48 | +5.529% | 8,568.65 DXY-eq units | +2.153% |
-| **Variant 3A — Nu Open** | $920,000 | $+47,670.98 | $+25,561.44 | $+181.79 | $+73,414.21 | +7.606% | 9,684.74 DXY-eq units | +4.164% |
-| **Variant 3B — Nu SAR** | $920,000 | $+17,783.12 | $+42,552.27 | $+181.79 | $+60,517.18 | +6.204% | 9,558.57 DXY-eq units | +2.807% |
+| **Variant 1 — 1u Open** | $830,000 | $+27,266.13 | $+25,561.44 | $+160.90 | $+52,988.47 | +5.970% | 8,614.58 DXY-eq units | +2.700% |
+| **Variant 2 — 1u SAR** | $830,000 | $+18,598.80 | $+31,385.57 | $+160.90 | $+50,145.27 | +5.627% | 8,586.73 DXY-eq units | +2.368% |
+| **Variant 3A — Nu Open** | $920,000 | $+48,549.62 | $+25,561.44 | $+184.13 | $+74,295.19 | +7.702% | 9,704.75 DXY-eq units | +4.379% |
+| **Variant 3B — Nu SAR** | $920,000 | $+18,598.80 | $+42,552.27 | $+184.13 | $+61,335.21 | +6.293% | 9,577.82 DXY-eq units | +3.014% |
 
 ## DXY and FX Basis
 
-- DXY daily closes run from `2026-09-03` (`98.95`) through `2026-10-22` (`102.22`). This series' Oct. 22 close of 102.22 supersedes the earlier 101.616 terminal mark, as directed.
+- DXY daily closes run from `2026-09-03` (`98.95`) through `2026-10-23` (`102.10`). The Oct. 23 close of 102.10 is used for the new endpoint; the prior Oct. 22 close of 102.22 remains preserved in the daily series and Oct. 22 audit file.
 - EUR/USD PnL uses the uploaded daily close on its entry date as its cost basis: `2026-09-15` close `1.1024`. The original chart quote `1.15388` remains in the trade log as source evidence; the graph does not use it as the PnL basis, per your instruction.
 - JPY/USD PnL uses the uploaded daily close on its entry date as its cost basis: `2026-09-07` close `0.007068`. The original chart quote `0.010160` remains in the trade log as source evidence; the graph does not use it as the PnL basis, per your instruction.
 - DXY-equivalent account value is computed as `USD account value ÷ daily DXY close`; returns are normalized to the Sep. 3 DXY-equivalent starting value. The USD capital bases are the $830,000 / $920,000 portfolio amounts you specified.
@@ -26,7 +26,7 @@ The new first chart compares each variant's cumulative total PnL in dollars with
 ## PnL, Carry, and Position Treatment
 
 - Daily EUR/USD and JPY/USD unrealized PnL is calculated from the entry-date daily close, then marked to each uploaded daily close at $10,000 standard notional per position.
-- The Sep. 15 US30Y SHORT is marked daily with a proportional quote-return proxy on $10,000 notional. This is not a bond-duration/futures valuation. The Oct. 23 US30Y LONG, ORCL LONG at $125.83 for $25,000, and fifth LCID LONG at $3.47 are after the Oct. 22 cutoff and excluded from this graph. The four LCID entries dated Oct. 20–22 are included.
+- The Sep. 15 US30Y SHORT and Oct. 23 US30Y LONG are each marked with a proportional quote-return proxy on $10,000 notional; this is not a bond-duration/futures valuation. The new LONG uses its 5.311% log entry and the Oct. 23 5.43% close; it contributes only from Oct. 23. The Oct. 23 ORCL LONG ($25,000 at the original $125.83 log entry) and fifth LCID LONG ($10,000 at the original $3.47 log entry) are included in this endpoint. No US30Y-derived carry is added.
 - The US10Y spread carry preserves the established 4.865% baseline, actual/365 accrual, and cumulative deployed-notional basis from the core model comparison. Supplementary FX and US30Y PnL are included in the USD account value, but are not used to retroactively change the carry denominator. DXY itself is excluded because it is the numeraire.
 - US10Y positions are carry references, not independent yield-quote PnL rows. For the Oct. 12 market holiday, the user-approved US10Y 5.24% close from Oct. 9 is carried; the US30Y mark likewise carries its Oct. 9 5.60% close. The daily export records the US30Y source date explicitly.
 

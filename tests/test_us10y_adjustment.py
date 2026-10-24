@@ -56,7 +56,7 @@ class US10YAdjustmentTests(unittest.TestCase):
                 series["total"][-1] + series["yield_adjustment"][-1],
                 places=8,
             )
-        self.assertAlmostEqual(self.series["V1"]["yield_adjustment"][-1], 158.79, places=2)
+        self.assertAlmostEqual(self.series["V1"]["yield_adjustment"][-1], 160.90, places=2)
         self.assertGreater(
             self.series["V3A"]["yield_adjustment"][-1],
             self.series["V1"]["yield_adjustment"][-1],
@@ -83,6 +83,7 @@ class US10YAdjustmentTests(unittest.TestCase):
         report = (root / "Model Performance Comparison.md").read_text(encoding="utf-8")
         self.assertIn("Oct 9 close (5.24%) is carried across the Oct 12 Treasury holiday", report)
         self.assertIn("not a CPI inflation measure", report)
+        self.assertIn("Oct 23 close (4.986%) is marked at the latest session", report)
 
 
 if __name__ == "__main__":

@@ -142,6 +142,8 @@ def _style(ax, title, ylabel, fmt=None):
 
 def _xticks(ax, dates, step=3):
     idx = list(range(0, len(dates), step))
+    if dates and idx[-1] != len(dates) - 1:
+        idx.append(len(dates) - 1)
     ax.set_xticks(idx)
     ax.set_xticklabels(
         [datetime.strptime(dates[i], "%Y-%m-%d").strftime("%m/%d") for i in idx],
@@ -236,7 +238,7 @@ def make_charts(series, contrib):
     ax.legend(facecolor=PANEL, edgecolor=GRID, labelcolor=FG, fontsize=9, loc="lower left")
     save(fig, "06-drawdown.png")
 
-    # 7. Realized vs unrealized composition at Oct 22 close
+    # 7. Realized vs unrealized composition at terminal EOD close
     fig, ax = plt.subplots(figsize=(9.6, 5.4))
     xs = range(len(VARIANTS))
     rz = [series[v]["realized"][-1] for v in VARIANTS]
@@ -248,7 +250,7 @@ def make_charts(series, contrib):
                 color=FG, fontsize=10, fontweight="bold")
     ax.set_xticks(list(xs))
     ax.set_xticklabels([VARIANT_LABEL[v].replace(" — ", "\n") for v in VARIANTS], fontsize=9)
-    _style(ax, "Terminal PnL Composition — Oct 22, 2026 Close", "PnL (USD)", USDFMT)
+    _style(ax, f"Terminal PnL Composition — {SESSION_DATES[-1]} EOD Close", "PnL (USD)", USDFMT)
     ax.set_xlabel("")
     ax.legend(facecolor=PANEL, edgecolor=GRID, labelcolor=FG, fontsize=9)
     save(fig, "07-terminal-composition.png")
@@ -326,7 +328,7 @@ def make_energy_overlay_chart(rows):
     ]
     for ax, historical, live, ylabel, title in series:
         old = ax.bar([i - width / 2 for i in x], historical, width,
-                     label="Oct 22 historical", color="#64748b")
+                     label="Oct 23 EOD close", color="#64748b")
         new = ax.bar([i + width / 2 for i in x], live, width,
                      label="Approx. Oct 23 user quote", color="#38bdf8")
         _style(ax, title, ylabel, USDFMT)
@@ -345,11 +347,11 @@ def make_energy_overlay_chart(rows):
                             xytext=(0, 4), textcoords="offset points", ha="center",
                             va="bottom", color=FG, fontsize=8)
 
-    fig.suptitle("Energy Mark Update — Separate Snapshot, Not a Portfolio Re-mark",
+    fig.suptitle("Energy EOD Close and Approximate Quote Comparison",
                  color=FG, fontsize=14, fontweight="bold", y=0.98)
     fig.text(0.5, 0.015,
-             "Oct 22 marks use historical Yahoo futures proxies; Oct 23 marks are approximate user quotes. "
-             "Provider/time not specified. Do not combine with Oct 22 all-portfolio totals.",
+             "Oct 23 EOD closes use the supplied Yahoo Finance CSV; approximate user quotes remain separate. "
+             "The exact EOD prices are in daily totals; do not mix the approximate quotes into those totals.",
              ha="center", color=MUTED, fontsize=8)
     fig.tight_layout(rect=(0, 0.06, 1, 0.92))
     path = CHARTS_DIR / "14-energy-live-mark-overlay.png"
@@ -546,9 +548,9 @@ def write_json(series, contrib, iser=None, co=None, energy_rows=None, yield_rows
         "sessions": SESSION_DATES,
         "divergence_tickers": DIVERGENCE,
         "energy_live_overlay": {
-            "historical_mark_date": "2026-10-22",
+            "historical_mark_date": "2026-10-23",
             "live_mark_date": "2026-10-23",
-            "scope_note": "Separate energy-only user-quote snapshot; not included in Oct 22 model totals.",
+            "scope_note": "Exact Oct 23 EOD marks are in the main daily model; approximate quotes are a separate energy-only overlay.",
             "rows": energy_rows or [],
         },
         "us10y_adjustment": {
@@ -647,7 +649,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"`{modeled_event_count}` in-window price-covered events out of `{book_event_count}` total 2026 log events "
       f"(`{price_unmodeled_event_count}` outside direct-price scope; `{post_terminal_event_count}` after cutoff), "
       "`1 unit = $10,000.00` initial notional, all timestamps in Arizona year-round "
-      "**`MST` / `UTC-07:00`**, marked against the **Thursday, October 22, 2026** close.")
+      "**`MST` / `UTC-07:00`**, marked against the **Friday, October 23, 2026** close. Intraday plots remain on their supplied Oct. 22 hourly scope.")
     A("")
     A("> **Interactive version:** open **[`Model Performance Explorer.html`](Model%20Performance%20Explorer.html)** "
       "for a self-contained explorer with toggleable series, a hover crosshair, and per-ticker "
@@ -655,8 +657,8 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"[`{daily_csv.name}`](data/{daily_csv.name}), "
       f"[`{ticker_csv.name}`](data/{ticker_csv.name}), "
       f"[`{summary_json.name}`](data/{summary_json.name}).")
-    A("> **Whole-portfolio DXY view:** **[`DXY-Equivalent Portfolio Snapshot.md`](DXY-Equivalent%20Portfolio%20Snapshot.md)** includes the daily DXY-numeraire comparison, graph, Oct. 22 results, and supporting CSV exports.")
-    A("> **Small Caps pilot:** **[`Small Caps [Buyout & Reorganization Offering Test Pilot].md`](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md)** tracks the user-provided LCID entries and marks; its first four entries are included in the Oct. 22 four-model comparison.")
+    A("> **Whole-portfolio DXY view:** **[`DXY-Equivalent Portfolio Snapshot.md`](DXY-Equivalent%20Portfolio%20Snapshot.md)** includes the daily DXY-numeraire comparison, graph, Oct. 23 results, and supporting CSV exports.")
+    A("> **Small Caps pilot:** **[`Small Caps [Buyout & Reorganization Offering Test Pilot].md`](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md)** tracks the five LCID entries; all five are included in the Oct. 23 four-model comparison.")
     A("")
     A("## The Four Models")
     A("")
@@ -686,8 +688,8 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
           "fall after a position closes) × ((yield close − 4.865) / 100) × actual calendar days / 365. "
           "Values above baseline add positive adjustment; below baseline subtract. Per your "
           "confirmation, the Oct 9 close (5.24%) is carried across the Oct 12 Treasury holiday; "
-          "the export records the original source date. The Oct 23 screenshot yield is kept separate "
-          "from Oct 22 historical model totals.")
+          "the export records the original source date. The Oct 23 close (4.986%) is marked at the latest session; "
+          "the Oct 22-to-Oct 23 carry interval uses the Oct 22 close (4.96%) under the existing start-of-interval convention.")
         A("")
         A(f"![US10Y yield baseline and cumulative adjustment]({yield_chart.relative_to(ROOT).as_posix()})")
         A("")
@@ -695,12 +697,11 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
           f"[`{yield_csv.name}`](data/{yield_csv.name}).")
         A("")
     if energy_chart is not None:
-        A("## Energy Ticker Update — Separate Oct 23 Snapshot")
+        A("## Energy EOD Marks and Separate Approximate Quotes")
         A("")
-        A("> This energy-only update is **not** part of the Oct 22 portfolio totals above. "
-          "BRENT and OIL use the approximate user-provided Oct 23 marks; provider and quote "
-          "time were not specified. Historical marks are Oct 22 Yahoo futures proxies, not "
-          "guaranteed cash/CFD matches.")
+        A("> The Oct 23 EOD closes ($113.81 BRENT / $97.53 OIL) from the supplied Yahoo Finance CSV are included in the daily model totals above. "
+          "This comparison keeps the separate approximate user quotes ($115.72 / $100.94; provider/time unspecified) out of those totals. "
+          "Historical series use BZ=F and CL=F futures proxies, not guaranteed cash/CFD matches.")
         A("")
         A(f"![Separate energy mark and PnL comparison]({energy_chart.relative_to(ROOT).as_posix()})")
         A("")
@@ -715,8 +716,9 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A(f"![Cumulative base trading PnL by session]({charts[0].relative_to(ROOT).as_posix()})")
     A("")
     A("**Reading it:** the models begin close together, then spread as the reversal-sensitive "
-      "positions develop. At the Oct 22 mark both the base and US10Y-adjusted dollar rankings are "
-      "**V3A > V3B > V1 > V2**.")
+      "positions develop. At the Oct. 23 close the base and US10Y-adjusted rankings are "
+      f"**{' > '.join(sorted(VARIANTS, key=lambda v: term[v], reverse=True))}** and "
+      f"**{' > '.join(sorted(VARIANTS, key=lambda v: series[v]['adjusted_total'][last], reverse=True))}**, respectively.")
     A("")
     A("## Base Return on Capital")
     A("")
@@ -885,7 +887,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
         A("")
         A(f"![Intraday per ticker]({icharts[3].relative_to(ROOT).as_posix()})")
         A("")
-        A("Per-ticker intraday contribution at the Oct 22 close:")
+        A("Intraday per-ticker contribution at the Oct 22 close (the hourly archive has no Oct 23 bars):")
         A("")
         A("| Ticker | " + " | ".join(VARIANTS) + " | Intraday peak bar (V3A) |")
         A("|---|" + "---:|---:|---:|---:|" + "---|")
@@ -904,8 +906,8 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("")
     A(f"- **Model coverage:** the four variants directly price the `{symbol_count}` symbols with configured "
       f"daily market series. `{modeled_event_count}` price-covered events dated on or before the "
-      f"Oct. 22 mark are replayed; `{post_terminal_event_count}` price-covered event after the mark "
-      f"is excluded from these historical totals. `{price_unmodeled_event_count}` DXY, EURUSD, JPYUSD, "
+      f"Oct. 23 mark are replayed; `{post_terminal_event_count}` price-covered events after the mark "
+      f"are excluded from this current daily replay. `{price_unmodeled_event_count}` DXY, EURUSD, JPYUSD, "
       f"US10Y and US30Y log events are not replayed as standalone price positions. The two US10Y "
       f"events establish the yield-adjustment context; its separate daily rate series applies the "
       f"baseline carry to the portfolio. DXY/FX/US30Y positions remain outside the four direct-price "
@@ -917,24 +919,23 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       "[`data/lcid_small_caps_pilot_daily_marks.csv`](data/lcid_small_caps_pilot_daily_marks.csv). "
       "`BZ=F`/`CL=F` are not exact matches for the trade metadata's Brent Cash / ICE Brent and "
       "`TVC:USOIL` WTI CFD instruments.")
-    A("- **Oct 22 equity EOD recheck:** all `26` stock symbols and the `XLE` ETF were checked "
-      "against Yahoo Finance daily chart closes on Oct 23. `NET` was corrected from `$306.60` "
-      "to `$303.61`; the full symbol/source audit is in "
+    A("- **Oct. 23 EOD source:** the supplied close set in "
+      "[`data/eod_closes_20261023.csv`](data/eod_closes_20261023.csv) (Source column: Yahoo Finance) covers all 33 configured symbols. "
+      "LCID continues to use its separate pilot mark series, whose Oct. 23 value ($3.55) matches that EOD file. "
+      "The historical Oct. 22 equity recheck remains separately auditable in "
       "[`data/oct22_equity_eod_recheck.csv`](data/oct22_equity_eod_recheck.csv).")
-    A("- **Live energy marks (separate snapshot):** the approximate Oct 23 user-provided quotes "
-      "and their open-lot calculations are in "
-      "[`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv). "
-      "They do not alter this Oct 22 historical comparison.")
-    A("- **Session calendar:** the `35` U.S. equity regular sessions from "
+    A("- **Approximate energy quotes (separate overlay):** their open-lot calculations versus the exact EOD marks are in "
+      "[`data/energy_live_mark_overlay.csv`](data/energy_live_mark_overlay.csv). They remain excluded from model totals.")
+    A("- **Session calendar:** the `36` U.S. equity regular sessions from "
       f"`{SESSION_DATES[0]}` to `{SESSION_DATES[-1]}`. Futures and crypto are mapped onto the "
       "same session index by trade date.")
     A("- **`XRH0`** (db Physical Rhodium ETC, LSE) is too illiquid for a usable daily history, "
       "so it is held flat at its `$790.00` log entry — matching the "
       "[`Trades Zip PnL.md`](Trades%20Zip%20PnL.md) convention.")
-    A("- **Terminal marks** on `2026-10-22` use the verified settlement set from "
-      "[`Trades Zip PnL.md`](Trades%20Zip%20PnL.md). This comparison now includes the newly "
-      "reconciled chart positions for model-priced symbols; the master PnL report has not been "
-      "recalculated in this update, so its totals will not currently reconcile to this comparison.")
+    A("- **Oct. 22 historical marks** remain pinned to the verified settlement set from "
+      "[`Trades Zip PnL.md`](Trades%20Zip%20PnL.md); the Oct. 23 endpoint uses the user-supplied EOD file above. "
+      "The Oct. 23 ORCL and LCID entries are now included at that date's close. The master PnL report remains "
+      "unrecalculated and unreconciled; do not interpret this model replay as a refresh of its totals.")
     A("- **ROI** is cumulative PnL divided by notional deployed *to date* "
       "(units opened on or before that session × `$10,000`), so early sessions show larger "
       "percentages on less capital.")
@@ -1022,11 +1023,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <h1>Model Performance Explorer</h1>
   <p class="sub">*Fall (Arizona) [2026]* paper-trade book &middot; __NSESS__ sessions
      (__START__ &rarr; __END__, MST) &middot; __NSYMS__ symbols &middot; 1 unit = $10,000.00
-     &middot; marked to the Oct 22, 2026 close</p>
+     &middot; daily marks through the Oct 23, 2026 close; hourly intraday charts through Oct 22</p>
 
   <div class="card">
     <h2>Terminal results</h2>
-    <p class="hint">Oct 22, 2026 close. Base ROI = trading PnL &divide; notional deployed; adjusted ROI includes the US10Y baseline carry.</p>
+    <p class="hint">Oct 23, 2026 close. Base ROI = trading PnL &divide; notional deployed; adjusted ROI includes the US10Y baseline carry. The hourly intraday archive stops at Oct 22.</p>
     <div class="row" id="terminal"></div>
   </div>
 
@@ -1062,8 +1063,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     Generated __GEN__. Prices: Yahoo Finance <code>interval=1d</code>. The four variants model
     the __NSYMS__ symbols with configured daily marks; DXY, EURUSD, JPYUSD and US30Y are not directly
     marked. LCID pilot marks are user-provided. US10Y drives a separate excess-yield adjustment above
-    the 4.865% baseline. The Oct 23 ORCL LONG and fifth LCID LONG are after the Oct 22 cutoff and
-    excluded from this historical view. The master <b>Trades Zip PnL.md</b> has not yet been recalculated for
+    the 4.865% baseline. The Oct 23 ORCL LONG and fifth LCID LONG are included in this EOD model replay.
+    Intraday source charts remain through Oct 22. The master <b>Trades Zip PnL.md</b> has not been recalculated for
     the newly reconciled positions, so its totals do not currently match this comparison. Excludes commissions,
     borrow fees and financing.
   </footer>

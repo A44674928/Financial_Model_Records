@@ -11,15 +11,17 @@ resolution, which is exact rather than interpolated.
 
 Bar grid
 --------
-Each of the 35 sessions contributes 7 bars:
+The supplied intraday tape covers the first 35 sessions (through Oct 22),
+with each session contributing 7 bars:
 
   k = 0..5   one hour long, closing at session_open + 3600*(k+1)
   k = 6      thirty minutes long, closing at session_open + 23400 (13:00 MST)
 
 The final bar of every session is pinned to the verified daily close, because
 Yahoo's intraday last bar does not always capture the official closing print.
-That makes the hourly series agree with the daily series at every session
-boundary, and with `Trades Zip PnL.md`.
+That makes the hourly series agree with the daily series at every covered
+session boundary. Oct 23 is included in the daily EOD replay only; no intraday
+bars were supplied for that date.
 
 Event timing
 ------------
@@ -35,7 +37,13 @@ from hourly_closes import HOURLY
 from model_perf_core import MST, SESSION_DATES, UNIT, VARIANTS, parse_trades
 
 BARS_PER_SESSION = 7
-N_SESS = len(SESSION_DATES)
+# The available hourly archive has 35 complete session bundles plus one known
+# trailing artifact bar. Keep that intraday scope fixed while the daily EOD
+# model now extends one session farther, to Oct 23.
+N_SESS = (min(len(values) for values in HOURLY.values()) - 1) // BARS_PER_SESSION
+if N_SESS > len(SESSION_DATES) or N_SESS * BARS_PER_SESSION + 1 > min(len(v) for v in HOURLY.values()):
+    raise ValueError("Hourly close archive does not align with its session grid")
+INTRADAY_SESSION_DATES = SESSION_DATES[:N_SESS]
 N_BARS = N_SESS * BARS_PER_SESSION
 
 # Bar labels: "MM-DD HH:MM" in MST, and the session index each bar belongs to.
@@ -74,7 +82,7 @@ _TIME_TO_BAR = {"06:30": 0, "07:30": 1, "08:30": 2, "09:30": 3,
 
 def bar_index(date_str, time_str):
     """First bar whose close is at/after `date_str` `time_str` (MST)."""
-    s = bisect.bisect_left(SESSION_DATES, date_str)
+    s = bisect.bisect_left(INTRADAY_SESSION_DATES, date_str)
     if s >= N_SESS:
         return N_BARS
     k = _TIME_TO_BAR.get(time_str, 6)

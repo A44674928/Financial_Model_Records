@@ -21,23 +21,24 @@ class EnergyLiveOverlayTests(unittest.TestCase):
             self.assertEqual(html.count('id="energy-live-overlay"'), 1)
             self.assertIn("$115.72", html)
             self.assertIn("+$4,264.55", html)
-            self.assertIn("provider and timestamp were not specified", html)
-            self.assertIn("not mixed into", html)
+            self.assertIn("provider/time were not specified", html)
+            self.assertIn("not mixed into the portfolio totals", html)
             self.assertIn("Charts/performance/14-energy-live-mark-overlay.png", html)
 
     def test_cash_cfd_marks_reconcile_to_trade_lots(self):
         rows = {r["symbol"]: r for r in overlay_rows()}
         self.assertEqual(set(rows), {"BRENT", "OIL"})
-        self.assertEqual(rows["BRENT"]["historical_mark_usd"], "113.17")
+        self.assertEqual(rows["BRENT"]["historical_mark_date"], "2026-10-23")
+        self.assertEqual(rows["BRENT"]["historical_mark_usd"], "113.81")
         self.assertEqual(rows["BRENT"]["live_mark_usd"], "115.72")
-        self.assertEqual(rows["BRENT"]["historical_unrealized_pnl_usd"], "3068.78")
+        self.assertEqual(rows["BRENT"]["historical_unrealized_pnl_usd"], "3368.90")
         self.assertEqual(rows["BRENT"]["live_unrealized_pnl_usd"], "4264.55")
-        self.assertEqual(rows["BRENT"]["change_from_historical_mark_usd"], "1195.77")
-        self.assertEqual(rows["OIL"]["historical_mark_usd"], "99.47")
+        self.assertEqual(rows["BRENT"]["change_from_historical_mark_usd"], "895.66")
+        self.assertEqual(rows["OIL"]["historical_mark_usd"], "97.53")
         self.assertEqual(rows["OIL"]["live_mark_usd"], "100.94")
-        self.assertEqual(rows["OIL"]["historical_unrealized_pnl_usd"], "4051.72")
+        self.assertEqual(rows["OIL"]["historical_unrealized_pnl_usd"], "2802.50")
         self.assertEqual(rows["OIL"]["live_unrealized_pnl_usd"], "4998.30")
-        self.assertEqual(rows["OIL"]["change_from_historical_mark_usd"], "946.58")
+        self.assertEqual(rows["OIL"]["change_from_historical_mark_usd"], "2195.80")
         expected_lots = {"BRENT": "5", "OIL": "6"}
         for symbol, row in rows.items():
             self.assertEqual(row["live_realized_pnl_usd"], "0.00")

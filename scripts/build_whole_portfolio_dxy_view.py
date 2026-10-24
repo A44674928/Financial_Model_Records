@@ -31,7 +31,7 @@ DATA = ROOT / "data"
 CHARTS = ROOT / "Charts" / "performance"
 DXY_FILE = DATA / "dxy_september_october_2026_daily_close.csv"
 FX_FILE = DATA / "eur_jpy_usd_september_october_2026.csv"
-TERMINAL_MARK_FILE = DATA / "dxy_fx_oct22_marks_2026.csv"
+TERMINAL_MARK_FILE = DATA / "dxy_fx_oct23_marks_2026.csv"
 US30Y_FILES = (
     DATA / "us30y_close_september_2026.csv",
     DATA / "us30y_close_october_2026.csv",
@@ -41,7 +41,7 @@ GRAPH = CHARTS / "16-whole-portfolio-dxy-vs-usd-pnl.png"
 TOTAL_PNL_GRAPH = CHARTS / "17-dxy-close-vs-whole-portfolio-pnl-usd.png"
 DAILY_CSV = DATA / "whole_portfolio_dxy_vs_usd_daily.csv"
 SUMMARY_CSV = DATA / "whole_portfolio_dxy_vs_usd_summary.csv"
-TERMINAL_DATE = "2026-10-22"
+TERMINAL_DATE = "2026-10-23"
 CAPITAL_BASIS_USD = {"V1": 830_000.0, "V2": 830_000.0, "V3A": 920_000.0, "V3B": 920_000.0}
 FX_ENTRIES = {
     "EURUSD": {"date": "2026-09-15", "original_chart_entry": 1.15388, "column": "EUR_USD_Close"},
@@ -185,10 +185,13 @@ def build_daily_series():
             if day >= spec["date"]:
                 fx_pnl[symbol][i] = UNIT * (fx[symbol][day] / base - 1.0)
 
-    us30y_pnl = [0.0] * len(SESSION_DATES)
+    us30y_short_pnl = [0.0] * len(SESSION_DATES)
+    us30y_long_pnl = [0.0] * len(SESSION_DATES)
     for i, day in enumerate(SESSION_DATES):
         if day >= US30Y_ENTRY_DATE:
-            us30y_pnl[i] = -UNIT * (us30y[day] / US30Y_ENTRY_YIELD_PCT - 1.0)
+            us30y_short_pnl[i] = -UNIT * (us30y[day] / US30Y_ENTRY_YIELD_PCT - 1.0)
+        if day >= US30Y_NEW_LONG_DATE:
+            us30y_long_pnl[i] = UNIT * (us30y[day] / US30Y_NEW_LONG_ENTRY_PCT - 1.0)
 
     result = {}
     for variant in VARIANTS:
@@ -196,7 +199,8 @@ def build_daily_series():
             core[variant]["unrealized"][i]
             + fx_pnl["EURUSD"][i]
             + fx_pnl["JPYUSD"][i]
-            + us30y_pnl[i]
+            + us30y_short_pnl[i]
+            + us30y_long_pnl[i]
             for i in range(len(SESSION_DATES))
         ]
         realized = list(core[variant]["realized"])
@@ -216,7 +220,8 @@ def build_daily_series():
             "unrealized_usd": unrealized,
             "fx_eur_usd": fx_pnl["EURUSD"],
             "fx_jpy_usd": fx_pnl["JPYUSD"],
-            "us30y_unrealized_usd": us30y_pnl,
+            "us30y_short_unrealized_usd": us30y_short_pnl,
+            "us30y_long_unrealized_usd": us30y_long_pnl,
             "us10y_carry_usd": cumulative_carry[variant],
             "total_pnl_usd": total_pnl,
             "usd_account_value": usd_account_value,
@@ -236,7 +241,8 @@ def write_daily_csv(dxy, fx, us30y, us30y_source_dates, core, result):
         "core_unrealized_pnl_usd", "eurusd_daily_close", "eurusd_entry_close_basis",
         "eurusd_unrealized_pnl_usd", "jpyusd_daily_close", "jpyusd_entry_close_basis",
         "jpyusd_unrealized_pnl_usd", "us30y_daily_close_pct", "us30y_source_date",
-        "us30y_short_unrealized_pnl_usd", "total_unrealized_pnl_usd", "us10y_carry_cumulative_usd", "total_pnl_usd",
+        "us30y_short_unrealized_pnl_usd", "us30y_long_unrealized_pnl_usd",
+        "total_unrealized_pnl_usd", "us10y_carry_cumulative_usd", "total_pnl_usd",
         "usd_account_value", "usd_return_pct", "dxy_equivalent_account_value",
         "dxy_equivalent_pnl", "dxy_numeraire_return_pct",
     ]
@@ -261,7 +267,8 @@ def write_daily_csv(dxy, fx, us30y, us30y_source_dates, core, result):
                     "jpyusd_unrealized_pnl_usd": result[variant]["fx_jpy_usd"][i],
                     "us30y_daily_close_pct": us30y.get(day, ""),
                     "us30y_source_date": us30y_source_dates.get(day, ""),
-                    "us30y_short_unrealized_pnl_usd": result[variant]["us30y_unrealized_usd"][i],
+                    "us30y_short_unrealized_pnl_usd": result[variant]["us30y_short_unrealized_usd"][i],
+                    "us30y_long_unrealized_pnl_usd": result[variant]["us30y_long_unrealized_usd"][i],
                     "total_unrealized_pnl_usd": result[variant]["unrealized_usd"][i],
                     "us10y_carry_cumulative_usd": result[variant]["us10y_carry_usd"][i],
                     "total_pnl_usd": result[variant]["total_pnl_usd"][i],
@@ -435,7 +442,7 @@ def build_report(dxy, fx, us30y, result):
         "",
         "![Whole-portfolio unrealized PnL and USD/DXY returns](Charts/performance/16-whole-portfolio-dxy-vs-usd-pnl.png)",
         "",
-        "## Oct. 22 Terminal Results",
+        "## Oct. 23 Terminal Results",
         "",
         "| Variant | Capital basis | Open unrealized PnL (USD) | Realized PnL (USD) | US10Y carry | Total PnL (USD) | USD return | DXY-equivalent account value (index units) | DXY-numeraire return |",
         "|---|---:|---:|---:|---:|---:|---:|---:|---:|",
@@ -456,7 +463,7 @@ def build_report(dxy, fx, us30y, result):
         "",
         "## DXY and FX Basis",
         "",
-        f"- DXY daily closes run from `{SESSION_DATES[0]}` (`{dxy[SESSION_DATES[0]]}`) through `{TERMINAL_DATE}` (`{dxy[TERMINAL_DATE]}`). This series' Oct. 22 close of 102.22 supersedes the earlier 101.616 terminal mark, as directed.",
+        f"- DXY daily closes run from `{SESSION_DATES[0]}` (`{dxy[SESSION_DATES[0]]:.2f}`) through `{TERMINAL_DATE}` (`{dxy[TERMINAL_DATE]:.2f}`). The Oct. 23 close of 102.10 is used for the new endpoint; the prior Oct. 22 close of 102.22 remains preserved in the daily series and Oct. 22 audit file.",
         f"- EUR/USD PnL uses the uploaded daily close on its entry date as its cost basis: `{FX_ENTRIES['EURUSD']['date']}` close `{eur_base}`. The original chart quote `1.15388` remains in the trade log as source evidence; the graph does not use it as the PnL basis, per your instruction.",
         f"- JPY/USD PnL uses the uploaded daily close on its entry date as its cost basis: `{FX_ENTRIES['JPYUSD']['date']}` close `{jpy_base}`. The original chart quote `0.010160` remains in the trade log as source evidence; the graph does not use it as the PnL basis, per your instruction.",
         "- DXY-equivalent account value is computed as `USD account value ÷ daily DXY close`; returns are normalized to the Sep. 3 DXY-equivalent starting value. The USD capital bases are the $830,000 / $920,000 portfolio amounts you specified.",
@@ -465,7 +472,7 @@ def build_report(dxy, fx, us30y, result):
         "## PnL, Carry, and Position Treatment",
         "",
         "- Daily EUR/USD and JPY/USD unrealized PnL is calculated from the entry-date daily close, then marked to each uploaded daily close at $10,000 standard notional per position.",
-        "- The Sep. 15 US30Y SHORT is marked daily with a proportional quote-return proxy on $10,000 notional. This is not a bond-duration/futures valuation. The Oct. 23 US30Y LONG, ORCL LONG at $125.83 for $25,000, and fifth LCID LONG at $3.47 are after the Oct. 22 cutoff and excluded from this graph. The four LCID entries dated Oct. 20–22 are included.",
+        "- The Sep. 15 US30Y SHORT and Oct. 23 US30Y LONG are each marked with a proportional quote-return proxy on $10,000 notional; this is not a bond-duration/futures valuation. The new LONG uses its 5.311% log entry and the Oct. 23 5.43% close; it contributes only from Oct. 23. The Oct. 23 ORCL LONG ($25,000 at the original $125.83 log entry) and fifth LCID LONG ($10,000 at the original $3.47 log entry) are included in this endpoint. No US30Y-derived carry is added.",
         "- The US10Y spread carry preserves the established 4.865% baseline, actual/365 accrual, and cumulative deployed-notional basis from the core model comparison. Supplementary FX and US30Y PnL are included in the USD account value, but are not used to retroactively change the carry denominator. DXY itself is excluded because it is the numeraire.",
         "- US10Y positions are carry references, not independent yield-quote PnL rows. For the Oct. 12 market holiday, the user-approved US10Y 5.24% close from Oct. 9 is carried; the US30Y mark likewise carries its Oct. 9 5.60% close. The daily export records the US30Y source date explicitly.",
         "",
@@ -481,7 +488,8 @@ def write_summary_csv(result, fx, dxy):
     fields = [
         "variant", "capital_basis_usd", "terminal_dxy_close", "dxy_start_close",
         "terminal_total_unrealized_pnl_usd", "terminal_realized_pnl_usd",
-        "terminal_us10y_carry_usd", "terminal_total_pnl_usd", "usd_return_pct",
+        "terminal_us30y_long_unrealized_pnl_usd", "terminal_us10y_carry_usd",
+        "terminal_total_pnl_usd", "usd_return_pct",
         "terminal_dxy_equivalent_account_value", "terminal_dxy_equivalent_pnl",
         "dxy_numeraire_return_pct", "eurusd_entry_close_basis", "eurusd_terminal_close",
         "eurusd_terminal_unrealized_pnl_usd", "jpyusd_entry_close_basis",
@@ -499,6 +507,7 @@ def write_summary_csv(result, fx, dxy):
                 "dxy_start_close": dxy[SESSION_DATES[0]],
                 "terminal_total_unrealized_pnl_usd": result[variant]["unrealized_usd"][last],
                 "terminal_realized_pnl_usd": result[variant]["realized_usd"][last],
+                "terminal_us30y_long_unrealized_pnl_usd": result[variant]["us30y_long_unrealized_usd"][last],
                 "terminal_us10y_carry_usd": result[variant]["us10y_carry_usd"][last],
                 "terminal_total_pnl_usd": result[variant]["total_pnl_usd"][last],
                 "usd_return_pct": result[variant]["usd_return_pct"][last],

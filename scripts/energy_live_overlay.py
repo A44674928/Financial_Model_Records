@@ -1,9 +1,9 @@
-"""Separate approximate live energy marks from the Oct 22 historical backtest.
+"""Compare exact Oct 23 EOD energy closes with separate approximate live marks.
 
-The mark inputs are user-provided on 2026-10-23; the quote provider and exact
-observation time were not supplied. Historical daily series still use Yahoo
-BZ=F (Brent futures) and CL=F (WTI futures), which are proxies rather than the
-exact BRENT Cash / TVC:USOIL instruments named in the trade metadata.
+Oct 23 EOD closes are user-supplied in `data/eod_closes_20261023.csv`; the
+approximate marks were also user-provided, but their quote provider/time were
+not supplied. Historical daily series use Yahoo BZ=F (Brent futures) and CL=F
+(WTI futures), proxies rather than the exact logged cash/CFD instruments.
 """
 
 import csv
@@ -13,6 +13,7 @@ from pathlib import Path
 from model_perf_core import PRICES, UNIT, build_lots, parse_trades
 
 ROOT = Path(__file__).resolve().parents[1]
+EOD_MARK_DATE = "2026-10-23"
 LIVE_MARK_DATE = "2026-10-23"
 LIVE_MARKS = {"BRENT": Decimal("115.72"), "OIL": Decimal("100.94")}
 DISPLAY = {
@@ -41,7 +42,7 @@ def overlay_rows():
     for sym in ("BRENT", "OIL"):
         open_lots = [lot for lot in lots if lot["sym"] == sym and lot["open"]]
         realized_pnl = sum((r["pnl"] for r in realized if r["sym"] == sym), 0.0)
-        prior_mark = Decimal(str(PRICES[sym][-1]))
+        eod_mark = Decimal(str(PRICES[sym][-1]))
         live_mark = LIVE_MARKS[sym]
 
         def mark_unrealized(mark):
@@ -53,22 +54,22 @@ def overlay_rows():
                 total += sign * qty * Decimal(str(UNIT)) * (mark / entry - 1)
             return total
 
-        prior_unrealized = mark_unrealized(prior_mark)
+        eod_unrealized = mark_unrealized(eod_mark)
         live_unrealized = mark_unrealized(live_mark)
         out.append({
             "symbol": sym,
             "trade_instrument": DISPLAY[sym]["instrument"],
             "historical_price_proxy": DISPLAY[sym]["history_proxy"],
-            "historical_mark_date": "2026-10-22",
-            "historical_mark_usd": str(prior_mark),
+            "historical_mark_date": EOD_MARK_DATE,
+            "historical_mark_usd": str(eod_mark),
             "historical_realized_pnl_usd": str(_money(realized_pnl)),
-            "historical_unrealized_pnl_usd": str(_money(prior_unrealized)),
+            "historical_unrealized_pnl_usd": str(_money(eod_unrealized)),
             "live_mark_date": LIVE_MARK_DATE,
             "live_mark_usd": str(live_mark),
             "live_quote_basis": QUOTE_BASIS,
             "live_realized_pnl_usd": str(_money(realized_pnl)),
             "live_unrealized_pnl_usd": str(_money(live_unrealized)),
-            "change_from_historical_mark_usd": str(_money(live_unrealized - prior_unrealized)),
+            "change_from_historical_mark_usd": str(_money(live_unrealized - eod_unrealized)),
             "open_lots": str(len(open_lots)),
             "open_units": str(sum(lot["qty"] for lot in open_lots)),
         })
@@ -118,16 +119,16 @@ def inject_html_overlay(html_path, rows=None, chart_path=None):
             "</tr>"
         )
     card = f'''{card_id}
-    <h2>Energy quote reconciliation — indicative Oct 23 marks</h2>
-    <p class="hint">Historical comparison remains at Oct 22. It uses Yahoo
-       <code>BZ=F</code>/<code>CL=F</code> futures proxies; the trade metadata names Brent
-       Cash / ICE Brent and <code>TVC:USOIL</code>. User-supplied live quotes are approximate;
-       provider and timestamp were not specified. These two live marks are not mixed into
-       the Oct 22 portfolio totals.</p>
-    <p><img src="{chart_rel}" alt="Separate historical and approximate live energy mark comparison" style="max-width:100%;height:auto"></p>
-    <div class="scroll"><table><thead><tr><th>Symbol</th><th>Oct 22 mark</th>
-      <th>Oct 22 unrealized</th><th>Approx. live mark</th><th>Live unrealized</th>
-      <th>Change</th></tr></thead><tbody>{''.join(table_rows)}</tbody></table></div>
+    <h2>Energy EOD and approximate-quote comparison</h2>
+    <p class="hint">The exact Oct 23 EOD closes from the supplied Yahoo Finance CSV are used in
+       the daily model charts. This card compares them with the separate approximate user quotes,
+       whose provider/time were not specified. Historical series use Yahoo <code>BZ=F</code>/<code>CL=F</code>
+       futures proxies for logged Brent Cash / ICE Brent and <code>TVC:USOIL</code> instruments.
+       Approximate quotes are not mixed into the portfolio totals.</p>
+    <p><img src="{chart_rel}" alt="Oct 23 EOD and separate approximate energy quotes" style="max-width:100%;height:auto"></p>
+    <div class="scroll"><table><thead><tr><th>Symbol</th><th>Oct 23 EOD close</th>
+      <th>EOD unrealized</th><th>Approx. quote</th><th>Approx. unrealized</th>
+      <th>Change vs. EOD</th></tr></thead><tbody>{''.join(table_rows)}</tbody></table></div>
     <p class="hint"><a href="data/energy_live_mark_overlay.csv">Download mark/source audit (CSV)</a></p>
   </div>
 

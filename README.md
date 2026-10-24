@@ -1,6 +1,6 @@
 # Paper Trades — Repository Guide
 
-This repository contains the Fall (Arizona) 2026 paper-trading ledger, model analysis, source records, and supporting research. The active analysis window ends at the **October 22, 2026** close unless a report explicitly identifies a later pilot or snapshot.
+This repository contains the Fall (Arizona) 2026 paper-trading ledger, model analysis, source records, and supporting research. The daily model and whole-portfolio comparisons run through the **October 23, 2026** EOD close. Intraday plots and explicitly historical reports retain their stated earlier cutoffs.
 
 ## Start here
 
@@ -18,7 +18,7 @@ This repository contains the Fall (Arizona) 2026 paper-trading ledger, model ana
 - `Charts/` — original and labeled chart images, plus generated performance charts.
 - `Archive/` — source screenshot archives and duplicate captures.
 - `reports/` — historical standalone reports, including the 2024 trade report.
-- `data/` — user-provided input series, audit tables, and generated model exports. The chart-price transcription input is [`current_price_points.csv`](data/current_price_points.csv).
+- `data/` — user-provided input series, audit tables, and generated model exports, including the Oct. 23 EOD close set [`eod_closes_20261023.csv`](data/eod_closes_20261023.csv). The chart-price transcription input is [`current_price_points.csv`](data/current_price_points.csv).
 - `scripts/` — model engines, report builders, and chart-label tooling.
 - `tests/` — regression tests for the ledgers, marks, model calculations, and generated outputs.
 - `research/` — topical research reports and working notes, grouped by subject.

@@ -7,7 +7,7 @@ from zipfile import ZipFile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from model_perf_core import PRICES, SESSION_DATES, UNMODELED_SYMBOLS, VARIANTS, build_lots, parse_trades  # noqa: E402
+from model_perf_core import PRICES, SESSION_DATES, UNMODELED_SYMBOLS, VARIANTS, all_series, build_lots, parse_trades  # noqa: E402
 
 
 class ModelTradeScopeTests(unittest.TestCase):
@@ -19,6 +19,24 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertTrue(modeled.issubset(PRICES))
         self.assertEqual(len(events), 88)
         self.assertEqual(sum(event["date"] <= "2026-10-22" for event in events), 86)
+        self.assertEqual(sum(event["date"] <= "2026-10-23" for event in events), 88)
+        self.assertEqual(SESSION_DATES[-1], "2026-10-23")
+
+
+    def test_oct23_eod_source_covers_all_direct_price_symbols(self):
+        import csv
+
+        root = Path(__file__).resolve().parents[1]
+        with (root / "data/eod_closes_20261023.csv").open(newline="", encoding="utf-8") as fh:
+            rows = list(csv.DictReader(fh))
+        marks = {row["Ticker"]: float(row["EOD_Close"]) for row in rows if row["Date"] == "2026-10-23"}
+        self.assertEqual(set(PRICES), set(marks) - {"US10Y", "US30Y"})
+        self.assertEqual(PRICES["AAPL"][-1], marks["AAPL"])
+        self.assertEqual(PRICES["BTC"][-1], marks["BTC"])
+        self.assertEqual(PRICES["LCID"][-1], marks["LCID"])
+        self.assertEqual(PRICES["ORCL"][-1], 126.16)
+        self.assertEqual(PRICES["BRENT"][-1], 113.81)
+        self.assertEqual(PRICES["OIL"][-1], 97.53)
 
     def test_chart_reconciled_positions_are_in_model_replay(self):
         events = parse_trades()
@@ -48,7 +66,7 @@ class ModelTradeScopeTests(unittest.TestCase):
             self.assertEqual(archive.read("trades/US30Y.txt"), content)
             self.assertEqual(archive.read("trades/index.txt"), (root / "trades/index.txt").read_bytes())
 
-    def test_oct23_orcl_long_is_25000_and_excluded_from_oct22_replay(self):
+    def test_oct23_orcl_long_is_in_new_terminal_replay_but_not_oct22_endpoint(self):
         events = parse_trades()
         orcl = next(
             event for event in events
@@ -58,12 +76,18 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertEqual(orcl["kind"], "entry")
         self.assertEqual(orcl["px"], 125.83)
         self.assertEqual(orcl["units"], 2.5)
+        oct22 = SESSION_DATES.index("2026-10-22")
+        oct23 = SESSION_DATES.index("2026-10-23")
+        self.assertEqual(PRICES["ORCL"][oct22], 125.54)
+        self.assertEqual(PRICES["ORCL"][oct23], 126.16)
         for variant in VARIANTS:
             lots, _ = build_lots(variant, events)
-            self.assertFalse(any(
-                lot["sym"] == "ORCL" and lot["entry_px"] == 125.83
-                for lot in lots
-            ))
+            orcl_lot = next(
+                lot for lot in lots
+                if lot["sym"] == "ORCL" and lot["entry_px"] == 125.83
+            )
+            self.assertEqual(orcl_lot["entry_idx"], oct23)
+            self.assertEqual(orcl_lot["qty"], 2.5)
 
         root = Path(__file__).resolve().parents[1]
         log = (root / "trades/ORCL.txt").read_bytes()
@@ -73,7 +97,7 @@ class ModelTradeScopeTests(unittest.TestCase):
             self.assertEqual(archive.read("trades/ORCL.txt"), log)
             self.assertEqual(archive.read("trades/index.txt"), (root / "trades/index.txt").read_bytes())
 
-    def test_lcid_small_caps_pilot_has_five_entries_and_only_four_in_oct22_replay(self):
+    def test_lcid_small_caps_pilot_has_four_entries_at_oct22_and_five_at_oct23(self):
         root = Path(__file__).resolve().parents[1]
         events = parse_trades()
         lcid_events = [event for event in events if event["sym"] == "LCID"]
@@ -93,13 +117,16 @@ class ModelTradeScopeTests(unittest.TestCase):
         for variant in VARIANTS:
             lots, _ = build_lots(variant, events)
             lcid_lots = [lot for lot in lots if lot["sym"] == "LCID"]
-            self.assertEqual(len(lcid_lots), 4)
-            self.assertAlmostEqual(sum(lot["qty"] for lot in lcid_lots), 4.0)
+            self.assertEqual(len(lcid_lots), 5)
+            self.assertAlmostEqual(sum(lot["qty"] for lot in lcid_lots), 5.0)
+            oct22_lots = [lot for lot in lcid_lots if lot["entry_idx"] <= oct22_index]
+            self.assertEqual(len(oct22_lots), 4)
             oct22_pnl = sum(
                 lot["qty"] * 10_000 * (PRICES["LCID"][oct22_index] / lot["entry_px"] - 1)
-                for lot in lcid_lots
+                for lot in oct22_lots
             )
             self.assertAlmostEqual(oct22_pnl, expected_oct22_pnl, places=8)
+        self.assertEqual(PRICES["LCID"][SESSION_DATES.index("2026-10-23")], 3.55)
 
         with ZipFile(root / "trades.zip") as archive:
             self.assertEqual(archive.read("trades/LCID.txt"), (root / "trades/LCID.txt").read_bytes())
@@ -108,12 +135,13 @@ class ModelTradeScopeTests(unittest.TestCase):
     def test_comparison_report_states_model_coverage_and_unreconciled_master(self):
         report = Path(__file__).resolve().parents[1] / "Model Performance Comparison.md"
         text = report.read_text(encoding="utf-8")
-        self.assertIn("`86` in-window price-covered events out of `95` total 2026 log events", text)
-        self.assertIn("`2` after cutoff", text)
+        self.assertIn("`88` in-window price-covered events out of `95` total 2026 log events", text)
+        self.assertIn("`0` after cutoff", text)
         self.assertIn("`33` price-covered symbols", text)
         self.assertIn("DXY, EURUSD, JPYUSD, US10Y and US30Y", text)
         self.assertIn("US10Y Baseline Adjustment", text)
-        self.assertIn("master PnL report has not been recalculated", text)
+        self.assertIn("master PnL report remains", text)
+        self.assertIn("unrecalculated and unreconciled", text)
 
 
 if __name__ == "__main__":

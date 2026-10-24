@@ -4,7 +4,7 @@ import csv
 import unittest
 from pathlib import Path
 
-from model_perf_core import PRICES
+from model_perf_core import PRICES, SESSION_DATES
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,8 +24,9 @@ class Oct22EquityEodRecheckTests(unittest.TestCase):
                            row["verified_oct22_yahoo_close_usd"], row["change_usd"])
                           for row in corrections], [("NET", "306.60", "303.61", "-2.99")])
 
+        oct22_index = SESSION_DATES.index("2026-10-22")
         for row in rows:
-            self.assertEqual(float(row["verified_oct22_yahoo_close_usd"]), PRICES[row["symbol"]][-1])
+            self.assertEqual(float(row["verified_oct22_yahoo_close_usd"]), PRICES[row["symbol"]][oct22_index])
             self.assertIn("period1=1792627200&period2=1792713600&interval=1d", row["source_url"])
             if row["symbol"] != "NET":
                 self.assertEqual(row["result"], "MATCH")
