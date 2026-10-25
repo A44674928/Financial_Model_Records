@@ -62,24 +62,41 @@ class TheOneModelBriefingTests(unittest.TestCase):
         )
 
     def test_aggregate_results_and_full_table_are_disclosed(self):
-        self.assertIn("Historical draft—not a current performance disclosure", self.briefing)
+        self.assertIn("Current-model snapshot — TradingView benchmark through 2026-10-23", self.briefing)
         self.assertIn("32 independently tracked portfolios", self.briefing)
-        self.assertIn("$12,393,481.92", self.briefing)
-        self.assertIn("$350,880,000.00", self.briefing)
-        self.assertIn("$316,000,000.00", self.briefing)
-        self.assertIn("3.5321%", self.briefing)
-        self.assertIn("$1,844,483.12", self.briefing)
+        self.assertIn("$14,391,144.72", self.briefing)
+        self.assertIn("$338,080,000.00", self.briefing)
+        self.assertIn("$303,200,000.00", self.briefing)
+        self.assertIn("4.2567%", self.briefing)
+        self.assertIn("$1,776,663.92", self.briefing)
         self.assertIn("Terminal statistics for all 32 portfolios", self.briefing)
         self.assertIn("the_one_model_split_portfolios_v1.csv", self.briefing)
         self.assertIn("the_one_model_split_portfolios_v1_summary.json", self.briefing)
-        self.assertIn("all 16 Core × 1U/EOD pairings", self.briefing)
-        self.assertIn("8.88% static single-composite proxy is not a result for this 32-portfolio split", self.briefing)
-        table_start = self.briefing.index("| Core variant | 1U/EOD variant | Oil sidecar |")
+        self.assertIn("All **16 Core × 1U/EOD pairings**", self.briefing)
+        self.assertIn("35 daily lots, $350,000 gross notional added, and +$2,492.30 terminal proxy PnL per core variant", self.briefing)
+        self.assertIn("LLY's Oct. 20 close to $1,283.66", self.briefing)
+        self.assertIn("Core V1 — 1U Open | $+58,191.29 | $1,165,000.00", self.briefing)
+        self.assertIn("Core V3A — Nu Open | $+79,474.78 | $1,255,000.00", self.briefing)
+        self.assertIn("Oct. 20 core daily PnL changes are V1 +$916.96, V2 +$623.64, V3A +$1,617.74, and V3B +$623.64", self.briefing)
+        self.assertIn("0.05U/DAY | +$124.62 | $17,500.00", self.briefing)
+        self.assertIn("10U/DAY | +$24,923.03 | $3,500,000.00", self.briefing)
+        self.assertNotIn("$12,393,481.92", self.briefing)
+        table_start = self.briefing.index("| Core variant | 1U/EOD variant | Energy sidecar |")
         table_end = self.briefing.index("\n\nFull daily audit series:", table_start)
         table_rows = [line for line in self.briefing[table_start:table_end].splitlines() if line.startswith("| V")]
         self.assertEqual(len(table_rows), 32)
         self.assertEqual({"| V1 | V1 | No |" in self.briefing, "| V3B | V3B | Yes |" in self.briefing}, {True})
-        self.assertIn("Core V3A + 1U V3A with oil (5.54%)", self.briefing)
+        for portfolio in self.summary["individual_portfolios"]:
+            energy = "Yes" if portfolio["oil_sidecar_included"] else "No"
+            expected = (
+                f"| {portfolio['core_variant']} | {portfolio['variant_specific_1u_eod_variant']} | {energy} | "
+                f"${float(portfolio['terminal_pnl_usd']):,.2f} | "
+                f"${float(portfolio['cumulative_gross_notional_added_usd']):,.2f} | "
+                f"${float(portfolio['gross_open_notional_usd']):,.2f} | "
+                f"{float(portfolio['deployed_notional_ratio_pct']):.4f}% |"
+            )
+            self.assertIn(expected, table_rows)
+        self.assertIn("Core V3A + 1U V3A with energy (5.4335%)", self.briefing)
 
     def test_architecture_and_aggregate_chart_are_generated_and_embedded(self):
         for relpath in (
