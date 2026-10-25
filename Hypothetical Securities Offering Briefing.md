@@ -20,7 +20,7 @@ For a logged trade, the chart-posting price recorded in the trade log is the ent
 
 - It compares rule-defined hypothetical position paths on one manually assembled paper-trade book; it is not a verified client account or audited investment track record.
 - The current core replay covers 31 direct-price TradingView symbols plus an integrated chart-directed 1U/DAY/DXY index-return sleeve on a common EOD calendar through Oct. 23, 2026. BTC/ETH remain outside the core pending recalibration. Intraday source coverage is separate and shorter.
-- All current core marks, including BRENT and OIL, use the normalized user-provided TradingView lists in [`data/tradingview_benchmark_session_marks_20261024.csv`](data/tradingview_benchmark_session_marks_20261024.csv). The revised Part B archive is pinned in [`data/tradingview_benchmark_source_manifest_part_b_20261024.json`](data/tradingview_benchmark_source_manifest_part_b_20261024.json); it corrects LLY's Oct. 20 close to $1,283.66. The 1U/DAY/DXY schedule is integrated in each core result. THE ONE MODEL additionally includes the 10U/DAY DXY schedule in each of its 32 portfolios; 0.05U remains an alternative. XRH0 has five flagged provisional carry-forwards; no legacy price fills are used.
+- All current core marks, including BRENT and OIL, use the normalized user-provided TradingView lists in [`data/tradingview_benchmark_session_marks_20261024.csv`](data/tradingview_benchmark_session_marks_20261024.csv). The revised Part B archive is pinned in [`data/tradingview_benchmark_source_manifest_part_b_20261024.json`](data/tradingview_benchmark_source_manifest_part_b_20261024.json); it corrects LLY's Oct. 20 close to $1,283.66. The 1U/DAY/DXY schedule is integrated in each core result. THE ONE MODEL additionally includes the 10U/DAY DXY schedule in each of its 32 portfolios; energy-inclusive variants use 11U/DAY per active BRENT and OIL ticker. The 0.05U DXY schedule remains an alternative. XRH0 has five flagged provisional carry-forwards; no legacy price fills are used.
 - The current core uses only the supplied TradingView lists; their source files, coverage, and mark statuses are recorded in the benchmark manifest and session-mark data. The archived source registry applies to historical views only.
 - The replay does not comprehensively charge commissions, bid/ask spread, slippage, taxes, borrow, financing, margin, market impact, option premium, or operational costs. It does not establish executable capacity or customer-level returns.
 - “PnL,” “deployed notional,” “open notional,” and percentage-gain ratios are model measures. The percentage-gain chart uses cumulative PnL divided by cumulative gross notional added; it is a **deployed-notional ratio, not an account return**.
@@ -166,75 +166,79 @@ These add-on examples combine core PnL with the relevant standalone schedule; th
 
 ![THE ONE MODEL 32-portfolio split strategy and aggregate statistics](Charts/superstructure/the-one-model.png)
 
-**Construction:** each portfolio combines one of four current core variants (V1, V2, V3A, V3B), each of which already includes the chart-directed **1U/DAY/DXY** sleeve, with one of four variant-specific 1U/EOD models. All **16 Core × 1U/EOD pairings**, including cross-variant pairs, are represented once without and once with the **10U TradingView energy sidecar**, for **32 independently tracked portfolios**. In addition, **every one of the 32 portfolios includes the 10U/DAY DXY schedule** as a sidecar, on top of the integrated core 1U/DAY DXY sleeve: **11U/DAY total per portfolio**. The core 1U sleeve is counted once, not doubled. The 0.05U DXY schedule remains an alternative and is not included.
+**Construction:** each portfolio pairs one of four current core variants with one of four variant-specific 1U/EOD models. All **16 Core × 1U/EOD pairings** are represented once without and once with an energy sidecar, for **32 independently tracked portfolios**. The energy-inclusive 16 use **11U/DAY per active BRENT and OIL ticker**, meeting the combined DXY exposure of **11U/DAY** (the core-integrated 1U plus the 10U DXY add-on). The other 16 remain explicit no-energy alternatives. DXY is counted once in core and once as the selected 10U sidecar; the 0.05U DXY schedule remains an alternative.
 
 ### Aggregate split-portfolio result (Sep. 3–Oct. 23, 2026; 36 sessions)
 
 | Aggregate statistic | Result |
 |---|---:|
 | Portfolios in aggregate | 32 (16 without energy + 16 with energy) |
-| Terminal aggregate modeled PnL | **$15,188,681.68** |
-| Cumulative gross notional added, summed across all portfolios | **$450,080,000.00** |
-| Gross open notional at period end, summed across all portfolios | **$415,200,000.00** |
-| Aggregate PnL ÷ cumulative gross notional added | **3.3747%** |
-| Aggregate PnL peak-to-trough decline | **$1,673,192.56** |
-| Peak to trough | **2026-09-28: $2,428,154.16 → 2026-09-29: $754,961.60** |
+| Terminal aggregate modeled PnL | **$15,989,974.96** |
+| Cumulative gross notional added, summed across all portfolios | **$458,880,000.00** |
+| Gross open notional at period end, summed across all portfolios | **$424,000,000.00** |
+| Aggregate PnL ÷ cumulative gross notional added | **3.4846%** |
+| Aggregate PnL peak-to-trough decline | **$1,786,528.08** |
+| Peak to trough | **2026-09-28: $2,344,610.48 → 2026-09-29: $558,082.40** |
 | Portfolios with positive terminal modeled PnL | **32 of 32** |
-| Mean / median terminal PnL per portfolio | $474,646.30 / $479,730.93 |
+| Mean / median terminal PnL per portfolio | $499,686.72 / $504,771.34 |
 
-**DXY exposure in THE ONE MODEL:** each portfolio has 35 daily 1U core lots plus 35 daily 10U sidecar lots, or **11U/DAY**. Per portfolio, the 10U add-on contributes $24,923.03 terminal proxy PnL on $3,500,000.00 cumulative additions; combined with the 1U core sleeve, DXY contributes **+$27,415.33** terminal proxy PnL on **$3,850,000.00** cumulative additions per portfolio. Across 32 portfolios, the 10U add-on contributes $797,536.96 on $112,000,000.00 additions. The 0.05U schedule and the separate one-time chart-opened DXY position are not included.
+**Energy/currency unit rule:** in every energy-inclusive portfolio, each active energy ticker receives an 11U tranche per scheduled session, matching the 11U/DAY combined DXY exposure. BRENT’s supplied daily schedule starts Sep. 23; OIL’s starts Sep. 10. No earlier energy entries or prices are invented. On sessions when both energy schedules are active, the combined energy allocation is 22U/DAY across BRENT and OIL. The 16 no-energy states are intentional alternatives, not energy-inclusive portfolios.
+
+The 11U energy sidecar contributes $550,889.09 terminal modeled PnL on $6,050,000.00 cumulative additions per energy-inclusive portfolio. Across the 16 such portfolios, it contributes $8,814,225.44 on $96,800,000.00 additions.
+
+**DXY exposure:** every portfolio has 35 daily 1U core lots plus 35 daily 10U sidecar lots, or **11U/DAY**. Per portfolio the 10U add-on contributes $24,923.03 terminal proxy PnL on $3,500,000.00 additions; combined with the 1U core sleeve, DXY contributes **$27,415.33** on **$3,850,000.00** per portfolio. The 0.05U schedule and the separate one-time chart-opened DXY position are excluded.
 
 The aggregate percentage is a **deployed-notional ratio, not an account return**. Drawdown is the peak-to-trough change in summed modeled PnL, not a loss percentage on defined account equity. The sum assumes distinct funding and gross exposures for all 32 portfolios; positions, capital, and risk are not netted or shared.
 
 ![THE ONE MODEL aggregate modeled PnL, gross notional, and deployed-notional ratio](Charts/superstructure/the-one-model-split-portfolio.png)
 
-The best individual terminal PnL was **V3A Core + V3A 1U/EOD with the energy sidecar**: $753,290.16 on $16,905,000.00 gross notional added and $15,985,000.00 open, a 4.4560% deployed-notional ratio. The lowest was **V2 Core + V2 1U/EOD without the energy sidecar**: $206,171.70 on $11,225,000.00 added and $10,055,000.00 open, a 1.8367% ratio. These are members of the fixed 32-portfolio universe, not a selector that chose a winner.
+The best individual terminal PnL was **V3A Core + V3A 1U/EOD with the 11U energy sidecar**: $803,370.99 on $17,455,000.00 gross additions and $16,535,000.00 open. The lowest was **V2 Core + V2 1U/EOD without the energy sidecar**: $206,171.70 on $11,225,000.00 added and $10,055,000.00 open. These remain members of the fixed portfolio universe, not a selector that chose a winner.
 
 ### Terminal statistics for all 32 portfolios
 
-Every row below includes the same **10U/DAY DXY sidecar** in addition to the integrated 1U/DAY core sleeve (11U/DAY total; 35 daily lots at each size). The energy sidecar is included once in each “Yes” portfolio; those 16 instances are separate allocations.
+Every row includes the integrated 1U/DAY DXY core sleeve plus the 10U/DAY DXY sidecar (11U/DAY total). “11U/DAY” under Energy means an 11U tranche for each active energy ticker; “No” preserves the no-energy variant.
 
 | Core variant | 1U/EOD variant | Energy sidecar | DXY 10U sidecar | Combined DXY | Terminal PnL | Gross notional added | Gross open notional | PnL / gross added |
 |---|---|:---:|:---:|:---:|---:|---:|---:|---:|
 | V1 | V1 | No | Yes | 11U/DAY | $210,295.29 | $11,225,000.00 | $10,305,000.00 | 1.8735% |
-| V1 | V1 | Yes | Yes | 11U/DAY | $711,103.55 | $16,725,000.00 | $15,805,000.00 | 4.2517% |
+| V1 | V1 | 11U/DAY | Yes | 11U/DAY | $761,184.38 | $17,275,000.00 | $16,355,000.00 | 4.4063% |
 | V1 | V2 | No | Yes | 11U/DAY | $209,014.90 | $11,225,000.00 | $10,105,000.00 | 1.8620% |
-| V1 | V2 | Yes | Yes | 11U/DAY | $709,823.16 | $16,725,000.00 | $15,605,000.00 | 4.2441% |
+| V1 | V2 | 11U/DAY | Yes | 11U/DAY | $759,903.99 | $17,275,000.00 | $16,155,000.00 | 4.3989% |
 | V1 | V3A | No | Yes | 11U/DAY | $231,198.41 | $11,315,000.00 | $10,395,000.00 | 2.0433% |
-| V1 | V3A | Yes | Yes | 11U/DAY | $732,006.67 | $16,815,000.00 | $15,895,000.00 | 4.3533% |
+| V1 | V3A | 11U/DAY | Yes | 11U/DAY | $782,087.50 | $17,365,000.00 | $16,445,000.00 | 4.5038% |
 | V1 | V3B | No | Yes | 11U/DAY | $219,696.30 | $11,315,000.00 | $10,105,000.00 | 1.9416% |
-| V1 | V3B | Yes | Yes | 11U/DAY | $720,504.56 | $16,815,000.00 | $15,605,000.00 | 4.2849% |
+| V1 | V3B | 11U/DAY | Yes | 11U/DAY | $770,585.39 | $17,365,000.00 | $16,155,000.00 | 4.4376% |
 | V2 | V1 | No | Yes | 11U/DAY | $207,452.09 | $11,225,000.00 | $10,255,000.00 | 1.8481% |
-| V2 | V1 | Yes | Yes | 11U/DAY | $708,260.35 | $16,725,000.00 | $15,755,000.00 | 4.2347% |
+| V2 | V1 | 11U/DAY | Yes | 11U/DAY | $758,341.18 | $17,275,000.00 | $16,305,000.00 | 4.3898% |
 | V2 | V2 | No | Yes | 11U/DAY | $206,171.70 | $11,225,000.00 | $10,055,000.00 | 1.8367% |
-| V2 | V2 | Yes | Yes | 11U/DAY | $706,979.96 | $16,725,000.00 | $15,555,000.00 | 4.2271% |
+| V2 | V2 | 11U/DAY | Yes | 11U/DAY | $757,060.79 | $17,275,000.00 | $16,105,000.00 | 4.3824% |
 | V2 | V3A | No | Yes | 11U/DAY | $228,355.21 | $11,315,000.00 | $10,345,000.00 | 2.0182% |
-| V2 | V3A | Yes | Yes | 11U/DAY | $729,163.47 | $16,815,000.00 | $15,845,000.00 | 4.3364% |
+| V2 | V3A | 11U/DAY | Yes | 11U/DAY | $779,244.30 | $17,365,000.00 | $16,395,000.00 | 4.4874% |
 | V2 | V3B | No | Yes | 11U/DAY | $216,853.10 | $11,315,000.00 | $10,055,000.00 | 1.9165% |
-| V2 | V3B | Yes | Yes | 11U/DAY | $717,661.36 | $16,815,000.00 | $15,555,000.00 | 4.2680% |
+| V2 | V3B | 11U/DAY | Yes | 11U/DAY | $767,742.19 | $17,365,000.00 | $16,105,000.00 | 4.4212% |
 | V3A | V1 | No | Yes | 11U/DAY | $231,578.78 | $11,315,000.00 | $10,395,000.00 | 2.0467% |
-| V3A | V1 | Yes | Yes | 11U/DAY | $732,387.04 | $16,815,000.00 | $15,895,000.00 | 4.3556% |
+| V3A | V1 | 11U/DAY | Yes | 11U/DAY | $782,467.87 | $17,365,000.00 | $16,445,000.00 | 4.5060% |
 | V3A | V2 | No | Yes | 11U/DAY | $230,298.39 | $11,315,000.00 | $10,195,000.00 | 2.0353% |
-| V3A | V2 | Yes | Yes | 11U/DAY | $731,106.65 | $16,815,000.00 | $15,695,000.00 | 4.3479% |
+| V3A | V2 | 11U/DAY | Yes | 11U/DAY | $781,187.48 | $17,365,000.00 | $16,245,000.00 | 4.4986% |
 | V3A | V3A | No | Yes | 11U/DAY | $252,481.90 | $11,405,000.00 | $10,485,000.00 | 2.2138% |
-| V3A | V3A | Yes | Yes | 11U/DAY | $753,290.16 | $16,905,000.00 | $15,985,000.00 | 4.4560% |
+| V3A | V3A | 11U/DAY | Yes | 11U/DAY | $803,370.99 | $17,455,000.00 | $16,535,000.00 | 4.6025% |
 | V3A | V3B | No | Yes | 11U/DAY | $240,979.79 | $11,405,000.00 | $10,195,000.00 | 2.1129% |
-| V3A | V3B | Yes | Yes | 11U/DAY | $741,788.05 | $16,905,000.00 | $15,695,000.00 | 4.3880% |
+| V3A | V3B | 11U/DAY | Yes | 11U/DAY | $791,868.88 | $17,455,000.00 | $16,245,000.00 | 4.5366% |
 | V3B | V1 | No | Yes | 11U/DAY | $218,618.79 | $11,315,000.00 | $10,255,000.00 | 1.9321% |
-| V3B | V1 | Yes | Yes | 11U/DAY | $719,427.05 | $16,815,000.00 | $15,755,000.00 | 4.2785% |
+| V3B | V1 | 11U/DAY | Yes | 11U/DAY | $769,507.88 | $17,365,000.00 | $16,305,000.00 | 4.4314% |
 | V3B | V2 | No | Yes | 11U/DAY | $217,338.40 | $11,315,000.00 | $10,055,000.00 | 1.9208% |
-| V3B | V2 | Yes | Yes | 11U/DAY | $718,146.66 | $16,815,000.00 | $15,555,000.00 | 4.2709% |
+| V3B | V2 | 11U/DAY | Yes | 11U/DAY | $768,227.49 | $17,365,000.00 | $16,105,000.00 | 4.4240% |
 | V3B | V3A | No | Yes | 11U/DAY | $239,521.91 | $11,405,000.00 | $10,345,000.00 | 2.1001% |
-| V3B | V3A | Yes | Yes | 11U/DAY | $740,330.17 | $16,905,000.00 | $15,845,000.00 | 4.3794% |
+| V3B | V3A | 11U/DAY | Yes | 11U/DAY | $790,411.00 | $17,455,000.00 | $16,395,000.00 | 4.5283% |
 | V3B | V3B | No | Yes | 11U/DAY | $228,019.80 | $11,405,000.00 | $10,055,000.00 | 1.9993% |
-| V3B | V3B | Yes | Yes | 11U/DAY | $728,828.06 | $16,905,000.00 | $15,555,000.00 | 4.3113% |
+| V3B | V3B | 11U/DAY | Yes | 11U/DAY | $778,908.89 | $17,455,000.00 | $16,105,000.00 | 4.4624% |
 
-Full daily audit series: [`the_one_model_split_portfolios_v1.csv`](data/the_one_model_split_portfolios_v1.csv). Machine-readable summary and portfolio-level drawdowns: [`the_one_model_split_portfolios_v1_summary.json`](data/the_one_model_split_portfolios_v1_summary.json). The source is the current daily Core × variant-specific 1U/EOD comparison with and without the exact-mark 10U energy sidecar, plus the same 10U DXY schedule applied to all 32 output portfolios. Each portfolio reconciles that DXY add-on while retaining the core's integrated 1U schedule.
+Full daily audit series: [`the_one_model_split_portfolios_v1.csv`](data/the_one_model_split_portfolios_v1.csv). Derived 11U energy schedule by ticker: [`the_one_model_energy_11u_sidecar_daily_v1.csv`](data/the_one_model_energy_11u_sidecar_daily_v1.csv). Machine-readable summary and portfolio-level drawdowns: [`the_one_model_split_portfolios_v1_summary.json`](data/the_one_model_split_portfolios_v1_summary.json). The source daily Core × variant-specific 1U/EOD series and generic strategy-comparison composites retain their existing 10U energy size; this split aggregator scales that energy component to 11U only for THE ONE MODEL’s 16 energy-inclusive portfolios.
 
 ### Scope and interpretation
 
 - These are **historical hypothetical paper-model outputs**, not actual brokerage executions, a verified account track record, or a customer account return. The aggregate requires enough distinct capital to operate 32 portfolios concurrently.
-- Each of the 16 with-energy portfolios receives one separately modeled 10U energy-sidecar schedule. Each of all 32 portfolios also receives a 10U/DAY DXY sidecar in addition to the 1U/DAY DXY sleeve already inside its core; 0.05U/DAY is an unselected alternative. The one-time chart-opened DXY position is separate and excluded.
+- Each of the 16 energy-inclusive portfolios receives an 11U/DAY schedule per active BRENT and OIL ticker. The other 16 intentionally contain no energy sidecar. Every portfolio has a 10U/DAY DXY add-on in addition to the 1U/DAY DXY core sleeve; the 0.05U DXY size and one-time chart-opened position remain separate/excluded.
 - Cumulative gross notional added is not initial equity, cash, margin, or a denominator for account return; the percentage shown is only aggregate PnL divided by the sum of gross notional added.
 - Fixed-$500/EOD and shared-direction 1U/EOD schedules are separate alternatives, not additional members of this 32-portfolio universe. Whole-book DXY-numeraire conversion/weighting, FX trade marks, US10Y/US30Y yield scenarios, CPI adjustment, and options are excluded.
 - Trading costs, spread, slippage, taxes, borrow, financing, margin, and operational costs are not fully modeled. Energy marks use the exact user-provided EOD marks described above.

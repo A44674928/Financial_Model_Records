@@ -132,6 +132,7 @@ def build_comparison():
         "winning_core_variant": details["core_variant"],
         "winning_variant_specific_1u_eod_variant": details["variant_specific_1u_eod_variant"],
         "winning_energy_sidecar_included": details["oil_sidecar_included"],
+        "winning_energy_sidecar_unit_size_u_per_active_ticker": details["energy_sidecar_unit_size_u_per_active_ticker"],
         "winning_dxy_exposure_per_active_eod_before_scaling": "11U/DAY",
         "the_one_model_terminal_pnl_usd": last["the_one_model_aggregate_pnl_usd"],
         "the_one_model_cumulative_gross_notional_added_usd": last["the_one_model_cumulative_gross_notional_added_usd"],
@@ -263,7 +264,7 @@ def write_report(result):
 
 ## Comparison basis
 
-“THE WINNING MODEL” here means **{result['winning_core_variant']} Core + {result['winning_variant_specific_1u_eod_variant']} variant-specific 1U/EOD, with the 10U energy sidecar**—portfolio `{result['winning_portfolio_id']}`. It includes core’s integrated 1U/DAY DXY sleeve plus the 10U/DAY DXY add-on (11U/DAY total), just as each of the 32 THE ONE MODEL portfolios does.
+“THE WINNING MODEL” here means **{result['winning_core_variant']} Core + {result['winning_variant_specific_1u_eod_variant']} variant-specific 1U/EOD, with the {result['winning_energy_sidecar_unit_size_u_per_active_ticker']}U/DAY energy sidecar per active ticker**—portfolio `{result['winning_portfolio_id']}`. It includes core’s integrated 1U/DAY DXY sleeve plus the 10U/DAY DXY add-on (11U/DAY total), just as each of the 32 THE ONE MODEL portfolios does.
 
 The equal-gross comparison scales every daily PnL, notional addition, and open-notional value of this one winning portfolio by **{factor:.6f}×**, so its period-end cumulative gross additions match THE ONE MODEL at **{dollars(result['the_one_model_cumulative_gross_notional_added_usd'])}**. This scales the winner’s unit sizes too: its combined DXY schedule becomes **{dec(result['equal_gross_winner_combined_dxy_units_per_active_eod']):.4f}U/DAY**, versus the original 11U/DAY. It is a proportional arithmetic scaling of all components, not an assertion that the larger orders could be executed at unchanged prices, spreads, capacity, financing, or risk. The original, unscaled 1× winner is shown alongside it for context; that original portfolio does not have the same total gross additions as the 32-portfolio aggregate.
 

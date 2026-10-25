@@ -4,21 +4,21 @@
 
 ## Comparison basis
 
-“THE WINNING MODEL” here means **V3A Core + V3A variant-specific 1U/EOD, with the 10U energy sidecar**—portfolio `core_v3a__1u_v3a__with_oil`. It includes core’s integrated 1U/DAY DXY sleeve plus the 10U/DAY DXY add-on (11U/DAY total), just as each of the 32 THE ONE MODEL portfolios does.
+“THE WINNING MODEL” here means **V3A Core + V3A variant-specific 1U/EOD, with the 11U/DAY energy sidecar per active ticker**—portfolio `core_v3a__1u_v3a__with_oil`. It includes core’s integrated 1U/DAY DXY sleeve plus the 10U/DAY DXY add-on (11U/DAY total), just as each of the 32 THE ONE MODEL portfolios does.
 
-The equal-gross comparison scales every daily PnL, notional addition, and open-notional value of this one winning portfolio by **26.624076×**, so its period-end cumulative gross additions match THE ONE MODEL at **$450,080,000.00**. This scales the winner’s unit sizes too: its combined DXY schedule becomes **292.8648U/DAY**, versus the original 11U/DAY. It is a proportional arithmetic scaling of all components, not an assertion that the larger orders could be executed at unchanged prices, spreads, capacity, financing, or risk. The original, unscaled 1× winner is shown alongside it for context; that original portfolio does not have the same total gross additions as the 32-portfolio aggregate.
+The equal-gross comparison scales every daily PnL, notional addition, and open-notional value of this one winning portfolio by **26.289315×**, so its period-end cumulative gross additions match THE ONE MODEL at **$458,880,000.00**. This scales the winner’s unit sizes too: its combined DXY schedule becomes **289.1825U/DAY**, versus the original 11U/DAY. It is a proportional arithmetic scaling of all components, not an assertion that the larger orders could be executed at unchanged prices, spreads, capacity, financing, or risk. The original, unscaled 1× winner is shown alongside it for context; that original portfolio does not have the same total gross additions as the 32-portfolio aggregate.
 
 ## Terminal comparison
 
 | Historical result through 2026-10-23 | THE ONE MODEL: 32 independent portfolios | Winning constituent: original 1× | Winning constituent: equal-gross scaled |
 |---|---:|---:|---:|
-| Terminal modeled PnL | $15,188,681.68 | $753,290.16 | **$20,055,654.26** |
-| Cumulative gross notional added | $450,080,000.00 | $16,905,000.00 | **$450,080,000.00** |
-| Gross open notional at period end | $415,200,000.00 | $15,985,000.00 | $425,585,850.34 |
-| PnL ÷ cumulative gross additions | 3.3747% | 4.4560% | **4.4560%** |
-| Peak-to-trough modeled PnL drawdown | $1,673,192.56 | $92,388.17 | $2,459,749.64 |
+| Terminal modeled PnL | $15,989,974.96 | $803,370.99 | **$21,120,073.33** |
+| Cumulative gross notional added | $458,880,000.00 | $17,455,000.00 | **$458,880,000.00** |
+| Gross open notional at period end | $424,000,000.00 | $16,535,000.00 | $434,693,829.85 |
+| PnL ÷ cumulative gross additions | 3.4846% | 4.6025% | **4.6025%** |
+| Peak-to-trough modeled PnL drawdown | $1,786,528.08 | $101,438.78 | $2,666,756.08 |
 
-At the equal-gross terminal additions, the scaled winning curve exceeds THE ONE MODEL's terminal modeled PnL by **$4,866,972.58** and its deployed-notional ratio by **1.0814 percentage points** in this historical sample. The comparison does not establish future outperformance. The winning portfolio was chosen using the same period being compared; this creates survivorship/selection bias, and its advantage is not an independent or out-of-sample result.
+At the equal-gross terminal additions, the scaled winning curve exceeds THE ONE MODEL's terminal modeled PnL by **$5,130,098.37** and its deployed-notional ratio by **1.1180 percentage points** in this historical sample. The comparison does not establish future outperformance. The winning portfolio was chosen using the same period being compared; this creates survivorship/selection bias, and its advantage is not an independent or out-of-sample result.
 
 ![THE ONE MODEL and the equal-gross scaled winning constituent](Charts/superstructure/the-one-model-vs-winning-model.png)
 
