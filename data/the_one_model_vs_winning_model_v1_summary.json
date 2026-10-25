@@ -1,0 +1,53 @@
+{
+  "label": "THE ONE MODEL vs THE WINNING MODEL \u2014 equal terminal gross additions",
+  "period_start": "2026-09-03",
+  "period_end": "2026-10-23",
+  "sessions": 36,
+  "winner_selection_method": "Highest terminal modeled PnL among the 32 THE ONE MODEL constituent portfolios, selected using the full comparison period (ex post).",
+  "winning_portfolio_id": "core_v3a__1u_v3a__with_oil",
+  "winning_core_variant": "V3A",
+  "winning_variant_specific_1u_eod_variant": "V3A",
+  "winning_energy_sidecar_included": true,
+  "winning_dxy_exposure_per_active_eod_before_scaling": "11U/DAY",
+  "the_one_model_terminal_pnl_usd": "15188681.68",
+  "the_one_model_cumulative_gross_notional_added_usd": "450080000.00",
+  "the_one_model_gross_open_notional_usd": "415200000.00",
+  "the_one_model_pnl_to_gross_added_pct": "3.374663",
+  "the_one_model_max_peak_to_trough_pnl_drawdown_usd": "1673192.56",
+  "winning_model_original_terminal_pnl_usd": "753290.16",
+  "winning_model_original_cumulative_gross_notional_added_usd": "16905000.00",
+  "winning_model_original_gross_open_notional_usd": "15985000.00",
+  "winning_model_original_pnl_to_gross_added_pct": "4.456020",
+  "winning_model_original_max_peak_to_trough_pnl_drawdown_usd": "92388.17",
+  "equal_gross_scale_factor": "26.624075717243",
+  "equal_gross_scale_factor_exact": "26.62407571724341910677314404",
+  "equal_gross_winner_combined_dxy_units_per_active_eod": "292.864833",
+  "winning_model_equal_gross_terminal_pnl_usd": "20055654.26",
+  "winning_model_equal_gross_cumulative_gross_notional_added_usd": "450080000.00",
+  "winning_model_equal_gross_gross_open_notional_usd": "425585850.34",
+  "winning_model_equal_gross_pnl_to_gross_added_pct": "4.456020",
+  "winning_model_equal_gross_max_peak_to_trough_pnl_drawdown_usd": "2459749.64",
+  "equal_gross_terminal_pnl_difference_winner_minus_one_model_usd": "4866972.58",
+  "equal_gross_deployed_notional_ratio_difference_percentage_points": "1.081357",
+  "equal_gross_winner_selection_caveat": "The winning constituent is selected from the same full historical period being evaluated. This ex-post selection introduces look-ahead/selection bias and is not out-of-sample validation.",
+  "scaling_caveat": "The equal-gross winning-model curve multiplies every daily PnL, cumulative addition, and open-notional amount by one constant. It is a mathematical normalization, not evidence that scaled positions could be executed at the same prices or costs. Margin, capacity, impact, financing, and correlated concentration are not modeled.",
+  "caveat": "Historical hypothetical paper-model outputs, not actual brokerage execution or a verified account return. Deployed-notional ratios are not account returns; costs and execution are not fully modeled.",
+  "one_model_max_drawdown": {
+    "peak_date": "2026-09-28",
+    "peak_pnl_usd": "2428154.16",
+    "trough_date": "2026-09-29",
+    "trough_pnl_usd": "754961.60"
+  },
+  "winning_model_equal_gross_max_drawdown": {
+    "peak_date": "2026-09-24",
+    "peak_pnl_usd": "1332809.22",
+    "trough_date": "2026-09-29",
+    "trough_pnl_usd": "-1126940.42"
+  },
+  "winning_model_original_max_drawdown": {
+    "peak_date": "2026-09-24",
+    "peak_pnl_usd": "50060.30",
+    "trough_date": "2026-09-29",
+    "trough_pnl_usd": "-42327.87"
+  }
+}
