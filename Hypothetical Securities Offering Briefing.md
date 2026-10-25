@@ -259,6 +259,7 @@ Full daily audit series: [`the_one_model_split_portfolios_v1.csv`](data/the_one_
 - [Strategy and Sidecar Comparison](Strategy%20and%20Sidecar%20Comparison.md)
 - [TradingView Energy and Currency Desk Sidecars](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md)
 - [Part B benchmark source manifest](data/tradingview_benchmark_source_manifest_part_b_20261024.json)
+- [Weekend Oil 50U Position Hypothetical](Weekend%20Oil%2050U%20Position%20Hypothetical.md) — separate Oct. 19 BRENT/USOIL scenario, excluded from the current model aggregate.
 - [Historical Oil Desk EOD Accumulation Hypothetical](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md)
 - [Historical DXY-Equivalent Portfolio Snapshot](DXY-Equivalent%20Portfolio%20Snapshot.md)
 - [`data/energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv)

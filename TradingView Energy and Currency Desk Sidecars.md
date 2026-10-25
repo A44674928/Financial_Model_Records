@@ -17,6 +17,10 @@ For THE ONE MODEL only, the 11U/DAY schedule per active ticker is derived from t
 | 10U | BRENT | $100,000.00 | 23 | $2,300,000.00 | $+225,461.20 | $+5,026.57 |
 | 10U | OIL | $100,000.00 | 32 | $3,200,000.00 | $+275,347.06 | $+6,614.56 |
 
+## One-time Weekend Oil position overlay
+
+A separate hypothetical assumes 50U LONG BRENT and 50U LONG USOIL positions opened at the user-provided TradingView prices on 2026-10-19. This is not part of the standard 0.05U/1U/10U daily-buy schedules, the 10U energy strategy composites, or THE ONE MODEL’s 32-portfolio aggregate. See [`Weekend Oil 50U Position Hypothetical.md`](Weekend%20Oil%2050U%20Position%20Hypothetical.md) for the entry marks, subsequent EOD PnL, source archive, and caveats.
+
 ## DXY currency desk: daily long-investment alternatives
 
 The DXY log has one LONG badge on Sep. 4 at 99.087 (the original post's caption says the dollar weakens, which conflicts with its LONG badge). The logged badge is treated as the activation signal; daily 1U lots follow the latest charted LONG/REBUY/SHORT direction. The 1U/DAY schedule shown here is the same sleeve integrated into each core variant, not an additional allocation to stack on top. Because DXY is an index rather than a directly investable security, this is a hypothetical notional/index-return proxy; no futures/ETF contract, multiplier, collateral, or tracking error is modeled. The logged one-time 1U chart-position result is shown separately and is not part of the daily sleeve.
