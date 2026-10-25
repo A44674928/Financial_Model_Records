@@ -1,19 +1,25 @@
 # TradingView Energy and Currency Desk Sidecars
 
-> **TradingView sidecar schedules — 2026-10-24 benchmark.** Prices use only the user-provided Part A/Part B TradingView lists. 1U = $10,000 notional; displayed daily allocations are 0.05U ($500), 1U ($10,000), and 10U ($100,000). The 1U/DAY/DXY schedule is integrated into every core variant. THE ONE MODEL adds 10U/DAY to every one of its 32 portfolios, for 11U/DAY total; 0.05U remains an alternative. These are hypothetical dollar-notional/index-return exposures, not broker fills or account returns.
+> **TradingView sidecar schedules — 2026-10-24 benchmark.** Prices use only the user-provided Part A/Part B TradingView lists. 1U = $10,000 notional; displayed standard daily allocations are 0.05U ($500), 1U ($10,000), and 10U ($100,000). The 1U/DAY/DXY schedule is integrated into every core variant. THE ONE MODEL adds 10U/DAY DXY to all 32 portfolios (11U/DAY combined), and uses a derived 11U/DAY energy tranche per active BRENT and OIL ticker in its 16 energy-inclusive portfolios. 0.05U DXY remains an alternative. These are hypothetical dollar-notional/index-return exposures, not broker fills or account returns.
 
 ## Energy desk: separate Brent and WTI daily-buy schedules
 
 Each size option adds a fixed-notional long lot at that session's EOD mark beginning with the first logged chart position for the instrument. The purchase-day mark-to-market is zero. Energy-sidecar PnL below includes only the new daily-buy lots; the pre-existing chart position PnL is displayed separately for context and is not counted again in model composites.
 
+For THE ONE MODEL only, the 11U/DAY schedule per active ticker is derived from the audited 10U TradingView energy rows so each active energy tranche matches the model's combined 11U/DAY DXY exposure. The 10U schedule remains the size used in the separate strategy-comparison composites. Derived THE ONE MODEL schedule: [`the_one_model_energy_11u_sidecar_daily_v1.csv`](data/the_one_model_energy_11u_sidecar_daily_v1.csv).
+
 | Daily size | Ticker | Daily notional | Sessions | Cumulative notional added | Daily-buy terminal PnL | Chart-position PnL (separate) |
 |---|---|---:|---:|---:|---:|---:|
-| 0.05U | BRENT | $500.00 | 23 | $11,500.00 | $+1,127.31 | $+5,026.57 |
-| 0.05U | OIL | $500.00 | 32 | $16,000.00 | $+1,376.74 | $+6,614.56 |
-| 1U | BRENT | $10,000.00 | 23 | $230,000.00 | $+22,546.12 | $+5,026.57 |
-| 1U | OIL | $10,000.00 | 32 | $320,000.00 | $+27,534.71 | $+6,614.56 |
-| 10U | BRENT | $100,000.00 | 23 | $2,300,000.00 | $+225,461.20 | $+5,026.57 |
-| 10U | OIL | $100,000.00 | 32 | $3,200,000.00 | $+275,347.06 | $+6,614.56 |
+| 0.05U | BRENT | $500.00 | 23 | $11,500.00 | $+1,127.31 | $+26,327.68 |
+| 0.05U | OIL | $500.00 | 32 | $16,000.00 | $+1,376.74 | $+24,425.55 |
+| 1U | BRENT | $10,000.00 | 23 | $230,000.00 | $+22,546.12 | $+26,327.68 |
+| 1U | OIL | $10,000.00 | 32 | $320,000.00 | $+27,534.71 | $+24,425.55 |
+| 10U | BRENT | $100,000.00 | 23 | $2,300,000.00 | $+225,461.20 | $+26,327.68 |
+| 10U | OIL | $100,000.00 | 32 | $3,200,000.00 | $+275,347.06 | $+24,425.55 |
+
+## One-time Weekend Oil position overlay
+
+The user-specified 50U LONG BRENT and 50U LONG USOIL Manual-Automatic lots opened at the supplied TradingView marks on 2026-10-19, with 10U target trims at $117 and $102 respectively, are integrated in all four core variants and therefore flow into core-based strategy composites and THE ONE MODEL. Their first recorded EOD marks at/above target are on 2026-10-23; intraday touch and execution are unverified. [`Weekend Oil 50U Position Hypothetical.md`](Weekend%20Oil%2050U%20Position%20Hypothetical.md) reports those same lots as an attribution only, not as a separate add-on to the sidecar schedules or aggregate.
 
 ## DXY currency desk: daily long-investment alternatives
 

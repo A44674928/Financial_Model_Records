@@ -81,6 +81,16 @@ class StrategySidecarComparisonTests(unittest.TestCase):
             self.assertEqual(audit(variant, "CAT", "2026-10-19")["direction"], "long")
             self.assertEqual(audit(variant, "CAT", "2026-10-19")["open_lot_count"], 1)
 
+        # The Manual-Automatic target event belongs to the tagged core lot only;
+        # independent 1U/EOD force schedules have no corresponding 50U lot and
+        # therefore must not close their accumulated daily tranches.
+        for variant in ("V1", "V2", "V3A", "V3B"):
+            for ticker in ("BRENT", "OIL"):
+                self.assertEqual(
+                    int(audit(variant, ticker, "2026-10-23")["open_lot_count"]),
+                    int(audit(variant, ticker, "2026-10-22")["open_lot_count"]) + 1,
+                )
+
         terminal = {variant: rows[-1] for variant, rows in daily.items()}
         self.assertEqual(terminal["V1"]["V1_force_1u_cumulative_notional_added_usd"], "6560000.00")
         self.assertEqual(terminal["V2"]["V2_force_1u_pnl_usd"], "125900.58")
@@ -152,8 +162,8 @@ class StrategySidecarComparisonTests(unittest.TestCase):
                 terminal[f"{prefix}_return_on_cumulative_notional_pct"],
                 f"{pnl / notional * 100:.6f}",
             )
-        self.assertEqual(terminal["V1_core_plus_V1_force_1u_and_oil_pnl_usd"], "686180.52")
-        self.assertEqual(terminal["V3A_core_plus_V3A_force_1u_and_oil_pnl_usd"], "728367.13")
+        self.assertEqual(terminal["V1_core_plus_V1_force_1u_and_oil_pnl_usd"], "733296.93")
+        self.assertEqual(terminal["V3A_core_plus_V3A_force_1u_and_oil_pnl_usd"], "775483.54")
         self.assertEqual(terminal["oil_desk_cumulative_notional_usd"], "5500000.00")
         before_oil = next(row for row in rows if row["date"] == "2026-09-09")
         first_oil = next(row for row in rows if row["date"] == "2026-09-10")

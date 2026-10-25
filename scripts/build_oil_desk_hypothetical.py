@@ -2,10 +2,10 @@
 
 For each exact user-supplied energy EOD in `data/energy_provider_eod_marks_v1.csv`
 (the same source consumed by the core replay), the hypothetical buys 10 units at
-that close (one 1U lot) and holds all daily lots through Oct. 23. The
-logged chart positions are shown separately and in the combined energy subtotal.
-This sidecar is intentionally excluded from the four core strategy/DXY account
-bases because it is a separate hypothetical capital deployment.
+that close (one 1U lot) and holds all daily lots through Oct. 23. Logged chart
+positions, including the core-integrated Manual-Automatic weekend-oil lots, are
+shown separately for attribution. This historical sidecar is not an additional
+allocation to core or the downstream core-based portfolios.
 """
 
 import csv
@@ -160,7 +160,7 @@ def write_report(rows=None):
         "",
         "> **Historical sidecar—superseded for current comparisons (2026-10-24).** This legacy v1 schedule uses the prior energy marks and is not the current TradingView-only calculation. The active TradingView energy schedule and DXY sizing/audit table are in [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md). The 1U/DAY/DXY sleeve is already integrated into core variants; 0.05U remains an alternative, while THE ONE MODEL separately adds 10U/DAY DXY to each of its 32 portfolios. Current strategy composites consume the 10U energy rows. Do not use this page's prior numbers as current results.",
         "",
-        "A separate sidecar model layered on top of the existing chart-opened Brent and TVC:USOIL positions. It does not alter the four core strategy definitions or their DXY/yield account bases.",
+        "This archived daily-buy sidecar is separate from the core. Its chart-position series is an attribution of logged chart/core lots, including the 50U Manual-Automatic Weekend Oil entries; those same tagged lots are already included in each core variant and must not be added to core-based composites a second time. The chart-position column shows open-lot unrealized PnL only; the realized trim PnL is recorded in the core replay.",
         "",
         "For the daily position and PnL methodology across all variants and sidecars, see [`Model Calculation Guide.md`](Model%20Calculation%20Guide.md).",
         "",
@@ -190,7 +190,7 @@ def write_report(rows=None):
         "",
         "## Terminal summary — Oct. 23, 2026",
         "",
-        "| Instrument | EOD sessions | Daily-buy units | Daily-buy notional | Daily-buy PnL | Chart units | Chart-position PnL | Combined energy PnL |",
+        "| Instrument | EOD sessions | Daily-buy units | Daily-buy notional | Daily-buy PnL | Chart-open units | Chart-open unrealized PnL | Combined energy PnL |",
         "|---|---:|---:|---:|---:|---:|---:|---:|",
     ])
     chart_lots, _ = build_lots("V1", parse_trades())
@@ -242,7 +242,8 @@ def write_report(rows=None):
         "",
         "Energy source rows: [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv). Active source map: [`active_price_source_registry_v3.csv`](data/active_price_source_registry_v3.csv).",
         "",
-        "This hypothetical is not combined into the main portfolio DXY/yield multiplier views because it has its own daily capital deployment schedule. Applying those factors to the sidecar requires a separate account-capital convention.",
+        "This historical 10U/day-buy schedule is not part of current core-based composites or whole-portfolio DXY/yield multipliers. Its combined energy column includes the chart-lot attribution described above, which is already in core; do not add that contribution again. Applying whole-account factors to the separate daily-buy schedule would require a distinct capital convention.",
+
     ])
     REPORT.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return REPORT

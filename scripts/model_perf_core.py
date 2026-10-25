@@ -160,21 +160,61 @@ def build_lots(variant, events):
         idx = session_index(ev["date"], ev["kind"])
 
         if ev["kind"] == "exit":
-            last_exit_units[sym] = u
-            for lot in lots:
-                if lot["sym"] == sym and lot["side"] == "long" and lot["open"]:
-                    lot["open"] = False
-                    lot["close_idx"] = idx
-                    lot["close_px"] = px
-                    realized.append(
-                        {
-                            "sym": sym,
-                            "idx": idx,
-                            "date": ev["date"],
-                            "qty": lot["qty"],
-                            "pnl": lot["qty"] * UNIT * (px / lot["entry_px"] - 1.0),
-                        }
+            # Tagged Manual-Automatic trims are lot-scoped: unlike generic exits,
+            # they reduce only the explicitly tagged entry and leave every other
+            # open long lot in the ticker untouched. The exit's units are the
+            # quantity trimmed, not a replacement size for the whole position.
+            if "Manual-Automatic target trim" in ev["note"]:
+                remaining = u
+                targets = [
+                    lot for lot in lots
+                    if lot["sym"] == sym and lot["side"] == "long" and lot["open"]
+                    and lot.get("manual_automatic_entry", False)
+                ]
+                for lot in targets:
+                    if remaining <= 1e-12:
+                        break
+                    qty = min(lot["qty"], remaining)
+                    if qty <= 0:
+                        continue
+                    if qty < lot["qty"]:
+                        lot["qty"] -= qty
+                        lot_id += 1
+                        closed = {**lot, "id": lot_id, "qty": qty}
+                        lots.append(closed)
+                    else:
+                        closed = lot
+                    closed["open"] = False
+                    closed["close_idx"] = idx
+                    closed["close_px"] = px
+                    realized.append({
+                        "sym": sym,
+                        "idx": idx,
+                        "date": ev["date"],
+                        "qty": qty,
+                        "pnl": qty * UNIT * (px / closed["entry_px"] - 1.0),
+                    })
+                    remaining -= qty
+                if remaining > 1e-8:
+                    raise ValueError(
+                        f"{sym} Manual-Automatic trim exceeds tagged open units by {remaining:g}"
                     )
+            else:
+                last_exit_units[sym] = u
+                for lot in lots:
+                    if lot["sym"] == sym and lot["side"] == "long" and lot["open"]:
+                        lot["open"] = False
+                        lot["close_idx"] = idx
+                        lot["close_px"] = px
+                        realized.append(
+                            {
+                                "sym": sym,
+                                "idx": idx,
+                                "date": ev["date"],
+                                "qty": lot["qty"],
+                                "pnl": lot["qty"] * UNIT * (px / lot["entry_px"] - 1.0),
+                            }
+                        )
 
         elif ev["tag"] == "SHORT":
             eff = u
@@ -211,6 +251,7 @@ def build_lots(variant, events):
                     "id": lot_id, "sym": sym, "side": "long", "qty": u,
                     "entry_px": px, "entry_idx": idx, "entry_date": ev["date"],
                     "open": True, "close_idx": None, "close_px": None,
+                    "manual_automatic_entry": "Manual-Automatic Entry" in ev["note"],
                 }
             )
 

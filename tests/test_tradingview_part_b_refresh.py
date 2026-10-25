@@ -47,7 +47,7 @@ class TradingViewPartBRefreshTests(unittest.TestCase):
         self.assertEqual(aligned["Close"], "1283.66000000")
         series, _ = all_series()
         i = SESSION_DATES.index("2026-10-20")
-        expected = {"V1": 916.96, "V2": 623.64, "V3A": 1617.74, "V3B": 623.64}
+        expected = {"V1": -575.22, "V2": -868.55, "V3A": 125.56, "V3B": -868.55}
         for variant, model in series.items():
             delta = model["total"][i] - model["total"][i - 1]
             self.assertAlmostEqual(delta, expected[variant], places=2)

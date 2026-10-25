@@ -4,8 +4,9 @@
 This is an audit utility, separate from the report builders. It rebuilds the
 four core books including the chart-directed 1U/DAY/DXY sleeve, four
 variant-specific 1U/EOD books, shared 1U/EOD book, and fixed-$500/EOD book;
-then checks them against generated exports and all 32 composites, including the
-10U/DAY DXY sidecar added to every THE ONE MODEL portfolio.
+then checks them against generated exports and all 32 THE ONE MODEL portfolios,
+including the 10U/DAY DXY add-on and the 11U/DAY energy schedule in the 16
+energy-inclusive portfolios.
 Run with: PYTHONPATH=scripts python3 scripts/audit_actionable_tickers.py
 """
 
@@ -48,6 +49,35 @@ def _close_lots(lots, ticker, side, price, day_idx, realized_by_ticker, realized
             lot["realized_pnl"] = pnl
             realized_by_ticker[ticker] += pnl
             realized_by_day[day_idx] += pnl
+
+
+def _close_manual_auto_lots(lots, ticker, qty, price, day_idx, realized_by_ticker, realized_by_day):
+    """Independently apply the user-tagged trim only to Manual-Automatic lots."""
+    remaining = float(qty)
+    targets = [
+        lot for lot in lots[ticker]
+        if lot["open"] and lot["side"] == "long" and lot.get("manual_automatic_entry", False)
+    ]
+    for lot in targets:
+        if remaining <= 1e-12:
+            break
+        closed_qty = min(lot["units"], remaining)
+        if closed_qty < lot["units"]:
+            lot["units"] -= closed_qty
+            closed = {**lot, "units": closed_qty}
+            lots[ticker].append(closed)
+        else:
+            closed = lot
+        pnl = closed_qty * UNIT * (price / closed["entry_price"] - 1.0)
+        closed["open"] = False
+        closed["close_idx"] = day_idx
+        closed["close_price"] = price
+        closed["realized_pnl"] = pnl
+        realized_by_ticker[ticker] += pnl
+        realized_by_day[day_idx] += pnl
+        remaining -= closed_qty
+    if remaining > 1e-8:
+        raise AssertionError(f"{ticker} Manual-Automatic trim exceeds tagged open units by {remaining:g}")
 
 
 def _dxy_daily_lots_from_export():
@@ -97,9 +127,15 @@ def _core_replay(variant, events):
         if idx >= len(SESSION_DATES):
             continue
         if event["kind"] == "exit":
-            last_exit_units[ticker] = float(event["units"])
-            _close_lots(lots, ticker, "long", float(event["px"]), idx,
-                        realized_by_ticker, realized_by_day)
+            if "Manual-Automatic target trim" in event["note"]:
+                _close_manual_auto_lots(
+                    lots, ticker, float(event["units"]), float(event["px"]), idx,
+                    realized_by_ticker, realized_by_day,
+                )
+            else:
+                last_exit_units[ticker] = float(event["units"])
+                _close_lots(lots, ticker, "long", float(event["px"]), idx,
+                            realized_by_ticker, realized_by_day)
         elif event["tag"] == "SHORT":
             units = float(event["units"])
             if natural and "Compounded short" in event["note"] and last_exit_units.get(ticker, 0) > 1:
@@ -118,6 +154,7 @@ def _core_replay(variant, events):
                 "entry_price": float(event["px"]), "entry_idx": idx,
                 "close_idx": None, "close_price": None, "open": True,
                 "realized_pnl": 0.0,
+                "manual_automatic_entry": "Manual-Automatic Entry" in event["note"],
             })
 
     dxy_lots, dxy_realized = _dxy_daily_lots_from_export()
@@ -181,6 +218,8 @@ def _variant_force_replay(variant, events):
         for event in by_day.get(day, []):
             ticker = event["sym"]
             if event["kind"] == "exit":
+                if "Manual-Automatic target trim" in event["note"]:
+                    continue
                 last_exit_units[ticker] = float(event["units"])
                 _close_lots(lots, ticker, "long", float(event["px"]), idx,
                             realized_by_ticker, realized_by_day)
@@ -569,6 +608,28 @@ def _audit_composites(core_daily, force_daily, shared_daily, fixed_daily):
         oil_added_by_day[day] = last_added
         oil_open_by_day[day] = last_open
 
+    energy_11_rows = _read_csv(DATA / "the_one_model_energy_11u_sidecar_daily_v1.csv")
+    if len(energy_11_rows) != 55 or any(float(row["unit_size_u"]) != 11.0 for row in energy_11_rows):
+        raise AssertionError("THE ONE MODEL energy sidecar must contain 55 rows at 11U per active ticker")
+    if any(abs(float(row["daily_buy_units"]) - 11.0) > CENT_TOL for row in energy_11_rows):
+        raise AssertionError("THE ONE MODEL energy daily tranches must be 11U per active ticker")
+    energy_11u_by_day = defaultdict(list)
+    for energy_row in energy_11_rows:
+        energy_11u_by_day[energy_row["date"]].append(energy_row)
+    energy_11u_pnl_by_day = {}
+    energy_11u_added_by_day = {}
+    energy_11u_open_by_day = {}
+    last_pnl = last_added = last_open = 0.0
+    for day in SESSION_DATES:
+        if day in energy_11u_by_day:
+            day_rows = energy_11u_by_day[day]
+            last_pnl = sum(float(row["daily_buys_unrealized_pnl_usd"]) for row in day_rows)
+            last_added = sum(float(row["cumulative_daily_buy_notional_usd"]) for row in day_rows)
+            last_open = last_added
+        energy_11u_pnl_by_day[day] = last_pnl
+        energy_11u_added_by_day[day] = last_added
+        energy_11u_open_by_day[day] = last_open
+
     aggregate_rows = _read_csv(DATA / "the_one_model_split_portfolios_v1.csv")
     if len(aggregate_rows) != len(SESSION_DATES):
         raise AssertionError("THE ONE MODEL aggregate has an unexpected row count")
@@ -593,19 +654,23 @@ def _audit_composites(core_daily, force_daily, shared_daily, fixed_daily):
                     actual_pnl = float(row[f"{prefix}{suffix}_pnl_usd"])
                     actual_added = float(row[f"{prefix}{suffix}_cumulative_notional_usd"])
                     actual_open = float(row[f"{prefix}{suffix}_open_notional_usd"])
-                    # Match the public composite's documented presentation boundary:
-                    # force and oil input series are stored to cents before addition.
-                    expected_pnl = round(core["total"] + float(f"{force['total']:.2f}"), 2)
-                    if with_oil:
-                        expected_pnl = round(expected_pnl + oil_pnl_by_day[day], 2)
-                    expected_added = core["deployed"] + force["added"] + (oil_added_by_day[day] if with_oil else 0.0)
-                    expected_open = core["open_notional"] + force["open_notional"] + (oil_open_by_day[day] if with_oil else 0.0)
-                    _close(actual_pnl, expected_pnl, f"composite {prefix}{suffix} {day}", tol=0.03)
-                    _close(actual_added, expected_added, f"composite additions {prefix}{suffix} {day}", tol=0.02)
-                    _close(actual_open, expected_open, f"composite open notional {prefix}{suffix} {day}", tol=0.02)
-                    aggregate_pnl += expected_pnl
-                    aggregate_added += expected_added
-                    aggregate_open += expected_open
+                    # Strategy-comparison exports retain their existing 10U
+                    # energy scope; THE ONE MODEL replaces that with 11U per
+                    # active ticker in its 16 energy-inclusive portfolios.
+                    base_pnl = round(core["total"] + float(f"{force['total']:.2f}"), 2)
+                    strategy_pnl = round(base_pnl + oil_pnl_by_day[day], 2) if with_oil else base_pnl
+                    strategy_added = core["deployed"] + force["added"] + (oil_added_by_day[day] if with_oil else 0.0)
+                    strategy_open = core["open_notional"] + force["open_notional"] + (oil_open_by_day[day] if with_oil else 0.0)
+                    _close(actual_pnl, strategy_pnl, f"strategy composite {prefix}{suffix} {day}", tol=0.03)
+                    _close(actual_added, strategy_added, f"strategy composite additions {prefix}{suffix} {day}", tol=0.02)
+                    _close(actual_open, strategy_open, f"strategy composite open notional {prefix}{suffix} {day}", tol=0.02)
+
+                    model_pnl = round(base_pnl + (energy_11u_pnl_by_day[day] if with_oil else 0.0), 2)
+                    model_added = core["deployed"] + force["added"] + (energy_11u_added_by_day[day] if with_oil else 0.0)
+                    model_open = core["open_notional"] + force["open_notional"] + (energy_11u_open_by_day[day] if with_oil else 0.0)
+                    aggregate_pnl += model_pnl
+                    aggregate_added += model_added
+                    aggregate_open += model_open
         aggregate_pnl += 32 * dxy_pnl
         aggregate_added += 32 * dxy_added
         aggregate_open += 32 * dxy_open

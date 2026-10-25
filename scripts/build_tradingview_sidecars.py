@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Build TradingView-based energy schedules and DXY currency-desk alternatives.
 
-Energy sizes are standalone. The 1U/DAY/DXY index-return schedule is integrated
-into each core variant; THE ONE MODEL separately adds the 10U schedule to each
-of its 32 portfolios (11U/DAY total), while 0.05U remains an alternative. Other
-strategy-comparison scopes are unchanged. DXY is a non-equity index mark, not a listed security/contract.
+The standard energy schedules and strategy comparisons retain their 10U size.
+THE ONE MODEL uses a derived 11U/DAY energy schedule per active BRENT and OIL
+ticker in its 16 energy-inclusive portfolios, matching combined 11U/DAY DXY
+exposure. DXY's 1U/DAY core sleeve plus 10U/DAY add-on remains unchanged.
+DXY is a non-equity index mark, not a listed security/contract.
 """
 
 import csv
@@ -301,11 +302,14 @@ def write_report(oil_rows, dxy_rows):
     lines = [
         "# TradingView Energy and Currency Desk Sidecars",
         "",
-        "> **TradingView sidecar schedules — 2026-10-24 benchmark.** Prices use only the user-provided Part A/Part B TradingView lists. 1U = $10,000 notional; displayed daily allocations are 0.05U ($500), 1U ($10,000), and 10U ($100,000). The 1U/DAY/DXY schedule is integrated into every core variant. THE ONE MODEL adds 10U/DAY to every one of its 32 portfolios, for 11U/DAY total; 0.05U remains an alternative. These are hypothetical dollar-notional/index-return exposures, not broker fills or account returns.",
+        "> **TradingView sidecar schedules — 2026-10-24 benchmark.** Prices use only the user-provided Part A/Part B TradingView lists. 1U = $10,000 notional; displayed standard daily allocations are 0.05U ($500), 1U ($10,000), and 10U ($100,000). The 1U/DAY/DXY schedule is integrated into every core variant. THE ONE MODEL adds 10U/DAY DXY to all 32 portfolios (11U/DAY combined), and uses a derived 11U/DAY energy tranche per active BRENT and OIL ticker in its 16 energy-inclusive portfolios. 0.05U DXY remains an alternative. These are hypothetical dollar-notional/index-return exposures, not broker fills or account returns.",
+
         "",
         "## Energy desk: separate Brent and WTI daily-buy schedules",
         "",
         "Each size option adds a fixed-notional long lot at that session's EOD mark beginning with the first logged chart position for the instrument. The purchase-day mark-to-market is zero. Energy-sidecar PnL below includes only the new daily-buy lots; the pre-existing chart position PnL is displayed separately for context and is not counted again in model composites.",
+        "",
+        "For THE ONE MODEL only, the 11U/DAY schedule per active ticker is derived from the audited 10U TradingView energy rows so each active energy tranche matches the model's combined 11U/DAY DXY exposure. The 10U schedule remains the size used in the separate strategy-comparison composites. Derived THE ONE MODEL schedule: [`the_one_model_energy_11u_sidecar_daily_v1.csv`](data/the_one_model_energy_11u_sidecar_daily_v1.csv).",
         "",
         "| Daily size | Ticker | Daily notional | Sessions | Cumulative notional added | Daily-buy terminal PnL | Chart-position PnL (separate) |",
         "|---|---|---:|---:|---:|---:|---:|",
@@ -319,6 +323,11 @@ def write_report(oil_rows, dxy_rows):
             f"${float(last['chart_positions_unrealized_pnl_usd']):+,.2f} |"
         )
     lines.extend([
+        "",
+        "## One-time Weekend Oil position overlay",
+        "",
+        "The user-specified 50U LONG BRENT and 50U LONG USOIL Manual-Automatic lots opened at the supplied TradingView marks on 2026-10-19, with 10U target trims at $117 and $102 respectively, are integrated in all four core variants and therefore flow into core-based strategy composites and THE ONE MODEL. Their first recorded EOD marks at/above target are on 2026-10-23; intraday touch and execution are unverified. [`Weekend Oil 50U Position Hypothetical.md`](Weekend%20Oil%2050U%20Position%20Hypothetical.md) reports those same lots as an attribution only, not as a separate add-on to the sidecar schedules or aggregate.",
+
         "",
         "## DXY currency desk: daily long-investment alternatives",
         "",

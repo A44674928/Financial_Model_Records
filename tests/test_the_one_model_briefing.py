@@ -38,17 +38,17 @@ class TheOneModelBriefingTests(unittest.TestCase):
             self.assertEqual(sum(p["core_variant"] == core and p["oil_sidecar_included"] for p in portfolios), 4)
 
     def test_aggregate_totals_reconcile_to_all_32_independent_portfolios(self):
-        portfolios, rows = split_model.build_rows()
+        portfolios, rows, energy_11u_rows = split_model.build_rows()
         summary = split_model.build_summary(portfolios, rows)
         self.assertEqual(len(rows), 36)
         self.assertEqual(summary["period_start"], "2026-09-03")
         self.assertEqual(summary["period_end"], "2026-10-23")
         self.assertEqual(summary["portfolio_count"], 32)
-        self.assertEqual(summary["aggregate_terminal_pnl_usd"], "15188681.68")
-        self.assertEqual(summary["aggregate_cumulative_gross_notional_added_usd"], "450080000.00")
-        self.assertEqual(summary["aggregate_gross_open_notional_usd"], "415200000.00")
-        self.assertEqual(summary["aggregate_deployed_notional_ratio_pct"], "3.374663")
-        self.assertEqual(summary["aggregate_max_peak_to_trough_pnl_drawdown_usd"], "1673192.56")
+        self.assertEqual(summary["aggregate_terminal_pnl_usd"], "17497700.08")
+        self.assertEqual(summary["aggregate_cumulative_gross_notional_added_usd"], "490880000.00")
+        self.assertEqual(summary["aggregate_gross_open_notional_usd"], "449600000.00")
+        self.assertEqual(summary["aggregate_deployed_notional_ratio_pct"], "3.564558")
+        self.assertEqual(summary["aggregate_max_peak_to_trough_pnl_drawdown_usd"], "1786528.08")
         self.assertEqual(summary["aggregate_max_drawdown_peak_date"], "2026-09-28")
         self.assertEqual(summary["aggregate_max_drawdown_trough_date"], "2026-09-29")
         self.assertEqual(summary["dxy_10u_sidecar_terminal_pnl_per_portfolio_usd"], "24923.03")
@@ -62,6 +62,17 @@ class TheOneModelBriefingTests(unittest.TestCase):
         self.assertEqual(summary["combined_dxy_cumulative_notional_per_portfolio_usd"], "3850000.00")
         self.assertEqual(summary["aggregate_combined_dxy_terminal_pnl_usd"], "877290.56")
         self.assertEqual(summary["aggregate_combined_dxy_cumulative_notional_usd"], "123200000.00")
+        self.assertEqual(summary["energy_sidecar_minimum_units_per_active_ticker_eod"], 11)
+        self.assertEqual(summary["energy_sidecar_included_portfolios"], 16)
+        self.assertEqual(summary["energy_sidecar_excluded_portfolios"], 16)
+        self.assertEqual(summary["energy_11u_sidecar_terminal_pnl_per_energy_inclusive_portfolio_usd"], "550889.09")
+        self.assertEqual(summary["energy_11u_sidecar_notional_added_per_energy_inclusive_portfolio_usd"], "6050000.00")
+        self.assertEqual(summary["aggregate_energy_11u_sidecar_terminal_pnl_usd"], "8814225.44")
+        self.assertEqual(summary["aggregate_energy_11u_sidecar_notional_added_usd"], "96800000.00")
+        self.assertEqual(len(energy_11u_rows), 55)
+        self.assertEqual({row["unit_size_label"] for row in energy_11u_rows}, {"11U"})
+        self.assertEqual(sum(row["ticker"] == "BRENT" for row in energy_11u_rows), 23)
+        self.assertEqual(sum(row["ticker"] == "OIL" for row in energy_11u_rows), 32)
         self.assertEqual(summary["profitable_portfolios_at_terminal"], 32)
         self.assertEqual(
             sum(Decimal(p["terminal_pnl_usd"]) for p in summary["individual_portfolios"]),
@@ -79,27 +90,36 @@ class TheOneModelBriefingTests(unittest.TestCase):
             self.assertTrue(portfolio["dxy_10u_sidecar_included"])
             self.assertEqual(rows[-1][f"{portfolio['portfolio_id']}__dxy_10u_sidecar_notional_added_usd"], "3500000.00")
             self.assertEqual(rows[-1][f"{portfolio['portfolio_id']}__dxy_10u_sidecar_pnl_usd"], "24923.03")
+            expected_energy_u = 11 if portfolio["oil_sidecar_included"] else 0
+            self.assertEqual(portfolio["energy_sidecar_unit_size_u"], expected_energy_u)
+            self.assertEqual(
+                rows[-1][f"{portfolio['portfolio_id']}__energy_11u_sidecar_notional_added_usd"],
+                "6050000.00" if expected_energy_u else "0.00",
+            )
 
     def test_aggregate_results_and_full_table_are_disclosed(self):
         self.assertIn("Current-model snapshot — TradingView benchmark through 2026-10-23", self.briefing)
         self.assertIn("32 independently tracked portfolios", self.briefing)
-        self.assertIn("$15,188,681.68", self.briefing)
-        self.assertIn("$450,080,000.00", self.briefing)
-        self.assertIn("$415,200,000.00", self.briefing)
-        self.assertIn("3.3747%", self.briefing)
-        self.assertIn("$1,673,192.56", self.briefing)
-        self.assertIn("11U/DAY total per portfolio", self.briefing)
-        self.assertIn("$797,536.96", self.briefing)
-        self.assertIn("$112,000,000.00", self.briefing)
+        self.assertIn("$17,497,700.08", self.briefing)
+        self.assertIn("$490,880,000.00", self.briefing)
+        self.assertIn("$449,600,000.00", self.briefing)
+        self.assertIn("3.564558%", self.briefing)
+        self.assertIn("$1,786,528.08", self.briefing)
+        self.assertIn("11U/DAY total", self.briefing)
+        self.assertIn("$27,415.33", self.briefing)
+        self.assertIn("$3,850,000.00", self.briefing)
+        self.assertIn("11U/DAY per active BRENT and OIL ticker", self.briefing)
+        self.assertIn("$550,889.09", self.briefing)
+        self.assertIn("$96,800,000.00", self.briefing)
         self.assertIn("Terminal statistics for all 32 portfolios", self.briefing)
         self.assertIn("the_one_model_split_portfolios_v1.csv", self.briefing)
         self.assertIn("the_one_model_split_portfolios_v1_summary.json", self.briefing)
         self.assertIn("All **16 Core × 1U/EOD pairings**", self.briefing)
-        self.assertIn("35 daily lots, $350,000 gross notional added, and +$2,492.30 terminal proxy PnL per core variant", self.briefing)
+        self.assertIn("35 daily lots; $350,000 gross notional added; +$2,492.30 terminal proxy PnL", self.briefing)
         self.assertIn("LLY's Oct. 20 close to $1,283.66", self.briefing)
-        self.assertIn("Core V1 — 1U Open | $+58,191.29 | $1,165,000.00", self.briefing)
-        self.assertIn("Core V3A — Nu Open | $+79,474.78 | $1,255,000.00", self.briefing)
-        self.assertIn("Oct. 20 core daily PnL changes are V1 +$916.96, V2 +$623.64, V3A +$1,617.74, and V3B +$623.64", self.briefing)
+        self.assertIn("Core V1 — 1U Open | $+105,307.70 | $2,165,000.00", self.briefing)
+        self.assertIn("Core V3A — Nu Open | $+126,591.19 | $2,255,000.00", self.briefing)
+        self.assertIn("Oct. 20 core daily net PnL changes, including the Manual-Automatic oil positions, are V1 -$575.22, V2 -$868.55, V3A +$125.56, and V3B -$868.55", self.briefing)
         self.assertIn("0.05U/DAY | +$124.62 | $17,500.00", self.briefing)
         self.assertIn("10U/DAY | +$24,923.03 | $3,500,000.00", self.briefing)
         self.assertNotIn("$12,393,481.92", self.briefing)
@@ -107,18 +127,18 @@ class TheOneModelBriefingTests(unittest.TestCase):
         table_end = self.briefing.index("\n\nFull daily audit series:", table_start)
         table_rows = [line for line in self.briefing[table_start:table_end].splitlines() if line.startswith("| V")]
         self.assertEqual(len(table_rows), 32)
-        self.assertEqual({"| V1 | V1 | No |" in self.briefing, "| V3B | V3B | Yes |" in self.briefing}, {True})
+        self.assertEqual({"| V1 | V1 | No |" in self.briefing, "| V3B | V3B | 11U/DAY |" in self.briefing}, {True})
         for portfolio in self.summary["individual_portfolios"]:
-            energy = "Yes" if portfolio["oil_sidecar_included"] else "No"
+            energy = "11U/DAY" if portfolio["oil_sidecar_included"] else "No"
             expected = (
                 f"| {portfolio['core_variant']} | {portfolio['variant_specific_1u_eod_variant']} | {energy} | Yes | 11U/DAY | "
                 f"${float(portfolio['terminal_pnl_usd']):,.2f} | "
                 f"${float(portfolio['cumulative_gross_notional_added_usd']):,.2f} | "
                 f"${float(portfolio['gross_open_notional_usd']):,.2f} | "
-                f"{float(portfolio['deployed_notional_ratio_pct']):.4f}% |"
+                f"{float(portfolio['deployed_notional_ratio_pct']):.6f}% |"
             )
             self.assertIn(expected, table_rows)
-        self.assertIn("V3A Core + V3A 1U/EOD with the energy sidecar", self.briefing)
+        self.assertIn("V3A Core + V3A 1U/EOD with the 11U energy sidecar", self.briefing)
         self.assertNotIn("10U DXY schedules are also separate alternatives and are excluded", self.briefing)
         self.assertIn("11U/DAY", self.briefing)
         self.assertIn("35 daily 1U core lots plus 35 daily 10U sidecar lots", self.briefing)

@@ -100,7 +100,7 @@ def main():
         ("16 CROSS-VARIANT PAIRS",
          "Every Core × 1U/EOD pairing\n\nIncludes matching and cross-variant pairs"),
         ("2 ENERGY SIDECAR STATES PER PAIR",
-         "One portfolio without the sidecar\nOne separate portfolio with the\n10U TradingView energy schedule"),
+         "One portfolio without the sidecar\nOne separate portfolio with the\n11U/DAY energy schedule per active ticker"),
         ("32 SEPARATE PORTFOLIOS",
          "16 pairings × 2 energy-sidecar states\n\nEach also adds 10U/DAY DXY to core's\nintegrated 1U/DAY schedule (11U total)"),
     ]
