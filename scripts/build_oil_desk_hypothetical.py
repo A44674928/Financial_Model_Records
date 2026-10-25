@@ -158,6 +158,8 @@ def write_report(rows=None):
     lines = [
         "# Oil Desk EOD Accumulation Hypothetical",
         "",
+        "> **Historical sidecar—superseded for current comparisons (2026-10-24).** This legacy v1 schedule uses the prior energy marks and is not the current TradingView-only calculation. The active TradingView energy schedule and DXY sizing/audit table are in [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md). The 1U/DAY/DXY sleeve is already integrated into core variants; 0.05U remains an alternative, while THE ONE MODEL separately adds 10U/DAY DXY to each of its 32 portfolios. Current strategy composites consume the 10U energy rows. Do not use this page's prior numbers as current results.",
+        "",
         "A separate sidecar model layered on top of the existing chart-opened Brent and TVC:USOIL positions. It does not alter the four core strategy definitions or their DXY/yield account bases.",
         "",
         "For the daily position and PnL methodology across all variants and sidecars, see [`Model Calculation Guide.md`](Model%20Calculation%20Guide.md).",
@@ -238,7 +240,7 @@ def write_report(rows=None):
         "",
         f"Session-level lots and PnL: [`{OUTPUT.name}`](data/{OUTPUT.name}).",
         "",
-        "Energy source rows: [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv). Active source map: [`active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv).",
+        "Energy source rows: [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv). Active source map: [`active_price_source_registry_v3.csv`](data/active_price_source_registry_v3.csv).",
         "",
         "This hypothetical is not combined into the main portfolio DXY/yield multiplier views because it has its own daily capital deployment schedule. Applying those factors to the sidecar requires a separate account-capital convention.",
     ])

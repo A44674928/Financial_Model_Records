@@ -3,7 +3,7 @@
 The "Exponential" and "Force Multiplier" labels follow the user's naming. Each
 model adds a fixed-notional tranche per EOD: $500 for Exponential and 1U for Force Multiplier. The latest LONG/SHORT/REBUY trade-log direction
 carries forward; when it changes, opposite open lots close at that day's EOD.
-Oil-desk composites add only its daily-buy lots because chart positions already
+Energy-sidecar composites add only its daily-buy lots because chart positions already
 exist in the core books.
 """
 
@@ -26,10 +26,9 @@ from model_perf_core import (
     all_series,
     parse_trades,
 )
-from build_oil_desk_hypothetical import build_rows as build_oil_rows
-
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
+ENERGY_SIDECAR_CSV = DATA / "tradingview_energy_sidecar_daily_20261024.csv"
 CHARTS = ROOT / "Charts" / "performance"
 DAILY_CSV = DATA / "strategy_sidecar_comparison_daily_v1.csv"
 POSITION_CSV = DATA / "exponential_eod_positions_v1.csv"
@@ -319,10 +318,13 @@ def variant_force_multiplier_daily_model(variant, events=None):
 
 
 def oil_sidecar_daily_pnl():
-    """Return carried daily-buy PnL and exposure; chart lots are excluded."""
+    """Return the 10U TradingView energy schedule PnL/exposure; exclude chart lots."""
     pnl_marks = defaultdict(float)
     notional_marks = defaultdict(float)
-    rows = build_oil_rows()
+    with ENERGY_SIDECAR_CSV.open(newline="", encoding="utf-8") as handle:
+        rows = [row for row in csv.DictReader(handle) if float(row["unit_size_u"]) == 10.0]
+    if not rows:
+        raise ValueError(f"No 10U records found in {ENERGY_SIDECAR_CSV}")
     for row in rows:
         day = row["date"]
         pnl_marks[day] += float(row["daily_buys_unrealized_pnl_usd"])
@@ -503,9 +505,9 @@ def write_chart(rows):
         ("Standalone models and sidecar combinations", [
             ("Exponential — 500 USD/EOD", exp, EXP_COLOR),
             ("Force multiplier — 1U/EOD", force, FORCE_COLOR),
-            ("Oil-desk daily buys", oil, OIL_COLOR),
-            ("500 USD model + oil buys", exp_oil, "#a3e635"),
-            ("1U model + oil buys", force_oil, BOTH_COLOR),
+            ("10U TradingView energy sidecar", oil, OIL_COLOR),
+            ("500 USD model + energy sidecar", exp_oil, "#a3e635"),
+            ("1U model + energy sidecar", force_oil, BOTH_COLOR),
         ]),
         ("Each core variant + 500 USD exponential model", [
             (f"{VARIANT_LABEL[v]} + 500 USD", exp_composites[v], VARIANT_COLORS[v]) for v in VARIANTS
@@ -513,14 +515,14 @@ def write_chart(rows):
         ("Each core variant + 1U force multiplier", [
             (f"{VARIANT_LABEL[v]} + 1U", force_composites[v], VARIANT_COLORS[v]) for v in VARIANTS
         ]),
-        ("Each core variant + oil-desk daily-buy sidecar", [
-            (f"{VARIANT_LABEL[v]} + oil desk", oil_composites[v], VARIANT_COLORS[v]) for v in VARIANTS
+        ("Each core variant + 10U TradingView energy sidecar", [
+            (f"{VARIANT_LABEL[v]} + energy desk", oil_composites[v], VARIANT_COLORS[v]) for v in VARIANTS
         ]),
-        ("Each core variant + 500 USD model + oil-desk daily buys", [
-            (f"{VARIANT_LABEL[v]} + 500 USD + oil", exp_oil_composites[v], VARIANT_COLORS[v]) for v in VARIANTS
+        ("Each core variant + 500 USD model + 10U TradingView energy daily buys", [
+            (f"{VARIANT_LABEL[v]} + 500 USD + energy sidecar", exp_oil_composites[v], VARIANT_COLORS[v]) for v in VARIANTS
         ]),
-        ("Each core variant + 1U force multiplier + oil-desk daily buys", [
-            (f"{VARIANT_LABEL[v]} + 1U + oil", force_oil_composites[v], VARIANT_COLORS[v]) for v in VARIANTS
+        ("Each core variant + 1U force multiplier + 10U TradingView energy daily buys", [
+            (f"{VARIANT_LABEL[v]} + 1U + energy sidecar", force_oil_composites[v], VARIANT_COLORS[v]) for v in VARIANTS
         ]),
         ("Drawdown from running PnL peak — core and direction-following models", [
             (VARIANT_LABEL[v], drawdown_lines[v], VARIANT_COLORS[v]) for v in VARIANTS
@@ -544,7 +546,7 @@ def write_chart(rows):
         ax.legend(facecolor="#0d131e", edgecolor="#26344a", labelcolor="#edf2f7", fontsize=8, ncol=3 if len(lines) > 4 else 2)
     axes[-1].set_xlabel("EOD session date", color="#edf2f7")
     axes[-1].tick_params(axis="x", rotation=25)
-    fig.suptitle("Core Variants, 500 USD Exponential Model, 1U Force Multiplier, and Oil Sidecar", color="#edf2f7", fontsize=15)
+    fig.suptitle("Core Variants, 500 USD Exponential Model, 1U Force Multiplier, and TradingView Energy Sidecar", color="#edf2f7", fontsize=15)
     fig.tight_layout(rect=(0, 0, 1, 0.97))
     fig.savefig(GRAPH, dpi=150, facecolor=fig.get_facecolor(), bbox_inches="tight")
     plt.close(fig)
@@ -552,7 +554,7 @@ def write_chart(rows):
 
 
 def write_variant_chart(rows):
-    """Plot every core-variant x 1U-variant pairing with the oil sidecar."""
+    """Plot every core-variant x 1U-variant pairing with the energy sidecar."""
     CHARTS.mkdir(parents=True, exist_ok=True)
     dates = [row["date"] for row in rows]
     fig, axes = plt.subplots(len(VARIANTS), 1, figsize=(16, 16), sharex=True, sharey=True)
@@ -574,7 +576,7 @@ def write_variant_chart(rows):
                 color=VARIANT_COLORS[force_variant],
                 linewidth=2.2 if matching else 1.7,
                 linestyle="-" if matching else "--",
-                label=f"{force_variant} 1U + oil{pairing}",
+                label=f"{force_variant} 1U + energy sidecar{pairing}",
             )
         ax.axhline(0, color="#93a4bd", linewidth=0.8)
         ax.set_title(
@@ -588,7 +590,7 @@ def write_variant_chart(rows):
     axes[-1].set_xlabel("EOD session date", color="#edf2f7")
     axes[-1].tick_params(axis="x", rotation=25)
     fig.suptitle(
-        "All Core Variant × 1U Force Variant Pairings + Oil Sidecar",
+        "All Core Variant × 1U Force Variant Pairings + TradingView Energy Sidecar",
         color="#edf2f7",
         fontsize=15,
     )
@@ -616,7 +618,7 @@ def percent_gain_scenarios(rows):
                     "field": field,
                     "name": (
                         f"Core {core_variant} + 1U {force_variant} "
-                        f"{'with oil' if with_oil else 'no oil'}"
+                        f"{'with energy sidecar' if with_oil else 'without energy sidecar'}"
                     ),
                     "terminal_pct": float(last[field]) if last[field] else float("-inf"),
                 })
@@ -624,7 +626,7 @@ def percent_gain_scenarios(rows):
 
 
 def write_percent_gain_chart(rows):
-    """Plot all 32 core/1U pairings, with oil and no-oil variants."""
+    """Plot all 32 core/1U pairings, with and without the energy sidecar."""
     CHARTS.mkdir(parents=True, exist_ok=True)
     dates = [row["date"] for row in rows]
     ranked = percent_gain_scenarios(rows)
@@ -699,7 +701,7 @@ def write_percent_gain_chart(rows):
     fig.text(
         0.5,
         0.925,
-        "All 32 lines are shown; gray lines are other pairings. Solid = no oil, dashed = oil sidecar. "
+        "All 32 lines are shown; gray lines are other pairings. Solid = no energy sidecar, dashed = energy sidecar included. "
         "Only the top four terminal gain ratios are named.",
         color="#bdc8d8",
         ha="center",
@@ -720,6 +722,9 @@ def write_report(rows):
     lines = [
         "# Strategy and Sidecar Comparison",
         "",
+        "> **TradingView-only interim refresh — 2026-10-24.** Core comparisons use 31 supplied direct-price symbols plus the chart-directed 1U/DAY/DXY index-return sleeve integrated into each core variant; BTC/ETH are excluded pending recalibration. The energy add-on below uses the independently published 10U daily-buy schedule from the same TradingView benchmark. XRH0 includes five flagged carry-forward marks; see the benchmark coverage and session-mark files.",
+        "> **Updated Part B source:** the revised user-provided archive corrects LLY's Oct. 20 close to `$1,283.66`, superseding the prior `$12,833.66` row; all strategy/core figures below use the revised mark.",
+        "",
         "![Core models, both direction-following model sizes, and sidecar combinations](Charts/performance/20-strategy-sidecar-comparison.png)",
         "",
         "Calculation detail for the core variants and daily lot rules: [`Model Calculation Guide.md`](Model%20Calculation%20Guide.md).",
@@ -731,8 +736,8 @@ def write_report(rows):
         "- **Shared-direction force multiplier (1U/EOD):** one 1U tranche per symbol with a carried direction each priced EOD; close all prior lots at the EOD mark on any LONG/SHORT flip. This remains a separate alternative to the $500 model.",
         "- **Variant-specific 1U/EOD force family:** four separate daily-addition replays apply V1, V2, V3A, or V3B position handling to the 1U schedule. Explicit EXIT/TAKE PROFIT records close open long lots at their logged prices in all four; the carried direction remains active, so the scheduled EOD addition still occurs. V1/V3A leave opposite-side lots open on direction changes. V2/V3B cover shorts on LONG/REBUY at the logged signal price; as in the core implementation, SHORT does not close open longs. A qualifying V3A/V3B compounded-short entry uses the preceding full-exit unit count for that event-day tranche only; subsequent carried days return to 1U additions.",
         "- **Signal timing:** direction-bearing LONG/SHORT/REBUY events map to the first priced session on or after their log date; the last directional event for a ticker on that session selects the EOD addition direction. EXIT / TAKE PROFIT rows do not clear carried direction. No separate authorization feed exists.",
-        "- **Additive comparisons:** core models are shown with shared $500/1U add-ons and oil; variant-specific force models are shown alone, with oil, and in all 16 core-variant × 1U-variant pairings plus oil. Matching and cross-variant combinations are included. These are separately modeled PnL/notional sums: do not net positions or capital, duplicate core chart-opened energy positions in the oil sidecar, or stack alternative force models or variant rules.",
-        "- Universe: all 33 directly price-covered core tickers; DXY, EURUSD, JPYUSD, US10Y, and US30Y are outside this price-position comparison.",
+        "- **Additive comparisons:** each core base already contains the 1U/DAY/DXY index-return sleeve. The comparison adds shared $500/1U alternatives and the 10U TradingView energy schedule; variant-specific force models are shown alone, with energy, and in all 16 core-variant × 1U-variant pairings plus energy. Matching and cross-variant combinations are included. Do not add the DXY 1U sleeve a second time, net positions/capital, duplicate chart-opened energy positions, or stack alternative force models or variant rules.",
+        "- Universe: all 31 directly price-covered TradingView core tickers plus DXY as an integrated index-return sleeve; BTC/ETH are pending recalibration, and EURUSD, JPYUSD, US10Y, and US30Y are outside this portfolio comparison.",
         "",
         "## Standalone model and sidecar terminal comparison — Oct. 23, 2026",
         "",
@@ -742,9 +747,9 @@ def write_report(rows):
     standalone = [
         ("Exponential — fixed $500/EOD", float(last["exponential_500_pnl_usd"]), float(last["exponential_cumulative_notional_added_usd"]), float(last["exponential_open_notional_usd"])),
         ("Shared-direction force — 1U per EOD", float(last["force_multiplier_1u_pnl_usd"]), float(last["force_multiplier_cumulative_notional_added_usd"]), float(last["force_multiplier_open_notional_usd"])),
-        ("Oil-desk daily-buy add-on", float(last["oil_desk_daily_buy_pnl_usd"]), float(last["oil_desk_cumulative_notional_usd"]), float(last["oil_desk_open_notional_usd"])),
-        ("$500 model + oil daily buys", float(last["exponential_500_plus_oil_pnl_usd"]), float(last["exponential_500_plus_oil_cumulative_notional_usd"]), float(last["exponential_500_plus_oil_open_notional_usd"])),
-        ("1U model + oil daily buys", float(last["force_multiplier_plus_oil_pnl_usd"]), float(last["force_multiplier_plus_oil_cumulative_notional_usd"]), float(last["force_multiplier_plus_oil_open_notional_usd"])),
+        ("10U TradingView energy daily-buy sidecar", float(last["oil_desk_daily_buy_pnl_usd"]), float(last["oil_desk_cumulative_notional_usd"]), float(last["oil_desk_open_notional_usd"])),
+        ("$500 model + 10U energy sidecar", float(last["exponential_500_plus_oil_pnl_usd"]), float(last["exponential_500_plus_oil_cumulative_notional_usd"]), float(last["exponential_500_plus_oil_open_notional_usd"])),
+        ("1U model + 10U energy sidecar", float(last["force_multiplier_plus_oil_pnl_usd"]), float(last["force_multiplier_plus_oil_cumulative_notional_usd"]), float(last["force_multiplier_plus_oil_open_notional_usd"])),
     ]
     for name, pnl, added, open_notional in standalone:
         lines.append(f"| {name} | ${pnl:+,.2f} | ${added:,.2f} | ${open_notional:,.2f} |")
@@ -753,13 +758,13 @@ def write_report(rows):
         "",
         f"The $500 model ends at **${float(last['exponential_500_pnl_usd']):+,.2f}** (realized ${exp_realized:+,.2f}; unrealized ${exp_unrealized:+,.2f}). The shared-direction 1U force model ends at **${float(last['force_multiplier_1u_pnl_usd']):+,.2f}** (realized ${force_realized:+,.2f}; unrealized ${force_unrealized:+,.2f}). With identical direction state and no tranche compounding, its PnL and exposure are 20× the $500 model before display rounding.",
         "",
-        "## Variant-specific 1U/EOD force models and oil combinations — terminal",
+        "## Variant-specific 1U/EOD force models and energy combinations — terminal",
         "",
-        "The four separate 1U/EOD models apply V1, V2, V3A, or V3B exit/SAR/short-compounding behavior. The oil sidecar contributes only its daily-buy PnL and gross notional. The graph below covers all 16 core-variant × 1U-variant pairings; each panel fixes the core variant and plots all four 1U models. Matching pairings are labeled, while the cross-variant pairings expose alternative position-management combinations.",
+        "The four separate 1U/EOD models apply V1, V2, V3A, or V3B exit/SAR/short-compounding behavior. The energy sidecar contributes only its daily-buy PnL and gross notional. The graph below covers all 16 core-variant × 1U-variant pairings; each panel fixes the core variant and plots all four 1U models. Matching pairings are labeled, while the cross-variant pairings expose alternative position-management combinations.",
         "",
-        "All composite PnL/notional figures are additive USD totals. Positions and capital are not netted, and energy chart-opened core positions are not duplicated in the sidecar.",
+        "The generated CSV retains legacy `oil` suffixes for compatibility; these now refer to the 10U TradingView energy schedule. All composite PnL/notional figures are additive USD totals. Positions and capital are not netted, and energy chart-opened core positions are not duplicated in the sidecar.",
         "",
-        "![All core variant and 1U force variant pairings with oil sidecar](Charts/performance/21-force-variant-oil-comparison.png)",
+        "![All core variant and 1U force variant pairings with energy sidecar](Charts/performance/21-force-variant-oil-comparison.png)",
         "",
         "| 1U/EOD variant rule | Standalone force PnL | Cumulative notional added | Open notional |",
         "|---|---:|---:|---:|",
@@ -772,25 +777,25 @@ def write_report(rows):
         )
     lines.extend([
         "",
-        "| 1U/EOD variant rule | Force model + oil PnL | Combined cumulative notional | Combined open notional |",
+        "| 1U/EOD variant rule | Force model + energy PnL | Combined cumulative notional | Combined open notional |",
         "|---|---:|---:|---:|",
     ])
     for variant in VARIANTS:
         lines.append(
-            f"| {VARIANT_LABEL[variant]} + oil | ${float(last[f'{variant}_force_1u_plus_oil_pnl_usd']):+,.2f} | "
+            f"| {VARIANT_LABEL[variant]} + energy | ${float(last[f'{variant}_force_1u_plus_oil_pnl_usd']):+,.2f} | "
             f"${float(last[f'{variant}_force_1u_plus_oil_cumulative_notional_usd']):,.2f} | "
             f"${float(last[f'{variant}_force_1u_plus_oil_open_notional_usd']):,.2f} |"
         )
     lines.extend([
         "",
-        "## All core + 1U force variant pairings + oil — terminal",
+        "## All core + 1U force variant pairings + 10U energy schedule — terminal",
         "",
     ])
     for core_variant in VARIANTS:
         lines.extend([
             f"### Core {core_variant} — {VARIANT_LABEL[core_variant]}",
             "",
-            f"Core PnL: **${float(last[f'{core_variant}_core_pnl_usd']):+,.2f}**; oil sidecar PnL: **${float(last['oil_desk_daily_buy_pnl_usd']):+,.2f}**.",
+            f"Core PnL: **${float(last[f'{core_variant}_core_pnl_usd']):+,.2f}**; energy sidecar PnL: **${float(last['oil_desk_daily_buy_pnl_usd']):+,.2f}**.",
             "",
             "| 1U/EOD force variant | Pairing | Force PnL | Composite PnL | Gross cumulative notional | Gross open notional |",
             "|---|---|---:|---:|---:|---:|",
@@ -810,11 +815,11 @@ def write_report(rows):
         "",
         "## Percent gain across all 32 combinations",
         "",
-        "Percent gain is cumulative composite PnL divided by cumulative gross notional added, expressed as a percentage. It is a deployed-notional ratio, not an account return or capital-normalized ROI. The chart plots all 16 core × 1U variant pairings both without oil and with the oil daily-buy sidecar (32 lines total). Solid lines omit oil; dashed lines include oil. The top four terminal gain ratios are named in the legend; the other 28 pairings remain visible in gray.",
+        "Percent gain is cumulative composite PnL divided by cumulative gross notional added, expressed as a percentage. It is a deployed-notional ratio, not an account return or capital-normalized ROI. The chart plots all 16 core × 1U variant pairings both without energy and with the 10U TradingView energy daily-buy sidecar (32 lines total). Solid lines omit energy; dashed lines include the energy sidecar. The top four terminal gain ratios are named in the legend; the other 28 pairings remain visible in gray.",
         "",
-        "![All 32 core and 1U variant pairings with and without oil, shown as percentage gain](Charts/performance/22-force-variant-oil-percent-gain.png)",
+        "![All 32 core and 1U variant pairings with and without energy, shown as percentage gain](Charts/performance/22-force-variant-oil-percent-gain.png)",
         "",
-        "| Rank | Pairing | Oil sidecar | Terminal gain on cumulative notional added |",
+        "| Rank | Pairing | 10U energy sidecar | Terminal gain on cumulative notional added |",
         "|---:|---|---|---:|",
     ])
     for rank, scenario in enumerate(percent_gain_scenarios(rows)[:4], 1):
@@ -826,7 +831,7 @@ def write_report(rows):
         "",
         "## Core variants with add-ons — terminal PnL",
         "",
-        "| Core variant | Core only | + $500 model | + 1U force multiplier | + oil desk | + $500 and oil | + force multiplier and oil |",
+        "| Core variant | Core only | + $500 model | + 1U force multiplier | + energy desk | + $500 and energy | + force multiplier and energy |",
         "|---|---:|---:|---:|---:|---:|---:|",
     ])
     for variant in VARIANTS:
@@ -840,7 +845,7 @@ def write_report(rows):
         )
     lines.extend([
         "",
-        "The oil desk sidecar alone adds **$499,705.92** on $5.5M of daily-buy notional, so its scale can dominate the raw-PnL composite panels. Use the cumulative/open notional columns and the drawdown panel when comparing risk and scale; these composites do not apply a common capital base.",
+        f"The standalone 10U TradingView energy schedule ends at **${float(last['oil_desk_daily_buy_pnl_usd']):+,.2f}** on **${float(last['oil_desk_cumulative_notional_usd']):,.2f}** cumulative daily-buy notional. Use the notional columns when comparing scale; these additive composites do not apply a common capital base.",
         "",
         "## Data and output files",
         "",
@@ -848,9 +853,9 @@ def write_report(rows):
         "- Exponential $500 per-symbol EOD audit: [`exponential_eod_positions_v1.csv`](data/exponential_eod_positions_v1.csv).",
         "- Shared-direction force model audit: [`force_multiplier_eod_positions_v1.csv`](data/force_multiplier_eod_positions_v1.csv).",
         "- Variant-specific 1U EOD position audit: [`force_multiplier_variant_eod_positions_v1.csv`](data/force_multiplier_variant_eod_positions_v1.csv).",
-        "- Percent-gain chart for all 32 core/1U pairings with and without oil: [`22-force-variant-oil-percent-gain.png`](Charts/performance/22-force-variant-oil-percent-gain.png).",
-        "- Price source map: [`active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv); exact energy closes: [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv).",
-        "- Core models: [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md). Oil sidecar assumptions and source rows: [`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md).",
+        "- Percent-gain chart for all 32 core/1U pairings with and without energy: [`22-force-variant-oil-percent-gain.png`](Charts/performance/22-force-variant-oil-percent-gain.png).",
+        "- Price source map: [`tradingview_benchmark_session_marks_20261024.csv`](data/tradingview_benchmark_session_marks_20261024.csv); sidecar schedule: [`tradingview_energy_sidecar_daily_20261024.csv`](data/tradingview_energy_sidecar_daily_20261024.csv).",
+        "- Core models: [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md). Energy schedule and DXY sizing/audit alternatives: [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md).",
         "",
         "**Scope note:** new direction-following models and composites are unadjusted USD PnL comparisons; they are not included in the existing whole-portfolio DXY/yield account scenarios. This historical paper-trade replay is not a live system, risk forecast, or investment recommendation.",
     ])

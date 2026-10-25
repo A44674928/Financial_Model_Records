@@ -2,8 +2,9 @@
 """Aggregate the 32 independent THE ONE MODEL split portfolios.
 
 The 32 portfolios are all 4 x 4 Core/variant-specific-1U-EOD pairings, each
-run separately with and without its own exact-mark oil sidecar. No capital,
-positions, or risk is netted across portfolios.
+run separately with and without its own 10U TradingView energy sidecar. Every
+portfolio also adds the 10U/DAY DXY sleeve on top of the 1U/DAY DXY sleeve
+already in core (11U/DAY total). No capital, positions, or risk is netted.
 """
 import csv
 import json
@@ -19,6 +20,7 @@ from matplotlib.ticker import FuncFormatter
 
 ROOT = Path(__file__).resolve().parents[1]
 INPUT = ROOT / "data" / "strategy_sidecar_comparison_daily_v1.csv"
+DXY_SIDECAR_INPUT = ROOT / "data" / "dxy_currency_desk_sidecar_daily_20261024.csv"
 CSV_OUT = ROOT / "data" / "the_one_model_split_portfolios_v1.csv"
 JSON_OUT = ROOT / "data" / "the_one_model_split_portfolios_v1_summary.json"
 CHART_OUT = ROOT / "Charts" / "superstructure" / "the-one-model-split-portfolio.png"
@@ -42,6 +44,7 @@ def portfolio_definitions():
                     "core_variant": core,
                     "one_unit_eod_variant": force,
                     "oil_sidecar_included": oil,
+                    "dxy_10u_sidecar_included": True,
                     "source_prefix": prefix,
                 })
     return portfolios
@@ -80,6 +83,14 @@ def build_rows():
         source_rows = list(csv.DictReader(handle))
     if not source_rows:
         raise ValueError(f"No source rows in {INPUT}")
+    with DXY_SIDECAR_INPUT.open(newline="", encoding="utf-8") as handle:
+        dxy_rows = [row for row in csv.DictReader(handle) if float(row["unit_size_u"]) == 10.0]
+    if len(dxy_rows) != 35:
+        raise ValueError(f"Expected 35 daily rows for the 10U DXY sidecar, found {len(dxy_rows)}")
+    dxy_by_date = {row["date"]: row for row in dxy_rows}
+    source_dates = [row["date"] for row in source_rows]
+    if set(dxy_by_date) != set(source_dates[1:]) or source_dates[0] in dxy_by_date:
+        raise ValueError("The 10U DXY schedule must cover every active session after the opening comparison date")
     portfolios = portfolio_definitions()
     output_rows = []
     oil_key = "oil_desk_daily_buy_pnl_usd"
@@ -87,33 +98,53 @@ def build_rows():
     oil_open_key = "oil_desk_open_notional_usd"
 
     for source in source_rows:
-        row = {"date": source["date"]}
+        day = source["date"]
+        dxy_row = dxy_by_date.get(day)
+        dxy_pnl = Decimal(dxy_row["daily_investment_unrealized_pnl_usd"]) if dxy_row else Decimal("0")
+        dxy_added = Decimal(dxy_row["cumulative_notional_added_usd"]) if dxy_row else Decimal("0")
+        dxy_open = Decimal(dxy_row["open_notional_usd"]) if dxy_row else Decimal("0")
+        row = {"date": day}
         aggregate_pnl = Decimal("0")
         aggregate_added = Decimal("0")
         aggregate_open = Decimal("0")
+        aggregate_dxy_pnl = Decimal("0")
+        aggregate_dxy_added = Decimal("0")
+        aggregate_dxy_open = Decimal("0")
         for portfolio in portfolios:
             prefix = portfolio["source_prefix"]
-            pnl = dec(source, f"{prefix}_pnl_usd")
-            added = dec(source, f"{prefix}_cumulative_notional_usd")
-            opened = dec(source, f"{prefix}_open_notional_usd")
+            source_pnl = dec(source, f"{prefix}_pnl_usd")
+            source_added = dec(source, f"{prefix}_cumulative_notional_usd")
+            source_open = dec(source, f"{prefix}_open_notional_usd")
             if portfolio["oil_sidecar_included"]:
                 base = prefix.removesuffix("_and_oil")
                 checks = (
-                    (pnl, dec(source, f"{base}_pnl_usd") + dec(source, oil_key), "PnL"),
-                    (added, dec(source, f"{base}_cumulative_notional_usd") + dec(source, oil_notional_key), "notional added"),
-                    (opened, dec(source, f"{base}_open_notional_usd") + dec(source, oil_open_key), "open notional"),
+                    (source_pnl, dec(source, f"{base}_pnl_usd") + dec(source, oil_key), "PnL"),
+                    (source_added, dec(source, f"{base}_cumulative_notional_usd") + dec(source, oil_notional_key), "notional added"),
+                    (source_open, dec(source, f"{base}_open_notional_usd") + dec(source, oil_open_key), "open notional"),
                 )
                 for actual, expected, label in checks:
                     if abs(actual - expected) > Decimal("0.01"):
-                        raise ValueError(f"Oil sleeve {label} does not reconcile for {portfolio['portfolio_id']} on {source['date']}")
+                        raise ValueError(f"Energy sleeve {label} does not reconcile for {portfolio['portfolio_id']} on {day}")
+            pnl = source_pnl + dxy_pnl
+            added = source_added + dxy_added
+            opened = source_open + dxy_open
             ratio = pnl / added * Decimal("100") if added else Decimal("0")
             row[f"{portfolio['portfolio_id']}__pnl_usd"] = f"{pnl:.2f}"
             row[f"{portfolio['portfolio_id']}__cumulative_notional_added_usd"] = f"{added:.2f}"
             row[f"{portfolio['portfolio_id']}__open_notional_usd"] = f"{opened:.2f}"
             row[f"{portfolio['portfolio_id']}__deployed_notional_ratio_pct"] = f"{ratio:.6f}"
+            row[f"{portfolio['portfolio_id']}__dxy_10u_sidecar_pnl_usd"] = f"{dxy_pnl:.2f}"
+            row[f"{portfolio['portfolio_id']}__dxy_10u_sidecar_notional_added_usd"] = f"{dxy_added:.2f}"
+            row[f"{portfolio['portfolio_id']}__dxy_10u_sidecar_open_notional_usd"] = f"{dxy_open:.2f}"
             aggregate_pnl += pnl
             aggregate_added += added
             aggregate_open += opened
+            aggregate_dxy_pnl += dxy_pnl
+            aggregate_dxy_added += dxy_added
+            aggregate_dxy_open += dxy_open
+        row["aggregate_dxy_10u_sidecar_pnl_usd"] = f"{aggregate_dxy_pnl:.2f}"
+        row["aggregate_dxy_10u_sidecar_notional_added_usd"] = f"{aggregate_dxy_added:.2f}"
+        row["aggregate_dxy_10u_sidecar_open_notional_usd"] = f"{aggregate_dxy_open:.2f}"
         row["aggregate_pnl_usd"] = f"{aggregate_pnl:.2f}"
         row["aggregate_cumulative_notional_added_usd"] = f"{aggregate_added:.2f}"
         row["aggregate_open_notional_usd"] = f"{aggregate_open:.2f}"
@@ -134,12 +165,26 @@ def build_summary(portfolios, rows):
         pnl = Decimal(last[pnl_field])
         added = Decimal(last[f"{portfolio_id}__cumulative_notional_added_usd"])
         opened = Decimal(last[f"{portfolio_id}__open_notional_usd"])
+        dxy_sidecar_pnl = Decimal(last[f"{portfolio_id}__dxy_10u_sidecar_pnl_usd"])
+        dxy_sidecar_added = Decimal(last[f"{portfolio_id}__dxy_10u_sidecar_notional_added_usd"])
+        dxy_sidecar_open = Decimal(last[f"{portfolio_id}__dxy_10u_sidecar_open_notional_usd"])
+        integrated_dxy_1u_pnl = dxy_sidecar_pnl / Decimal("10")
+        integrated_dxy_1u_added = dxy_sidecar_added / Decimal("10")
         dd = _max_drawdown(rows, pnl_field)
         details.append({
             "portfolio_id": portfolio_id,
             "core_variant": portfolio["core_variant"],
             "variant_specific_1u_eod_variant": portfolio["one_unit_eod_variant"],
             "oil_sidecar_included": portfolio["oil_sidecar_included"],
+            "dxy_10u_sidecar_included": portfolio["dxy_10u_sidecar_included"],
+            "dxy_10u_sidecar_terminal_pnl_usd": f"{dxy_sidecar_pnl:.2f}",
+            "dxy_10u_sidecar_cumulative_notional_added_usd": f"{dxy_sidecar_added:.2f}",
+            "dxy_10u_sidecar_gross_open_notional_usd": f"{dxy_sidecar_open:.2f}",
+            "integrated_core_dxy_1u_terminal_pnl_usd": f"{integrated_dxy_1u_pnl:.2f}",
+            "integrated_core_dxy_1u_cumulative_notional_added_usd": f"{integrated_dxy_1u_added:.2f}",
+            "combined_dxy_terminal_pnl_usd": f"{dxy_sidecar_pnl + integrated_dxy_1u_pnl:.2f}",
+            "combined_dxy_cumulative_notional_added_usd": f"{dxy_sidecar_added + integrated_dxy_1u_added:.2f}",
+            "combined_dxy_units_per_active_eod": 11,
             "terminal_pnl_usd": f"{pnl:.2f}",
             "cumulative_gross_notional_added_usd": f"{added:.2f}",
             "gross_open_notional_usd": f"{opened:.2f}",
@@ -157,15 +202,32 @@ def build_summary(portfolios, rows):
     terminal_open = Decimal(last["aggregate_open_notional_usd"])
     pnl_values = sorted(Decimal(item["terminal_pnl_usd"]) for item in details)
     median = (pnl_values[15] + pnl_values[16]) / Decimal("2")
+    first_portfolio_id = portfolios[0]["portfolio_id"]
+    first_detail = details[0]
+    combined_dxy_pnl = Decimal(first_detail["combined_dxy_terminal_pnl_usd"])
+    combined_dxy_added = Decimal(first_detail["combined_dxy_cumulative_notional_added_usd"])
     summary = {
         "label": "THE ONE MODEL — 32 independent split portfolios",
         "period_start": rows[0]["date"],
         "period_end": last["date"],
         "sessions": len(rows),
         "portfolio_count": len(portfolios),
-        "construction": "4 Core variants x 4 variant-specific 1U/EOD variants x 2 oil-sidecar states (without oil / with exact-mark oil sidecar)",
+        "construction": "4 Core variants x 4 variant-specific 1U/EOD variants x 2 energy-sidecar states; all 32 portfolios also add a 10U/DAY DXY sidecar on top of the integrated 1U/DAY DXY core sleeve (11U/DAY total)",
         "portfolio_funding_and_netting": "Each of the 32 is modeled as an independent portfolio. PnL and gross exposure are summed; positions, risk, and capital are not netted or shared.",
-        "oil_sidecar_treatment": "Oil is included once in each of the 16 with-oil portfolios; the 16 repetitions represent distinct funded portfolios, not one sidecar counted twice within a portfolio.",
+        "oil_sidecar_treatment": "The 10U TradingView energy sidecar is included once in each of the 16 energy-inclusive portfolios; these represent distinct funded portfolios, not double counting within one portfolio.",
+        "dxy_sidecar_treatment": "Each of the 32 portfolios adds the 10U/DAY DXY schedule to the integrated 1U/DAY DXY sleeve in its core, for 11U/DAY total. The 0.05U DXY alternative is excluded.",
+        "dxy_10u_sidecar_terminal_pnl_per_portfolio_usd": f"{Decimal(last[first_portfolio_id + '__dxy_10u_sidecar_pnl_usd']):.2f}",
+        "dxy_10u_sidecar_notional_added_per_portfolio_usd": f"{Decimal(last[first_portfolio_id + '__dxy_10u_sidecar_notional_added_usd']):.2f}",
+        "aggregate_dxy_10u_sidecar_terminal_pnl_usd": f"{Decimal(last['aggregate_dxy_10u_sidecar_pnl_usd']):.2f}",
+        "aggregate_dxy_10u_sidecar_notional_added_usd": f"{Decimal(last['aggregate_dxy_10u_sidecar_notional_added_usd']):.2f}",
+        "aggregate_dxy_10u_sidecar_gross_open_notional_usd": f"{Decimal(last['aggregate_dxy_10u_sidecar_open_notional_usd']):.2f}",
+        "combined_dxy_units_per_active_eod_per_portfolio": 11,
+        "integrated_core_dxy_1u_terminal_pnl_per_portfolio_usd": first_detail["integrated_core_dxy_1u_terminal_pnl_usd"],
+        "integrated_core_dxy_1u_notional_added_per_portfolio_usd": first_detail["integrated_core_dxy_1u_cumulative_notional_added_usd"],
+        "combined_dxy_cumulative_notional_per_portfolio_usd": f"{combined_dxy_added:.2f}",
+        "combined_dxy_terminal_pnl_per_portfolio_usd": f"{combined_dxy_pnl:.2f}",
+        "aggregate_combined_dxy_cumulative_notional_usd": f"{combined_dxy_added * Decimal(len(portfolios)):.2f}",
+        "aggregate_combined_dxy_terminal_pnl_usd": f"{combined_dxy_pnl * Decimal(len(portfolios)):.2f}",
         "aggregate_terminal_pnl_usd": f"{terminal_pnl:.2f}",
         "aggregate_cumulative_gross_notional_added_usd": f"{terminal_added:.2f}",
         "aggregate_gross_open_notional_usd": f"{terminal_open:.2f}",
@@ -197,8 +259,14 @@ def write_outputs(portfolios, rows, summary):
             f"{prefix}__cumulative_notional_added_usd",
             f"{prefix}__open_notional_usd",
             f"{prefix}__deployed_notional_ratio_pct",
+            f"{prefix}__dxy_10u_sidecar_pnl_usd",
+            f"{prefix}__dxy_10u_sidecar_notional_added_usd",
+            f"{prefix}__dxy_10u_sidecar_open_notional_usd",
         ])
     fields.extend([
+        "aggregate_dxy_10u_sidecar_pnl_usd",
+        "aggregate_dxy_10u_sidecar_notional_added_usd",
+        "aggregate_dxy_10u_sidecar_open_notional_usd",
         "aggregate_pnl_usd",
         "aggregate_cumulative_notional_added_usd",
         "aggregate_open_notional_usd",
@@ -272,8 +340,8 @@ def write_chart(rows, summary):
     fig.autofmt_xdate(rotation=0, ha="center")
     fig.text(
         0.5, 0.012,
-        "Sep 3–Oct 23, 2026 · 36 sessions · 4×4 Core/1U-EOD pairings, each with and without oil · "
-        "independent gross portfolios; no netting · deployed-notional ratio, not account return · costs/execution not fully modeled",
+        "Sep 3–Oct 23, 2026 · 36 sessions · 32 independent portfolios · each adds 10U/DAY DXY to the core's 1U/DAY (11U total) · "
+        "energy sidecar in 16 portfolios · no netting · deployed-notional ratio, not account return · costs/execution not fully modeled",
         color=muted, fontsize=7.8, ha="center",
     )
     fig.tight_layout(rect=(0.015, 0.045, 0.99, 0.985))

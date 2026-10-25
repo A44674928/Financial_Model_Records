@@ -1,0 +1,32 @@
+Ticker,Coverage_Status,Source_File,Source_Row_Count,Comparison_Session_Rows,Missing_Comparison_Sessions,First_Provided_Date,Last_Provided_Date,2026-10-23_Close,Source
+AAPL,missing_user_price_list,,0,0,all 36 sessions (no supplied list),,,,Awaiting user-provided ticker data; not to be substituted
+AMZN,missing_user_price_list,,0,0,all 36 sessions (no supplied list),,,,Awaiting user-provided ticker data; not to be substituted
+BRENT,complete_for_comparison_sessions,BRENT PRICE LIST (TRADINGVIEW).rtf,39,36,,2026-09-01,2026-10-23,117.34500000,User-provided TradingView price list
+CAT,complete_for_comparison_sessions,CAT PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,687.00000000,User-provided TradingView price list
+CVX,missing_user_price_list,,0,0,all 36 sessions (no supplied list),,,,Awaiting user-provided ticker data; not to be substituted
+DIS,missing_user_price_list,,0,0,all 36 sessions (no supplied list),,,,Awaiting user-provided ticker data; not to be substituted
+GEV,complete_for_comparison_sessions,GEV PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,815.00000000,User-provided TradingView price list
+HD,complete_for_comparison_sessions,HD PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,319.83000000,User-provided TradingView price list
+INTC,complete_for_comparison_sessions,INTC PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,86.96000000,User-provided TradingView price list
+LCID,complete_for_comparison_sessions,LCID PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,3.52000000,User-provided TradingView price list
+LLY,missing_user_price_list,,0,0,all 36 sessions (no supplied list),,,,Awaiting user-provided ticker data; not to be substituted
+LMT,complete_for_comparison_sessions,LMT PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,604.18000000,User-provided TradingView price list
+LULU,complete_for_comparison_sessions,LULU PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,99.01000000,User-provided TradingView price list
+META,complete_for_comparison_sessions,META PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,642.62000000,User-provided TradingView price list
+NET,missing_user_price_list,,0,0,all 36 sessions (no supplied list),,,,Awaiting user-provided ticker data; not to be substituted
+NFLX,missing_user_price_list,,0,0,all 36 sessions (no supplied list),,,,Awaiting user-provided ticker data; not to be substituted
+NVDA,missing_user_price_list,,0,0,all 36 sessions (no supplied list),,,,Awaiting user-provided ticker data; not to be substituted
+OIL,complete_for_comparison_sessions,USOIL PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,103.45000000,User-provided TradingView price list
+ORCL,complete_for_comparison_sessions,ORCL PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,126.16000000,User-provided TradingView price list
+PEP,missing_user_price_list,,0,0,all 36 sessions (no supplied list),,,,Awaiting user-provided ticker data; not to be substituted
+PLTR,complete_for_comparison_sessions,PLTR PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,196.75000000,User-provided TradingView price list
+RIVN,missing_user_price_list,,0,0,all 36 sessions (no supplied list),,,,Awaiting user-provided ticker data; not to be substituted
+SPCX,complete_for_comparison_sessions,SPCX PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,147.49000000,User-provided TradingView price list
+TMO,missing_user_price_list,,0,0,all 36 sessions (no supplied list),,,,Awaiting user-provided ticker data; not to be substituted
+TSLA,complete_for_comparison_sessions,TSLA PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,372.22000000,User-provided TradingView price list
+UPS,missing_user_price_list,,0,0,all 36 sessions (no supplied list),,,,Awaiting user-provided ticker data; not to be substituted
+V,missing_user_price_list,,0,0,all 36 sessions (no supplied list),,,,Awaiting user-provided ticker data; not to be substituted
+VLO,complete_for_comparison_sessions,VLO PRICE CHART (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,419.28000000,User-provided TradingView price list
+WMT,missing_user_price_list,,0,0,all 36 sessions (no supplied list),,,,Awaiting user-provided ticker data; not to be substituted
+XLE,missing_user_price_list,,0,0,all 36 sessions (no supplied list),,,,Awaiting user-provided ticker data; not to be substituted
+XRH0,missing_user_price_list,,0,0,all 36 sessions (no supplied list),,,,Awaiting user-provided ticker data; not to be substituted

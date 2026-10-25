@@ -99,10 +99,10 @@ def main():
          "V1 · V2 · V3A · V3B\n\nFour separate 1U/EOD model paths"),
         ("16 CROSS-VARIANT PAIRS",
          "Every Core × 1U/EOD pairing\n\nIncludes matching and cross-variant pairs"),
-        ("2 OIL STATES PER PAIR",
-         "One portfolio without oil\nOne separate portfolio with the\nexact-mark oil daily-buy sidecar"),
+        ("2 ENERGY SIDECAR STATES PER PAIR",
+         "One portfolio without the sidecar\nOne separate portfolio with the\n10U TradingView energy schedule"),
         ("32 SEPARATE PORTFOLIOS",
-         "16 pairings × 2 oil states\n\nEach has its own gross positions,\nnotional, and capital requirement"),
+         "16 pairings × 2 energy-sidecar states\n\nEach also adds 10U/DAY DXY to core's\nintegrated 1U/DAY schedule (11U total)"),
     ]
     for i, (x, (title, body)) in enumerate(zip(top_x, boxes)):
         add_box(ax, x, top_y, top_w, top_h, title, body,
@@ -120,8 +120,8 @@ def main():
         ax, 0.62, 2.35, 6.95, 1.68,
         "32 INDEPENDENT LEDGERS",
         "Track each portfolio’s PnL, gross notional added, open notional, and drawdown separately.\n"
-        "No positions, capital, or risk are netted. Oil is included once in each with-oil portfolio\n"
-        "(16 separately allocated oil sleeves across the split strategy).",
+        "No positions, capital, or risk are netted. The energy sidecar is included once in each\n"
+        "of the 16 separately funded energy-inclusive portfolios.",
         BLUE, PANEL_BLUE, title_size=10, body_size=8.5, body_y_offset=0.53,
     )
     add_box(
@@ -146,7 +146,7 @@ def main():
             "The percentage is a deployed-notional ratio, not an account return. Aggregate totals assume distinct funding for all 32 portfolios.",
             ha="center", va="center", color=FG, fontsize=8.8)
     ax.text(8, 0.91,
-            "Fixed-$500/EOD and shared-direction 1U/EOD models are not added to these portfolios. DXY, yield/CPI adjustments, and options are excluded.",
+            "Every portfolio includes core 1U/DAY plus 10U/DAY DXY (11U total); 0.05U, numeraire, yield/CPI, and options are excluded.",
             ha="center", va="center", color=MUTED, fontsize=8.4)
     ax.text(8, 0.53,
             "Hypothetical model output—not brokerage executions or a verified account track record. Trading costs and execution are not fully modeled.",

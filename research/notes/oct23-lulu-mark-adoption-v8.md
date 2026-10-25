@@ -1,0 +1,13 @@
+# Oct. 23 LULU mark adoption — v7 to v8
+
+> **Historical price-source decision — not the active benchmark for the TradingView interim recalculation.** This note documents an earlier Yahoo endpoint approval and its v7-to-v8 outputs. Current model results use only the supplied Part A/Part B TradingView lists; do not combine these legacy v8 figures with current results.
+
+The preserved live Yahoo Finance chart-endpoint audit records LULU's 2026-10-23 daily close as **$99.01** (`data/multi_source_portfolio_live_yahoo_endpoint_check.csv`; endpoint URL and competing marks are retained there). The prior active v7 close set carried $265.30. After explicit user approval, the $99.01 mark is adopted in the immutable successor close set `data/consolidated_portfolio_closes_v8.csv`; v7 remains unchanged.
+
+The active source registry successor is `data/active_price_source_registry_v3.csv`. The full 35-row reconciliation is `data/eod_close_reconciliation_20261023_v7_to_v8.csv`; LULU is the sole price/source change. Historical marks through Oct. 22, all trades, 1U sizing, variant event logic, and exact user-provided energy EOD marks are unchanged. The V3A LULU lot is one long 1U ($10,000 notional) entered Sep. 17 at $95.96. At $99.01, its Oct. 23 unrealized PnL is $317.84 (`$10,000 × (99.01 / 95.96 − 1)`), down $17,329.10 from the v7 mark-derived result.
+
+## Independent reconciliation of the downstream 32-portfolio change
+
+The 32-portfolio terminal aggregate changes from **$27,155,856.32** (v7) to **$12,393,481.92** (v8), a **-$14,762,374.40** change. This is not just the single core LULU lot: every variant-specific 1U/EOD force schedule carries **27** LULU long tranches from Sep. 17 through Oct. 23. The final-day tranche is opened at that day's mark and therefore has zero terminal PnL; the other **26** lots are re-marked from $265.30 to $99.01. Recomputing those 26 lots individually from the unchanged historical EOD entry marks gives force-model LULU unrealized PnL of $448,352.28 at v7 versus $4,357.18 at v8, or **-$443,995.10** (one variant's independently rounded total differs by $0.01).
+
+At cent precision, the four core-model terminal changes sum to **-$69,316.39**; the four variant-specific 1U/EOD force-model terminal changes sum to **-$1,775,980.41**. Each core variant and each force variant appears in eight of the 32 separately funded pairings (four cross-pairings × with/without oil), while the oil sleeve itself is unchanged. Thus `8 × (-$69,316.39 - $1,775,980.41) = -$14,762,374.40`, exactly reconciling the aggregate. Gross notional added remains $350,880,000.00; the updated ratio is $12,393,481.92 / $350,880,000.00 = **3.532114%**.

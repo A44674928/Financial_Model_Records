@@ -2,7 +2,7 @@
 """Daily closing prices for the *Fall (Arizona) [2026]* paper-trade book.
 
 Historical Yahoo Finance daily series through 2026-10-22, extended by the
-active Oct. 23 consolidated EOD close set in `data/consolidated_portfolio_closes_v7.csv`.
+active Oct. 23 consolidated EOD close set in `data/consolidated_portfolio_closes_v8.csv`.
 Exact user-provided BlackBull Brent Cash EOD marks replace the Brent proxy from Sep. 23,
 and exact user-provided TradingView TVC:USOIL marks replace the WTI proxy from Sep. 10.
 Before those active-position ranges, BZ=F/CL=F remain labeled historical context proxies.
@@ -231,7 +231,7 @@ import csv as _csv
 from datetime import datetime as _datetime, timezone as _timezone
 from pathlib import Path as _Path
 
-OCT23_EOD_FILE = _Path(__file__).resolve().parents[1] / "data" / "consolidated_portfolio_closes_v7.csv"
+OCT23_EOD_FILE = _Path(__file__).resolve().parents[1] / "data" / "consolidated_portfolio_closes_v8.csv"
 OCT23_EOD_DATE = "2026-10-23"
 _OCT23_EQUITY_OPEN_UTC = 1792762200  # 06:30 MST / 13:30 UTC
 _OCT23_MARKS = {}

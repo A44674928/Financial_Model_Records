@@ -1,3 +1,5 @@
+> **Historical and superseded:** this note records the preceding v7 energy-mark adoption; v8 was its successor but is also no longer the active benchmark. Current direct-price model results use only the user-provided Part A/Part B TradingView lists. See [Model Performance Comparison](../../Model%20Performance%20Comparison.md) and [TradingView sidecars](../../TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md).
+
 # Exact User-Provided Energy EOD Marks — v7
 
 The active consolidated Oct. 23 close set is `data/consolidated_portfolio_closes_v7.csv`. It preserves v6 and prior versions and restores the exact user-provided source-specific energy marks. v6 remains preserved as the prior Yahoo-futures-proxy endpoint decision.

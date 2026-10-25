@@ -1,0 +1,61 @@
+{
+  "benchmark_name": "User-provided TradingView price lists",
+  "source_archive_url": "https://github.com/A44674928/Financial_Model_Records/blob/main/PART%20A%20PRICE%20LISTS%20TRADING%20VIEW.zip",
+  "source_archive_path": "data/benchmark_tradingview_price_lists_source_20261024.zip",
+  "source_archive_sha256": "1f283d0f7bf09edf8462a2115ec5c0c42be4f4c6a7491ffdb90d7b6060aa5f3e",
+  "source_repository_commit": "22540a55b08214460bb6cd7e64d8174c1ee1e1c2",
+  "price_data_path": "data/tradingview_benchmark_price_lists_part_a_20261024.csv",
+  "coverage_path": "data/tradingview_benchmark_coverage_part_a_20261024.csv",
+  "model_comparison_sessions": [
+    "2026-09-03",
+    "2026-10-23"
+  ],
+  "model_comparison_session_count": 36,
+  "provided_symbols": [
+    "BRENT",
+    "CAT",
+    "GEV",
+    "HD",
+    "INTC",
+    "LCID",
+    "LMT",
+    "LULU",
+    "META",
+    "OIL",
+    "ORCL",
+    "PLTR",
+    "SPCX",
+    "TSLA",
+    "VLO"
+  ],
+  "provided_symbol_count": 15,
+  "missing_symbols": [
+    "AAPL",
+    "AMZN",
+    "CVX",
+    "DIS",
+    "LLY",
+    "NET",
+    "NFLX",
+    "NVDA",
+    "PEP",
+    "RIVN",
+    "TMO",
+    "UPS",
+    "V",
+    "WMT",
+    "XLE",
+    "XRH0"
+  ],
+  "missing_symbol_count": 16,
+  "excluded_archive_entries": [
+    "TICKER PRICE LIST (EXAMPLE).rtf (template/example, not a ticker-specific file)",
+    "__MACOSX/ metadata entries"
+  ],
+  "notes": [
+    "No missing ticker prices are filled from Yahoo Finance or earlier project data.",
+    "The September 7 Brent observation is preserved in the normalized source CSV but is outside the 36-session U.S. equity comparison calendar.",
+    "The GEV source filename is ticker-specific; its RTF body heading reads TICKER and the filename is used as the symbol key.",
+    "Part A covers 15 of 31 direct-price core symbols; Part B supplies the remaining 16. BTC and ETH are excluded from the core and remain pending TradingView recalibration."
+  ]
+}
