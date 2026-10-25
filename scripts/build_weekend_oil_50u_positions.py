@@ -36,12 +36,16 @@ POSITIONS = {
         "instrument": "BlackBull Markets Brent Cash EOD marks",
         "entry_price": Decimal("111.412"),
         "entry_source": "User-provided TradingView opening mark for 2026-10-19",
+        "trim_units_u": Decimal("10"),
+        "trim_price": Decimal("117"),
     },
     "OIL": {
         "display_ticker": "USOIL (repository ticker OIL)",
         "instrument": "TradingView TVC:USOIL EOD marks",
         "entry_price": Decimal("99.04"),
         "entry_source": "User-provided TradingView opening mark for 2026-10-19",
+        "trim_units_u": Decimal("10"),
+        "trim_price": Decimal("102"),
     },
 }
 SOURCE_URL = "https://github.com/A44674928/Financial_Model_Records/blob/main/Weekend%20Oil%20(10-17%20%26%2010-18).zip"
@@ -96,14 +100,27 @@ def build_rows():
         raise ValueError(f"Weekend Oil source archive SHA-256 mismatch: {actual_sha}")
 
     marks = load_marks()
-    gross_notional = UNITS_U * UNIT_NOTIONAL_USD
+    opened_notional = UNITS_U * UNIT_NOTIONAL_USD
     rows = []
     for ticker, details in POSITIONS.items():
         entry = details["entry_price"]
+        trim_units = details["trim_units_u"]
+        trim_price = details["trim_price"]
+        trim_trigger = next((mark for mark in marks[ticker] if mark["close"] >= trim_price), None)
+        trim_date = trim_trigger["date"] if trim_trigger else ""
+        trim_gross_notional = trim_units * UNIT_NOTIONAL_USD
+        trim_realized_pnl = _money(trim_gross_notional * (trim_price / entry - Decimal("1")))
+
         for session_number, mark in enumerate(marks[ticker], start=1):
             close = mark["close"]
-            pnl = _money(gross_notional * (close / entry - Decimal("1")))
-            market_value = _money(gross_notional + pnl)
+            trim_has_filled = bool(trim_date and mark["date"] >= trim_date)
+            sold_units = trim_units if trim_has_filled else Decimal("0")
+            open_units = UNITS_U - sold_units
+            open_notional = open_units * UNIT_NOTIONAL_USD
+            realized_pnl = trim_realized_pnl if trim_has_filled else Decimal("0.00")
+            remaining_unrealized_pnl = _money(open_notional * (close / entry - Decimal("1")))
+            total_pnl = realized_pnl + remaining_unrealized_pnl
+            market_value = _money(open_notional + remaining_unrealized_pnl)
             rows.append({
                 "date": mark["date"],
                 "ticker": details["display_ticker"],
@@ -112,14 +129,22 @@ def build_rows():
                 "entry_date": ENTRY_DATE,
                 "entry_price": f"{entry:f}",
                 "entry_price_source": details["entry_source"],
-                "unit_size_u": f"{UNITS_U:f}",
-                "unit_notional_usd": f"{UNIT_NOTIONAL_USD:f}",
-                "gross_notional_usd": f"{gross_notional:.2f}",
+                "opened_units_u": f"{UNITS_U:f}",
+                "opened_gross_notional_usd": f"{opened_notional:.2f}",
+                "trim_units_u": f"{trim_units:f}",
+                "trim_target_price": f"{trim_price:f}",
+                "assumed_trim_date": trim_date,
+                "units_sold_cumulative_u": f"{sold_units:f}",
+                "trim_gross_notional_usd": f"{trim_gross_notional:.2f}" if trim_has_filled else "0.00",
+                "realized_pnl_usd": f"{realized_pnl:.2f}",
+                "open_units_u": f"{open_units:f}",
+                "gross_open_notional_usd": f"{open_notional:.2f}",
                 "sessions_marked": str(session_number),
                 "eod_close": f"{close:f}",
-                "market_value_usd": f"{market_value:.2f}",
-                "unrealized_pnl_usd": f"{pnl:.2f}",
-                "pnl_to_gross_notional_pct": f"{(pnl / gross_notional * Decimal('100')).quantize(Decimal('0.000001'), rounding=ROUND_HALF_UP):.6f}",
+                "remaining_market_value_usd": f"{market_value:.2f}",
+                "remaining_unrealized_pnl_usd": f"{remaining_unrealized_pnl:.2f}",
+                "total_realized_plus_unrealized_pnl_usd": f"{total_pnl:.2f}",
+                "pnl_to_opening_gross_notional_pct": f"{(total_pnl / opened_notional * Decimal('100')).quantize(Decimal('0.000001'), rounding=ROUND_HALF_UP):.6f}",
                 "mark_source": mark["source"],
                 "mark_instrument": mark["instrument"],
             })
@@ -143,7 +168,7 @@ def write_chart(rows):
         for ticker in POSITIONS
     }
     combined = [
-        sum(Decimal(next(row for row in rows if row["repository_ticker"] == ticker and row["date"] == day)["unrealized_pnl_usd"])
+        sum(Decimal(next(row for row in rows if row["repository_ticker"] == ticker and row["date"] == day)["total_realized_plus_unrealized_pnl_usd"])
             for ticker in POSITIONS)
         for day in days
     ]
@@ -157,25 +182,25 @@ def write_chart(rows):
     ax.tick_params(colors=MUTED)
     for spine in ax.spines.values():
         spine.set_color(GRID)
-    for ticker, label in (("BRENT", "BRENT 50U long"), ("OIL", "USOIL 50U long")):
-        values = [Decimal(row["unrealized_pnl_usd"]) for row in by_ticker[ticker]]
+    for ticker, label in (("BRENT", "BRENT total PnL (10U trimmed)"), ("OIL", "USOIL total PnL (10U trimmed)")):
+        values = [Decimal(row["total_realized_plus_unrealized_pnl_usd"]) for row in by_ticker[ticker]]
         ax.plot(dates, [float(value) for value in values], marker="o", linewidth=2.3,
                 color=COLORS[ticker], label=label)
     ax.plot(dates, [float(value) for value in combined], marker="o", linewidth=2.5,
-            color=COLORS["COMBINED"], label="Combined 100U positions")
+            color=COLORS["COMBINED"], label="Combined realized + open PnL")
     ax.axhline(0, color=MUTED, linewidth=1, linestyle="--")
-    ax.set_ylabel("Unrealized modeled PnL (USD)", color=FG)
+    ax.set_ylabel("Modeled PnL: realized + unrealized (USD)", color=FG)
     ax.set_xlabel("TradingView EOD session (MST)", color=FG)
     ax.set_xticks(dates)
     ax.set_xticklabels([day.strftime("%b %d") for day in dates], color=MUTED)
-    ax.set_title("Weekend Oil — 50U Long BRENT + 50U Long USOIL", color=FG, loc="left", fontsize=15, pad=14)
+    ax.set_title("Weekend Oil — 50U Long Each; Trim 10U at Targets", color=FG, loc="left", fontsize=15, pad=14)
     ax.legend(facecolor=BG, edgecolor=GRID, labelcolor=FG)
     terminal = combined[-1]
     ax.annotate(f"Oct 23 combined: ${terminal:,.2f}", (dates[-1], float(terminal)),
                 xytext=(-175, 18), textcoords="offset points", color=FG,
                 arrowprops={"arrowstyle": "->", "color": MUTED})
     fig.text(0.5, 0.015,
-             "Hypothetical open-price marks supplied by user; exact supplied EOD marks thereafter · gross notional $1,000,000 · costs/execution not modeled",
+             "Assumed partial exits: sell 10U at $117 BRENT / $102 USOIL on first EOD mark at or above target · $800,000 remains open · costs/execution not modeled",
              ha="center", color=MUTED, fontsize=8.5)
     fig.tight_layout(rect=(0.02, 0.06, 0.99, 0.98))
     fig.savefig(CHART, dpi=160, facecolor=fig.get_facecolor(), bbox_inches="tight")
@@ -187,47 +212,61 @@ def write_report(rows):
     lines = [
         "# Weekend Oil 50U Position Hypothetical",
         "",
-        "> **Hypothetical educational mark-to-market only.** These are not broker executions, a verified account return, or a recommendation. Both assumed positions remain open through the latest supplied EOD marks, with no costs, financing, slippage, or liquidation modeled.",
+        "> **Hypothetical educational mark-to-market only.** The partial exits below are assumed paper trades, not broker executions, a verified account return, or a recommendation. Costs, financing, slippage, and liquidation are not modeled.",
         "",
-        "## Position assumptions",
+        "## Position and trim assumptions",
         "",
-        "The user requested one **50U LONG** position in BRENT and one **50U LONG** position in USOIL, opened at the **2026-10-19 market open**. Under the repository convention of 1U = $10,000 notional, each position starts at $500,000 gross notional; combined gross notional is $1,000,000.",
+        "The user specified a **50U LONG** position each in BRENT and USOIL at the **2026-10-19 market open**, with entry marks of $111.412 and $99.04 respectively. The thesis instruction is modeled as selling **10U of BRENT at $117** and **10U of USOIL at $102**, leaving **40U open in each** after the assumed trims. At $10,000 notional per unit, opening gross notional is $1,000,000 total; $200,000 of unit-basis gross notional is trimmed and $800,000 remains open.",
         "",
-        "| Instrument | Internal ticker | Side / size | Assumed 2026-10-19 open | Entry-mark source | Daily EOD mark source | Oct. 23 EOD mark | Oct. 23 unrealized PnL | PnL ÷ gross notional |",
-        "|---|---|---:|---:|---|---|---:|---:|---:|",
+        "| Instrument | Entry price | Trim instruction | Modeled trigger session | Realized PnL on 10U sale | Oct. 23 EOD mark | Remaining 40U unrealized PnL | Total realized + unrealized PnL | Remaining gross open notional |",
+        "|---|---:|---|---|---:|---:|---:|---:|---:|",
     ]
     terminal_by_ticker = {}
     for ticker, details in POSITIONS.items():
         ticker_rows = [row for row in rows if row["repository_ticker"] == ticker]
         last = ticker_rows[-1]
-        terminal_by_ticker[ticker] = Decimal(last["unrealized_pnl_usd"])
+        terminal_by_ticker[ticker] = {
+            "realized": Decimal(last["realized_pnl_usd"]),
+            "unrealized": Decimal(last["remaining_unrealized_pnl_usd"]),
+            "total": Decimal(last["total_realized_plus_unrealized_pnl_usd"]),
+            "open_notional": Decimal(last["gross_open_notional_usd"]),
+        }
         entry_display = f"${details['entry_price']:,.3f}".rstrip("0").rstrip(".")
+        trim_display = f"${details['trim_price']:,.3f}".rstrip("0").rstrip(".")
         mark_display = f"${Decimal(last['eod_close']):,.3f}".rstrip("0").rstrip(".")
         lines.append(
-            f"| {details['display_ticker']} | `{ticker}` | 50U LONG | {entry_display} | User-provided TradingView open | "
-            f"{last['mark_source']} | {mark_display} | ${Decimal(last['unrealized_pnl_usd']):+,.2f} | "
-            f"{Decimal(last['pnl_to_gross_notional_pct']):.4f}% |"
+            f"| {details['display_ticker']} | {entry_display} | Sell 10U at {trim_display} | {last['assumed_trim_date']} | "
+            f"${terminal_by_ticker[ticker]['realized']:+,.2f} | {mark_display} | "
+            f"${terminal_by_ticker[ticker]['unrealized']:+,.2f} | ${terminal_by_ticker[ticker]['total']:+,.2f} | "
+            f"${terminal_by_ticker[ticker]['open_notional']:,.2f} |"
         )
-    combined = sum(terminal_by_ticker.values(), Decimal("0"))
+    combined_realized = sum((v["realized"] for v in terminal_by_ticker.values()), Decimal("0"))
+    combined_unrealized = sum((v["unrealized"] for v in terminal_by_ticker.values()), Decimal("0"))
+    combined_total = combined_realized + combined_unrealized
+    combined_ratio = (combined_total / (UNITS_U * UNIT_NOTIONAL_USD * 2) * 100).quantize(Decimal("0.0001"), rounding=ROUND_HALF_UP)
     lines.extend([
-        f"| **Combined** | — | **100U LONG** | — | — | — | — | **${combined:+,.2f}** | **{(combined / (UNITS_U * UNIT_NOTIONAL_USD * 2) * 100).quantize(Decimal('0.0001'), rounding=ROUND_HALF_UP):.4f}%** |",
+        f"| **Combined** | — | **Sell 20U total** | **2026-10-23 assumed** | **${combined_realized:+,.2f}** | — | **${combined_unrealized:+,.2f}** | **${combined_total:+,.2f}** | **$800,000.00** |",
+        "",
+        f"The combined realized PnL is **${combined_realized:,.2f}**; the remaining open positions carry **${combined_unrealized:,.2f}** unrealized PnL at the Oct. 23 marks. Total modeled PnL is **${combined_total:,.2f}**, or {combined_ratio:.4f}% of the original $1,000,000 gross notional—not an account return.",
         "",
         "## Session marks and PnL",
         "",
-        "PnL is marked using `gross notional × (EOD close ÷ assumed open − 1)`. Both positions are long and remain open. The Oct. 19 result is the first EOD mark after the assumed opening; it is not zero-PnL because the entry prices are the separately supplied market-open marks.",
+        "For the open portion, PnL is `open gross notional × (EOD close ÷ entry price − 1)`. When an EOD mark first equals or exceeds its trim target, the model assumes the specified 10U sale occurred at the target price, realizes that tranche's PnL, and marks the remaining 40U at the session close. Available daily data are closes only: Oct. 23 is the first recorded EOD at/above either target, so the report assigns that modeled trigger session. It does **not** verify the intraday touch, fill time, or actual execution at the target.",
         "",
-        "| EOD date | Instrument | EOD close | Gross notional | Unrealized PnL | PnL / gross notional | Mark source |",
-        "|---|---|---:|---:|---:|---:|---|",
+        "| EOD date | Instrument | EOD close | Units sold cumulative | Units open | Realized PnL | Remaining unrealized PnL | Total PnL | Mark source |",
+        "|---|---|---:|---:|---:|---:|---:|---:|---|",
     ])
     for row in rows:
         close = Decimal(row["eod_close"])
         lines.append(
-            f"| {row['date']} | {row['ticker']} | ${close:,.3f} | ${Decimal(row['gross_notional_usd']):,.2f} | "
-            f"${Decimal(row['unrealized_pnl_usd']):+,.2f} | {Decimal(row['pnl_to_gross_notional_pct']):.4f}% | {row['mark_source']} |"
+            f"| {row['date']} | {row['ticker']} | ${close:,.3f} | {Decimal(row['units_sold_cumulative_u']):g}U | "
+            f"{Decimal(row['open_units_u']):g}U | ${Decimal(row['realized_pnl_usd']):+,.2f} | "
+            f"${Decimal(row['remaining_unrealized_pnl_usd']):+,.2f} | "
+            f"${Decimal(row['total_realized_plus_unrealized_pnl_usd']):+,.2f} | {row['mark_source']} |"
         )
     lines.extend([
         "",
-        f"![50U long BRENT and 50U long USOIL hypothetical PnL](Charts/performance/{CHART.name})",
+        f"![50U long BRENT and USOIL positions with assumed 10U trims](Charts/performance/{CHART.name})",
         "",
         f"Session-level export: [`{OUTPUT_CSV.name}`](data/{OUTPUT_CSV.name}).",
         "",
@@ -235,10 +274,10 @@ def write_report(rows):
         "",
         f"- Weekend source archive: [`{SOURCE_ARCHIVE.name}`]({quote(SOURCE_ARCHIVE.name)}); [upstream GitHub file]({SOURCE_URL}) at commit `{SOURCE_COMMIT}`; SHA-256 `{SOURCE_SHA256}`.",
         "- The archive contains two annotated IG **Weekend Oil – US Crude (CLN25)** screenshots dated Oct. 17 and Oct. 18, not a complete OHLC history and not separate BRENT/USOIL Monday-open price files. The screenshots are retained as source context, not transcribed as daily marks.",
-        "- The two Oct. 19 open prices, BRENT $111.412 and USOIL $99.04, were provided by the user and identified as TradingView. BRENT is stored internally as `BRENT`; USOIL maps to the repository ticker `OIL`.",
+        "- The two Oct. 19 open prices, BRENT $111.412 and USOIL $99.04, and the trim levels/size were provided by the user. BRENT is stored internally as `BRENT`; USOIL maps to repository ticker `OIL`.",
         "- Subsequent EOD values come from [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv): BlackBull Markets Brent Cash for BRENT and TradingView TVC:USOIL for OIL. No new or external daily prices are inserted.",
-        "- This one-time 50U-per-instrument overlay is **not included** in the core replay, THE ONE MODEL's 32-portfolio aggregate, or standard 10U energy strategy-comparison composites. It is a separate hypothetical with $1,000,000 combined gross notional, not an account-capital return.",
-        "- PnL excludes commissions, spread, slippage, financing, CFD contract multipliers/tracking differences, taxes, margin, and execution constraints. The notional-percentage view is a simple gross-notional ratio, not an account return.",
+        "- The assumed target sale is not included in the core replay, THE ONE MODEL's 32-portfolio aggregate, or standard 10U energy strategy-comparison composites. This is a separate hypothetical position overlay, not a change to those model results.",
+        "- PnL excludes commissions, spread, slippage, financing, CFD contract multipliers/tracking differences, taxes, margin, and execution constraints. The percentage shown is measured against opening gross notional, not account equity.",
         "",
     ])
     REPORT.write_text("\n".join(lines), encoding="utf-8")

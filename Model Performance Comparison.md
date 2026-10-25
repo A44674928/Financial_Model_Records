@@ -274,7 +274,7 @@ The sidecar report presents 0.05U, 1U, and 10U sizing schedules. The chart-direc
 
 *The three panels show 0.05U, 1U, and 10U daily-lot PnL paths on separate scales. The 1U schedule is already included in core PnL; THE ONE MODEL adds the 10U schedule to every split portfolio (11U/DAY combined), while 0.05U remains an alternative.*
 
-A separate user-requested scenario assumes 50U-long BRENT and 50U-long USOIL positions opened at the supplied Oct. 19 TradingView marks. It is excluded from the core replay, THE ONE MODEL aggregate, and standard energy composites; details and source notes are in [`Weekend Oil 50U Position Hypothetical.md`](Weekend%20Oil%2050U%20Position%20Hypothetical.md).
+A separate user-requested scenario assumes 50U-long BRENT and 50U-long USOIL positions opened at the supplied Oct. 19 TradingView marks, then models a 10U trim at $117 BRENT and $102 USOIL. It is excluded from the core replay, THE ONE MODEL aggregate, and standard energy composites; trim assumptions and source notes are in [`Weekend Oil 50U Position Hypothetical.md`](Weekend%20Oil%2050U%20Position%20Hypothetical.md).
 
 ![50U long BRENT and 50U long USOIL hypothetical PnL](Charts/performance/24-weekend-oil-50u-positions.png)
 
