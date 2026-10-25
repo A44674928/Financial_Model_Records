@@ -194,8 +194,10 @@ def variant_force_multiplier_daily_model(variant, events=None):
 
     Daily additions remain one 1U lot. On a V3A/V3B compounded-short event,
     only that event-day tranche uses the previous full-exit unit count; later
-    carried SHORT days return to 1U additions. Explicit exits close open longs
-    for every variant. V2/V3B also close shorts on LONG/REBUY events.
+    carried SHORT days return to 1U additions. Generic explicit exits close
+    open longs for every variant; lot-scoped Manual-Automatic trims belong only
+    to their tagged core lots and are ignored by this separate daily schedule.
+    V2/V3B also close shorts on LONG/REBUY events.
     """
     if variant not in VARIANTS:
         raise ValueError(f"Unknown core variant: {variant}")
@@ -236,6 +238,8 @@ def variant_force_multiplier_daily_model(variant, events=None):
         for event in events_by_day.get(day, []):
             symbol = event["sym"]
             if event["kind"] == "exit":
+                if "Manual-Automatic target trim" in event["note"]:
+                    continue
                 last_exit_units[symbol] = float(event["units"])
                 close_lots(symbol, "long", float(event["px"]), day)
             elif event["tag"] in {"LONG", "REBUY"}:

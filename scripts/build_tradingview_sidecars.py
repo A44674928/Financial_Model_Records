@@ -326,7 +326,8 @@ def write_report(oil_rows, dxy_rows):
         "",
         "## One-time Weekend Oil position overlay",
         "",
-        "A separate hypothetical assumes 50U LONG BRENT and 50U LONG USOIL positions opened at the user-provided TradingView prices on 2026-10-19, then models a 10U trim at $117 BRENT and $102 USOIL when the EOD marks first meet or exceed those targets. This is not part of the standard 0.05U/1U/10U daily-buy schedules, the 10U energy strategy composites, or THE ONE MODEL’s 32-portfolio aggregate. See [`Weekend Oil 50U Position Hypothetical.md`](Weekend%20Oil%2050U%20Position%20Hypothetical.md) for the entry marks, assumed trim PnL, subsequent EOD marks, source archive, and caveats.",
+        "The user-specified 50U LONG BRENT and 50U LONG USOIL Manual-Automatic lots opened at the supplied TradingView marks on 2026-10-19, with 10U target trims at $117 and $102 respectively, are integrated in all four core variants and therefore flow into core-based strategy composites and THE ONE MODEL. Their first recorded EOD marks at/above target are on 2026-10-23; intraday touch and execution are unverified. [`Weekend Oil 50U Position Hypothetical.md`](Weekend%20Oil%2050U%20Position%20Hypothetical.md) reports those same lots as an attribution only, not as a separate add-on to the sidecar schedules or aggregate.",
+
         "",
         "## DXY currency desk: daily long-investment alternatives",
         "",

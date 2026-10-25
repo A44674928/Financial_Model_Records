@@ -718,9 +718,9 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"[`{daily_csv.name}`](data/{daily_csv.name}), "
       f"[`{ticker_csv.name}`](data/{ticker_csv.name}), "
       f"[`{summary_json.name}`](data/{summary_json.name}).")
-    A("> **DXY and historical account views:** the 1U/DAY/DXY index-return sleeve is included in every core variant. THE ONE MODEL's 32-portfolio split aggregate additionally adds the 10U/DAY DXY schedule to each portfolio, for 11U/DAY total; its regenerated totals are shown in the aggregate chart and portfolio audit export. Do not add the 1U sleeve twice. The 0.05U schedule remains an alternative. The DXY-numeraire and yield-multiplier pages retain the earlier portfolio benchmark and are historical only.")
+    A("> **DXY and historical account views:** the 1U/DAY/DXY index-return sleeve is included in every core variant. THE ONE MODEL's 32-portfolio split aggregate additionally adds the 10U/DAY DXY schedule to each portfolio, for 11U/DAY total; its regenerated totals are shown in the aggregate chart and portfolio audit export. Do not add the 1U sleeve twice. The 0.05U schedule remains an alternative. The separate DXY-numeraire and yield-multiplier views have been rebuilt using the current core paths; they remain sensitivities rather than additional core PnL.")
     A("> **Small Caps pilot:** **[`Small Caps [Buyout & Reorganization Offering Test Pilot].md`](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md)** tracks the five LCID entries; all five are included in the Oct. 23 four-model comparison.")
-    A("> **Energy and DXY sizing:** **[`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md)** provides the standard energy sizes and DXY schedule audit. The DXY 1U/DAY series is included in core variants. THE ONE MODEL adds the 10U/DAY DXY schedule to every split portfolio (11U/DAY combined) and uses 11U/DAY energy tranches per active ticker in its 16 energy-inclusive portfolios. The strategy-comparison composites below retain their existing 10U energy schedule; 0.05U DXY remains an alternative. A separate user-requested 50U-long BRENT plus 50U-long USOIL position scenario, opened at the supplied Oct. 19 TradingView marks, is documented in [`Weekend Oil 50U Position Hypothetical.md`](Weekend%20Oil%2050U%20Position%20Hypothetical.md) and excluded from all core, split-aggregate, and standard composite results.")
+    A("> **Energy and DXY sizing:** **[`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md)** provides the standard energy sizes and DXY schedule audit. The DXY 1U/DAY series is included in core variants. THE ONE MODEL adds the 10U/DAY DXY schedule to every split portfolio (11U/DAY combined) and uses 11U/DAY energy tranches per active ticker in its 16 energy-inclusive portfolios. The strategy-comparison composites below retain their existing 10U energy schedule; 0.05U DXY remains an alternative. The user-specified 50U-long BRENT plus 50U-long USOIL Manual-Automatic entries and their targeted 10U trims are now included in all four core variants and flow into downstream core-based results. [`Weekend Oil 50U Position Hypothetical.md`](Weekend%20Oil%2050U%20Position%20Hypothetical.md) is a lot-level attribution of those same core lots, not an additional overlay.")
     A("> **Strategy and sidecar comparison:** **[`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md)** compares the existing variants, the fixed-$500/EOD and shared/variant-specific 1U/EOD force models, and additive composites using the 10U TradingView energy schedule.")
     A("> **How the models work:** **[`Model Calculation Guide.md`](Model%20Calculation%20Guide.md)** explains unit sizing, day-by-day lot handling, close/reversal behavior, and PnL formulas.")
     A("")
@@ -1012,9 +1012,9 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("")
     A("*The three panels show 0.05U, 1U, and 10U daily-lot PnL paths on separate scales. The 1U schedule is already included in core PnL; THE ONE MODEL adds the 10U schedule to every split portfolio (11U/DAY combined), while 0.05U remains an alternative.*")
     A("")
-    A("A separate user-requested scenario assumes 50U-long BRENT and 50U-long USOIL positions opened at the supplied Oct. 19 TradingView marks, then models a 10U trim at $117 BRENT and $102 USOIL. It is excluded from the core replay, THE ONE MODEL aggregate, and standard energy composites; trim assumptions and source notes are in [`Weekend Oil 50U Position Hypothetical.md`](Weekend%20Oil%2050U%20Position%20Hypothetical.md).")
+    A("The user-specified 50U-long BRENT and 50U-long USOIL Manual-Automatic lots were added to each core variant at the supplied Oct. 19 TradingView marks, with 10U target trims at $117 and $102 respectively. Their first recorded EOD marks at/above target are on Oct. 23; the daily closes do not verify an intraday touch or fill. The lots are included in the core replay and downstream aggregates; [`Weekend Oil 50U Position Hypothetical.md`](Weekend%20Oil%2050U%20Position%20Hypothetical.md) isolates their PnL for attribution only. Existing separate 1U core lots are not trimmed.")
     A("")
-    A("![50U long BRENT and 50U long USOIL hypothetical PnL](Charts/performance/24-weekend-oil-50u-positions.png)")
+    A("![50U long BRENT and 50U long USOIL hypothetical PnL](Charts/CLN25/Weekend%20Oil/24-weekend-oil-50u-positions.png)")
     A("")
     A("### EOD Add-On and Variant-Specific 1U/EOD Comparisons")
     A("")
@@ -1184,8 +1184,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     Generated __GEN__. Core marks: user-provided TradingView EOD lists. The four variants model
     the __NSYMS__ direct-price symbols; the integrated 1U/DAY/DXY sleeve uses supplied DXY index marks.
     EURUSD, JPYUSD and US30Y are outside this portfolio valuation. LCID pilot marks are user-provided. The per-model US10Y additive overlay is retained as a legacy reference only; whole-account US10Y and US30Y multiplier scenarios live in the linked explorer. The Oct 23 ORCL LONG and fifth LCID LONG are included in this EOD model replay.
-    Intraday source charts remain through Oct 22. The master <b>Trades Zip PnL.md</b> has not been recalculated for
-    the newly reconciled positions, so its totals do not currently match this comparison. Excludes commissions,
+    Intraday source charts remain through Oct 22. The master <b>Trades Zip PnL.md</b> is a legacy snapshot and has not been recalculated for
+    the newly reconciled Oct 23 positions, including the Manual-Automatic 50U oil lots and modeled target trims, so its totals do not match this comparison. Excludes commissions,
     borrow fees and financing.
   </footer>
 </div>

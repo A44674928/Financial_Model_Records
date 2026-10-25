@@ -22,7 +22,7 @@ class TheOneModelWinnerComparisonTests(unittest.TestCase):
         winner = one_model["best_terminal_pnl_portfolio"]
         self.assertEqual(self.summary["winning_portfolio_id"], winner["portfolio_id"])
         self.assertEqual(self.summary["winning_portfolio_id"], "core_v3a__1u_v3a__with_oil")
-        self.assertEqual(self.summary["winning_model_original_terminal_pnl_usd"], "803370.99")
+        self.assertEqual(self.summary["winning_model_original_terminal_pnl_usd"], "850487.40")
         self.assertEqual(self.summary["winning_energy_sidecar_unit_size_u_per_active_ticker"], 11)
         self.assertEqual(self.summary["winning_dxy_exposure_per_active_eod_before_scaling"], "11U/DAY")
         self.assertIn("ex post", self.summary["winner_selection_method"])
@@ -33,12 +33,12 @@ class TheOneModelWinnerComparisonTests(unittest.TestCase):
             self.summary["winning_model_equal_gross_cumulative_gross_notional_added_usd"],
             one_model["aggregate_cumulative_gross_notional_added_usd"],
         )
-        self.assertEqual(self.summary["the_one_model_cumulative_gross_notional_added_usd"], "458880000.00")
-        self.assertEqual(self.summary["winning_model_equal_gross_terminal_pnl_usd"], "21120073.33")
-        self.assertEqual(self.summary["equal_gross_winner_combined_dxy_units_per_active_eod"], "289.182469")
-        self.assertEqual(self.summary["equal_gross_terminal_pnl_difference_winner_minus_one_model_usd"], "5130098.37")
-        self.assertEqual(self.summary["winning_model_equal_gross_pnl_to_gross_added_pct"], "4.602526")
-        self.assertEqual(self.summary["the_one_model_pnl_to_gross_added_pct"], "3.484566")
+        self.assertEqual(self.summary["the_one_model_cumulative_gross_notional_added_usd"], "490880000.00")
+        self.assertEqual(self.summary["winning_model_equal_gross_terminal_pnl_usd"], "22621904.90")
+        self.assertEqual(self.summary["equal_gross_winner_combined_dxy_units_per_active_eod"], "292.586291")
+        self.assertEqual(self.summary["equal_gross_terminal_pnl_difference_winner_minus_one_model_usd"], "5124204.82")
+        self.assertEqual(self.summary["winning_model_equal_gross_pnl_to_gross_added_pct"], "4.608439")
+        self.assertEqual(self.summary["the_one_model_pnl_to_gross_added_pct"], "3.564558")
         self.assertIn("selection bias", self.summary["equal_gross_winner_selection_caveat"])
         self.assertIn("not an assertion", self.report)
 
@@ -47,10 +47,10 @@ class TheOneModelWinnerComparisonTests(unittest.TestCase):
             rows = list(csv.DictReader(handle))
         self.assertEqual(len(rows), 36)
         last = rows[-1]
-        self.assertEqual(last["the_one_model_cumulative_gross_notional_added_usd"], "458880000.00")
-        self.assertEqual(last["winning_model_equal_gross_cumulative_notional_added_usd"], "458880000.00")
-        self.assertEqual(last["the_one_model_aggregate_pnl_usd"], "15989974.96")
-        self.assertEqual(last["winning_model_equal_gross_pnl_usd"], "21120073.33")
+        self.assertEqual(last["the_one_model_cumulative_gross_notional_added_usd"], "490880000.00")
+        self.assertEqual(last["winning_model_equal_gross_cumulative_notional_added_usd"], "490880000.00")
+        self.assertEqual(last["the_one_model_aggregate_pnl_usd"], "17497700.08")
+        self.assertEqual(last["winning_model_equal_gross_pnl_usd"], "22621904.90")
         self.assertTrue(comparison.OUTPUT_CHART.is_file())
         self.assertEqual(comparison.OUTPUT_CHART.read_bytes()[:8], b"\x89PNG\r\n\x1a\n")
         self.assertIn("the-one-model-vs-winning-model.png", self.report)

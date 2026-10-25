@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Build a standalone 50U long-position hypothetical from the Weekend Oil input.
+"""Build a lot-level attribution for the core-integrated 50U Weekend Oil entries.
 
 The supplied weekend ZIP contains annotated IG Weekend Oil / US Crude screenshots,
-not a complete OHLC series. The user supplied the separate TradingView opening
-marks for BRENT and USOIL on 2026-10-19. Positions are marked thereafter using
-the repository's existing energy EOD marks; this overlay is not added to core,
-THE ONE MODEL, or the standard energy sidecar composites.
+not a complete OHLC series. The user supplied the TradingView opening marks for
+BRENT and USOIL on 2026-10-19. This report isolates those tagged lots for
+attribution; the entries and target trims are also replayed in all four core
+variants and their downstream composites, so this is not an additional overlay.
 """
 
 import csv
@@ -13,6 +13,7 @@ import hashlib
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 from urllib.parse import quote
+from zipfile import ZipFile
 
 import matplotlib
 matplotlib.use("Agg")
@@ -24,7 +25,13 @@ SOURCE_ARCHIVE = ROOT / "Weekend Oil (10-17 & 10-18).zip"
 ENERGY_MARKS = DATA / "energy_provider_eod_marks_v1.csv"
 OUTPUT_CSV = DATA / "weekend_oil_50u_positions_v1.csv"
 REPORT = ROOT / "Weekend Oil 50U Position Hypothetical.md"
-CHART = ROOT / "Charts" / "performance" / "24-weekend-oil-50u-positions.png"
+CHART_DIR = ROOT / "Charts" / "CLN25" / "Weekend Oil"
+CHART = CHART_DIR / "24-weekend-oil-50u-positions.png"
+SOURCE_SCREENSHOTS = {
+    "2026-10-17": CHART_DIR / "CLN25 Weekend Oil - 2026-10-17.jpeg",
+    "2026-10-18": CHART_DIR / "CLN25 Weekend Oil - 2026-10-18.jpeg",
+}
+INDEX = CHART_DIR / "README.md"
 
 ENTRY_DATE = "2026-10-19"
 UNITS_U = Decimal("50")
@@ -147,8 +154,51 @@ def build_rows():
                 "pnl_to_opening_gross_notional_pct": f"{(total_pnl / opened_notional * Decimal('100')).quantize(Decimal('0.000001'), rounding=ROUND_HALF_UP):.6f}",
                 "mark_source": mark["source"],
                 "mark_instrument": mark["instrument"],
+                "included_in_all_four_core_variants": "yes",
+                "attribution_not_additional_overlay": "yes",
             })
     return rows
+
+
+def write_source_screenshots():
+    """File the original CLN25 source screenshots beside the generated attribution chart."""
+    CHART_DIR.mkdir(parents=True, exist_ok=True)
+    with ZipFile(SOURCE_ARCHIVE) as archive:
+        members = [
+            name for name in archive.namelist()
+            if not name.startswith("__MACOSX/") and name.lower().endswith(".jpeg")
+        ]
+        for session_date, destination in SOURCE_SCREENSHOTS.items():
+            matches = [name for name in members if session_date in name]
+            if len(matches) != 1:
+                raise ValueError(
+                    f"Expected one source screenshot for {session_date}; found {len(matches)}"
+                )
+            destination.write_bytes(archive.read(matches[0]))
+    return list(SOURCE_SCREENSHOTS.values())
+
+
+def write_index():
+    links = [
+        "# CLN25 Weekend Oil filing",
+        "",
+        "Original annotated source screenshots and the generated 50U position attribution chart are grouped here.",
+        "",
+        "| Date | File |",
+        "|---|---|",
+    ]
+    for session_date, path in SOURCE_SCREENSHOTS.items():
+        links.append(f"| {session_date} | [`{path.name}`]({quote(path.name)}) |")
+    links.extend([
+        f"| Model attribution | [`{CHART.name}`]({quote(CHART.name)}) |",
+        "",
+        "The two dated JPEGs are source screenshots from the Weekend Oil ZIP, retained as source context; the PNG is a later modeled PnL visualization, not a screenshot or proof of an execution.",
+        "",
+        f"Source archive: [`{SOURCE_ARCHIVE.name}`](../../../{quote(SOURCE_ARCHIVE.name)}).",
+        "",
+    ])
+    INDEX.write_text("\n".join(links), encoding="utf-8")
+    return INDEX
 
 
 def write_csv(rows):
@@ -193,14 +243,14 @@ def write_chart(rows):
     ax.set_xlabel("TradingView EOD session (MST)", color=FG)
     ax.set_xticks(dates)
     ax.set_xticklabels([day.strftime("%b %d") for day in dates], color=MUTED)
-    ax.set_title("Weekend Oil — 50U Long Each; Trim 10U at Targets", color=FG, loc="left", fontsize=15, pad=14)
+    ax.set_title("Core-Integrated Weekend Oil — 50U Long Each; Trim 10U at Targets", color=FG, loc="left", fontsize=15, pad=14)
     ax.legend(facecolor=BG, edgecolor=GRID, labelcolor=FG)
     terminal = combined[-1]
     ax.annotate(f"Oct 23 combined: ${terminal:,.2f}", (dates[-1], float(terminal)),
                 xytext=(-175, 18), textcoords="offset points", color=FG,
                 arrowprops={"arrowstyle": "->", "color": MUTED})
     fig.text(0.5, 0.015,
-             "Assumed partial exits: sell 10U at $117 BRENT / $102 USOIL on first EOD mark at or above target · $800,000 remains open · costs/execution not modeled",
+             "Integrated in all four core variants; attribution only, not an extra overlay · assumed 10U trims on first EOD mark at/above target · intraday touch/fill unverified",
              ha="center", color=MUTED, fontsize=8.5)
     fig.tight_layout(rect=(0.02, 0.06, 0.99, 0.98))
     fig.savefig(CHART, dpi=160, facecolor=fig.get_facecolor(), bbox_inches="tight")
@@ -210,13 +260,15 @@ def write_chart(rows):
 
 def write_report(rows):
     lines = [
-        "# Weekend Oil 50U Position Hypothetical",
+        "# Weekend Oil 50U Position Hypothetical — Core-Integrated Attribution",
         "",
-        "> **Hypothetical educational mark-to-market only.** The partial exits below are assumed paper trades, not broker executions, a verified account return, or a recommendation. Costs, financing, slippage, and liquidation are not modeled.",
+        "> **Hypothetical educational mark-to-market only.** These tagged entries and assumed partial exits are modeled paper trades, not broker executions, verified account returns, or recommendations. Costs, financing, slippage, and liquidation are not modeled.",
+        "",
+        "> **Core scope:** The two new 50U entries and their 10U target trims are integrated in all four core variants and flow through their downstream model outputs. This report isolates the new lots for attribution; it is **not an additional overlay** and must not be added again to core or aggregate results. The pre-existing Oct. 19 1U BRENT and 1U OIL core lots remain separate and untouched by these trims.",
         "",
         "## Position and trim assumptions",
         "",
-        "The user specified a **50U LONG** position each in BRENT and USOIL at the **2026-10-19 market open**, with entry marks of $111.412 and $99.04 respectively. The thesis instruction is modeled as selling **10U of BRENT at $117** and **10U of USOIL at $102**, leaving **40U open in each** after the assumed trims. At $10,000 notional per unit, opening gross notional is $1,000,000 total; $200,000 of unit-basis gross notional is trimmed and $800,000 remains open.",
+        "The user specified a **50U LONG** position each in BRENT and USOIL at the **2026-10-19 market open**, with entry marks of $111.412 and $99.04 respectively. The thesis instruction is modeled as selling **10U of BRENT at $117** and **10U of USOIL at $102**, leaving **40U open in each new lot** after the assumed trims. Each ticker also retains its separate original 1U core lot. At $10,000 notional per unit, the new entries open $1,000,000 total gross notional; $200,000 of unit-basis gross notional is trimmed and $800,000 remains open in the new lots."
         "",
         "| Instrument | Entry price | Trim instruction | Modeled trigger session | Realized PnL on 10U sale | Oct. 23 EOD mark | Remaining 40U unrealized PnL | Total realized + unrealized PnL | Remaining gross open notional |",
         "|---|---:|---|---|---:|---:|---:|---:|---:|",
@@ -266,7 +318,7 @@ def write_report(rows):
         )
     lines.extend([
         "",
-        f"![50U long BRENT and USOIL positions with assumed 10U trims](Charts/performance/{CHART.name})",
+        f"![50U long BRENT and USOIL positions with assumed 10U trims](Charts/CLN25/Weekend%20Oil/{CHART.name})",
         "",
         f"Session-level export: [`{OUTPUT_CSV.name}`](data/{OUTPUT_CSV.name}).",
         "",
@@ -276,7 +328,8 @@ def write_report(rows):
         "- The archive contains two annotated IG **Weekend Oil – US Crude (CLN25)** screenshots dated Oct. 17 and Oct. 18, not a complete OHLC history and not separate BRENT/USOIL Monday-open price files. The screenshots are retained as source context, not transcribed as daily marks.",
         "- The two Oct. 19 open prices, BRENT $111.412 and USOIL $99.04, and the trim levels/size were provided by the user. BRENT is stored internally as `BRENT`; USOIL maps to repository ticker `OIL`.",
         "- Subsequent EOD values come from [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv): BlackBull Markets Brent Cash for BRENT and TradingView TVC:USOIL for OIL. No new or external daily prices are inserted.",
-        "- The assumed target sale is not included in the core replay, THE ONE MODEL's 32-portfolio aggregate, or standard 10U energy strategy-comparison composites. This is a separate hypothetical position overlay, not a change to those model results.",
+        "- The tagged entries/trim are recorded in [`trades/BRENT.txt`](trades/BRENT.txt) and [`trades/OIL.txt`](trades/OIL.txt), integrated in all four core variants, and therefore flow once through downstream core-based outputs, including THE ONE MODEL's 32-book aggregate. This document and CSV are a lot-level attribution only, not a second position allocation.",
+        "- The first recorded EOD marks at/above the target are dated 2026-10-23. The daily-close source cannot establish an intraday touch or actual fill; the target execution is an explicit model assumption.",
         "- PnL excludes commissions, spread, slippage, financing, CFD contract multipliers/tracking differences, taxes, margin, and execution constraints. The percentage shown is measured against opening gross notional, not account equity.",
         "",
     ])
@@ -287,10 +340,15 @@ def write_report(rows):
 def main():
     rows = build_rows()
     write_csv(rows)
+    screenshots = write_source_screenshots()
     chart = write_chart(rows)
     report = write_report(rows)
+    index = write_index()
     print(f"Wrote {OUTPUT_CSV.relative_to(ROOT)} ({len(rows)} rows)")
+    for screenshot in screenshots:
+        print(f"Filed {screenshot.relative_to(ROOT)}")
     print(f"Wrote {chart.relative_to(ROOT)}")
+    print(f"Wrote {index.relative_to(ROOT)}")
     print(f"Wrote {report.relative_to(ROOT)}")
 
 

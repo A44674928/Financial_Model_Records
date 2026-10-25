@@ -51,6 +51,35 @@ def _close_lots(lots, ticker, side, price, day_idx, realized_by_ticker, realized
             realized_by_day[day_idx] += pnl
 
 
+def _close_manual_auto_lots(lots, ticker, qty, price, day_idx, realized_by_ticker, realized_by_day):
+    """Independently apply the user-tagged trim only to Manual-Automatic lots."""
+    remaining = float(qty)
+    targets = [
+        lot for lot in lots[ticker]
+        if lot["open"] and lot["side"] == "long" and lot.get("manual_automatic_entry", False)
+    ]
+    for lot in targets:
+        if remaining <= 1e-12:
+            break
+        closed_qty = min(lot["units"], remaining)
+        if closed_qty < lot["units"]:
+            lot["units"] -= closed_qty
+            closed = {**lot, "units": closed_qty}
+            lots[ticker].append(closed)
+        else:
+            closed = lot
+        pnl = closed_qty * UNIT * (price / closed["entry_price"] - 1.0)
+        closed["open"] = False
+        closed["close_idx"] = day_idx
+        closed["close_price"] = price
+        closed["realized_pnl"] = pnl
+        realized_by_ticker[ticker] += pnl
+        realized_by_day[day_idx] += pnl
+        remaining -= closed_qty
+    if remaining > 1e-8:
+        raise AssertionError(f"{ticker} Manual-Automatic trim exceeds tagged open units by {remaining:g}")
+
+
 def _dxy_daily_lots_from_export():
     """Independently reconstruct the integrated 1U/DAY DXY sleeve from its audit rows."""
     rows = [row for row in _read_csv(DATA / "dxy_currency_desk_sidecar_daily_20261024.csv")
@@ -98,9 +127,15 @@ def _core_replay(variant, events):
         if idx >= len(SESSION_DATES):
             continue
         if event["kind"] == "exit":
-            last_exit_units[ticker] = float(event["units"])
-            _close_lots(lots, ticker, "long", float(event["px"]), idx,
-                        realized_by_ticker, realized_by_day)
+            if "Manual-Automatic target trim" in event["note"]:
+                _close_manual_auto_lots(
+                    lots, ticker, float(event["units"]), float(event["px"]), idx,
+                    realized_by_ticker, realized_by_day,
+                )
+            else:
+                last_exit_units[ticker] = float(event["units"])
+                _close_lots(lots, ticker, "long", float(event["px"]), idx,
+                            realized_by_ticker, realized_by_day)
         elif event["tag"] == "SHORT":
             units = float(event["units"])
             if natural and "Compounded short" in event["note"] and last_exit_units.get(ticker, 0) > 1:
@@ -119,6 +154,7 @@ def _core_replay(variant, events):
                 "entry_price": float(event["px"]), "entry_idx": idx,
                 "close_idx": None, "close_price": None, "open": True,
                 "realized_pnl": 0.0,
+                "manual_automatic_entry": "Manual-Automatic Entry" in event["note"],
             })
 
     dxy_lots, dxy_realized = _dxy_daily_lots_from_export()
@@ -182,6 +218,8 @@ def _variant_force_replay(variant, events):
         for event in by_day.get(day, []):
             ticker = event["sym"]
             if event["kind"] == "exit":
+                if "Manual-Automatic target trim" in event["note"]:
+                    continue
                 last_exit_units[ticker] = float(event["units"])
                 _close_lots(lots, ticker, "long", float(event["px"]), idx,
                             realized_by_ticker, realized_by_day)

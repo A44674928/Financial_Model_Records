@@ -55,47 +55,47 @@ The generated CSV retains legacy `oil` suffixes for compatibility; these now ref
 
 ### Core V1 — Variant 1 — 1U Open
 
-Core PnL: **$+58,191.29**; energy sidecar PnL: **$+500,808.26**.
+Core PnL: **$+105,307.70**; energy sidecar PnL: **$+500,808.26**.
 
 | 1U/EOD force variant | Pairing | Force PnL | Composite PnL | Gross cumulative notional | Gross open notional |
 |---|---|---:|---:|---:|---:|
-| Variant 1 — 1U Open | Matching | $+127,180.97 | $+686,180.52 | $13,225,000.00 | $12,305,000.00 |
-| Variant 2 — 1U SAR | Cross-variant | $+125,900.58 | $+684,900.13 | $13,225,000.00 | $12,105,000.00 |
-| Variant 3A — Nu Open | Cross-variant | $+148,084.09 | $+707,083.64 | $13,315,000.00 | $12,395,000.00 |
-| Variant 3B — Nu SAR | Cross-variant | $+136,581.98 | $+695,581.53 | $13,315,000.00 | $12,105,000.00 |
+| Variant 1 — 1U Open | Matching | $+127,180.97 | $+733,296.93 | $14,225,000.00 | $13,105,000.00 |
+| Variant 2 — 1U SAR | Cross-variant | $+125,900.58 | $+732,016.54 | $14,225,000.00 | $12,905,000.00 |
+| Variant 3A — Nu Open | Cross-variant | $+148,084.09 | $+754,200.05 | $14,315,000.00 | $13,195,000.00 |
+| Variant 3B — Nu SAR | Cross-variant | $+136,581.98 | $+742,697.94 | $14,315,000.00 | $12,905,000.00 |
 
 ### Core V2 — Variant 2 — 1U SAR
 
-Core PnL: **$+55,348.09**; energy sidecar PnL: **$+500,808.26**.
+Core PnL: **$+102,464.50**; energy sidecar PnL: **$+500,808.26**.
 
 | 1U/EOD force variant | Pairing | Force PnL | Composite PnL | Gross cumulative notional | Gross open notional |
 |---|---|---:|---:|---:|---:|
-| Variant 1 — 1U Open | Cross-variant | $+127,180.97 | $+683,337.32 | $13,225,000.00 | $12,255,000.00 |
-| Variant 2 — 1U SAR | Matching | $+125,900.58 | $+682,056.93 | $13,225,000.00 | $12,055,000.00 |
-| Variant 3A — Nu Open | Cross-variant | $+148,084.09 | $+704,240.44 | $13,315,000.00 | $12,345,000.00 |
-| Variant 3B — Nu SAR | Cross-variant | $+136,581.98 | $+692,738.33 | $13,315,000.00 | $12,055,000.00 |
+| Variant 1 — 1U Open | Cross-variant | $+127,180.97 | $+730,453.73 | $14,225,000.00 | $13,055,000.00 |
+| Variant 2 — 1U SAR | Matching | $+125,900.58 | $+729,173.34 | $14,225,000.00 | $12,855,000.00 |
+| Variant 3A — Nu Open | Cross-variant | $+148,084.09 | $+751,356.85 | $14,315,000.00 | $13,145,000.00 |
+| Variant 3B — Nu SAR | Cross-variant | $+136,581.98 | $+739,854.74 | $14,315,000.00 | $12,855,000.00 |
 
 ### Core V3A — Variant 3A — Nu Open
 
-Core PnL: **$+79,474.78**; energy sidecar PnL: **$+500,808.26**.
+Core PnL: **$+126,591.19**; energy sidecar PnL: **$+500,808.26**.
 
 | 1U/EOD force variant | Pairing | Force PnL | Composite PnL | Gross cumulative notional | Gross open notional |
 |---|---|---:|---:|---:|---:|
-| Variant 1 — 1U Open | Cross-variant | $+127,180.97 | $+707,464.01 | $13,315,000.00 | $12,395,000.00 |
-| Variant 2 — 1U SAR | Cross-variant | $+125,900.58 | $+706,183.62 | $13,315,000.00 | $12,195,000.00 |
-| Variant 3A — Nu Open | Matching | $+148,084.09 | $+728,367.13 | $13,405,000.00 | $12,485,000.00 |
-| Variant 3B — Nu SAR | Cross-variant | $+136,581.98 | $+716,865.02 | $13,405,000.00 | $12,195,000.00 |
+| Variant 1 — 1U Open | Cross-variant | $+127,180.97 | $+754,580.42 | $14,315,000.00 | $13,195,000.00 |
+| Variant 2 — 1U SAR | Cross-variant | $+125,900.58 | $+753,300.03 | $14,315,000.00 | $12,995,000.00 |
+| Variant 3A — Nu Open | Matching | $+148,084.09 | $+775,483.54 | $14,405,000.00 | $13,285,000.00 |
+| Variant 3B — Nu SAR | Cross-variant | $+136,581.98 | $+763,981.43 | $14,405,000.00 | $12,995,000.00 |
 
 ### Core V3B — Variant 3B — Nu SAR
 
-Core PnL: **$+66,514.79**; energy sidecar PnL: **$+500,808.26**.
+Core PnL: **$+113,631.20**; energy sidecar PnL: **$+500,808.26**.
 
 | 1U/EOD force variant | Pairing | Force PnL | Composite PnL | Gross cumulative notional | Gross open notional |
 |---|---|---:|---:|---:|---:|
-| Variant 1 — 1U Open | Cross-variant | $+127,180.97 | $+694,504.02 | $13,315,000.00 | $12,255,000.00 |
-| Variant 2 — 1U SAR | Cross-variant | $+125,900.58 | $+693,223.63 | $13,315,000.00 | $12,055,000.00 |
-| Variant 3A — Nu Open | Cross-variant | $+148,084.09 | $+715,407.14 | $13,405,000.00 | $12,345,000.00 |
-| Variant 3B — Nu SAR | Matching | $+136,581.98 | $+703,905.03 | $13,405,000.00 | $12,055,000.00 |
+| Variant 1 — 1U Open | Cross-variant | $+127,180.97 | $+741,620.43 | $14,315,000.00 | $13,055,000.00 |
+| Variant 2 — 1U SAR | Cross-variant | $+125,900.58 | $+740,340.04 | $14,315,000.00 | $12,855,000.00 |
+| Variant 3A — Nu Open | Cross-variant | $+148,084.09 | $+762,523.55 | $14,405,000.00 | $13,145,000.00 |
+| Variant 3B — Nu SAR | Matching | $+136,581.98 | $+751,021.44 | $14,405,000.00 | $12,855,000.00 |
 
 
 ## Percent gain across all 32 combinations
@@ -106,19 +106,19 @@ Percent gain is cumulative composite PnL divided by cumulative gross notional ad
 
 | Rank | Pairing | 10U energy sidecar | Terminal gain on cumulative notional added |
 |---:|---|---|---:|
-| 1 | Core V3A + 1U V3A | Included | 5.43% |
-| 2 | Core V3A + 1U V3B | Included | 5.35% |
-| 3 | Core V3B + 1U V3A | Included | 5.34% |
-| 4 | Core V3A + 1U V1 | Included | 5.31% |
+| 1 | Core V3A + 1U V3A | Included | 5.38% |
+| 2 | Core V3A + 1U V3B | Included | 5.30% |
+| 3 | Core V3B + 1U V3A | Included | 5.29% |
+| 4 | Core V3A + 1U V1 | Included | 5.27% |
 
 ## Core variants with add-ons — terminal PnL
 
 | Core variant | Core only | + $500 model | + 1U force multiplier | + energy desk | + $500 and energy | + force multiplier and energy |
 |---|---:|---:|---:|---:|---:|---:|
-| Variant 1 — 1U Open | $+58,191.29 | $+64,109.20 | $+176,549.51 | $+558,999.55 | $+564,917.46 | $+677,357.77 |
-| Variant 2 — 1U SAR | $+55,348.09 | $+61,266.00 | $+173,706.31 | $+556,156.35 | $+562,074.26 | $+674,514.57 |
-| Variant 3A — Nu Open | $+79,474.78 | $+85,392.69 | $+197,833.00 | $+580,283.04 | $+586,200.95 | $+698,641.26 |
-| Variant 3B — Nu SAR | $+66,514.79 | $+72,432.70 | $+184,873.01 | $+567,323.05 | $+573,240.96 | $+685,681.27 |
+| Variant 1 — 1U Open | $+105,307.70 | $+111,225.61 | $+223,665.92 | $+606,115.96 | $+612,033.87 | $+724,474.18 |
+| Variant 2 — 1U SAR | $+102,464.50 | $+108,382.41 | $+220,822.72 | $+603,272.76 | $+609,190.67 | $+721,630.98 |
+| Variant 3A — Nu Open | $+126,591.19 | $+132,509.10 | $+244,949.41 | $+627,399.45 | $+633,317.36 | $+745,757.67 |
+| Variant 3B — Nu SAR | $+113,631.20 | $+119,549.11 | $+231,989.42 | $+614,439.46 | $+620,357.37 | $+732,797.68 |
 
 The standalone 10U TradingView energy schedule ends at **$+500,808.26** on **$5,500,000.00** cumulative daily-buy notional. Use the notional columns when comparing scale; these additive composites do not apply a common capital base.
 

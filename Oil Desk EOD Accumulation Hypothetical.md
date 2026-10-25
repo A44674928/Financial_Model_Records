@@ -1,8 +1,8 @@
 # Oil Desk EOD Accumulation Hypothetical
 
-> **Historical sidecar—superseded for current comparisons (2026-10-24).** This legacy v1 schedule uses the prior energy marks and is not the current TradingView-only calculation. The active standalone energy and DXY schedules—including 0.05U, 1U, and 10U alternatives—are in [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md), and current strategy composites consume its 10U energy rows. Do not use this page's prior numbers as current results.
+> **Historical sidecar—superseded for current comparisons (2026-10-24).** This legacy v1 schedule uses the prior energy marks and is not the current TradingView-only calculation. The active TradingView energy schedule and DXY sizing/audit table are in [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md). The 1U/DAY/DXY sleeve is already integrated into core variants; 0.05U remains an alternative, while THE ONE MODEL separately adds 10U/DAY DXY to each of its 32 portfolios. Current strategy composites consume the 10U energy rows. Do not use this page's prior numbers as current results.
 
-A separate sidecar model layered on top of the existing chart-opened Brent and TVC:USOIL positions. It does not alter the four core strategy definitions or their DXY/yield account bases.
+This archived daily-buy sidecar is separate from the core. Its chart-position series is an attribution of logged chart/core lots, including the 50U Manual-Automatic Weekend Oil entries; those same tagged lots are already included in each core variant and must not be added to core-based composites a second time. The chart-position column shows open-lot unrealized PnL only; the realized trim PnL is recorded in the core replay.
 
 For the daily position and PnL methodology across all variants and sidecars, see [`Model Calculation Guide.md`](Model%20Calculation%20Guide.md).
 
@@ -24,11 +24,11 @@ For the daily position and PnL methodology across all variants and sidecars, see
 
 ## Terminal summary — Oct. 23, 2026
 
-| Instrument | EOD sessions | Daily-buy units | Daily-buy notional | Daily-buy PnL | Chart units | Chart-position PnL | Combined energy PnL |
+| Instrument | EOD sessions | Daily-buy units | Daily-buy notional | Daily-buy PnL | Chart-open units | Chart-open unrealized PnL | Combined energy PnL |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| BRENT | 23 | 230 | $2,300,000.00 | $+224,358.86 | 5 | $+5,026.57 | $+229,385.42 |
-| OIL | 32 | 320 | $3,200,000.00 | $+275,347.06 | 6 | $+6,614.56 | $+281,961.62 |
-| **All energy** | 55 | 550 | $5,500,000.00 | $+499,705.92 | 11 | $+11,641.13 | $+511,347.05 |
+| BRENT | 23 | 230 | $2,300,000.00 | $+224,358.86 | 45 | $+26,327.68 | $+250,686.54 |
+| OIL | 32 | 320 | $3,200,000.00 | $+275,347.06 | 46 | $+24,425.55 | $+299,772.61 |
+| **All energy** | 55 | 550 | $5,500,000.00 | $+499,705.92 | 91 | $+50,753.23 | $+550,459.15 |
 
 ![Daily EOD accumulation and chart positions](Charts/performance/19-oil-desk-daily-accumulation.png)
 
@@ -36,4 +36,4 @@ Session-level lots and PnL: [`oil_desk_eod_accumulation_v1.csv`](data/oil_desk_e
 
 Energy source rows: [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv). Active source map: [`active_price_source_registry_v3.csv`](data/active_price_source_registry_v3.csv).
 
-This hypothetical is not combined into the main portfolio DXY/yield multiplier views because it has its own daily capital deployment schedule. Applying those factors to the sidecar requires a separate account-capital convention.
+This historical 10U/day-buy schedule is not part of current core-based composites or whole-portfolio DXY/yield multipliers. Its combined energy column includes the chart-lot attribution described above, which is already in core; do not add that contribution again. Applying whole-account factors to the separate daily-buy schedule would require a distinct capital convention.

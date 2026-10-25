@@ -6,9 +6,9 @@ This guide explains how the repository's portfolio models turn the trade logs in
 
 | Book | What determines a new position? | How does an open position close? | Unit / sizing |
 |---|---|---|---|
-| Core V1 — 1U Open | Each logged `LONG`, `REBUY`, or `SHORT` entry | Explicit EXIT/TAKE PROFIT closes open longs. No automatic short cover on a later LONG/REBUY. | Logged entry units × 1U notional |
-| Core V2 — 1U SAR | Same entries and logged sizes as V1 | Explicit exit closes open longs; a LONG/REBUY also closes all open shorts. | Logged entry units × 1U notional |
-| Core V3A — Nu Open | Same as V1, except qualifying compounded shorts can be larger | Same close behavior as V1 | Logged units, except a qualifying compounded short uses the preceding full-exit unit count |
+| Core V1 — 1U Open | Each logged `LONG`, `REBUY`, or `SHORT` entry | Generic EXIT/TAKE PROFIT closes all open longs. A specifically tagged Manual-Automatic target trim closes only the specified units from its tagged entry. No automatic short cover on a later LONG/REBUY. | Logged entry units × 1U notional |
+| Core V2 — 1U SAR | Same entries and logged sizes as V1 | Same explicit long exits as V1; a LONG/REBUY also closes all open shorts. | Logged entry units × 1U notional |
+| Core V3A — Nu Open | Same as V1, except qualifying compounded shorts can be larger | Same close behavior as V1 | Logged units, except a qualifying compounded short uses the preceding full-exit unit count; a tagged partial trim does not reset that count |
 | Core V3B — Nu SAR | Same as V3A | Same close behavior as V2 | Same short compounding as V3A |
 | Exponential alternative | Latest logged direction, carried forward; add a lot each priced EOD | Close all old lots at EOD when the carried direction flips | Fixed $500 per active symbol per EOD |
 | Shared-direction force alternative | Same direction path and daily schedule as the $500 model | Close all old-direction lots on any direction flip | Fixed 1U per active symbol per EOD |
@@ -23,6 +23,7 @@ The $500 model, shared-direction 1U model, and four variant-specific 1U/EOD mode
 - The core replay reads the standardized records in `trades/*.txt`, orders events by date, time, ticker, then source-file order, and calculates the four core variants separately.
 - Each event's entry or exit date is assigned to the first priced session on or after that date. This carries weekend and market-holiday events to the next priced session. Events after the October 23, 2026 cutoff are outside this replay.
 - The entry/exit event price in the log is used as the lot's entry basis or close price. Open lots are marked against that ticker's configured EOD price series. The current core marks use only the normalized user-provided TradingView lists; the session-mark file records source rows and explicitly flags provisional XRH0 carry-forwards.
+- Manual-Automatic target-trim events are explicitly tagged in the note and reduce only units from the matching tagged entry. They split the lot into a realized portion and a remaining open portion; generic EXIT/TAKE PROFIT behavior is unchanged. For the weekend-oil entries, the first available EOD marks at/above the targets are Oct. 23. This is a modeled trigger session, not proof of an intraday touch or execution.
 - The four core models directly price 31 TradingView symbols and also include a chart-directed 1U/DAY/DXY index-return sleeve. The DXY signal is the logged LONG/REBUY/SHORT direction carried forward; the current log has one LONG badge, although its caption conflicts. DXY is not modeled as a futures/ETF contract. BTC/ETH remain pending recalibration; EURUSD, JPYUSD, US10Y, and US30Y remain outside these position replays. Whole-account DXY/yield views are historical, not recalculated on this benchmark.
 - A unit is a notional sizing measure, not a fixed number of shares. In these calculations, **1U corresponds to $10,000 of entry notional**. Core V1/V2 use each entry's logged unit size; V3A/V3B normally do too, subject to the compounded-short override below. Most current entries are 1U, and the ORCL entry is 2.5U. The `1U` labels describe standard sizing, not a rule that overrides a different size written in the log.
 
@@ -54,7 +55,7 @@ All four use the same logs, unit notional, price marks, explicit exit events, an
 ### V1 — 1U Open
 
 - Opens a lot for each logged LONG, REBUY, or SHORT entry using that entry's logged unit count.
-- An explicit EXIT or TAKE PROFIT event closes all currently open **long** lots for that ticker.
+- A generic EXIT or TAKE PROFIT event closes all currently open **long** lots for that ticker. A note tagged `Manual-Automatic target trim` instead closes only its logged units from open lots tagged `Manual-Automatic Entry`; any other lots, including the original 1U BRENT/OIL core positions, remain open.
 - Does not automatically close short lots when a later LONG/REBUY appears. A long and short for the same ticker can therefore be open at the same time.
 - The name “Open” means no LONG-triggered short-cover rule; explicit exit records still close long lots.
 
@@ -67,7 +68,7 @@ All four use the same logs, unit notional, price marks, explicit exit events, an
 ### V3A — Nu Open
 
 - Uses the V1 open/exit behavior.
-- For a SHORT entry explicitly noted as a **“Compounded short”**, if the preceding exit for that ticker recorded more than one unit, the new short uses that preceding exit's unit count rather than the short log line's usual 1-unit size.
+- For a SHORT entry explicitly noted as a **“Compounded short”**, if the preceding full exit for that ticker recorded more than one unit, the new short uses that preceding exit's unit count rather than the short log line's usual 1-unit size. A tagged Manual-Automatic partial trim is not a full exit and does not alter this sizing reference.
 - Does not automatically close shorts on a later LONG/REBUY.
 - This rule compounds qualifying shorts only; it does not scale up ordinary long entries or every subsequent trade.
 
@@ -104,7 +105,7 @@ For either shared-direction model, an active ticker can accumulate several same-
 
 These are four additional alternatives that retain the one-per-active-symbol-per-EOD schedule but apply the core variants' position handling. They are distinct from the shared-direction force model above; neither family is stacked with the other.
 
-On every priced EOD with a carried direction, the variant model adds one 1U lot. Trade-log entry sizes are ignored except for the V3A/V3B compounded-short rule below. Explicit EXIT/TAKE PROFIT events close all open long lots at the event's logged price, but do not erase the carried direction; if a direction remains active after processing the day's events, its scheduled EOD lot is still added. A new lot is opened at the EOD mark and marked from that close.
+On every priced EOD with a carried direction, the variant model adds one 1U lot. Trade-log entry sizes are ignored except for the V3A/V3B compounded-short rule below. Generic EXIT/TAKE PROFIT events close all open long lots at the event's logged price, but do not erase the carried direction; a specifically tagged Manual-Automatic trim is ignored by this separate 1U/EOD schedule because it has no matching 50U tagged lot. If a direction remains active after processing the day's events, its scheduled EOD lot is still added. A new lot is opened at the EOD mark and marked from that close.
 
 - **V1/V3A Open behavior:** a new opposite-direction signal does not close the previously accumulated lots. Longs and shorts for a ticker may coexist until an explicit long exit closes the longs.
 - **V2/V3B SAR behavior:** LONG/REBUY closes all accumulated short lots at that event's logged price before the day's EOD long lot is added. SHORT does not close open long lots, matching the asymmetry in the core implementation.
