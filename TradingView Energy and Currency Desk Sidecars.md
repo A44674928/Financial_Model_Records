@@ -25,6 +25,10 @@ The DXY log has one LONG badge on Sep. 4 at 99.087 (the original post's caption 
 | 1U | $10,000.00 | 35 | $350,000.00 | $+2,492.30 | $+268.85 |
 | 10U | $100,000.00 | 35 | $3,500,000.00 | $+24,923.03 | $+268.85 |
 
+![Three DXY daily-investment sizing options](Charts/performance/23-dxy-daily-sizing-alternatives.png)
+
+*Three-panel view of the 0.05U, 1U, and 10U DXY daily-lot PnL paths. Each panel uses its own dollar scale for readability; the size labels show daily and cumulative notional. The 1U/DAY schedule is included in every core model, while 0.05U and 10U are standalone alternatives.*
+
 The 0.05U, 1U, and 10U rows are alternative sizing views. The 1U/DAY/DXY PnL and notional are already included in each core model; do not add them a second time. The 0.05U and 10U rows are standalone alternatives, not core positions. Do not treat the one-time chart-position context as included in the daily-investment results.
 
 The crypto positions have been removed from the core comparison pending source calibration. See [`Crypto Sidecar — Pending TradingView Recalibration.md`](Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md); no BTC/ETH marks or PnL are used here.

@@ -9,7 +9,15 @@ DXY is a non-equity index mark, not a listed security/contract.
 import csv
 import re
 from collections import defaultdict
+from datetime import datetime
 from pathlib import Path
+
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 
 from model_perf_core import (
     BENCHMARK_SESSION_FILE,
@@ -29,6 +37,13 @@ ENERGY_START = {"BRENT": "2026-09-23", "OIL": "2026-09-10"}
 ENERGY_CSV = DATA / "tradingview_energy_sidecar_daily_20261024.csv"
 DXY_CSV = DATA / "dxy_currency_desk_sidecar_daily_20261024.csv"
 REPORT = ROOT / "TradingView Energy and Currency Desk Sidecars.md"
+DXY_GRAPH = ROOT / "Charts" / "performance" / "23-dxy-daily-sizing-alternatives.png"
+CHART_BG = "#0d131e"
+CHART_PANEL = "#141c2b"
+CHART_GRID = "#243044"
+CHART_FG = "#f1f5f9"
+CHART_MUTED = "#93a4bd"
+DXY_SIZE_COLORS = {"0.05U": "#38bdf8", "1U": "#fbbf24", "10U": "#f472b6"}
 
 
 def load_session_marks():
@@ -189,6 +204,78 @@ def write_rows(path, rows):
     return path
 
 
+def write_dxy_sizing_graph(rows):
+    """Plot the three DXY daily-lot size alternatives as readable small multiples."""
+    grouped = defaultdict(list)
+    for row in rows:
+        grouped[row["unit_size_label"]].append(row)
+    expected = ("0.05U", "1U", "10U")
+    if set(grouped) != set(expected):
+        raise ValueError(f"DXY graph requires all three sizing options: {sorted(grouped)}")
+
+    CHARTS = DXY_GRAPH.parent
+    CHARTS.mkdir(parents=True, exist_ok=True)
+    fig, axes = plt.subplots(3, 1, figsize=(13.5, 10), sharex=True)
+    fig.patch.set_facecolor(CHART_BG)
+    unit_tags = {"0.05U": "STANDALONE", "1U": "INTEGRATED IN EACH CORE", "10U": "STANDALONE"}
+    for ax, size in zip(axes, expected):
+        values = sorted(grouped[size], key=lambda row: row["date"])
+        dates = [datetime.strptime(row["date"], "%Y-%m-%d") for row in values]
+        pnl = [float(row["daily_investment_unrealized_pnl_usd"]) for row in values]
+        terminal = pnl[-1]
+        cumulative_notional = float(values[-1]["cumulative_notional_added_usd"])
+        color = DXY_SIZE_COLORS[size]
+
+        ax.set_facecolor(CHART_PANEL)
+        ax.plot(dates, pnl, color=color, linewidth=2.2)
+        ax.fill_between(dates, pnl, 0, color=color, alpha=0.12)
+        ax.axhline(0, color=CHART_MUTED, linewidth=0.9, linestyle="--", alpha=0.7)
+        ax.grid(True, color=CHART_GRID, linewidth=0.7, alpha=0.9)
+        ax.tick_params(colors=CHART_MUTED, labelsize=9)
+        for spine in ax.spines.values():
+            spine.set_color(CHART_GRID)
+        ax.yaxis.set_major_formatter(FuncFormatter(lambda value, _: f"${value:,.0f}"))
+        ax.set_ylabel("Sleeve PnL (USD)", color=CHART_MUTED, fontsize=9)
+        ax.set_title(
+            f"{size}/DAY — ${float(size[:-1]) * UNIT:,.0f} daily · "
+            f"${cumulative_notional:,.0f} cumulative · terminal "
+            f"{'+' if terminal >= 0 else '-'}${abs(terminal):,.2f} · {unit_tags[size]}",
+            color=CHART_FG,
+            fontsize=10.5,
+            loc="left",
+            pad=7,
+        )
+        ax.scatter([dates[-1]], [terminal], color=color, edgecolor=CHART_FG, linewidth=0.7, s=36, zorder=5)
+
+    all_dates = [datetime.strptime(row["date"], "%Y-%m-%d") for row in sorted(grouped["1U"], key=lambda row: row["date"])]
+    ticks = list(range(0, len(all_dates), 5))
+    if len(all_dates) - 1 not in ticks:
+        ticks.append(len(all_dates) - 1)
+    tick_positions = [all_dates[i] for i in ticks]
+    axes[-1].set_xticks(tick_positions)
+    axes[-1].set_xticklabels([day.strftime("%m-%d") for day in tick_positions], rotation=0, color=CHART_MUTED)
+    axes[-1].set_xlabel("TradingView EOD session (MST)", color=CHART_MUTED, fontsize=10)
+    fig.suptitle(
+        "DXY Daily-Investment Sizing Options — TradingView EOD Marks",
+        color=CHART_FG,
+        fontsize=15,
+        fontweight="bold",
+        y=0.985,
+    )
+    fig.text(
+        0.5,
+        0.012,
+        "Each panel uses its own dollar scale for readability. 1U/DAY is already in core PnL; 0.05U and 10U are standalone alternatives.",
+        ha="center",
+        color=CHART_MUTED,
+        fontsize=9,
+    )
+    fig.tight_layout(rect=(0.02, 0.04, 0.99, 0.96), h_pad=1.2)
+    fig.savefig(DXY_GRAPH, dpi=160, facecolor=fig.get_facecolor(), bbox_inches="tight")
+    plt.close(fig)
+    return DXY_GRAPH
+
+
 def _terminal_rows(rows, pnl_field, added_field, key_fields):
     summaries = []
     grouped = defaultdict(list)
@@ -248,6 +335,10 @@ def write_report(oil_rows, dxy_rows):
         )
     lines.extend([
         "",
+        "![Three DXY daily-investment sizing options](Charts/performance/23-dxy-daily-sizing-alternatives.png)",
+        "",
+        "*Three-panel view of the 0.05U, 1U, and 10U DXY daily-lot PnL paths. Each panel uses its own dollar scale for readability; the size labels show daily and cumulative notional. The 1U/DAY schedule is included in every core model, while 0.05U and 10U are standalone alternatives.*",
+        "",
         "The 0.05U, 1U, and 10U rows are alternative sizing views. The 1U/DAY/DXY PnL and notional are already included in each core model; do not add them a second time. The 0.05U and 10U rows are standalone alternatives, not core positions. Do not treat the one-time chart-position context as included in the daily-investment results.",
         "",
         "The crypto positions have been removed from the core comparison pending source calibration. See [`Crypto Sidecar — Pending TradingView Recalibration.md`](Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md); no BTC/ETH marks or PnL are used here.",
@@ -263,9 +354,11 @@ def main():
     dxy_rows = build_dxy_rows()
     write_rows(ENERGY_CSV, oil_rows)
     write_rows(DXY_CSV, dxy_rows)
+    write_dxy_sizing_graph(dxy_rows)
     write_report(oil_rows, dxy_rows)
     print(f"Wrote {ENERGY_CSV.relative_to(ROOT)} ({len(oil_rows)} rows)")
     print(f"Wrote {DXY_CSV.relative_to(ROOT)} ({len(dxy_rows)} rows)")
+    print(f"Wrote {DXY_GRAPH.relative_to(ROOT)}")
     print(f"Wrote {REPORT.relative_to(ROOT)}")
 
 

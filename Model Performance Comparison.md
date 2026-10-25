@@ -266,6 +266,10 @@ The five-entry LCID pilot is already included in the four-model replay through t
 
 The sidecar report presents 0.05U, 1U, and 10U sizing schedules. The chart-directed 1U/DAY/DXY index-return sleeve is integrated in every core variant; the DXY 0.05U and 10U rows are alternatives only. Strategy composites add the 10U energy schedule to the core, without adding DXY again. See [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md).
 
+![DXY daily-investment sizing options](Charts/performance/23-dxy-daily-sizing-alternatives.png)
+
+*The three panels show 0.05U, 1U, and 10U daily-lot PnL paths on separate scales. The 1U schedule is already included in core PnL; 0.05U and 10U are standalone alternatives.*
+
 ### EOD Add-On and Variant-Specific 1U/EOD Comparisons
 
 The fixed-$500/EOD model and 1U/EOD alternatives are separate model families, not stacked on top of one another. The broad comparison distinguishes standalone results from additive composites; composites sum PnL and gross notionals without netting positions or capital. See [`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md) and [`Model Calculation Guide.md`](Model%20Calculation%20Guide.md) for full rules and tables.
