@@ -5,6 +5,7 @@ This repository contains the Fall (Arizona) 2026 paper-trading ledger, model ana
 ## Start here
 
 - [Model Performance Comparison](Model%20Performance%20Comparison.md) — four-model daily and intraday comparison.
+- [THE ONE MODEL vs THE WINNING MODEL](THE%20ONE%20MODEL%20vs%20THE%20WINNING%20MODEL.md) — equal-gross comparison of the 32-portfolio aggregate and its ex-post top terminal-PnL constituent.
 - [Model Performance Explorer](Model%20Performance%20Explorer.html) — interactive view of model results.
 - [Model Calculation Guide](Model%20Calculation%20Guide.md) — plain-language unit sizing, daily position handling, reversal logic, and PnL formulas.
 - [Trades Zip PnL](Trades%20Zip%20PnL.md) — master historical PnL report; see its scope note for reconciliation status.

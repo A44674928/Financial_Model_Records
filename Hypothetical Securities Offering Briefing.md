@@ -249,6 +249,7 @@ Full daily audit series: [`the_one_model_split_portfolios_v1.csv`](data/the_one_
 
 ## 5. Key references
 
+- [THE ONE MODEL vs THE WINNING MODEL](THE%20ONE%20MODEL%20vs%20THE%20WINNING%20MODEL.md) — equal-terminal-gross-additions comparison; the selected winner is an ex-post, same-period benchmark.
 - [Model Performance Comparison](Model%20Performance%20Comparison.md)
 - [Model Calculation Guide](Model%20Calculation%20Guide.md)
 - [Strategy and Sidecar Comparison](Strategy%20and%20Sidecar%20Comparison.md)

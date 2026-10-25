@@ -11,6 +11,8 @@
 
 *Aggregate of 32 independent portfolios; percentage is PnL ÷ gross notional added, not an account return.*
 
+For an equal-gross comparison against the highest terminal-PnL individual constituent selected from this same period, see [**THE ONE MODEL vs THE WINNING MODEL**](THE%20ONE%20MODEL%20vs%20THE%20WINNING%20MODEL.md). The winning line is scaled proportionally to match terminal cumulative gross additions; this ex-post benchmark has selection bias and is not out-of-sample evidence.
+
 ## Model Performance Comparison — *Fall (Arizona) [2026]*
 
 Day-by-day (and, where market data supports it, intraday) comparison of the four portfolio models carried on the same standardized book: **[`trades/`](trades/)** / **[`trades.zip`](trades.zip)** — `31` direct-price core tickers plus the integrated 1U/DAY/DXY sleeve, `85` direct-price events plus `1` DXY direction signals out of `95` total 2026 log events (`9` other events outside scope; `0` direct events after cutoff), `1U = $10,000.00` standard notional, all timestamps in Arizona year-round **`MST` / `UTC-07:00`**, marked against the **Friday, October 23, 2026** close. Intraday plots remain on their supplied Oct. 22 hourly scope.
