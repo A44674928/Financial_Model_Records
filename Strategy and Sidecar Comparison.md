@@ -1,6 +1,7 @@
 # Strategy and Sidecar Comparison
 
 > **TradingView-only interim refresh — 2026-10-24.** Core comparisons use 31 supplied direct-price symbols plus the chart-directed 1U/DAY/DXY index-return sleeve integrated into each core variant; BTC/ETH are excluded pending recalibration. The energy add-on below uses the independently published 10U daily-buy schedule from the same TradingView benchmark. XRH0 includes five flagged carry-forward marks; see the benchmark coverage and session-mark files.
+> **Updated Part B source:** the revised user-provided archive corrects LLY's Oct. 20 close to `$1,283.66`, superseding the prior `$12,833.66` row; all strategy/core figures below use the revised mark.
 
 ![Core models, both direction-following model sizes, and sidecar combinations](Charts/performance/20-strategy-sidecar-comparison.png)
 
@@ -20,13 +21,13 @@ Calculation detail for the core variants and daily lot rules: [`Model Calculatio
 
 | Component/scenario | Terminal PnL | Cumulative notional added | Open notional |
 |---|---:|---:|---:|
-| Exponential — fixed $500/EOD | $+5,471.50 | $328,000.00 | $279,500.00 |
-| Shared-direction force — 1U per EOD | $+109,429.96 | $6,560,000.00 | $5,590,000.00 |
+| Exponential — fixed $500/EOD | $+5,917.91 | $328,000.00 | $279,500.00 |
+| Shared-direction force — 1U per EOD | $+118,358.22 | $6,560,000.00 | $5,590,000.00 |
 | 10U TradingView energy daily-buy sidecar | $+500,808.26 | $5,500,000.00 | $5,500,000.00 |
-| $500 model + 10U energy sidecar | $+506,279.76 | $5,828,000.00 | $5,779,500.00 |
-| 1U model + 10U energy sidecar | $+610,238.22 | $12,060,000.00 | $11,090,000.00 |
+| $500 model + 10U energy sidecar | $+506,726.17 | $5,828,000.00 | $5,779,500.00 |
+| 1U model + 10U energy sidecar | $+619,166.48 | $12,060,000.00 | $11,090,000.00 |
 
-The $500 model ends at **$+5,471.50** (realized $+4,342.56; unrealized $+1,128.94). The shared-direction 1U force model ends at **$+109,429.96** (realized $+86,851.11; unrealized $+22,578.85). With identical direction state and no tranche compounding, its PnL and exposure are 20× the $500 model before display rounding.
+The $500 model ends at **$+5,917.91** (realized $+4,342.56; unrealized $+1,575.36). The shared-direction 1U force model ends at **$+118,358.22** (realized $+86,851.11; unrealized $+31,507.11). With identical direction state and no tranche compounding, its PnL and exposure are 20× the $500 model before display rounding.
 
 ## Variant-specific 1U/EOD force models and energy combinations — terminal
 
@@ -38,17 +39,17 @@ The generated CSV retains legacy `oil` suffixes for compatibility; these now ref
 
 | 1U/EOD variant rule | Standalone force PnL | Cumulative notional added | Open notional |
 |---|---:|---:|---:|
-| Variant 1 — 1U Open | $+118,252.71 | $6,560,000.00 | $5,790,000.00 |
-| Variant 2 — 1U SAR | $+116,972.32 | $6,560,000.00 | $5,590,000.00 |
-| Variant 3A — Nu Open | $+139,155.83 | $6,650,000.00 | $5,880,000.00 |
-| Variant 3B — Nu SAR | $+127,653.72 | $6,650,000.00 | $5,590,000.00 |
+| Variant 1 — 1U Open | $+127,180.97 | $6,560,000.00 | $5,790,000.00 |
+| Variant 2 — 1U SAR | $+125,900.58 | $6,560,000.00 | $5,590,000.00 |
+| Variant 3A — Nu Open | $+148,084.09 | $6,650,000.00 | $5,880,000.00 |
+| Variant 3B — Nu SAR | $+136,581.98 | $6,650,000.00 | $5,590,000.00 |
 
 | 1U/EOD variant rule | Force model + energy PnL | Combined cumulative notional | Combined open notional |
 |---|---:|---:|---:|
-| Variant 1 — 1U Open + energy | $+619,060.97 | $12,060,000.00 | $11,290,000.00 |
-| Variant 2 — 1U SAR + energy | $+617,780.58 | $12,060,000.00 | $11,090,000.00 |
-| Variant 3A — Nu Open + energy | $+639,964.09 | $12,150,000.00 | $11,380,000.00 |
-| Variant 3B — Nu SAR + energy | $+628,461.98 | $12,150,000.00 | $11,090,000.00 |
+| Variant 1 — 1U Open + energy | $+627,989.23 | $12,060,000.00 | $11,290,000.00 |
+| Variant 2 — 1U SAR + energy | $+626,708.84 | $12,060,000.00 | $11,090,000.00 |
+| Variant 3A — Nu Open + energy | $+648,892.35 | $12,150,000.00 | $11,380,000.00 |
+| Variant 3B — Nu SAR + energy | $+637,390.24 | $12,150,000.00 | $11,090,000.00 |
 
 ## All core + 1U force variant pairings + 10U energy schedule — terminal
 
@@ -58,10 +59,10 @@ Core PnL: **$+58,191.29**; energy sidecar PnL: **$+500,808.26**.
 
 | 1U/EOD force variant | Pairing | Force PnL | Composite PnL | Gross cumulative notional | Gross open notional |
 |---|---|---:|---:|---:|---:|
-| Variant 1 — 1U Open | Matching | $+118,252.71 | $+677,252.26 | $13,225,000.00 | $12,305,000.00 |
-| Variant 2 — 1U SAR | Cross-variant | $+116,972.32 | $+675,971.87 | $13,225,000.00 | $12,105,000.00 |
-| Variant 3A — Nu Open | Cross-variant | $+139,155.83 | $+698,155.38 | $13,315,000.00 | $12,395,000.00 |
-| Variant 3B — Nu SAR | Cross-variant | $+127,653.72 | $+686,653.27 | $13,315,000.00 | $12,105,000.00 |
+| Variant 1 — 1U Open | Matching | $+127,180.97 | $+686,180.52 | $13,225,000.00 | $12,305,000.00 |
+| Variant 2 — 1U SAR | Cross-variant | $+125,900.58 | $+684,900.13 | $13,225,000.00 | $12,105,000.00 |
+| Variant 3A — Nu Open | Cross-variant | $+148,084.09 | $+707,083.64 | $13,315,000.00 | $12,395,000.00 |
+| Variant 3B — Nu SAR | Cross-variant | $+136,581.98 | $+695,581.53 | $13,315,000.00 | $12,105,000.00 |
 
 ### Core V2 — Variant 2 — 1U SAR
 
@@ -69,10 +70,10 @@ Core PnL: **$+55,348.09**; energy sidecar PnL: **$+500,808.26**.
 
 | 1U/EOD force variant | Pairing | Force PnL | Composite PnL | Gross cumulative notional | Gross open notional |
 |---|---|---:|---:|---:|---:|
-| Variant 1 — 1U Open | Cross-variant | $+118,252.71 | $+674,409.06 | $13,225,000.00 | $12,255,000.00 |
-| Variant 2 — 1U SAR | Matching | $+116,972.32 | $+673,128.67 | $13,225,000.00 | $12,055,000.00 |
-| Variant 3A — Nu Open | Cross-variant | $+139,155.83 | $+695,312.18 | $13,315,000.00 | $12,345,000.00 |
-| Variant 3B — Nu SAR | Cross-variant | $+127,653.72 | $+683,810.07 | $13,315,000.00 | $12,055,000.00 |
+| Variant 1 — 1U Open | Cross-variant | $+127,180.97 | $+683,337.32 | $13,225,000.00 | $12,255,000.00 |
+| Variant 2 — 1U SAR | Matching | $+125,900.58 | $+682,056.93 | $13,225,000.00 | $12,055,000.00 |
+| Variant 3A — Nu Open | Cross-variant | $+148,084.09 | $+704,240.44 | $13,315,000.00 | $12,345,000.00 |
+| Variant 3B — Nu SAR | Cross-variant | $+136,581.98 | $+692,738.33 | $13,315,000.00 | $12,055,000.00 |
 
 ### Core V3A — Variant 3A — Nu Open
 
@@ -80,10 +81,10 @@ Core PnL: **$+79,474.78**; energy sidecar PnL: **$+500,808.26**.
 
 | 1U/EOD force variant | Pairing | Force PnL | Composite PnL | Gross cumulative notional | Gross open notional |
 |---|---|---:|---:|---:|---:|
-| Variant 1 — 1U Open | Cross-variant | $+118,252.71 | $+698,535.75 | $13,315,000.00 | $12,395,000.00 |
-| Variant 2 — 1U SAR | Cross-variant | $+116,972.32 | $+697,255.36 | $13,315,000.00 | $12,195,000.00 |
-| Variant 3A — Nu Open | Matching | $+139,155.83 | $+719,438.87 | $13,405,000.00 | $12,485,000.00 |
-| Variant 3B — Nu SAR | Cross-variant | $+127,653.72 | $+707,936.76 | $13,405,000.00 | $12,195,000.00 |
+| Variant 1 — 1U Open | Cross-variant | $+127,180.97 | $+707,464.01 | $13,315,000.00 | $12,395,000.00 |
+| Variant 2 — 1U SAR | Cross-variant | $+125,900.58 | $+706,183.62 | $13,315,000.00 | $12,195,000.00 |
+| Variant 3A — Nu Open | Matching | $+148,084.09 | $+728,367.13 | $13,405,000.00 | $12,485,000.00 |
+| Variant 3B — Nu SAR | Cross-variant | $+136,581.98 | $+716,865.02 | $13,405,000.00 | $12,195,000.00 |
 
 ### Core V3B — Variant 3B — Nu SAR
 
@@ -91,10 +92,10 @@ Core PnL: **$+66,514.79**; energy sidecar PnL: **$+500,808.26**.
 
 | 1U/EOD force variant | Pairing | Force PnL | Composite PnL | Gross cumulative notional | Gross open notional |
 |---|---|---:|---:|---:|---:|
-| Variant 1 — 1U Open | Cross-variant | $+118,252.71 | $+685,575.76 | $13,315,000.00 | $12,255,000.00 |
-| Variant 2 — 1U SAR | Cross-variant | $+116,972.32 | $+684,295.37 | $13,315,000.00 | $12,055,000.00 |
-| Variant 3A — Nu Open | Cross-variant | $+139,155.83 | $+706,478.88 | $13,405,000.00 | $12,345,000.00 |
-| Variant 3B — Nu SAR | Matching | $+127,653.72 | $+694,976.77 | $13,405,000.00 | $12,055,000.00 |
+| Variant 1 — 1U Open | Cross-variant | $+127,180.97 | $+694,504.02 | $13,315,000.00 | $12,255,000.00 |
+| Variant 2 — 1U SAR | Cross-variant | $+125,900.58 | $+693,223.63 | $13,315,000.00 | $12,055,000.00 |
+| Variant 3A — Nu Open | Cross-variant | $+148,084.09 | $+715,407.14 | $13,405,000.00 | $12,345,000.00 |
+| Variant 3B — Nu SAR | Matching | $+136,581.98 | $+703,905.03 | $13,405,000.00 | $12,055,000.00 |
 
 
 ## Percent gain across all 32 combinations
@@ -105,19 +106,19 @@ Percent gain is cumulative composite PnL divided by cumulative gross notional ad
 
 | Rank | Pairing | 10U energy sidecar | Terminal gain on cumulative notional added |
 |---:|---|---|---:|
-| 1 | Core V3A + 1U V3A | Included | 5.37% |
-| 2 | Core V3A + 1U V3B | Included | 5.28% |
-| 3 | Core V3B + 1U V3A | Included | 5.27% |
-| 4 | Core V3A + 1U V1 | Included | 5.25% |
+| 1 | Core V3A + 1U V3A | Included | 5.43% |
+| 2 | Core V3A + 1U V3B | Included | 5.35% |
+| 3 | Core V3B + 1U V3A | Included | 5.34% |
+| 4 | Core V3A + 1U V1 | Included | 5.31% |
 
 ## Core variants with add-ons — terminal PnL
 
 | Core variant | Core only | + $500 model | + 1U force multiplier | + energy desk | + $500 and energy | + force multiplier and energy |
 |---|---:|---:|---:|---:|---:|---:|
-| Variant 1 — 1U Open | $+58,191.29 | $+63,662.79 | $+167,621.25 | $+558,999.55 | $+564,471.05 | $+668,429.51 |
-| Variant 2 — 1U SAR | $+55,348.09 | $+60,819.59 | $+164,778.05 | $+556,156.35 | $+561,627.85 | $+665,586.31 |
-| Variant 3A — Nu Open | $+79,474.78 | $+84,946.28 | $+188,904.74 | $+580,283.04 | $+585,754.54 | $+689,713.00 |
-| Variant 3B — Nu SAR | $+66,514.79 | $+71,986.29 | $+175,944.75 | $+567,323.05 | $+572,794.55 | $+676,753.01 |
+| Variant 1 — 1U Open | $+58,191.29 | $+64,109.20 | $+176,549.51 | $+558,999.55 | $+564,917.46 | $+677,357.77 |
+| Variant 2 — 1U SAR | $+55,348.09 | $+61,266.00 | $+173,706.31 | $+556,156.35 | $+562,074.26 | $+674,514.57 |
+| Variant 3A — Nu Open | $+79,474.78 | $+85,392.69 | $+197,833.00 | $+580,283.04 | $+586,200.95 | $+698,641.26 |
+| Variant 3B — Nu SAR | $+66,514.79 | $+72,432.70 | $+184,873.01 | $+567,323.05 | $+573,240.96 | $+685,681.27 |
 
 The standalone 10U TradingView energy schedule ends at **$+500,808.26** on **$5,500,000.00** cumulative daily-buy notional. Use the notional columns when comparing scale; these additive composites do not apply a common capital base.
 

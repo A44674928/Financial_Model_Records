@@ -44,13 +44,13 @@ class TheOneModelBriefingTests(unittest.TestCase):
         self.assertEqual(summary["period_start"], "2026-09-03")
         self.assertEqual(summary["period_end"], "2026-10-23")
         self.assertEqual(summary["portfolio_count"], 32)
-        self.assertEqual(summary["aggregate_terminal_pnl_usd"], "14105440.40")
+        self.assertEqual(summary["aggregate_terminal_pnl_usd"], "14391144.72")
         self.assertEqual(summary["aggregate_cumulative_gross_notional_added_usd"], "338080000.00")
         self.assertEqual(summary["aggregate_gross_open_notional_usd"], "303200000.00")
-        self.assertEqual(summary["aggregate_deployed_notional_ratio_pct"], "4.172220")
-        self.assertEqual(summary["aggregate_max_peak_to_trough_pnl_drawdown_usd"], "21622779.36")
-        self.assertEqual(summary["aggregate_max_drawdown_peak_date"], "2026-10-20")
-        self.assertEqual(summary["aggregate_max_drawdown_trough_date"], "2026-10-21")
+        self.assertEqual(summary["aggregate_deployed_notional_ratio_pct"], "4.256728")
+        self.assertEqual(summary["aggregate_max_peak_to_trough_pnl_drawdown_usd"], "1776663.92")
+        self.assertEqual(summary["aggregate_max_drawdown_peak_date"], "2026-09-28")
+        self.assertEqual(summary["aggregate_max_drawdown_trough_date"], "2026-09-29")
         self.assertEqual(summary["profitable_portfolios_at_terminal"], 32)
         self.assertEqual(
             sum(Decimal(p["terminal_pnl_usd"]) for p in summary["individual_portfolios"]),

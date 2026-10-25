@@ -2,8 +2,8 @@
   "benchmark_name": "User-provided TradingView price lists \u2014 Part B",
   "source_archive_url": "https://github.com/A44674928/Financial_Model_Records/blob/main/PART%20B%20PRICE%20LISTS%20TRADING%20VIEW.zip",
   "source_archive_path": "data/benchmark_tradingview_price_lists_part_b_source_20261024.zip",
-  "source_archive_sha256": "e49ca8d323e6d8f0aed265a89f8a4c88d54fe15760c997f184d8c58a47c75436",
-  "source_repository_commit": "2350af5925971b645aeaa07a13255b8cf33b3e03",
+  "source_archive_sha256": "12e781167a8c62801e254f00cf62c56ae548b576f01066bc15a962159e742776",
+  "source_repository_commit": "d5228326d034c8d515f1a8ca1c484c70c738904f",
   "price_data_path": "data/tradingview_benchmark_price_lists_part_b_20261024.csv",
   "coverage_path": "data/tradingview_benchmark_coverage_part_b_20261024.csv",
   "comparison_session_count": 36,
@@ -37,6 +37,7 @@
     ]
   },
   "notes": [
+    "Updated Part B archive is pinned to the recorded repository commit; it corrects the LLY 2026-10-20 source close to 1283.66 (superseding the prior archive's 12833.66).",
     "DXY is a separate non-equity index mark; its chart-directed 1U/DAY sleeve is integrated into core portfolio PnL rather than treated as a direct-price ticker.",
     "The XRH0 list has five missing dates on the common session calendar; no external prices are inserted. The interim model carries forward the previous supplied TradingView mark on those dates and flags each carry-forward.",
     "BTC and ETH are intentionally absent from Part B and remain pending TradingView recalibration outside the core comparison."

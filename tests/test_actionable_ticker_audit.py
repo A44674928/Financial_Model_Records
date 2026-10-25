@@ -50,7 +50,7 @@ class ActionableTickerAuditTests(unittest.TestCase):
             )
 
     def test_32_portfolio_aggregate_and_energy_sleeves_reconcile(self):
-        self.assertEqual(self.result["terminal_aggregate"], "14105440.40")
+        self.assertEqual(self.result["terminal_aggregate"], "14391144.72")
         self.assertEqual(self.result["terminal_notional"], "338080000.00")
         # Each core and force book occurs in eight of the 32 independent
         # portfolios. DXY belongs to the core component only; energy is added

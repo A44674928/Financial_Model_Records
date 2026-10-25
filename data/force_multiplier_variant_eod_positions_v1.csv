@@ -1001,7 +1001,7 @@ force_multiplier_variant_v1,V1,2026-10-20,GEV,long,890.33000000,1.00,10000.00,8,
 force_multiplier_variant_v1,V1,2026-10-20,HD,long,315.11000000,1.00,10000.00,25,250000.00,17119.76,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-20,INTC,long,91.69000000,1.00,10000.00,21,210000.00,-12212.19,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-20,LCID,long,3.27000000,1.00,10000.00,1,10000.00,0.00,Trade-log direction with core variant-specific close and size rules
-force_multiplier_variant_v1,V1,2026-10-20,LLY,long,12833.66000000,1.00,10000.00,7,70000.00,572811.52,Trade-log direction with core variant-specific close and size rules
+force_multiplier_variant_v1,V1,2026-10-20,LLY,long,1283.66000000,1.00,10000.00,7,70000.00,3295.65,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-20,LMT,long,548.71000000,1.00,10000.00,12,120000.00,6512.29,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-20,LULU,long,99.94000000,1.00,10000.00,24,240000.00,6882.95,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-20,META,long,694.25000000,1.00,10000.00,19,190000.00,-7338.66,Trade-log direction with core variant-specific close and size rules
@@ -1032,7 +1032,7 @@ force_multiplier_variant_v1,V1,2026-10-21,GEV,long,925.92000000,1.00,10000.00,9,
 force_multiplier_variant_v1,V1,2026-10-21,HD,long,314.14000000,1.00,10000.00,26,260000.00,16297.49,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-21,INTC,long,92.96000000,1.00,10000.00,22,220000.00,-10580.71,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-21,LCID,long,3.21000000,1.00,10000.00,2,20000.00,-183.49,Trade-log direction with core variant-specific close and size rules
-force_multiplier_variant_v1,V1,2026-10-21,LLY,long,1270.75000000,1.00,10000.00,8,80000.00,-6350.76,Trade-log direction with core variant-specific close and size rules
+force_multiplier_variant_v1,V1,2026-10-21,LLY,long,1270.75000000,1.00,10000.00,8,80000.00,2558.50,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-21,LMT,long,551.51000000,1.00,10000.00,13,130000.00,7157.86,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-21,LULU,long,96.53000000,1.00,10000.00,25,250000.00,-1540.81,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-21,META,long,697.52000000,1.00,10000.00,20,200000.00,-6572.51,Trade-log direction with core variant-specific close and size rules
@@ -1063,7 +1063,7 @@ force_multiplier_variant_v1,V1,2026-10-22,GEV,long,827.42000000,1.00,10000.00,10
 force_multiplier_variant_v1,V1,2026-10-22,HD,long,327.73000000,1.00,10000.00,27,270000.00,28250.39,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-22,INTC,long,85.49000000,1.00,10000.00,23,230000.00,-20980.48,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-22,LCID,long,3.46000000,1.00,10000.00,3,30000.00,1359.86,Trade-log direction with core variant-specific close and size rules
-force_multiplier_variant_v1,V1,2026-10-22,LLY,long,1306.69000000,1.00,10000.00,9,90000.00,-4267.77,Trade-log direction with core variant-specific close and size rules
+force_multiplier_variant_v1,V1,2026-10-22,LLY,long,1306.69000000,1.00,10000.00,9,90000.00,4893.46,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-22,LMT,long,589.91000000,1.00,10000.00,14,140000.00,16707.76,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-22,LULU,long,104.06000000,1.00,10000.00,26,260000.00,17840.70,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-22,META,long,648.85000000,1.00,10000.00,21,210000.00,-18673.55,Trade-log direction with core variant-specific close and size rules
@@ -1094,7 +1094,7 @@ force_multiplier_variant_v1,V1,2026-10-23,GEV,long,815.00000000,1.00,10000.00,11
 force_multiplier_variant_v1,V1,2026-10-23,HD,long,319.83000000,1.00,10000.00,28,280000.00,21061.00,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-23,INTC,long,86.96000000,1.00,10000.00,24,240000.00,-18761.99,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-23,LCID,long,3.52000000,1.00,10000.00,4,40000.00,1903.67,Trade-log direction with core variant-specific close and size rules
-force_multiplier_variant_v1,V1,2026-10-23,LLY,long,1273.46000000,1.00,10000.00,10,100000.00,-6448.00,Trade-log direction with core variant-specific close and size rules
+force_multiplier_variant_v1,V1,2026-10-23,LLY,long,1273.46000000,1.00,10000.00,10,100000.00,2480.26,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-23,LMT,long,604.18000000,1.00,10000.00,15,150000.00,20498.54,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-23,LULU,long,99.01000000,1.00,10000.00,27,270000.00,4357.18,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v1,V1,2026-10-23,META,long,642.62000000,1.00,10000.00,22,220000.00,-20318.56,Trade-log direction with core variant-specific close and size rules
@@ -2117,7 +2117,7 @@ force_multiplier_variant_v2,V2,2026-10-20,GEV,long,890.33000000,1.00,10000.00,8,
 force_multiplier_variant_v2,V2,2026-10-20,HD,long,315.11000000,1.00,10000.00,25,250000.00,17119.76,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-20,INTC,long,91.69000000,1.00,10000.00,17,170000.00,-22678.63,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-20,LCID,long,3.27000000,1.00,10000.00,1,10000.00,0.00,Trade-log direction with core variant-specific close and size rules
-force_multiplier_variant_v2,V2,2026-10-20,LLY,long,12833.66000000,1.00,10000.00,7,70000.00,572811.52,Trade-log direction with core variant-specific close and size rules
+force_multiplier_variant_v2,V2,2026-10-20,LLY,long,1283.66000000,1.00,10000.00,7,70000.00,3295.65,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-20,LMT,long,548.71000000,1.00,10000.00,12,120000.00,6512.29,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-20,LULU,long,99.94000000,1.00,10000.00,24,240000.00,6882.95,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-20,META,long,694.25000000,1.00,10000.00,18,180000.00,-8410.44,Trade-log direction with core variant-specific close and size rules
@@ -2148,7 +2148,7 @@ force_multiplier_variant_v2,V2,2026-10-21,GEV,long,925.92000000,1.00,10000.00,9,
 force_multiplier_variant_v2,V2,2026-10-21,HD,long,314.14000000,1.00,10000.00,26,260000.00,16297.49,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-21,INTC,long,92.96000000,1.00,10000.00,18,180000.00,-20638.08,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-21,LCID,long,3.21000000,1.00,10000.00,2,20000.00,-183.49,Trade-log direction with core variant-specific close and size rules
-force_multiplier_variant_v2,V2,2026-10-21,LLY,long,1270.75000000,1.00,10000.00,8,80000.00,-6350.76,Trade-log direction with core variant-specific close and size rules
+force_multiplier_variant_v2,V2,2026-10-21,LLY,long,1270.75000000,1.00,10000.00,8,80000.00,2558.50,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-21,LMT,long,551.51000000,1.00,10000.00,13,130000.00,7157.86,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-21,LULU,long,96.53000000,1.00,10000.00,25,250000.00,-1540.81,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-21,META,long,697.52000000,1.00,10000.00,19,190000.00,-7602.23,Trade-log direction with core variant-specific close and size rules
@@ -2179,7 +2179,7 @@ force_multiplier_variant_v2,V2,2026-10-22,GEV,long,827.42000000,1.00,10000.00,10
 force_multiplier_variant_v2,V2,2026-10-22,HD,long,327.73000000,1.00,10000.00,27,270000.00,28250.39,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-22,INTC,long,85.49000000,1.00,10000.00,19,190000.00,-33443.95,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-22,LCID,long,3.46000000,1.00,10000.00,3,30000.00,1359.86,Trade-log direction with core variant-specific close and size rules
-force_multiplier_variant_v2,V2,2026-10-22,LLY,long,1306.69000000,1.00,10000.00,9,90000.00,-4267.77,Trade-log direction with core variant-specific close and size rules
+force_multiplier_variant_v2,V2,2026-10-22,LLY,long,1306.69000000,1.00,10000.00,9,90000.00,4893.46,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-22,LMT,long,589.91000000,1.00,10000.00,14,140000.00,16707.76,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-22,LULU,long,104.06000000,1.00,10000.00,26,260000.00,17840.70,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-22,META,long,648.85000000,1.00,10000.00,20,200000.00,-20329.18,Trade-log direction with core variant-specific close and size rules
@@ -2210,7 +2210,7 @@ force_multiplier_variant_v2,V2,2026-10-23,GEV,long,815.00000000,1.00,10000.00,11
 force_multiplier_variant_v2,V2,2026-10-23,HD,long,319.83000000,1.00,10000.00,28,280000.00,21061.00,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-23,INTC,long,86.96000000,1.00,10000.00,20,200000.00,-30751.97,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-23,LCID,long,3.52000000,1.00,10000.00,4,40000.00,1903.67,Trade-log direction with core variant-specific close and size rules
-force_multiplier_variant_v2,V2,2026-10-23,LLY,long,1273.46000000,1.00,10000.00,10,100000.00,-6448.00,Trade-log direction with core variant-specific close and size rules
+force_multiplier_variant_v2,V2,2026-10-23,LLY,long,1273.46000000,1.00,10000.00,10,100000.00,2480.26,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-23,LMT,long,604.18000000,1.00,10000.00,15,150000.00,20498.54,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-23,LULU,long,99.01000000,1.00,10000.00,27,270000.00,4357.18,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v2,V2,2026-10-23,META,long,642.62000000,1.00,10000.00,21,210000.00,-22054.30,Trade-log direction with core variant-specific close and size rules
@@ -3233,7 +3233,7 @@ force_multiplier_variant_v3a,V3A,2026-10-20,GEV,long,890.33000000,1.00,10000.00,
 force_multiplier_variant_v3a,V3A,2026-10-20,HD,long,315.11000000,1.00,10000.00,25,250000.00,17119.76,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-20,INTC,long,91.69000000,1.00,10000.00,21,250000.00,-1823.04,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-20,LCID,long,3.27000000,1.00,10000.00,1,10000.00,0.00,Trade-log direction with core variant-specific close and size rules
-force_multiplier_variant_v3a,V3A,2026-10-20,LLY,long,12833.66000000,1.00,10000.00,7,70000.00,572811.52,Trade-log direction with core variant-specific close and size rules
+force_multiplier_variant_v3a,V3A,2026-10-20,LLY,long,1283.66000000,1.00,10000.00,7,70000.00,3295.65,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-20,LMT,long,548.71000000,1.00,10000.00,12,120000.00,6512.29,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-20,LULU,long,99.94000000,1.00,10000.00,24,240000.00,6882.95,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-20,META,long,694.25000000,1.00,10000.00,19,230000.00,-3051.57,Trade-log direction with core variant-specific close and size rules
@@ -3264,7 +3264,7 @@ force_multiplier_variant_v3a,V3A,2026-10-21,GEV,long,925.92000000,1.00,10000.00,
 force_multiplier_variant_v3a,V3A,2026-10-21,HD,long,314.14000000,1.00,10000.00,26,260000.00,16297.49,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-21,INTC,long,92.96000000,1.00,10000.00,22,260000.00,-601.70,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-21,LCID,long,3.21000000,1.00,10000.00,2,20000.00,-183.49,Trade-log direction with core variant-specific close and size rules
-force_multiplier_variant_v3a,V3A,2026-10-21,LLY,long,1270.75000000,1.00,10000.00,8,80000.00,-6350.76,Trade-log direction with core variant-specific close and size rules
+force_multiplier_variant_v3a,V3A,2026-10-21,LLY,long,1270.75000000,1.00,10000.00,8,80000.00,2558.50,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-21,LMT,long,551.51000000,1.00,10000.00,13,130000.00,7157.86,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-21,LULU,long,96.53000000,1.00,10000.00,25,250000.00,-1540.81,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-21,META,long,697.52000000,1.00,10000.00,20,240000.00,-2453.63,Trade-log direction with core variant-specific close and size rules
@@ -3295,7 +3295,7 @@ force_multiplier_variant_v3a,V3A,2026-10-22,GEV,long,827.42000000,1.00,10000.00,
 force_multiplier_variant_v3a,V3A,2026-10-22,HD,long,327.73000000,1.00,10000.00,27,270000.00,28250.39,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-22,INTC,long,85.49000000,1.00,10000.00,23,270000.00,-8589.07,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-22,LCID,long,3.46000000,1.00,10000.00,3,30000.00,1359.86,Trade-log direction with core variant-specific close and size rules
-force_multiplier_variant_v3a,V3A,2026-10-22,LLY,long,1306.69000000,1.00,10000.00,9,90000.00,-4267.77,Trade-log direction with core variant-specific close and size rules
+force_multiplier_variant_v3a,V3A,2026-10-22,LLY,long,1306.69000000,1.00,10000.00,9,90000.00,4893.46,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-22,LMT,long,589.91000000,1.00,10000.00,14,140000.00,16707.76,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-22,LULU,long,104.06000000,1.00,10000.00,26,260000.00,17840.70,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-22,META,long,648.85000000,1.00,10000.00,21,250000.00,-12051.03,Trade-log direction with core variant-specific close and size rules
@@ -3326,7 +3326,7 @@ force_multiplier_variant_v3a,V3A,2026-10-23,GEV,long,815.00000000,1.00,10000.00,
 force_multiplier_variant_v3a,V3A,2026-10-23,HD,long,319.83000000,1.00,10000.00,28,280000.00,21061.00,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-23,INTC,long,86.96000000,1.00,10000.00,24,280000.00,-6845.31,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-23,LCID,long,3.52000000,1.00,10000.00,4,40000.00,1903.67,Trade-log direction with core variant-specific close and size rules
-force_multiplier_variant_v3a,V3A,2026-10-23,LLY,long,1273.46000000,1.00,10000.00,10,100000.00,-6448.00,Trade-log direction with core variant-specific close and size rules
+force_multiplier_variant_v3a,V3A,2026-10-23,LLY,long,1273.46000000,1.00,10000.00,10,100000.00,2480.26,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-23,LMT,long,604.18000000,1.00,10000.00,15,150000.00,20498.54,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-23,LULU,long,99.01000000,1.00,10000.00,27,270000.00,4357.18,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3a,V3A,2026-10-23,META,long,642.62000000,1.00,10000.00,22,260000.00,-13375.57,Trade-log direction with core variant-specific close and size rules
@@ -4349,7 +4349,7 @@ force_multiplier_variant_v3b,V3B,2026-10-20,GEV,long,890.33000000,1.00,10000.00,
 force_multiplier_variant_v3b,V3B,2026-10-20,HD,long,315.11000000,1.00,10000.00,25,250000.00,17119.76,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-20,INTC,long,91.69000000,1.00,10000.00,17,170000.00,-22678.63,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-20,LCID,long,3.27000000,1.00,10000.00,1,10000.00,0.00,Trade-log direction with core variant-specific close and size rules
-force_multiplier_variant_v3b,V3B,2026-10-20,LLY,long,12833.66000000,1.00,10000.00,7,70000.00,572811.52,Trade-log direction with core variant-specific close and size rules
+force_multiplier_variant_v3b,V3B,2026-10-20,LLY,long,1283.66000000,1.00,10000.00,7,70000.00,3295.65,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-20,LMT,long,548.71000000,1.00,10000.00,12,120000.00,6512.29,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-20,LULU,long,99.94000000,1.00,10000.00,24,240000.00,6882.95,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-20,META,long,694.25000000,1.00,10000.00,18,180000.00,-8410.44,Trade-log direction with core variant-specific close and size rules
@@ -4380,7 +4380,7 @@ force_multiplier_variant_v3b,V3B,2026-10-21,GEV,long,925.92000000,1.00,10000.00,
 force_multiplier_variant_v3b,V3B,2026-10-21,HD,long,314.14000000,1.00,10000.00,26,260000.00,16297.49,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-21,INTC,long,92.96000000,1.00,10000.00,18,180000.00,-20638.08,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-21,LCID,long,3.21000000,1.00,10000.00,2,20000.00,-183.49,Trade-log direction with core variant-specific close and size rules
-force_multiplier_variant_v3b,V3B,2026-10-21,LLY,long,1270.75000000,1.00,10000.00,8,80000.00,-6350.76,Trade-log direction with core variant-specific close and size rules
+force_multiplier_variant_v3b,V3B,2026-10-21,LLY,long,1270.75000000,1.00,10000.00,8,80000.00,2558.50,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-21,LMT,long,551.51000000,1.00,10000.00,13,130000.00,7157.86,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-21,LULU,long,96.53000000,1.00,10000.00,25,250000.00,-1540.81,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-21,META,long,697.52000000,1.00,10000.00,19,190000.00,-7602.23,Trade-log direction with core variant-specific close and size rules
@@ -4411,7 +4411,7 @@ force_multiplier_variant_v3b,V3B,2026-10-22,GEV,long,827.42000000,1.00,10000.00,
 force_multiplier_variant_v3b,V3B,2026-10-22,HD,long,327.73000000,1.00,10000.00,27,270000.00,28250.39,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-22,INTC,long,85.49000000,1.00,10000.00,19,190000.00,-33443.95,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-22,LCID,long,3.46000000,1.00,10000.00,3,30000.00,1359.86,Trade-log direction with core variant-specific close and size rules
-force_multiplier_variant_v3b,V3B,2026-10-22,LLY,long,1306.69000000,1.00,10000.00,9,90000.00,-4267.77,Trade-log direction with core variant-specific close and size rules
+force_multiplier_variant_v3b,V3B,2026-10-22,LLY,long,1306.69000000,1.00,10000.00,9,90000.00,4893.46,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-22,LMT,long,589.91000000,1.00,10000.00,14,140000.00,16707.76,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-22,LULU,long,104.06000000,1.00,10000.00,26,260000.00,17840.70,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-22,META,long,648.85000000,1.00,10000.00,20,200000.00,-20329.18,Trade-log direction with core variant-specific close and size rules
@@ -4442,7 +4442,7 @@ force_multiplier_variant_v3b,V3B,2026-10-23,GEV,long,815.00000000,1.00,10000.00,
 force_multiplier_variant_v3b,V3B,2026-10-23,HD,long,319.83000000,1.00,10000.00,28,280000.00,21061.00,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-23,INTC,long,86.96000000,1.00,10000.00,20,200000.00,-30751.97,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-23,LCID,long,3.52000000,1.00,10000.00,4,40000.00,1903.67,Trade-log direction with core variant-specific close and size rules
-force_multiplier_variant_v3b,V3B,2026-10-23,LLY,long,1273.46000000,1.00,10000.00,10,100000.00,-6448.00,Trade-log direction with core variant-specific close and size rules
+force_multiplier_variant_v3b,V3B,2026-10-23,LLY,long,1273.46000000,1.00,10000.00,10,100000.00,2480.26,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-23,LMT,long,604.18000000,1.00,10000.00,15,150000.00,20498.54,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-23,LULU,long,99.01000000,1.00,10000.00,27,270000.00,4357.18,Trade-log direction with core variant-specific close and size rules
 force_multiplier_variant_v3b,V3B,2026-10-23,META,long,642.62000000,1.00,10000.00,21,210000.00,-22054.30,Trade-log direction with core variant-specific close and size rules

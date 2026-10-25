@@ -46,11 +46,12 @@
   "raw_price_rows": 1214,
   "aligned_session_mark_rows": 1152,
   "part_a_archive_sha256": "1f283d0f7bf09edf8462a2115ec5c0c42be4f4c6a7491ffdb90d7b6060aa5f3e",
-  "part_b_archive_sha256": "e49ca8d323e6d8f0aed265a89f8a4c88d54fe15760c997f184d8c58a47c75436",
+  "part_b_archive_sha256": "12e781167a8c62801e254f00cf62c56ae548b576f01066bc15a962159e742776",
   "raw_price_data_path": "data/tradingview_benchmark_price_lists_20261024.csv",
   "aligned_session_marks_path": "data/tradingview_benchmark_session_marks_20261024.csv",
   "coverage_path": "data/tradingview_benchmark_coverage_20261024.csv",
   "source_reconciliation": {
+    "LLY": "The updated Part B archive supplies a 2026-10-20 close of 1283.66, replacing the prior archive's 12833.66 mark; all downstream outputs use the updated row.",
     "XRH0": "Five missing common-session marks are carried forward from the previous supplied TradingView close; each row is explicitly flagged.",
     "DXY": "Provided in Part B as a non-equity index mark; its chart-directed 1U/DAY index-return sleeve is integrated into each core portfolio variant.",
     "BTC_ETH": "No legacy Yahoo or previous project marks enter the core model or pending sidecar calculations."

@@ -1,6 +1,7 @@
 # THE ONE MODEL
 
 > **TradingView-only interim recalculation — 2026-10-24.** Core results below combine the 31 supplied direct-price TradingView symbols with a 1U/DAY/DXY currency-index sleeve across 36 common sessions. The DXY sleeve adds one 1U tranche each active EOD in the latest charted LONG/REBUY/SHORT direction; its current single LONG badge controls despite the conflicting caption. BTC and ETH remain excluded pending recalibration. No legacy or substitute prices are used. XRH0 has five transparently flagged carry-forward marks from prior supplied TradingView closes. See [`data/tradingview_benchmark_coverage_20261024.csv`](data/tradingview_benchmark_coverage_20261024.csv), [`data/tradingview_benchmark_session_marks_20261024.csv`](data/tradingview_benchmark_session_marks_20261024.csv), and the [crypto pending page](Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md).
+> **Updated source archive:** the revised Part B ZIP changes LLY's Oct. 20 TradingView mark from `$12,833.66` to `$1,283.66`; all model results below use the revised source and have been regenerated. See [`research/notes/tradingview-benchmark-import-20261024.md`](research/notes/tradingview-benchmark-import-20261024.md) and the Part B manifest.
 
 ![THE ONE MODEL 32-portfolio split-strategy superstructure](Charts/superstructure/the-one-model.png)
 
@@ -109,8 +110,8 @@ Raw dollars flatter V3A/V3B because they deploy more capital — `125.5` units (
 | `2026-10-15` | +514.60 | +23.27 | +1,576.89 | +177.54 | widest split (V3A best, V2 worst) |
 | `2026-10-16` | +4,673.10 | +2,620.71 | +7,890.72 | +2,677.15 | widest split (V3A best, V2 worst) |
 | `2026-10-19` | -1,881.03 | -1,173.90 | -2,313.33 | -1,160.25 | widest split (V3B best, V3A worst) |
-| `2026-10-20` | +98,858.91 | +98,565.58 | +99,559.69 | +98,565.58 | widest split (V3A best, V2 worst) |
-| `2026-10-21` | -101,478.49 | -100,559.41 | -102,221.26 | -100,559.41 | widest split (V2 best, V3A worst) |
+| `2026-10-20` | +916.96 | +623.64 | +1,617.74 | +623.64 | widest split (V3A best, V2 worst) |
+| `2026-10-21` | -3,536.54 | -2,617.47 | -4,279.31 | -2,617.47 | widest split (V2 best, V3A worst) |
 | `2026-10-22` | +9,269.56 | +6,683.17 | +14,568.55 | +6,683.17 | widest split (V3A best, V2 worst) |
 | `2026-10-23` | +6,133.89 | +6,129.39 | +6,192.34 | +6,129.39 | Terminal mark |
 
@@ -129,10 +130,10 @@ Raw dollars flatter V3A/V3B because they deploy more capital — `125.5` units (
 
 | Model | Peak | Peak day | Trough | Trough day | Max drawdown | Max DD day | Best day | Worst day |
 |---|---:|---|---:|---:|---|---:|---|---:|
-| **Variant 1 — 1U Open** | $144,266.32 | `2026-10-20` | $59.27 | `2026-09-03` | -$101,478.49 | `2026-10-21` | $98,858.91 (`2026-10-20`) | -$101,478.49 (`2026-10-21`) |
-| **Variant 2 — 1U SAR** | $143,094.94 | `2026-10-20` | $59.27 | `2026-09-03` | -$100,559.41 | `2026-10-21` | $98,565.58 (`2026-10-20`) | -$100,559.41 (`2026-10-21`) |
-| **Variant 3A — Nu Open** | $160,935.14 | `2026-10-20` | $59.27 | `2026-09-03` | -$102,221.26 | `2026-10-21` | $99,559.69 (`2026-10-20`) | -$102,221.26 (`2026-10-21`) |
-| **Variant 3B — Nu SAR** | $154,261.65 | `2026-10-20` | $59.27 | `2026-09-03` | -$100,559.41 | `2026-10-21` | $98,565.58 (`2026-10-20`) | -$100,559.41 (`2026-10-21`) |
+| **Variant 1 — 1U Open** | $58,191.29 | `2026-10-23` | $59.27 | `2026-09-03` | -$4,500.61 | `2026-10-21` | $12,567.08 (`2026-09-21`) | -$3,536.54 (`2026-10-21`) |
+| **Variant 2 — 1U SAR** | $55,348.09 | `2026-10-23` | $59.27 | `2026-09-03` | -$3,167.73 | `2026-10-21` | $12,861.82 (`2026-09-21`) | -$2,849.06 (`2026-09-29`) |
+| **Variant 3A — Nu Open** | $79,474.78 | `2026-10-23` | $59.27 | `2026-09-03` | -$4,974.90 | `2026-10-21` | $14,568.55 (`2026-10-22`) | -$4,279.31 (`2026-10-21`) |
+| **Variant 3B — Nu SAR** | $66,514.79 | `2026-10-23` | $59.27 | `2026-09-03` | -$3,154.08 | `2026-10-21` | $12,861.82 (`2026-09-21`) | -$2,849.06 (`2026-09-29`) |
 
 ## Terminal Composition
 
@@ -275,7 +276,7 @@ The next chart contains all **16 Core × variant-specific 1U/EOD pairings**, inc
 
 ![All 16 Core × 1U variant pairings with energy sidecar](Charts/performance/21-force-variant-oil-comparison.png)
 
-The percentage-gain view plots all **32 series**: the same 16 Core × 1U pairings, each with and without the energy sidecar. Gain is cumulative PnL divided by cumulative gross notional added—a deployed-notional ratio, **not an account return**. Only the top four terminal performers are named in the legend; all 32 are plotted. The earlier **8.88% static single-composite proxy is not a result for this 32-portfolio split**. The leading terminal ratios are Core V3A + 1U V3A with energy sidecar, **5.37%**; Core V3A + 1U V3B with energy sidecar, **5.28%**; Core V3B + 1U V3A with energy sidecar, **5.27%**; Core V3A + 1U V1 with energy sidecar, **5.25%**.
+The percentage-gain view plots all **32 series**: the same 16 Core × 1U pairings, each with and without the energy sidecar. Gain is cumulative PnL divided by cumulative gross notional added—a deployed-notional ratio, **not an account return**. Only the top four terminal performers are named in the legend; all 32 are plotted. The earlier **8.88% static single-composite proxy is not a result for this 32-portfolio split**. The leading terminal ratios are Core V3A + 1U V3A with energy sidecar, **5.43%**; Core V3A + 1U V3B with energy sidecar, **5.35%**; Core V3B + 1U V3A with energy sidecar, **5.34%**; Core V3A + 1U V1 with energy sidecar, **5.31%**.
 
 ![All 32 Core × 1U variant pairings with and without the energy sidecar, shown as deployed-notional percentage gain](Charts/performance/22-force-variant-oil-percent-gain.png)
 

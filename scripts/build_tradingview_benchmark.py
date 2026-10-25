@@ -163,6 +163,7 @@ def build():
         "aligned_session_marks_path": str(SESSION_MARKS.relative_to(ROOT)),
         "coverage_path": str(COVERAGE.relative_to(ROOT)),
         "source_reconciliation": {
+            "LLY": "The updated Part B archive supplies a 2026-10-20 close of 1283.66, replacing the prior archive's 12833.66 mark; all downstream outputs use the updated row.",
             "XRH0": "Five missing common-session marks are carried forward from the previous supplied TradingView close; each row is explicitly flagged.",
             "DXY": "Provided in Part B as a non-equity index mark; its chart-directed 1U/DAY index-return sleeve is integrated into each core portfolio variant.",
             "BTC_ETH": "No legacy Yahoo or previous project marks enter the core model or pending sidecar calculations.",

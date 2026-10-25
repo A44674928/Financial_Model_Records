@@ -83,18 +83,18 @@ class StrategySidecarComparisonTests(unittest.TestCase):
 
         terminal = {variant: rows[-1] for variant, rows in daily.items()}
         self.assertEqual(terminal["V1"]["V1_force_1u_cumulative_notional_added_usd"], "6560000.00")
-        self.assertEqual(terminal["V2"]["V2_force_1u_pnl_usd"], "116972.32")
-        self.assertEqual(terminal["V3A"]["V3A_force_1u_pnl_usd"], "139155.83")
+        self.assertEqual(terminal["V2"]["V2_force_1u_pnl_usd"], "125900.58")
+        self.assertEqual(terminal["V3A"]["V3A_force_1u_pnl_usd"], "148084.09")
         self.assertEqual(terminal["V3B"]["V3B_force_1u_cumulative_notional_added_usd"], "6650000.00")
 
     def test_sidecar_and_core_composites_are_additive_without_chart_double_count(self):
         rows, _, _, _, core = comparison_rows()
         terminal = rows[-1]
         self.assertEqual(terminal["oil_desk_daily_buy_pnl_usd"], "500808.26")
-        self.assertEqual(terminal["exponential_500_pnl_usd"], "5471.50")
-        self.assertEqual(terminal["force_multiplier_1u_pnl_usd"], "109429.96")
-        self.assertEqual(terminal["exponential_500_plus_oil_pnl_usd"], "506279.76")
-        self.assertEqual(terminal["force_multiplier_plus_oil_pnl_usd"], "610238.22")
+        self.assertEqual(terminal["exponential_500_pnl_usd"], "5917.91")
+        self.assertEqual(terminal["force_multiplier_1u_pnl_usd"], "118358.22")
+        self.assertEqual(terminal["exponential_500_plus_oil_pnl_usd"], "506726.17")
+        self.assertEqual(terminal["force_multiplier_plus_oil_pnl_usd"], "619166.48")
         self.assertEqual(terminal["V1_core_pnl_usd"], f"{core['V1']['total'][-1]:.2f}")
         self.assertEqual(
             terminal["V1_plus_force_multiplier_and_oil_pnl_usd"],
@@ -102,12 +102,12 @@ class StrategySidecarComparisonTests(unittest.TestCase):
         )
         self.assertEqual(terminal["force_multiplier_plus_oil_cumulative_notional_usd"], "12060000.00")
         self.assertEqual(terminal["force_multiplier_plus_oil_open_notional_usd"], "11090000.00")
-        self.assertEqual(terminal["V1_force_1u_pnl_usd"], "118252.71")
-        self.assertEqual(terminal["V2_force_1u_pnl_usd"], "116972.32")
-        self.assertEqual(terminal["V3A_force_1u_pnl_usd"], "139155.83")
-        self.assertEqual(terminal["V3B_force_1u_pnl_usd"], "127653.72")
-        self.assertEqual(terminal["V1_force_1u_plus_oil_pnl_usd"], "619060.97")
-        self.assertEqual(terminal["V3A_force_1u_plus_oil_pnl_usd"], "639964.09")
+        self.assertEqual(terminal["V1_force_1u_pnl_usd"], "127180.97")
+        self.assertEqual(terminal["V2_force_1u_pnl_usd"], "125900.58")
+        self.assertEqual(terminal["V3A_force_1u_pnl_usd"], "148084.09")
+        self.assertEqual(terminal["V3B_force_1u_pnl_usd"], "136581.98")
+        self.assertEqual(terminal["V1_force_1u_plus_oil_pnl_usd"], "627989.23")
+        self.assertEqual(terminal["V3A_force_1u_plus_oil_pnl_usd"], "648892.35")
         combo_count = 0
         for core_variant in ("V1", "V2", "V3A", "V3B"):
             core_added = float(core[core_variant]["deployed"][-1])
@@ -152,8 +152,8 @@ class StrategySidecarComparisonTests(unittest.TestCase):
                 terminal[f"{prefix}_return_on_cumulative_notional_pct"],
                 f"{pnl / notional * 100:.6f}",
             )
-        self.assertEqual(terminal["V1_core_plus_V1_force_1u_and_oil_pnl_usd"], "677252.26")
-        self.assertEqual(terminal["V3A_core_plus_V3A_force_1u_and_oil_pnl_usd"], "719438.87")
+        self.assertEqual(terminal["V1_core_plus_V1_force_1u_and_oil_pnl_usd"], "686180.52")
+        self.assertEqual(terminal["V3A_core_plus_V3A_force_1u_and_oil_pnl_usd"], "728367.13")
         self.assertEqual(terminal["oil_desk_cumulative_notional_usd"], "5500000.00")
         before_oil = next(row for row in rows if row["date"] == "2026-09-09")
         first_oil = next(row for row in rows if row["date"] == "2026-09-10")

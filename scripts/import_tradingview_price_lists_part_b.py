@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 ARCHIVE = DATA / "benchmark_tradingview_price_lists_part_b_source_20261024.zip"
 REPO = "A44674928/Financial_Model_Records"
-COMMIT = "2350af5925971b645aeaa07a13255b8cf33b3e03"
+COMMIT = "d5228326d034c8d515f1a8ca1c484c70c738904f"
 ARCHIVE_URL = (
     "https://github.com/A44674928/Financial_Model_Records/blob/main/"
     "PART%20B%20PRICE%20LISTS%20TRADING%20VIEW.zip"
@@ -107,6 +107,7 @@ def import_part_b():
         "provided_symbol_count": len(file_rows),
         "missing_comparison_sessions": {row["Ticker"]: row["Missing_Comparison_Sessions"].split(";") for row in coverage if row["Missing_Comparison_Sessions"]},
         "notes": [
+            "Updated Part B archive is pinned to the recorded repository commit; it corrects the LLY 2026-10-20 source close to 1283.66 (superseding the prior archive's 12833.66).",
             "DXY is a separate non-equity index mark; its chart-directed 1U/DAY sleeve is integrated into core portfolio PnL rather than treated as a direct-price ticker.",
             "The XRH0 list has five missing dates on the common session calendar; no external prices are inserted. The interim model carries forward the previous supplied TradingView mark on those dates and flags each carry-forward.",
             "BTC and ETH are intentionally absent from Part B and remain pending TradingView recalibration outside the core comparison.",

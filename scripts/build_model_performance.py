@@ -686,6 +686,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("# THE ONE MODEL")
     A("")
     A("> **TradingView-only interim recalculation — 2026-10-24.** Core results below combine the 31 supplied direct-price TradingView symbols with a 1U/DAY/DXY currency-index sleeve across 36 common sessions. The DXY sleeve adds one 1U tranche each active EOD in the latest charted LONG/REBUY/SHORT direction; its current single LONG badge controls despite the conflicting caption. BTC and ETH remain excluded pending recalibration. No legacy or substitute prices are used. XRH0 has five transparently flagged carry-forward marks from prior supplied TradingView closes. See [`data/tradingview_benchmark_coverage_20261024.csv`](data/tradingview_benchmark_coverage_20261024.csv), [`data/tradingview_benchmark_session_marks_20261024.csv`](data/tradingview_benchmark_session_marks_20261024.csv), and the [crypto pending page](Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md).")
+    A("> **Updated source archive:** the revised Part B ZIP changes LLY's Oct. 20 TradingView mark from `$12,833.66` to `$1,283.66`; all model results below use the revised source and have been regenerated. See [`research/notes/tradingview-benchmark-import-20261024.md`](research/notes/tradingview-benchmark-import-20261024.md) and the Part B manifest.")
     A("")
     A("![THE ONE MODEL 32-portfolio split-strategy superstructure](Charts/superstructure/the-one-model.png)")
     A("")
@@ -1125,7 +1126,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
      (__START__ &rarr; __END__, MST) &middot; __NSYMS__ direct-price symbols + integrated 1U/DAY/DXY &middot; 1U = $10,000.00
      &middot; daily marks through the Oct 23, 2026 close; hourly intraday charts through Oct 22</p>
   <div class="benchmark-notice"><strong>TradingView-only interim core — 2026-10-24.</strong>
-    This explorer reflects the interim TradingView-only recalculation for 31 direct-price symbols plus the integrated chart-directed 1U/DAY/DXY index-return sleeve. BTC/ETH remain excluded pending recalibration. XRH0 has five flagged carry-forward marks. Historical whole-book/yield views are not part of these core results. <a href="data/tradingview_benchmark_coverage_20261024.csv">View coverage</a> · <a href="Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md">Crypto status</a>.</div>
+    This explorer reflects the 31 direct-price symbols plus integrated chart-directed 1U/DAY/DXY sleeve using the updated Part B archive. LLY's Oct. 20 close is $1,283.66 (superseding the prior $12,833.66 source row). BTC/ETH remain excluded pending recalibration. XRH0 has five flagged carry-forward marks. Historical whole-book/yield views are not part of these core results. <a href="data/tradingview_benchmark_coverage_20261024.csv">View coverage</a> · <a href="Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md">Crypto status</a>.</div>
 
   <div class="card">
     <h2>Energy EOD marks used in the core replay and energy sidecar</h2>
