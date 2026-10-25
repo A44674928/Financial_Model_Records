@@ -187,11 +187,16 @@ class ModelTradeScopeTests(unittest.TestCase):
         report = root / "Model Performance Comparison.md"
         text = report.read_text(encoding="utf-8")
         self.assertTrue(text.startswith(
-            "# THE ONE MODEL\n\n> **TradingView-only interim recalculation — 2026-10-24.**"
+            "# THE ONE MODEL\n\n![THE ONE MODEL vs THE WINNING MODEL — equal terminal gross additions]"
         ))
+        self.assertIn("> **TradingView-only interim recalculation — 2026-10-24.**", text)
         self.assertIn("the-one-model-split-portfolio.png", text)
+        comparison_chart = "Charts/superstructure/the-one-model-vs-winning-model.png"
+        self.assertIn(comparison_chart, text)
+        self.assertLess(text.index(comparison_chart), text.index("Charts/superstructure/the-one-model.png"))
         generator = (root / "scripts/build_model_performance.py").read_text(encoding="utf-8")
         self.assertIn('A("# THE ONE MODEL")', generator)
+        self.assertIn("the-one-model-vs-winning-model.png", generator)
         self.assertIn("the-one-model.png", generator)
         self.assertIn("the-one-model-split-portfolio.png", generator)
         for relpath in (
