@@ -4,7 +4,8 @@
 This is an audit utility, separate from the report builders. It rebuilds the
 four core books including the chart-directed 1U/DAY/DXY sleeve, four
 variant-specific 1U/EOD books, shared 1U/EOD book, and fixed-$500/EOD book;
-then checks them against generated exports and all 32 composites.
+then checks them against generated exports and all 32 composites, including the
+10U/DAY DXY sidecar added to every THE ONE MODEL portfolio.
 Run with: PYTHONPATH=scripts python3 scripts/audit_actionable_tickers.py
 """
 
@@ -571,8 +572,16 @@ def _audit_composites(core_daily, force_daily, shared_daily, fixed_daily):
     aggregate_rows = _read_csv(DATA / "the_one_model_split_portfolios_v1.csv")
     if len(aggregate_rows) != len(SESSION_DATES):
         raise AssertionError("THE ONE MODEL aggregate has an unexpected row count")
+    dxy_10u_by_day = {
+        row["date"]: row for row in _read_csv(DATA / "dxy_currency_desk_sidecar_daily_20261024.csv")
+        if float(row["unit_size_u"]) == 10.0
+    }
     for idx, (row, split_row) in enumerate(zip(strategy, aggregate_rows)):
         day = SESSION_DATES[idx]
+        dxy_10u = dxy_10u_by_day.get(day)
+        dxy_pnl = float(dxy_10u["daily_investment_unrealized_pnl_usd"]) if dxy_10u else 0.0
+        dxy_added = float(dxy_10u["cumulative_notional_added_usd"]) if dxy_10u else 0.0
+        dxy_open = float(dxy_10u["open_notional_usd"]) if dxy_10u else 0.0
         aggregate_pnl = aggregate_added = aggregate_open = 0.0
         for core_variant in VARIANTS:
             core = core_daily[core_variant][idx]
@@ -597,6 +606,9 @@ def _audit_composites(core_daily, force_daily, shared_daily, fixed_daily):
                     aggregate_pnl += expected_pnl
                     aggregate_added += expected_added
                     aggregate_open += expected_open
+        aggregate_pnl += 32 * dxy_pnl
+        aggregate_added += 32 * dxy_added
+        aggregate_open += 32 * dxy_open
         _close(float(split_row["aggregate_pnl_usd"]), aggregate_pnl, f"32-book aggregate PnL {day}", tol=0.03)
         _close(float(split_row["aggregate_cumulative_notional_added_usd"]), aggregate_added,
                f"32-book aggregate additions {day}", tol=0.03)

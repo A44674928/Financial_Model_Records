@@ -102,7 +102,7 @@ def main():
         ("2 ENERGY SIDECAR STATES PER PAIR",
          "One portfolio without the sidecar\nOne separate portfolio with the\n10U TradingView energy schedule"),
         ("32 SEPARATE PORTFOLIOS",
-         "16 pairings × 2 energy-sidecar states\n\nEach has its own gross positions,\nnotional, and capital requirement"),
+         "16 pairings × 2 energy-sidecar states\n\nEach also adds 10U/DAY DXY to core's\nintegrated 1U/DAY schedule (11U total)"),
     ]
     for i, (x, (title, body)) in enumerate(zip(top_x, boxes)):
         add_box(ax, x, top_y, top_w, top_h, title, body,
@@ -146,7 +146,7 @@ def main():
             "The percentage is a deployed-notional ratio, not an account return. Aggregate totals assume distinct funding for all 32 portfolios.",
             ha="center", va="center", color=FG, fontsize=8.8)
     ax.text(8, 0.91,
-            "Fixed-$500/EOD and shared-direction 1U/EOD models are not added to these portfolios. DXY, yield/CPI adjustments, and options are excluded.",
+            "Every portfolio includes core 1U/DAY plus 10U/DAY DXY (11U total); 0.05U, numeraire, yield/CPI, and options are excluded.",
             ha="center", va="center", color=MUTED, fontsize=8.4)
     ax.text(8, 0.53,
             "Hypothetical model output—not brokerage executions or a verified account track record. Trading costs and execution are not fully modeled.",

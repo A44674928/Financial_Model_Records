@@ -50,11 +50,11 @@ class ActionableTickerAuditTests(unittest.TestCase):
             )
 
     def test_32_portfolio_aggregate_and_energy_sleeves_reconcile(self):
-        self.assertEqual(self.result["terminal_aggregate"], "14391144.72")
-        self.assertEqual(self.result["terminal_notional"], "338080000.00")
+        self.assertEqual(self.result["terminal_aggregate"], "15188681.68")
+        self.assertEqual(self.result["terminal_notional"], "450080000.00")
         # Each core and force book occurs in eight of the 32 independent
-        # portfolios. DXY belongs to the core component only; energy is added
-        # once in each of the 16 energy-inclusive portfolios.
+        # portfolios. The integrated 1U DXY sleeve is part of core; an added
+        # 10U DXY sidecar is included in all 32; energy is added in 16.
         core_pnl = 8 * sum(
             float(row[f"{variant}_Core_Total_USD"])
             for row in self.result["ticker_rows"] for variant in ("V1", "V2", "V3A", "V3B")
@@ -65,7 +65,12 @@ class ActionableTickerAuditTests(unittest.TestCase):
             for variant in ("V1", "V2", "V3A", "V3B")
         )
         energy_pnl = 500808.26
-        self.assertAlmostEqual(core_pnl + force_pnl + 16 * energy_pnl, float(self.result["terminal_aggregate"]), delta=0.5)
+        dxy_10u_pnl = 24923.03
+        self.assertAlmostEqual(
+            core_pnl + force_pnl + 16 * energy_pnl + 32 * dxy_10u_pnl,
+            float(self.result["terminal_aggregate"]),
+            delta=0.5,
+        )
 
 
 if __name__ == "__main__":

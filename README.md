@@ -1,6 +1,6 @@
 # Paper Trades — Repository Guide
 
-This repository contains the Fall (Arizona) 2026 paper-trading ledger, model analysis, source records, and supporting research. The refreshed model comparison uses the supplied TradingView benchmark through the **October 23, 2026** EOD close: 31 direct-price core symbols plus an integrated 1U/DAY/DXY index-return sleeve; BTC/ETH remain pending recalibration. DXY sizing alternatives are documented in the currency-desk sidecar report. Legacy whole-portfolio DXY/yield views are explicitly historical and retain their previous benchmark.
+This repository contains the Fall (Arizona) 2026 paper-trading ledger, model analysis, source records, and supporting research. The refreshed model comparison uses the supplied TradingView benchmark through the **October 23, 2026** EOD close: 31 direct-price core symbols plus an integrated 1U/DAY/DXY index-return sleeve; BTC/ETH remain pending recalibration. THE ONE MODEL adds the 10U/DAY DXY schedule to each of its 32 independent portfolios, for 11U/DAY combined DXY exposure; 0.05U remains an alternative. Other strategy-comparison scopes are unchanged. Legacy whole-portfolio DXY/yield views are explicitly historical and retain their previous benchmark.
 
 ## Start here
 
@@ -8,7 +8,7 @@ This repository contains the Fall (Arizona) 2026 paper-trading ledger, model ana
 - [Model Performance Explorer](Model%20Performance%20Explorer.html) — interactive view of model results.
 - [Model Calculation Guide](Model%20Calculation%20Guide.md) — plain-language unit sizing, daily position handling, reversal logic, and PnL formulas.
 - [Trades Zip PnL](Trades%20Zip%20PnL.md) — master historical PnL report; see its scope note for reconciliation status.
-- [TradingView Energy and Currency Desk Sidecars](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md) — energy and DXY daily-investment schedules; the 1U/DAY/DXY sleeve is already included in core totals.
+- [TradingView Energy and Currency Desk Sidecars](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md) — energy and DXY daily-investment schedules; the 1U/DAY/DXY sleeve is already included in core totals, and the 10U/DAY DXY schedule is added to each THE ONE MODEL portfolio (11U/day total).
 - [Crypto Sidecar — Pending TradingView Recalibration](Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md) — BTC/ETH excluded until source calibration.
 - [Small Caps pilot](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md) — LCID Buyout & Reorganization Offering test basket.
 - [Strategy and Sidecar Comparison](Strategy%20and%20Sidecar%20Comparison.md) — standard variants, $500 and shared/variant-specific 1U/EOD models, 10U TradingView energy sidecar, and composites.

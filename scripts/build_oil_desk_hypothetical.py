@@ -158,7 +158,7 @@ def write_report(rows=None):
     lines = [
         "# Oil Desk EOD Accumulation Hypothetical",
         "",
-        "> **Historical sidecar—superseded for current comparisons (2026-10-24).** This legacy v1 schedule uses the prior energy marks and is not the current TradingView-only calculation. The active TradingView energy schedule and DXY sizing/audit table are in [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md). The 1U/DAY/DXY sleeve is already integrated into core variants; only its 0.05U and 10U alternatives are standalone. Current strategy composites consume the 10U energy rows. Do not use this page's prior numbers as current results.",
+        "> **Historical sidecar—superseded for current comparisons (2026-10-24).** This legacy v1 schedule uses the prior energy marks and is not the current TradingView-only calculation. The active TradingView energy schedule and DXY sizing/audit table are in [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md). The 1U/DAY/DXY sleeve is already integrated into core variants; 0.05U remains an alternative, while THE ONE MODEL separately adds 10U/DAY DXY to each of its 32 portfolios. Current strategy composites consume the 10U energy rows. Do not use this page's prior numbers as current results.",
         "",
         "A separate sidecar model layered on top of the existing chart-opened Brent and TVC:USOIL positions. It does not alter the four core strategy definitions or their DXY/yield account bases.",
         "",

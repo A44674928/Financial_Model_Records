@@ -1,6 +1,6 @@
 # TradingView Energy and Currency Desk Sidecars
 
-> **TradingView sidecar schedules — 2026-10-24 benchmark.** Prices use only the user-provided Part A/Part B TradingView lists. 1U = $10,000 notional; displayed daily allocations are 0.05U ($500), 1U ($10,000), and 10U ($100,000). The 1U/DAY/DXY schedule is integrated into every core variant; its 0.05U and 10U rows are standalone alternatives. These are hypothetical dollar-notional/index-return exposures, not broker fills or account returns.
+> **TradingView sidecar schedules — 2026-10-24 benchmark.** Prices use only the user-provided Part A/Part B TradingView lists. 1U = $10,000 notional; displayed daily allocations are 0.05U ($500), 1U ($10,000), and 10U ($100,000). The 1U/DAY/DXY schedule is integrated into every core variant. THE ONE MODEL adds 10U/DAY to every one of its 32 portfolios, for 11U/DAY total; 0.05U remains an alternative. These are hypothetical dollar-notional/index-return exposures, not broker fills or account returns.
 
 ## Energy desk: separate Brent and WTI daily-buy schedules
 
@@ -27,9 +27,9 @@ The DXY log has one LONG badge on Sep. 4 at 99.087 (the original post's caption 
 
 ![Three DXY daily-investment sizing options](Charts/performance/23-dxy-daily-sizing-alternatives.png)
 
-*Three-panel view of the 0.05U, 1U, and 10U DXY daily-lot PnL paths. Each panel uses its own dollar scale for readability; the size labels show daily and cumulative notional. The 1U/DAY schedule is included in every core model, while 0.05U and 10U are standalone alternatives.*
+*Three-panel view of the 0.05U, 1U, and 10U DXY daily-lot PnL paths. Each panel uses its own dollar scale; the size labels show daily and cumulative notional. The 1U/DAY schedule is included in every core model. THE ONE MODEL adds the 10U/DAY schedule on top, for 11U/DAY total; 0.05U remains an alternative.*
 
-The 0.05U, 1U, and 10U rows are alternative sizing views. The 1U/DAY/DXY PnL and notional are already included in each core model; do not add them a second time. The 0.05U and 10U rows are standalone alternatives, not core positions. Do not treat the one-time chart-position context as included in the daily-investment results.
+The 0.05U, 1U, and 10U rows show sizing scenarios. The 1U/DAY/DXY PnL and notional are already included in each core model; do not add the 1U schedule a second time. THE ONE MODEL selects the 10U/DAY schedule as a separate add-on in each of its 32 portfolios, making 11U/DAY combined DXY exposure; 0.05U remains an unselected alternative. Other strategy-comparison composites retain their existing scope. Do not treat the one-time chart-position context as included in the daily-investment results.
 
 The crypto positions have been removed from the core comparison pending source calibration. See [`Crypto Sidecar — Pending TradingView Recalibration.md`](Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md); no BTC/ETH marks or PnL are used here.
 
