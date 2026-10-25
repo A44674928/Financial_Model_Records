@@ -18,7 +18,7 @@ import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from daily_closes import BTC_CLOSES, CLOSES, CRYPTO_TS, EQUITY_TS, ETH_CLOSES
+from daily_closes import EQUITY_TS
 
 ROOT = Path(__file__).resolve().parents[1]
 TRADES_DIR = ROOT / "trades"
@@ -36,81 +36,49 @@ VARIANT_LABEL = {
 }
 VARIANT_COLOR = {"V1": "#38bdf8", "V2": "#f472b6", "V3A": "#34d399", "V3B": "#fbbf24"}
 
-# These books are recorded in trades/, but the four comparison variants have no
-# compatible daily mark series / valuation model for them. Keep them in the
-# canonical ledger while excluding them explicitly from model PnL replay.
-UNMODELED_SYMBOLS = frozenset({"DXY", "EURUSD", "JPYUSD", "US10Y", "US30Y"})
-
-# Oct 22, 2026 BTC/ETH historical marks pinned to the verified settlement set
-# used by `Trades Zip PnL.md` (Yahoo's crypto snapshot drifts from settlement).
-# Energy marks instead come from the user-provided exact BlackBull/TVC EOD rows
-# from the first active position date onward; only pre-entry context remains a
-# labeled BZ=F/CL=F proxy. The oil sidecar consumes the same exact EOD source file.
-VERIFIED_OCT22 = {
-    "BTC": 81263.73,
-    "ETH": 2381.38,
-}
+# BTC/ETH await TradingView recalibration. DXY is not a direct-price ticker:
+# its logged direction drives a separate 1U/day index-return sleeve that is
+# integrated into each core portfolio. FX and yield records remain outside.
+UNMODELED_SYMBOLS = frozenset({"BTC", "ETH", "DXY", "EURUSD", "JPYUSD", "US10Y", "US30Y"})
 
 # --------------------------------------------------------------------------
-# Session calendar
+# Session calendar and exclusive TradingView benchmark
 # --------------------------------------------------------------------------
 SESSION_DATES = [datetime.fromtimestamp(t, MST).strftime("%Y-%m-%d") for t in EQUITY_TS]
 N_SESS = len(SESSION_DATES)
-
-_CRYPTO_DATES = [
-    datetime.fromtimestamp(t, timezone.utc).strftime("%Y-%m-%d") for t in CRYPTO_TS
-]
-_CRYPTO_SERIES = {"BTC": BTC_CLOSES, "ETH": ETH_CLOSES}
-
-# price[sym] -> list of closes aligned to SESSION_DATES
-PRICES = {}
-for _sym, _series in CLOSES.items():
-    PRICES[_sym] = list(_series)
-for _sym, _series in _CRYPTO_SERIES.items():
-    _mapped = []
-    for _d in SESSION_DATES:
-        _i = bisect.bisect_right(_CRYPTO_DATES, _d) - 1
-        _mapped.append(_series[max(_i, 0)] if _i >= 0 else _series[0])
-    PRICES[_sym] = _mapped
-
-# Keep the previous Oct 22 cutoff reproducible as a historical observation;
-# the Oct 23 EOD source supplies the new terminal session instead.
-_OCT22_INDEX = SESSION_DATES.index("2026-10-22")
-for _sym, _px in VERIFIED_OCT22.items():
-    PRICES[_sym][_OCT22_INDEX] = _px
-for _sym, _px in {
-    "AAPL": 348.22, "AMZN": 250.38, "CAT": 704.05, "CVX": 226.68,
-    "DIS": 113.13, "GEV": 827.42, "HD": 327.73, "INTC": 85.49, "LLY": 1306.69,
-    "LMT": 589.91, "LULU": 104.06, "META": 648.85, "NET": 303.61, "NFLX": 67.05,
-    "NVDA": 212.21, "ORCL": 125.54, "PEP": 138.83, "PLTR": 196.19,
-    "RIVN": 12.06, "SPCX": 144.75, "TMO": 676.54, "TSLA": 374.58, "UPS": 101.52,
-    "V": 414.34, "VLO": 426.28, "WMT": 121.12, "XLE": 67.57, "XRH0": 790.00,
-}.items():
-    PRICES[_sym][_OCT22_INDEX] = _px
-
-# User-provided LCID pilot marks, kept in their own auditable daily CSV. The
-# history before the first LCID entry is irrelevant to PnL; seed it with the
-# first available mark so the shared session array remains fully populated.
-LCID_MARK_FILE = DATA_DIR / "lcid_small_caps_pilot_daily_marks.csv"
-_lcid_marks = {}
-with LCID_MARK_FILE.open(newline="", encoding="utf-8") as _fh:
-    for _row in csv.DictReader(_fh):
+BENCHMARK_SESSION_FILE = DATA_DIR / "tradingview_benchmark_session_marks_20261024.csv"
+_benchmark = {}
+_dxy_marks = {}
+with BENCHMARK_SESSION_FILE.open(newline="", encoding="utf-8") as _handle:
+    for _row in csv.DictReader(_handle):
+        _ticker = _row["Ticker"].strip().upper()
         _day = _row["Date"].strip()
-        if _day in _lcid_marks:
-            raise ValueError(f"Duplicate LCID pilot mark for {_day}")
-        _lcid_marks[_day] = float(_row["Close"])
-if not _lcid_marks:
-    raise ValueError(f"No LCID marks found in {LCID_MARK_FILE}")
-_lcid_mark_days = sorted(_lcid_marks)
-_lcid_last = _lcid_marks[_lcid_mark_days[0]]
-_lcid_prices = []
-for _day in SESSION_DATES:
-    for _mark_day in _lcid_mark_days:
-        if _mark_day > _day:
-            break
-        _lcid_last = _lcid_marks[_mark_day]
-    _lcid_prices.append(_lcid_last)
-PRICES["LCID"] = _lcid_prices
+        if _day not in SESSION_DATES:
+            raise ValueError(f"Benchmark mark is outside the common session calendar: {_ticker} {_day}")
+        if _ticker == "DXY":
+            _dxy_marks[_day] = float(_row["Close"])
+            continue
+        _benchmark.setdefault(_ticker, {})[_day] = float(_row["Close"])
+
+if {ticker for ticker in _benchmark} & {"BTC", "ETH"}:
+    raise ValueError("BTC and ETH must remain outside the core TradingView benchmark")
+if len(_benchmark) != 31:
+    raise ValueError(f"Expected 31 direct-price core symbols, found {len(_benchmark)}")
+PRICES = {}
+for _ticker, _marks in _benchmark.items():
+    _missing = [day for day in SESSION_DATES if day not in _marks]
+    if _missing:
+        raise ValueError(f"TradingView session-mark file is incomplete for {_ticker}: {_missing}")
+    _series = [_marks[day] for day in SESSION_DATES]
+    if any(price <= 0 for price in _series):
+        raise ValueError(f"Non-positive TradingView mark for {_ticker}")
+    PRICES[_ticker] = _series
+if set(_dxy_marks) != set(SESSION_DATES):
+    raise ValueError("DXY TradingView marks must cover the common session calendar")
+DXY_PRICES = [_dxy_marks[day] for day in SESSION_DATES]
+if any(price <= 0 for price in DXY_PRICES):
+    raise ValueError("Non-positive DXY TradingView mark")
+MODEL_PRICES = {**PRICES, "DXY": DXY_PRICES}
 
 
 # --------------------------------------------------------------------------
@@ -119,7 +87,7 @@ PRICES["LCID"] = _lcid_prices
 LINE_RE = re.compile(
     r"^(?P<date>\d{4}-\d{2}-\d{2})\s+(?P<time>\d{2}:\d{2})\s+MST\s*\|\s*"
     r"SIMULATED PAPER\s+\[(?P<tag>[A-Za-z ]+?)\]\s*\|\s*"
-    r"(?P<kind>entry|exit):\s*\[Market @ ~\$(?P<px>[\d,]+\.?\d*)\]\s*\|\s*"
+    r"(?P<kind>entry|exit):\s*\[Market @ ~\$?(?P<px>[\d,]+\.?\d*)\]\s*\|\s*"
     r"size:\s*\[(?P<units>\d+(?:\.\d+)?)\s*units?[^\]]*\]\s*\|\s*"
     r"note:\s*\[(?P<note>.*)\]\s*$"
 )
@@ -250,10 +218,78 @@ def build_lots(variant, events):
 
 
 # --------------------------------------------------------------------------
+# Chart-directed 1U/DAY/DXY sleeve, integrated in every core variant
+# --------------------------------------------------------------------------
+def build_dxy_daily_lots():
+    """Create one 1U DXY index-return lot per session under the carried chart direction."""
+    path = TRADES_DIR / "DXY.txt"
+    signals = []
+    for lineno, raw in enumerate(path.read_text(encoding="utf-8").splitlines()):
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        match = LINE_RE.match(line)
+        if not match:
+            raise ValueError(f"Unparsed DXY signal {path.name}:{lineno + 1}: {line}")
+        tag = match.group("tag").strip().upper()
+        if tag not in {"LONG", "REBUY", "SHORT"}:
+            continue
+        day = match.group("date")
+        if day > SESSION_DATES[-1]:
+            continue
+        signals.append({"date": day, "time": match.group("time"), "tag": tag, "order": lineno})
+    signals.sort(key=lambda event: (event["date"], event["time"], event["order"]))
+
+    signals_by_session = {}
+    for signal in signals:
+        idx = session_index(signal["date"], "entry")
+        signals_by_session.setdefault(idx, []).append(signal)
+
+    lots = []
+    realized = []
+    current_direction = None
+    for idx, day in enumerate(SESSION_DATES):
+        day_signals = signals_by_session.get(idx, [])
+        if day_signals:
+            signal = day_signals[-1]
+            new_direction = "short" if signal["tag"] == "SHORT" else "long"
+            if current_direction is not None and current_direction != new_direction:
+                mark = DXY_PRICES[idx]
+                for lot in lots:
+                    if lot["open"]:
+                        sign = 1.0 if lot["side"] == "long" else -1.0
+                        pnl = lot["qty"] * UNIT * sign * (mark / lot["entry_px"] - 1.0)
+                        lot["open"] = False
+                        lot["close_idx"] = idx
+                        lot["close_px"] = mark
+                        realized.append({"sym": "DXY", "idx": idx, "date": day,
+                                         "qty": lot["qty"], "pnl": pnl})
+            current_direction = new_direction
+        if current_direction is not None:
+            lots.append({
+                "id": len(lots) + 1,
+                "sym": "DXY",
+                "side": current_direction,
+                "qty": 1.0,
+                "entry_px": DXY_PRICES[idx],
+                "entry_idx": idx,
+                "entry_date": day,
+                "open": True,
+                "close_idx": None,
+                "close_px": None,
+                "signal_basis": "latest charted LONG/REBUY/SHORT direction; 1U added each active EOD",
+            })
+    return lots, realized
+
+
+# --------------------------------------------------------------------------
 # Daily mark-to-market series
 # --------------------------------------------------------------------------
 def daily_series(variant, events):
     lots, realized = build_lots(variant, events)
+    dxy_lots, dxy_realized = build_dxy_daily_lots()
+    lots.extend(dxy_lots)
+    realized.extend(dxy_realized)
 
     realized_cum = [0.0] * N_SESS
     for r in realized:
@@ -270,10 +306,10 @@ def daily_series(variant, events):
         sign = 1.0 if lot["side"] == "long" else -1.0
         notional = lot["qty"] * UNIT
         for i in range(e, min(c, N_SESS)):
-            px = PRICES[lot["sym"]][i]
+            px = MODEL_PRICES[lot["sym"]][i]
             unrealized[i] += sign * notional * (px / lot["entry_px"] - 1.0)
-        for i in range(e, N_SESS):
             open_units[i] += lot["qty"]
+        for i in range(e, N_SESS):
             deployed[i] += notional
 
     total = [realized_cum[i] + unrealized[i] for i in range(N_SESS)]

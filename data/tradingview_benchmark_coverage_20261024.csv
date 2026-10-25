@@ -1,0 +1,35 @@
+Ticker,Role,Coverage_Status,Provided_Source_Rows,Comparison_Session_Rows,Missing_Comparison_Sessions,First_Provided_Date,Last_Provided_Date,2026-10-23_Close,Source_Files
+AAPL,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,348.72500000,AAPL PRICE LIST (TRADINGVIEW).rtf
+AMZN,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,248.00000000,AMZN PRICE LIST (TRADINGVIEW).rtf
+BRENT,core_price_symbol,complete_source_marks,39,36,,2026-09-01,2026-10-23,117.34500000,BRENT PRICE LIST (TRADINGVIEW).rtf
+BTC,pending_crypto_sidecar,pending_tradingview_recalibration,0,0,2026-09-03;2026-09-04;2026-09-08;2026-09-09;2026-09-10;2026-09-11;2026-09-14;2026-09-15;2026-09-16;2026-09-17;2026-09-18;2026-09-21;2026-09-22;2026-09-23;2026-09-24;2026-09-25;2026-09-28;2026-09-29;2026-09-30;2026-10-01;2026-10-02;2026-10-05;2026-10-06;2026-10-07;2026-10-08;2026-10-09;2026-10-12;2026-10-13;2026-10-14;2026-10-15;2026-10-16;2026-10-19;2026-10-20;2026-10-21;2026-10-22;2026-10-23,,,,
+CAT,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,687.00000000,CAT PRICE LIST (TRADINGVIEW).rtf
+CVX,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,233.21000000,CVX PRICE LIST (TRADINGVIEW).rtf
+DIS,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,112.52000000,DIS PRICE LIST (TRADINGVIEW).rtf
+DXY,currency_desk_sidecar,complete_source_marks,39,36,,2026-09-01,2026-10-23,101.75100000,DXY PRICE LIST (TRADINGVIEW).rtf
+ETH,pending_crypto_sidecar,pending_tradingview_recalibration,0,0,2026-09-03;2026-09-04;2026-09-08;2026-09-09;2026-09-10;2026-09-11;2026-09-14;2026-09-15;2026-09-16;2026-09-17;2026-09-18;2026-09-21;2026-09-22;2026-09-23;2026-09-24;2026-09-25;2026-09-28;2026-09-29;2026-09-30;2026-10-01;2026-10-02;2026-10-05;2026-10-06;2026-10-07;2026-10-08;2026-10-09;2026-10-12;2026-10-13;2026-10-14;2026-10-15;2026-10-16;2026-10-19;2026-10-20;2026-10-21;2026-10-22;2026-10-23,,,,
+GEV,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,815.00000000,GEV PRICE LIST (TRADINGVIEW).rtf
+HD,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,319.83000000,HD PRICE LIST (TRADINGVIEW).rtf
+INTC,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,86.96000000,INTC PRICE LIST (TRADINGVIEW).rtf
+LCID,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,3.52000000,LCID PRICE LIST (TRADINGVIEW).rtf
+LLY,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,1273.46000000,LLY PRICE LIST (TRADINGVIEW).rtf
+LMT,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,604.18000000,LMT PRICE LIST (TRADINGVIEW).rtf
+LULU,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,99.01000000,LULU PRICE LIST (TRADINGVIEW).rtf
+META,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,642.62000000,META PRICE LIST (TRADINGVIEW).rtf
+NET,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,325.73000000,NET PRICE LIST (TRADINGVIEW).rtf
+NFLX,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,65.85000000,NFLX PRICE LIST (TRADINGVIEW).rtf
+NVDA,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,210.96000000,NVDA PRICE LIST (TRADINGVIEW).rtf
+OIL,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,103.45000000,USOIL PRICE LIST (TRADINGVIEW).rtf
+ORCL,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,126.16000000,ORCL PRICE LIST (TRADINGVIEW).rtf
+PEP,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,135.77000000,PEP PRICE LIST (TRADINGVIEW).rtf
+PLTR,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,196.75000000,PLTR PRICE LIST (TRADINGVIEW).rtf
+RIVN,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,11.83000000,RIVN PRICE LIST (TRADINGVIEW).rtf
+SPCX,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,147.49000000,SPCX PRICE LIST (TRADINGVIEW).rtf
+TMO,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,673.82000000,TMO PRICE LIST (TRADINGVIEW).rtf
+TSLA,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,372.22000000,TSLA PRICE LIST (TRADINGVIEW).rtf
+UPS,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,101.06000000,UPS PRICE LIST (TRADINGVIEW).rtf
+V,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,407.92000000,V PRICE LIST (TRADINGVIEW).rtf
+VLO,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,419.28000000,VLO PRICE CHART (TRADINGVIEW).rtf
+WMT,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,119.89000000,WMT PRICE LIST (TRADINGVIEW).rtf
+XLE,core_price_symbol,complete_source_marks,38,36,,2026-09-01,2026-10-23,69.33000000,XLE PRICE LIST (TRADINGVIEW).rtf
+XRH0,core_price_symbol,complete_with_user_TV_carry_forward,34,36,2026-09-15;2026-10-07;2026-10-08;2026-10-19;2026-10-22,2026-09-01,2026-10-23,785.00000000,XRH0 PRICE LIST (TRADINGVIEW).rtf

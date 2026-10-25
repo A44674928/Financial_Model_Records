@@ -2,7 +2,7 @@
 """Aggregate the 32 independent THE ONE MODEL split portfolios.
 
 The 32 portfolios are all 4 x 4 Core/variant-specific-1U-EOD pairings, each
-run separately with and without its own exact-mark oil sidecar. No capital,
+run separately with and without its own 10U TradingView energy sidecar. No capital,
 positions, or risk is netted across portfolios.
 """
 import csv
@@ -163,9 +163,9 @@ def build_summary(portfolios, rows):
         "period_end": last["date"],
         "sessions": len(rows),
         "portfolio_count": len(portfolios),
-        "construction": "4 Core variants x 4 variant-specific 1U/EOD variants x 2 oil-sidecar states (without oil / with exact-mark oil sidecar)",
+        "construction": "4 Core variants x 4 variant-specific 1U/EOD variants x 2 energy-sidecar states (without energy sidecar / with the 10U TradingView energy schedule)",
         "portfolio_funding_and_netting": "Each of the 32 is modeled as an independent portfolio. PnL and gross exposure are summed; positions, risk, and capital are not netted or shared.",
-        "oil_sidecar_treatment": "Oil is included once in each of the 16 with-oil portfolios; the 16 repetitions represent distinct funded portfolios, not one sidecar counted twice within a portfolio.",
+        "oil_sidecar_treatment": "The 10U TradingView energy sidecar is included once in each of the 16 energy-inclusive portfolios; these represent distinct funded portfolios, not double counting within one portfolio.",
         "aggregate_terminal_pnl_usd": f"{terminal_pnl:.2f}",
         "aggregate_cumulative_gross_notional_added_usd": f"{terminal_added:.2f}",
         "aggregate_gross_open_notional_usd": f"{terminal_open:.2f}",
@@ -272,7 +272,7 @@ def write_chart(rows, summary):
     fig.autofmt_xdate(rotation=0, ha="center")
     fig.text(
         0.5, 0.012,
-        "Sep 3–Oct 23, 2026 · 36 sessions · 4×4 Core/1U-EOD pairings, each with and without oil · "
+        "Sep 3–Oct 23, 2026 · 36 sessions · 4×4 Core/1U-EOD pairings, each with and without the energy sidecar · "
         "independent gross portfolios; no netting · deployed-notional ratio, not account return · costs/execution not fully modeled",
         color=muted, fontsize=7.8, ha="center",
     )

@@ -1,5 +1,7 @@
 # Whole-Portfolio DXY Numeraire — Daily Comparison
 
+> **Historical view—not recalculated on the interim TradingView core (2026-10-24).** Values below retain the prior portfolio benchmark and local DXY/FX/yield inputs; do not present them as current TradingView-only model results. The current core includes the chart-directed 1U/DAY/DXY index-return sleeve; sizing alternatives and its audit are in [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md). See the refreshed [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md) and [`data/tradingview_benchmark_coverage_20261024.csv`](data/tradingview_benchmark_coverage_20261024.csv).
+
 The whole-book base PnL includes realized and open unrealized PnL (including FX and the separate US30Y trade marks), but excludes yield multipliers. The US10Y and US30Y blanket factors are applied to full account value only in the explicit scenarios below; neither yield is treated as a new $10,000 lot. DXY remains a separate whole-book numeraire, not a position.
 
 [Open the interactive yield-multiplier scenario explorer](Whole%20Portfolio%20Yield%20Multiplier%20Explorer.html) to toggle between no factor, US10Y only, and US10Y compounded with US30Y.
@@ -12,10 +14,10 @@ The whole-book base PnL includes realized and open unrealized PnL (including FX 
 
 | Variant | Capital basis | Open unrealized PnL (USD) | Realized PnL (USD) | Base PnL (no yield factors) | Base USD return | DXY-equivalent account value | DXY-numeraire return |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| **Variant 1 — 1U Open** | $830,000 | $+73,391.74 | $+25,561.44 | $+98,953.18 | +11.508% | 9,064.77 DXY-eq units | +8.067% |
-| **Variant 2 — 1U SAR** | $830,000 | $+42,850.29 | $+31,385.57 | $+74,235.86 | +8.530% | 8,822.68 DXY-eq units | +5.181% |
-| **Variant 3A — Nu Open** | $920,000 | $+117,595.09 | $+25,561.44 | $+143,156.52 | +15.187% | 10,379.20 DXY-eq units | +11.633% |
-| **Variant 3B — Nu SAR** | $920,000 | $+42,850.29 | $+42,552.27 | $+85,402.56 | +8.909% | 9,813.54 DXY-eq units | +5.549% |
+| **Variant 1 — 1U Open** | $830,000 | $+31,983.36 | $+25,561.44 | $+57,544.79 | +6.926% | 8,692.32 DXY-eq units | +3.627% |
+| **Variant 2 — 1U SAR** | $830,000 | $+23,316.02 | $+31,385.57 | $+54,701.59 | +6.583% | 8,664.47 DXY-eq units | +3.295% |
+| **Variant 3A — Nu Open** | $920,000 | $+53,266.84 | $+25,561.44 | $+78,828.28 | +8.562% | 9,782.26 DXY-eq units | +5.212% |
+| **Variant 3B — Nu SAR** | $920,000 | $+23,316.02 | $+42,552.27 | $+65,868.30 | +7.153% | 9,655.33 DXY-eq units | +3.847% |
 
 ## Toggleable blanket yield-multiplier scenarios
 
@@ -27,18 +29,18 @@ The base case is the portfolio account value without either yield multiplier. Th
 
 | Variant | No multiplier: account / USD return / DXY return | US10Y: account / USD return / DXY return | US10Y × US30Y: account / USD return / DXY return |
 |---|---:|---:|---:|
-| **Variant 1 — 1U Open** | $925,513.26 / +11.508% / +8.067% | $925,811.11 / +11.544% / +8.102% | $925,945.81 / +11.560% / +8.118% |
-| **Variant 2 — 1U SAR** | $900,795.94 / +8.530% / +5.181% | $901,085.84 / +8.565% / +5.215% | $901,216.94 / +8.580% / +5.230% |
-| **Variant 3A — Nu Open** | $1,059,716.60 / +15.187% / +11.633% | $1,060,057.65 / +15.224% / +11.669% | $1,060,211.88 / +15.240% / +11.685% |
-| **Variant 3B — Nu SAR** | $1,001,962.64 / +8.909% / +5.549% | $1,002,285.10 / +8.944% / +5.583% | $1,002,430.92 / +8.960% / +5.598% |
+| **Variant 1 — 1U Open** | $887,485.52 / +6.926% / +3.627% | $887,771.14 / +6.960% / +3.660% | $887,900.31 / +6.976% / +3.676% |
+| **Variant 2 — 1U SAR** | $884,642.33 / +6.583% / +3.295% | $884,927.03 / +6.618% / +3.328% | $885,055.78 / +6.633% / +3.343% |
+| **Variant 3A — Nu Open** | $998,769.01 / +8.562% / +5.212% | $999,090.45 / +8.597% / +5.246% | $999,235.80 / +8.613% / +5.262% |
+| **Variant 3B — Nu SAR** | $985,809.03 / +7.153% / +3.847% | $986,126.29 / +7.188% / +3.881% | $986,269.76 / +7.203% / +3.896% |
 
 Interactive toggle and session-level scenario data: [`Whole Portfolio Yield Multiplier Explorer.html`](Whole Portfolio Yield Multiplier Explorer.html), [`whole_portfolio_yield_multiplier_scenarios.csv`](data/whole_portfolio_yield_multiplier_scenarios.csv), and [`whole_portfolio_yield_multiplier_summary.csv`](data/whole_portfolio_yield_multiplier_summary.csv).
 
 ## DXY and FX Basis
 
 - DXY daily closes run from `2026-09-03` (`98.95`) through `2026-10-23` (`102.10`). The Oct. 23 close of 102.10 is used for the new endpoint; the prior Oct. 22 close of 102.22 remains preserved in the daily series and Oct. 22 audit file.
-- **Input provenance:** DXY, EUR/USD, JPY/USD, US10Y, and US30Y use the existing local daily input files; their provider and candle/close convention are not independently verified. The source map and proxy limitations are in [`data/active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv). These local inputs were retained, not externally refreshed.
-- **Energy marks:** the core logged Brent/USOIL positions use exact user-provided BlackBull Brent Cash and TVC:USOIL EOD values from their first active-position dates; only pre-entry context remains on the Yahoo futures proxies. The separate daily 10-unit oil-desk accumulation is in [`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md) and is not included in the four account bases or yield-factor scenarios.
+- **Input provenance:** DXY, EUR/USD, JPY/USD, US10Y, and US30Y use the existing local daily input files; their provider and candle/close convention are not independently verified. The source map and proxy limitations are in [`data/active_price_source_registry_v3.csv`](data/active_price_source_registry_v3.csv). These local inputs were retained, not externally refreshed.
+- **Energy marks:** this historical view's core logged Brent/USOIL positions and separate daily accumulation retain their prior benchmark and are not current TradingView results. The current standalone 0.05U/1U/10U TradingView energy schedule is in [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md); it is not included in these historical account bases or yield-factor scenarios.
 - FX, DXY, and yield series remain local and unverified; the user-provided energy marks are not treated as DXY/FX or yield data.
 - The yield multiplier is a yield-spread scenario, not CPI inflation or a Treasury total-return estimate. A literal inflation-adjusted PnL series would require a specified CPI index and convention.
 - EUR/USD PnL uses the uploaded daily close on its entry date as its cost basis: `2026-09-15` close `1.1024`. The original chart quote `1.15388` remains in the trade log as source evidence; the graph does not use it as the PnL basis, per your instruction.

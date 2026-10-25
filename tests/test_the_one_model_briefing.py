@@ -44,13 +44,13 @@ class TheOneModelBriefingTests(unittest.TestCase):
         self.assertEqual(summary["period_start"], "2026-09-03")
         self.assertEqual(summary["period_end"], "2026-10-23")
         self.assertEqual(summary["portfolio_count"], 32)
-        self.assertEqual(summary["aggregate_terminal_pnl_usd"], "27155856.32")
-        self.assertEqual(summary["aggregate_cumulative_gross_notional_added_usd"], "350880000.00")
-        self.assertEqual(summary["aggregate_gross_open_notional_usd"], "316000000.00")
-        self.assertEqual(summary["aggregate_deployed_notional_ratio_pct"], "7.739357")
-        self.assertEqual(summary["aggregate_max_peak_to_trough_pnl_drawdown_usd"], "1844483.12")
-        self.assertEqual(summary["aggregate_max_drawdown_peak_date"], "2026-09-28")
-        self.assertEqual(summary["aggregate_max_drawdown_trough_date"], "2026-09-29")
+        self.assertEqual(summary["aggregate_terminal_pnl_usd"], "14105440.40")
+        self.assertEqual(summary["aggregate_cumulative_gross_notional_added_usd"], "338080000.00")
+        self.assertEqual(summary["aggregate_gross_open_notional_usd"], "303200000.00")
+        self.assertEqual(summary["aggregate_deployed_notional_ratio_pct"], "4.172220")
+        self.assertEqual(summary["aggregate_max_peak_to_trough_pnl_drawdown_usd"], "21622779.36")
+        self.assertEqual(summary["aggregate_max_drawdown_peak_date"], "2026-10-20")
+        self.assertEqual(summary["aggregate_max_drawdown_trough_date"], "2026-10-21")
         self.assertEqual(summary["profitable_portfolios_at_terminal"], 32)
         self.assertEqual(
             sum(Decimal(p["terminal_pnl_usd"]) for p in summary["individual_portfolios"]),
@@ -62,16 +62,24 @@ class TheOneModelBriefingTests(unittest.TestCase):
         )
 
     def test_aggregate_results_and_full_table_are_disclosed(self):
+        self.assertIn("Historical draft—not a current performance disclosure", self.briefing)
         self.assertIn("32 independently tracked portfolios", self.briefing)
-        self.assertIn("$27,155,856.32", self.briefing)
+        self.assertIn("$12,393,481.92", self.briefing)
         self.assertIn("$350,880,000.00", self.briefing)
         self.assertIn("$316,000,000.00", self.briefing)
-        self.assertIn("7.7394%", self.briefing)
+        self.assertIn("3.5321%", self.briefing)
         self.assertIn("$1,844,483.12", self.briefing)
         self.assertIn("Terminal statistics for all 32 portfolios", self.briefing)
         self.assertIn("the_one_model_split_portfolios_v1.csv", self.briefing)
         self.assertIn("the_one_model_split_portfolios_v1_summary.json", self.briefing)
         self.assertIn("all 16 Core × 1U/EOD pairings", self.briefing)
+        self.assertIn("8.88% static single-composite proxy is not a result for this 32-portfolio split", self.briefing)
+        table_start = self.briefing.index("| Core variant | 1U/EOD variant | Oil sidecar |")
+        table_end = self.briefing.index("\n\nFull daily audit series:", table_start)
+        table_rows = [line for line in self.briefing[table_start:table_end].splitlines() if line.startswith("| V")]
+        self.assertEqual(len(table_rows), 32)
+        self.assertEqual({"| V1 | V1 | No |" in self.briefing, "| V3B | V3B | Yes |" in self.briefing}, {True})
+        self.assertIn("Core V3A + 1U V3A with oil (5.54%)", self.briefing)
 
     def test_architecture_and_aggregate_chart_are_generated_and_embedded(self):
         for relpath in (

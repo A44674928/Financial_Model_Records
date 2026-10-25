@@ -15,6 +15,7 @@ Run from anywhere:  PYTHONPATH=scripts python3 scripts/build_model_performance.p
 
 import csv
 import json
+import re
 import sys
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -30,7 +31,7 @@ import matplotlib.ticker as mticker
 from matplotlib.ticker import FuncFormatter
 
 from model_perf_core import (  # noqa: E402
-    CHARTS_DIR, DATA_DIR, MST, PRICES, ROOT, SESSION_DATES, UNIT, VARIANTS,
+    CHARTS_DIR, DATA_DIR, MODEL_PRICES, MST, PRICES, ROOT, SESSION_DATES, UNIT, VARIANTS,
     VARIANT_COLOR, VARIANT_LABEL, all_series, parse_trades,
 )
 from intraday_core import (  # noqa: E402
@@ -55,6 +56,28 @@ MUTED = "#93a4bd"
 
 USDFMT = FuncFormatter(lambda v, _: f"${v:,.0f}")
 PCTFMT = FuncFormatter(lambda v, _: f"{v:.1f}%")
+
+
+def _top_split_portfolio_ratios():
+    """Return the four highest terminal ratios from the 32 split portfolios."""
+    from build_strategy_sidecar_comparison import comparison_rows
+
+    rows = comparison_rows()[0]
+    last = rows[-1]
+    performers = []
+    for core in VARIANTS:
+        for force in VARIANTS:
+            base = f"{core}_core_plus_{force}_force_1u"
+            label = f"Core {core} + 1U {force}"
+            for oil, suffix in ((False, ""), (True, "_and_oil")):
+                field = f"{base}{suffix}_return_on_cumulative_notional_pct"
+                performers.append((float(last[field]), label + (" with energy sidecar" if oil else " without energy sidecar")))
+    return sorted(performers, reverse=True)[:4]
+
+
+def _unitfmt(value):
+    """Render fractional logged units without rounding them away."""
+    return f"{value:.4f}".rstrip("0").rstrip(".")
 
 
 # --------------------------------------------------------------------------
@@ -105,7 +128,7 @@ def ticker_contributions(series):
             entry = dict(lot)
             per.setdefault(sym, {"realized": 0.0, "unrealized": 0.0, "units": 0.0})
             if entry["open"]:
-                px = PRICES[sym][-1]
+                px = MODEL_PRICES[sym][-1]
                 sign = 1.0 if entry["side"] == "long" else -1.0
                 per[sym]["unrealized"] += sign * notional * (px / entry["entry_px"] - 1.0)
                 per[sym]["units"] += entry["qty"]
@@ -115,7 +138,12 @@ def ticker_contributions(series):
             per.setdefault(r["sym"], {"realized": 0.0, "unrealized": 0.0, "units": 0.0})
             per[r["sym"]]["realized"] += r["pnl"]
         for sym, d in per.items():
-            d["total"] = d["realized"] + d["unrealized"]
+            # Set terminal ticker total to the sum of the cent-rounded components
+            # that appear in the report and CSV, so each displayed row adds up.
+            realized_cents = float(f"{d['realized']:.2f}")
+            unrealized_cents = float(f"{d['unrealized']:.2f}")
+            d["exact_total"] = d["realized"] + d["unrealized"]
+            d["total"] = realized_cents + unrealized_cents
         out[v] = per
     return out
 
@@ -506,16 +534,21 @@ def write_csv(series):
             for i, d in enumerate(s["dates"]):
                 yield_close = s["us10y_yield_pct"][i]
                 spread_points = s["us10y_spread_pct_points"][i]
+                realized_display, unrealized_display = _display_components(
+                    s["realized"][i], s["total"][i]
+                )
+                total_display = _cents(s["total"][i])
+                adjusted_display = total_display + _cents(s["yield_adjustment"][i])
                 w.writerow([v, d, i,
-                            f"{s['realized'][i]:.2f}", f"{s['unrealized'][i]:.2f}",
-                            f"{s['total'][i]:.2f}", f"{s['delta'][i]:.2f}",
+                            f"{realized_display:.2f}", f"{unrealized_display:.2f}",
+                            f"{total_display:.2f}", f"{s['delta'][i]:.2f}",
                             f"{s['roi'][i]:.4f}", f"{s['deployed'][i]:.2f}",
-                            f"{s['open_units'][i]:.0f}", f"{s['drawdown'][i]:.2f}",
+                            f"{_unitfmt(s['open_units'][i])}", f"{s['drawdown'][i]:.2f}",
                             "" if yield_close is None else f"{yield_close:.3f}",
                             "" if spread_points is None else f"{spread_points:.3f}",
                             f"{s['yield_adjustment_daily'][i]:.4f}",
                             f"{s['yield_adjustment'][i]:.4f}",
-                            f"{s['adjusted_total'][i]:.2f}",
+                            f"{adjusted_display:.2f}",
                             f"{s['adjusted_roi'][i]:.4f}"])
     return path
 
@@ -529,7 +562,7 @@ def write_ticker_csv(contrib):
         for v in VARIANTS:
             for sym in sorted(contrib[v], key=lambda s: -contrib[v][s]["total"]):
                 d = contrib[v][sym]
-                w.writerow([v, sym, f"{d['units']:.0f}",
+                w.writerow([v, sym, _unitfmt(d['units']),
                             f"{d['realized']:.2f}", f"{d['unrealized']:.2f}",
                             f"{d['total']:.2f}"])
     return path
@@ -601,6 +634,17 @@ def _money(x):
     return (f"-${abs(x):,.2f}" if x < 0 else f"${x:,.2f}")
 
 
+def _cents(value):
+    return float(f"{value:.2f}")
+
+
+def _display_components(realized, total):
+    """Round realized and total, then make unrealized the cent-level residual."""
+    realized_display = _cents(realized)
+    total_display = _cents(total)
+    return realized_display, round(total_display - realized_display, 2)
+
+
 def _bl(i):
     return f"`{BAR_LABELS[i]} MST`" if i is not None else "—"
 
@@ -613,14 +657,21 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     symbol_count = len(PRICES)
     invariant_symbol_count = symbol_count - len(DIVERGENCE)
     direct_price_events = parse_trades()
-    modeled_event_count = sum(event["date"] <= SESSION_DATES[-1] for event in direct_price_events)
-    post_terminal_event_count = len(direct_price_events) - modeled_event_count
+    direct_modeled_event_count = sum(event["date"] <= SESSION_DATES[-1] for event in direct_price_events)
+    post_terminal_event_count = len(direct_price_events) - direct_modeled_event_count
+    dxy_log = (ROOT / "trades" / "DXY.txt").read_text(encoding="utf-8").splitlines()
+    dxy_signal_count = sum(
+        bool(re.search(r"\[(?:LONG|REBUY|SHORT)\]", line))
+        and line[:10] <= SESSION_DATES[-1]
+        for line in dxy_log if line.strip() and not line.lstrip().startswith("#")
+    )
     trade_files = [p for p in (ROOT / "trades").glob("*.txt") if p.name != "index.txt"]
     book_event_count = sum(
         1 for p in trade_files for line in p.read_text(encoding="utf-8").splitlines()
         if line.strip() and not line.lstrip().startswith("#")
     )
-    price_unmodeled_event_count = book_event_count - len(direct_price_events)
+    modeled_event_count = direct_modeled_event_count + dxy_signal_count
+    price_unmodeled_event_count = book_event_count - len(direct_price_events) - dxy_signal_count
     term = {v: series[v]["total"][last] for v in VARIANTS}
     spread_ab = term["V1"] - term["V2"]
     spread_cd = term["V3A"] - term["V3B"]
@@ -634,9 +685,11 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A = lines.append
     A("# THE ONE MODEL")
     A("")
+    A("> **TradingView-only interim recalculation — 2026-10-24.** Core results below combine the 31 supplied direct-price TradingView symbols with a 1U/DAY/DXY currency-index sleeve across 36 common sessions. The DXY sleeve adds one 1U tranche each active EOD in the latest charted LONG/REBUY/SHORT direction; its current single LONG badge controls despite the conflicting caption. BTC and ETH remain excluded pending recalibration. No legacy or substitute prices are used. XRH0 has five transparently flagged carry-forward marks from prior supplied TradingView closes. See [`data/tradingview_benchmark_coverage_20261024.csv`](data/tradingview_benchmark_coverage_20261024.csv), [`data/tradingview_benchmark_session_marks_20261024.csv`](data/tradingview_benchmark_session_marks_20261024.csv), and the [crypto pending page](Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md).")
+    A("")
     A("![THE ONE MODEL 32-portfolio split-strategy superstructure](Charts/superstructure/the-one-model.png)")
     A("")
-    A("*Four-by-four Core × variant-specific 1U/EOD pairings, each tracked with and without its own oil sidecar; all 32 portfolios are summed without netting.*")
+    A("*Four-by-four Core × variant-specific 1U/EOD pairings, each tracked with and without its own energy sidecar; all 32 portfolios are summed without netting.*")
     A("")
     A("![THE ONE MODEL 32-portfolio split-strategy aggregate PnL, gross notional, and deployed-notional ratio](Charts/superstructure/the-one-model-split-portfolio.png)")
     A("")
@@ -647,9 +700,10 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("Day-by-day (and, where market data supports it, intraday) comparison of the four "
       "portfolio models carried on the same standardized book: "
       "**[`trades/`](trades/)** / **[`trades.zip`](trades.zip)** — "
-      f"`{symbol_count}` price-covered symbols, "
-      f"`{modeled_event_count}` in-window price-covered events out of `{book_event_count}` total 2026 log events "
-      f"(`{price_unmodeled_event_count}` outside direct-price scope; `{post_terminal_event_count}` after cutoff), "
+      f"`{symbol_count}` direct-price core tickers plus the integrated 1U/DAY/DXY sleeve, "
+      f"`{direct_modeled_event_count}` direct-price events plus `{dxy_signal_count}` DXY direction signals out of "
+      f"`{book_event_count}` total 2026 log events (`{price_unmodeled_event_count}` other events outside scope; "
+      f"`{post_terminal_event_count}` direct events after cutoff), "
       "`1U = $10,000.00` standard notional, all timestamps in Arizona year-round "
       "**`MST` / `UTC-07:00`**, marked against the **Friday, October 23, 2026** close. Intraday plots remain on their supplied Oct. 22 hourly scope.")
     A("")
@@ -659,10 +713,10 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"[`{daily_csv.name}`](data/{daily_csv.name}), "
       f"[`{ticker_csv.name}`](data/{ticker_csv.name}), "
       f"[`{summary_json.name}`](data/{summary_json.name}).")
-    A("> **Whole-portfolio DXY and yield-multiplier scenarios:** **[`DXY-Equivalent Portfolio Snapshot.md`](DXY-Equivalent%20Portfolio%20Snapshot.md)** includes the daily DXY-numeraire comparison and the toggleable whole-account scenarios (no factor, US10Y, US10Y × US30Y) in **[`Whole Portfolio Yield Multiplier Explorer.html`](Whole%20Portfolio%20Yield%20Multiplier%20Explorer.html)**.")
+    A("> **DXY and historical account views:** the 1U/DAY/DXY index-return sleeve is included in every core variant. Its 0.05U and 10U sizing alternatives, the 1U reconciliation, and assumptions are shown in **[`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md)**; do not add the included 1U sleeve twice. The DXY-numeraire and yield-multiplier pages retain the earlier portfolio benchmark and are historical only.")
     A("> **Small Caps pilot:** **[`Small Caps [Buyout & Reorganization Offering Test Pilot].md`](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md)** tracks the five LCID entries; all five are included in the Oct. 23 four-model comparison.")
-    A("> **Oil desk hypothetical:** **[`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md)** shows 10U of new long exposure per supplied EOD session for each exact energy benchmark, separately and combined with the chart-opened energy positions.")
-    A("> **Strategy and sidecar comparison:** **[`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md)** compares the existing variants, the fixed-$500/EOD and shared/variant-specific 1U/EOD force models, oil-desk daily buys, and their additive composites.")
+    A("> **Energy and DXY sizing:** **[`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md)** provides the standalone energy sizes and DXY schedule audit. The DXY 1U/DAY series is included in the core variants; 0.05U and 10U DXY rows are alternative sizing scenarios, not extra core positions.")
+    A("> **Strategy and sidecar comparison:** **[`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md)** compares the existing variants, the fixed-$500/EOD and shared/variant-specific 1U/EOD force models, and additive composites using the 10U TradingView energy schedule.")
     A("> **How the models work:** **[`Model Calculation Guide.md`](Model%20Calculation%20Guide.md)** explains unit sizing, day-by-day lot handling, close/reversal behavior, and PnL formulas.")
     A("")
     A("## The Four Models")
@@ -671,40 +725,29 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("|---|---|---:|---:|---:|---:|---:|---:|---:|")
     for v in VARIANTS:
         s = series[v]
+        realized_display, unrealized_display = _display_components(s["realized"][last], term[v])
+        carry_display = _cents(s["yield_adjustment"][last])
+        adjusted_display = _cents(term[v]) + carry_display
         A(f"| **{VARIANT_LABEL[v]}** | "
           f"{'logged entry sizes; explicit exits close longs' if v == 'V1' else ''}"
           f"{'V1 sizing plus LONG/REBUY closes open shorts' if v == 'V2' else ''}"
           f"{'V1 behavior; qualifying compounded shorts use preceding full-exit units' if v == 'V3A' else ''}"
           f"{'V2 behavior plus qualifying compounded shorts' if v == 'V3B' else ''} | "
           f"{s['stats']['units']:.1f}U (${s['stats']['deployed']:,.0f}) | "
-          f"{_money(s['realized'][last])} | {_money(s['unrealized'][last])} | "
-          f"{_money(term[v])} | {_money(s['yield_adjustment'][last])} | "
-          f"**{_money(s['adjusted_total'][last])}** | "
+          f"{_money(realized_display)} | {_money(unrealized_display)} | "
+          f"{_money(term[v])} | {_money(carry_display)} | "
+          f"**{_money(adjusted_display)}** | "
           f"**{s['adjusted_roi'][last]:.2f}%** |")
     A("")
-    A("## Oct. 23 Endpoint Price Corrections Applied")
+    A("Displayed dollar components are rounded to cents and reconciled so realized plus unrealized equals Base PnL; legacy adjusted PnL equals displayed Base PnL plus the displayed carry. Unrounded replay values drive model calculations and charts.")
     A("")
-    A("The performance calculations, charts, and ticker-contribution exports below use the active v7 endpoint source. Versioned v1–v6 close sets remain preserved. Exact user-provided BlackBull Brent Cash marks cover every session from the first Brent position (Sep. 23) through Oct. 23; exact TVC:USOIL marks cover every session from the first WTI position (Sep. 10) through Oct. 23. Only pre-entry context retains Yahoo futures proxies.")
+    A("## TradingView Benchmark and Alignment")
     A("")
-    A("| Ticker | Prior mark | Active v7 mark | Correction basis |")
-    A("|---|---:|---:|---|")
-    for ticker, old, new, basis in [
-        ("NFLX", "$762.10", "$65.85", "User-confirmed v1 (v2→v3)"),
-        ("BTC", "$68,250.00", "$81,227.04", "User-confirmed v1 (v2→v3)"),
-        ("ETH", "$2,640.00", "$2,408.47", "User-confirmed v1 (v2→v3)"),
-        ("RIVN", "$11.25", "$11.83", "User-confirmed v1 (v2→v3)"),
-        ("LCID", "$3.55", "$3.52", "User-provided correction (v2→v3)"),
-        ("XRH0", "$790.00", "$785.00", "User-provided correction (v2→v3)"),
-        ("CVX", "$151.30", "$233.21", "Selected preserved v1 Yahoo mark (v3→v4)"),
-        ("WMT", "$81.15", "$119.89", "Selected preserved v1 Yahoo mark (v3→v4)"),
-        ("TMO", "$524.30", "$673.82", "Selected preserved v1 Yahoo mark (v3→v4)"),
-        ("UPS", "$134.60", "$101.06", "Reported ~$101 corroborated by v1 (v4→v5)"),
-        ("BRENT", "$113.81", "$117.345", "User-provided exact BlackBull Brent Cash EOD (v6→v7)"),
-        ("OIL", "$97.53", "$103.45", "User-provided exact TradingView TVC:USOIL EOD (v6→v7)"),
-    ]:
-        A(f"| `{ticker}` | {old} | **{new}** | {basis} |")
+    A("The 31 directly priced core tickers use the normalized user-provided Part A and Part B TradingView lists only, aligned to the 36-session common calendar. A 1U/DAY/DXY index-return sleeve, activated by charted direction, is integrated into each model total and deployed-notional denominator; DXY is not represented as a directly traded security. The session marks and provenance are in [`tradingview_benchmark_session_marks_20261024.csv`](data/tradingview_benchmark_session_marks_20261024.csv); raw imported rows, coverage, and archive hashes are preserved alongside them. BTC and ETH have no marks in this core and remain pending recalibration.")
     A("")
-    A("LCID's Oct. 20–22 marks remain $3.27, $3.21, and $3.46. XRH0 remains $790 through Oct. 22 and changes only at the Oct. 23 endpoint; no interim marks are invented. Endpoint audits: [`eod_close_reconciliation_20261023_v2_to_v3.csv`](data/eod_close_reconciliation_20261023_v2_to_v3.csv), [`eod_close_reconciliation_20261023_v3_to_v4.csv`](data/eod_close_reconciliation_20261023_v3_to_v4.csv), [`eod_close_reconciliation_20261023_v4_to_v5.csv`](data/eod_close_reconciliation_20261023_v4_to_v5.csv), [`eod_close_reconciliation_20261023_v5_to_v6.csv`](data/eod_close_reconciliation_20261023_v5_to_v6.csv), and [`eod_close_reconciliation_20261023_v6_to_v7.csv`](data/eod_close_reconciliation_20261023_v6_to_v7.csv). Exact daily energy data: [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv).")
+    A("**Provisional XRH0 convention:** five missing source sessions (`2026-09-15`, `2026-10-07`, `2026-10-08`, `2026-10-19`, and `2026-10-22`) carry forward the previous supplied TradingView close. Each row is explicitly flagged. No external or legacy price is inserted; revisit this convention if a different gap treatment is preferred.")
+    A("")
+    A("Crypto status: [**Crypto Sidecar — Pending TradingView Recalibration**](Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md). Energy schedules, DXY index-return assumptions, and standalone DXY sizing alternatives: [**TradingView Energy and Currency Desk Sidecars**](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md). The 1U/DAY/DXY schedule from that page is already included in core PnL.")
     A("")
     if yield_chart is not None and yield_csv is not None:
         A("## Legacy Model-Level US10Y Additive Carry (Reference Only)")
@@ -728,18 +771,13 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
         A(f"Session-level rates, forward-fill dates, actual/365 accruals, and adjusted totals: "
           f"[`{yield_csv.name}`](data/{yield_csv.name}).")
         A("")
-    A("## Energy EOD Marks Used for the Core Replay and Oil Sidecar")
+    A("## TradingView Energy Sidecar")
     A("")
-    A("The core energy replay and the daily-buy oil sidecar use the same exact user-provided daily EOD source file, [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv). Each sidecar lot is bought at that instrument's supplied EOD close.")
+    A("Brent and WTI core positions use the supplied aligned TradingView marks. Energy and DXY sizing alternatives are documented with per-session source flags in [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md). The 1U/DAY/DXY index-return sleeve is already included in each core variant; do not add the 1U DXY schedule twice. The strategy composites add only the 10U energy schedule; chart-opened core energy positions are shown separately and are not double-counted. Machine-readable schedules: [`tradingview_energy_sidecar_daily_20261024.csv`](data/tradingview_energy_sidecar_daily_20261024.csv) and [`dxy_currency_desk_sidecar_daily_20261024.csv`](data/dxy_currency_desk_sidecar_daily_20261024.csv).")
+    dxy_core = contrib["V1"].get("DXY", {"units": 0.0, "total": 0.0})
+    A(f"**Integrated 1U/DAY/DXY sleeve (same across all four core variants):** {dxy_core['units']:.0f} daily units, **${dxy_core['units'] * UNIT:,.2f}** gross notional added, terminal proxy PnL **${dxy_core['total']:+,.2f}**. This is already included in the four-model results above.")
     A("")
-    A("| Ticker | EOD instrument/source | Active-position coverage | Sessions | Oct. 23 EOD mark |")
-    A("|---|---|---|---:|---:|")
-    A("| `BRENT` | BlackBull Markets Brent Cash | Sep. 23–Oct. 23, 2026 | 23 | $117.345 |")
-    A("| `OIL` | TradingView `TVC:USOIL` | Sep. 10–Oct. 23, 2026 | 32 | $103.45 |")
-    A("")
-    A("![Exact user-provided energy EOD mark history by active period](Charts/performance/14-energy-eod-mark-history.png)")
-    A("")
-    A("Yahoo `BZ=F` / `CL=F` values are retained only for pre-entry historical context; they do not mark active energy positions or sidecar buys. No separate approximate quote series is used in current model or sidecar totals.")
+    A("![TradingView-sourced energy EOD mark history](Charts/performance/14-energy-eod-mark-history.png)")
     A("")
     A(f"All four models agree on `{invariant_symbol_count}` of the `{symbol_count}` tickers. They diverge only on "
       "**`CAT`, `INTC`, `META` and `PLTR`** — the four symbols where a short is followed by a "
@@ -762,8 +800,8 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       "is shown for reference in the model table above and selectable in the interactive explorer. "
       "For whole-account factor scenarios, use the linked Yield Multiplier Explorer.")
     A("")
-    A(f"Raw dollars flatter V3A/V3B because they deploy more capital — `{natural_units:.0f}` units "
-      f"(`{_money(natural_deployed)}`) against V1/V2's `{flat_units:.0f}` units "
+    A(f"Raw dollars flatter V3A/V3B because they deploy more capital — `{_unitfmt(natural_units)}` units "
+      f"(`{_money(natural_deployed)}`) against V1/V2's `{_unitfmt(flat_units)}` units "
       f"(`{_money(flat_deployed)}`). ROI normalises for that, and the terminal ranking is "
       "unchanged: compounding shorts into full exits beats flat sizing on both capital bases, "
       "and *not* stop-and-reversing beats stop-and-reversing on both.")
@@ -821,8 +859,9 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("|---|---:|---:|---:|---:|")
     for v in VARIANTS:
         s = series[v]
-        A(f"| **{VARIANT_LABEL[v]}** | {_money(s['realized'][last])} | "
-          f"{_money(s['unrealized'][last])} | {s['stats']['n_realized']} | "
+        realized_display, unrealized_display = _display_components(s["realized"][last], term[v])
+        A(f"| **{VARIANT_LABEL[v]}** | {_money(realized_display)} | "
+          f"{_money(unrealized_display)} | {s['stats']['n_realized']} | "
           f"{s['stats']['n_open']} |")
     A("")
     A("## Contribution by Ticker")
@@ -844,8 +883,10 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("|---|---:|---:|---:|---:|")
     top = sorted(contrib["V3A"].items(), key=lambda kv: -kv[1]["total"])[:10]
     for sym, d in top:
-        A(f"| `{sym}` | {d['units']:.0f}U | {_money(d['realized'])} | "
+        A(f"| `{sym}` | {_unitfmt(d['units'])}U | {_money(d['realized'])} | "
           f"{_money(d['unrealized'])} | **{_money(d['total'])}** |")
+    A("")
+    A("Ticker units preserve fractional logged sizes. Each ticker total equals its cent-rounded realized plus unrealized components; summing independently rounded ticker rows can differ from the unrounded model total by a few cents.")
     A("")
     A("### Bottom contributors (V3A)")
     A("")
@@ -853,7 +894,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("|---|---:|---:|---:|---:|")
     bot = sorted(contrib["V3A"].items(), key=lambda kv: kv[1]["total"])[:10]
     for sym, d in bot:
-        A(f"| `{sym}` | {d['units']:.0f}U | {_money(d['realized'])} | "
+        A(f"| `{sym}` | {_unitfmt(d['units'])}U | {_money(d['realized'])} | "
           f"{_money(d['unrealized'])} | **{_money(d['total'])}** |")
     A("")
     if iser is not None and co is not None:
@@ -875,8 +916,11 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
         A("|---|---:|---:|---:|")
         for v in VARIANTS:
             s = iser[v]
-            A(f"| **{VARIANT_LABEL[v]}** | {_money(s['realized'][-1])} | "
-              f"{_money(s['unrealized'][-1])} | **{_money(s['total'][-1])}** |")
+            realized_display, unrealized_display = _display_components(
+                s["realized"][-1], s["total"][-1]
+            )
+            A(f"| **{VARIANT_LABEL[v]}** | {_money(realized_display)} | "
+              f"{_money(unrealized_display)} | **{_money(_cents(s['total'][-1]))}** |")
         A("")
         A(f"The sub-book totals differ from the full-portfolio totals above by exactly the "
           f"{invariant_symbol_count} invariant tickers, which contribute the same amount to every model.")
@@ -943,7 +987,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("")
     A("### Whole-Portfolio DXY Numeraire and Yield Scenarios")
     A("")
-    A("These whole-book scenarios use the separate DXY-equivalent portfolio basis and explicit US10Y / US30Y whole-account factors. DXY is a numeraire, not an added position; this view is separate from the four core model totals. See [`DXY-Equivalent Portfolio Snapshot.md`](DXY-Equivalent%20Portfolio%20Snapshot.md) and the [interactive Yield Multiplier Explorer](Whole%20Portfolio%20Yield%20Multiplier%20Explorer.html) for definitions and session data.")
+    A("> **Historical only—not recalculated on the current TradingView core.** The DXY-numeraire and yield-multiplier graphs below retain their previous portfolio benchmark and must not be read as current results. The current 1U/DAY/DXY index-return sleeve is integrated into the core; its sizing alternatives are in [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md).")
     A("")
     A("![DXY close vs whole-portfolio PnL in dollars](Charts/performance/17-dxy-close-vs-whole-portfolio-pnl-usd.png)")
     A("")
@@ -955,11 +999,9 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("")
     A("![LCID small-caps pilot daily PnL and marks](Charts/performance/18-lcid-small-caps-pilot-pnl.png)")
     A("")
-    A("### Oil Desk EOD Accumulation Sidecar")
+    A("### TradingView Energy and Currency Desk Sidecars")
     A("")
-    A("This separate hypothetical adds 10U ($100,000 notional) per supplied EOD session for each energy instrument, using the same exact marks as the core replay. Its daily-buy lots have a separate capital schedule; chart-opened core energy positions are shown for context and must not be counted again when adding the sidecar. See [`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md).")
-    A("")
-    A("![Oil desk daily EOD accumulation and chart positions](Charts/performance/19-oil-desk-daily-accumulation.png)")
+    A("The sidecar report presents 0.05U, 1U, and 10U sizing schedules. The chart-directed 1U/DAY/DXY index-return sleeve is integrated in every core variant; the DXY 0.05U and 10U rows are alternatives only. Strategy composites add the 10U energy schedule to the core, without adding DXY again. See [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md).")
     A("")
     A("### EOD Add-On and Variant-Specific 1U/EOD Comparisons")
     A("")
@@ -967,44 +1009,33 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("")
     A("![Core models, separate $500 and 1U direction-following models, and sidecar combinations](Charts/performance/20-strategy-sidecar-comparison.png)")
     A("")
-    A("The next chart contains all **16 Core × variant-specific 1U/EOD pairings**, including matching and cross-variant pairs, each with the exact-mark oil daily-buy sidecar. These are additive USD totals; positions and capital are not netted, and the core's chart-opened energy lots are not duplicated in the sidecar.")
+    A("The next chart contains all **16 Core × variant-specific 1U/EOD pairings**, including matching and cross-variant pairs, each with the 10U TradingView energy daily-buy sidecar. These are additive USD totals; positions and capital are not netted, and the core's chart-opened energy lots are not duplicated in the sidecar.")
     A("")
-    A("![All 16 Core × 1U variant pairings with oil sidecar](Charts/performance/21-force-variant-oil-comparison.png)")
+    A("![All 16 Core × 1U variant pairings with energy sidecar](Charts/performance/21-force-variant-oil-comparison.png)")
     A("")
-    A("The percentage-gain view plots all **32 series**: the same 16 Core × 1U pairings, each with and without oil. Gain is cumulative PnL divided by cumulative gross notional added—a deployed-notional ratio, **not an account return**. Only the top four terminal performers are named in the legend; all 32 are plotted. The leading terminal ratios are Core V3A + 1U V3A with oil, **8.88%**; the same pairing without oil, **8.74%**; Core V1 + 1U V3A with oil, **8.62%**; and Core V3A + 1U V1 with oil, **8.61%**.")
+    leaders = "; ".join(f"{label}, **{ratio:.2f}%**" for ratio, label in _top_split_portfolio_ratios())
+    A("The percentage-gain view plots all **32 series**: the same 16 Core × 1U pairings, each with and without the energy sidecar. Gain is cumulative PnL divided by cumulative gross notional added—a deployed-notional ratio, **not an account return**. Only the top four terminal performers are named in the legend; all 32 are plotted. The earlier **8.88% static single-composite proxy is not a result for this 32-portfolio split**. The leading terminal ratios are " + leaders + ".")
     A("")
-    A("![All 32 Core × 1U variant pairings with and without oil, shown as deployed-notional percentage gain](Charts/performance/22-force-variant-oil-percent-gain.png)")
+    A("![All 32 Core × 1U variant pairings with and without the energy sidecar, shown as deployed-notional percentage gain](Charts/performance/22-force-variant-oil-percent-gain.png)")
     A("")
 
     A("## Method & Caveats")
     A("")
-    A(f"- **Model coverage:** the four variants directly price the `{symbol_count}` symbols with configured "
-      f"daily market series. `{modeled_event_count}` price-covered events dated on or before the "
-      f"Oct. 23 mark are replayed; `{post_terminal_event_count}` price-covered events after the mark "
-      f"are excluded from this current daily replay. `{price_unmodeled_event_count}` DXY, EURUSD, JPYUSD, "
-      f"US10Y and US30Y log events are not replayed as standalone price positions. The two US10Y "
-      f"events establish yield-adjustment context; this report's additive carry is retained only as "
-      f"a legacy reference. Whole-account US10Y and compounded US30Y multiplier scenarios are in "
-      f"the DXY snapshot and linked explorer. DXY/FX/US30Y positions remain outside the four direct-price "
-      f"variants and require their own quote/valuation treatment.")
-    A("- **Price source:** cached Yahoo Finance histories provide pre-entry context "
-      "(`BRENT = BZ=F`, `OIL = CL=F`, `BTC = BTC-USD`, `ETH = ETH-USD`). Exact user-provided BlackBull Brent Cash and TVC:USOIL EOD marks override the energy proxies from the first active position date through Oct. 23. Other Oct. 23 endpoints use the "
-      "consolidated v7 file's per-ticker `Source` labels. LCID retains its separate pilot mark series, "
-      "which matches the user-corrected consolidated mark at $3.52. `BZ=F`/`CL=F` are only pre-entry context proxies.")
-    A("- **Oct. 23 price reconciliation:** `data/consolidated_portfolio_closes_v7.csv` is the active close set; v1 through v6 remain preserved. "
-      "Earlier audits record selected v1 marks for CVX `$233.21`, WMT `$119.89`, TMO `$673.82`, and UPS `$101.06`. User-provided exact energy EOD values are in [`data/energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv); the v6-to-v7 audit records the endpoint changes. Exact marks begin on each instrument's first active position date; pre-entry context remains a futures proxy. The active source map is [`data/active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv). The saved TradingView/Yahoo comparison candidate remains audit-only. DXY, FX, and yield inputs remain local user-provided daily series and are not independently provider-verified.")
+    A(f"- **Model coverage:** the four variants directly price `{symbol_count}` TradingView tickers and include the chart-directed 1U/DAY/DXY index-return sleeve. `{direct_modeled_event_count}` direct-price trade events plus `{dxy_signal_count}` DXY direction signal are in scope through Oct. 23; `{post_terminal_event_count}` direct-price events after the mark are excluded. `{price_unmodeled_event_count}` other BTC, ETH, EURUSD, JPYUSD, US10Y, and US30Y log events are not replayed as direct-price positions. The two US10Y events establish yield-adjustment context; this report's additive carry is retained only as a legacy reference. Whole-account US10Y and compounded US30Y multiplier scenarios remain historical. DXY uses an index-return proxy, not an exchange-traded contract model.")
+    A("- **Price source:** every direct-price core mark comes from the normalized user-provided TradingView Part A/Part B lists, aligned in [`data/tradingview_benchmark_session_marks_20261024.csv`](data/tradingview_benchmark_session_marks_20261024.csv). DXY's 1U/day proxy uses its separate supplied TradingView index marks and the charted direction signal; it is integrated into the core totals but is not a directly traded security. BTC/ETH remain pending and outside the core. Five missing XRH0 sessions use the last prior supplied TradingView close, with each carry-forward row explicitly flagged; this is a provisional mark convention. No Yahoo or historical-series fill is used.")
+    A("- **Benchmark provenance and alignment:** Part A and Part B raw observations, per-ticker coverage, and archive hashes are preserved in the paired CSV/JSON artifacts under `data/`. DXY is marked separately from the 31 direct-price tickers but its chart-directed 1U/day proxy is integrated into this core portfolio. EURUSD, JPYUSD, US10Y, and US30Y remain outside. Do not interpret the historical whole-portfolio DXY/yield pages as recalculated from this benchmark.")
     A("- **Session calendar:** the `36` U.S. equity regular sessions from "
-      f"`{SESSION_DATES[0]}` to `{SESSION_DATES[-1]}`. Futures and crypto are mapped onto the "
-      "same session index by trade date.")
-    A("- **`XRH0`** (db Physical Rhodium ETC, LSE) is too illiquid for a usable daily history, "
-      "so it remains at the `$790.00` log-entry mark through Oct. 22; the user-corrected Oct. 23 endpoint is `$785.00`. No interim daily prices are invented.")
-    A("- **Oct. 22 historical marks** remain pinned to the verified settlement set from "
-      "[`Trades Zip PnL.md`](Trades%20Zip%20PnL.md); the Oct. 23 endpoint uses the user-supplied EOD file above. "
-      "The Oct. 23 ORCL and LCID entries are now included at that date's close. The master PnL report remains "
-      "unrecalculated and unreconciled; do not interpret this model replay as a refresh of its totals.")
+      f"`{SESSION_DATES[0]}` to `{SESSION_DATES[-1]}`. DXY index marks align to the same sessions; BTC/ETH remain excluded pending recalibration.")
+    A("- **XRH0 interim marks:** the source list omits five common sessions (`2026-09-15`, `2026-10-07`, `2026-10-08`, `2026-10-19`, and `2026-10-22`). Those are carried forward from the prior supplied TradingView close and flagged in the session-mark CSV; no external price is inserted. Treat its interim path as provisional.")
+    A("- **Performance scope:** logged core trade entries/exits retain their chart-posting prices; the additional DXY sleeve adds 1U at each active EOD in the latest charted direction, marked to the supplied TradingView index close. The integrated core totals therefore include DXY daily-investment PnL and notional. Historical whole-account/yield outputs and the master ledger are not recalculated by this run.")
     A("- **ROI** is cumulative PnL divided by notional deployed *to date* "
       "(units opened on or before that session × 1U standard notional), so early sessions show larger "
       "percentages on less capital.")
+    A("- **Open units** are units still held at each session close; they decline when a position closes. "
+      "This differs from cumulative units deployed, which continues to include previously closed units.")
+    A("- **All-actionable-ticker audit:** an independent replay reconciles all 31 TradingView-priced core tickers, "
+      "the integrated 1U/DAY/DXY sleeve, energy/DXY sizing schedules, position exports, and all 32 portfolio aggregates. "
+      "See the current [`data/actionable_ticker_reconciliation_20261023_v1.csv`](data/actionable_ticker_reconciliation_20261023_v1.csv) audit output.")
     A("- Entry fills use the chart-posting prices recorded in the trade log, not later minute or session closes; "
       "the Sep. 24 INTC short uses the chart-posting price `$115.11`. Exits are realised on their log date.")
     A("- Excludes commissions, borrow fees, and overnight financing.")
@@ -1044,6 +1075,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .wrap{max-width:1280px;margin:0 auto;padding:28px 20px 72px}
   h1{font-size:26px;margin:0 0 6px}
   .sub{color:var(--muted);margin:0 0 22px;font-size:14px}
+  .benchmark-notice{border:1px solid #eab308;background:#422006;color:#fef3c7;
+    border-radius:9px;padding:14px 16px;margin:0 0 22px;font-size:13px}
+  .benchmark-notice strong{color:#fde68a}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;
         padding:18px 20px;margin-bottom:20px}
   .card h2{font-size:16px;margin:0 0 4px}
@@ -1088,18 +1122,20 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <div class="wrap">
   <h1>Model Performance Explorer</h1>
   <p class="sub">*Fall (Arizona) [2026]* paper-trade book &middot; __NSESS__ sessions
-     (__START__ &rarr; __END__, MST) &middot; __NSYMS__ symbols &middot; 1U = $10,000.00
+     (__START__ &rarr; __END__, MST) &middot; __NSYMS__ direct-price symbols + integrated 1U/DAY/DXY &middot; 1U = $10,000.00
      &middot; daily marks through the Oct 23, 2026 close; hourly intraday charts through Oct 22</p>
+  <div class="benchmark-notice"><strong>TradingView-only interim core — 2026-10-24.</strong>
+    This explorer reflects the interim TradingView-only recalculation for 31 direct-price symbols plus the integrated chart-directed 1U/DAY/DXY index-return sleeve. BTC/ETH remain excluded pending recalibration. XRH0 has five flagged carry-forward marks. Historical whole-book/yield views are not part of these core results. <a href="data/tradingview_benchmark_coverage_20261024.csv">View coverage</a> · <a href="Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md">Crypto status</a>.</div>
 
   <div class="card">
-    <h2>Energy EOD marks used in the core replay and oil sidecar</h2>
+    <h2>Energy EOD marks used in the core replay and energy sidecar</h2>
     <p class="hint">Both use the same exact user-provided daily marks from <code>data/energy_provider_eod_marks_v1.csv</code>. BRENT: BlackBull Markets Brent Cash, Sep 23–Oct 23 (23 sessions), terminal $117.345. OIL: TradingView <code>TVC:USOIL</code>, Sep 10–Oct 23 (32 sessions), terminal $103.45. Yahoo <code>BZ=F</code>/<code>CL=F</code> are pre-entry context only; no separate approximate quote series is used in current totals.</p>
     <p><img src="Charts/performance/14-energy-eod-mark-history.png" alt="Exact user-provided energy EOD mark history by active period" style="max-width:100%;height:auto"></p>
   </div>
 
   <div class="card">
     <h2>Terminal results</h2>
-    <p class="hint">Oct 23, 2026 close. This model-level view includes a legacy additive US10Y carry reference. For the active whole-account toggle scenarios (none, US10Y, US10Y × US30Y), open <a href="Whole%20Portfolio%20Yield%20Multiplier%20Explorer.html">the Yield Multiplier Explorer</a>. The hourly intraday archive stops at Oct 22.</p>
+    <p class="hint">Oct 23, 2026 close. The table includes a separately labeled legacy US10Y carry reference; the DXY-numeraire and whole-account yield views are historical and are not recalculated on this TradingView core. The DXY 1U/DAY index-return sleeve is included in core totals; its sizing alternatives are detailed in the currency-desk sidecar. The hourly intraday archive stops at Oct 22.</p>
     <div class="row" id="terminal"></div>
   </div>
 
@@ -1132,9 +1168,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <footer>
-    Generated __GEN__. Prices: Yahoo Finance <code>interval=1d</code>. The four variants model
-    the __NSYMS__ symbols with configured daily marks; DXY, EURUSD, JPYUSD and US30Y are not directly
-    marked. LCID pilot marks are user-provided. The per-model US10Y additive overlay is retained as a legacy reference only; whole-account US10Y and US30Y multiplier scenarios live in the linked explorer. The Oct 23 ORCL LONG and fifth LCID LONG are included in this EOD model replay.
+    Generated __GEN__. Core marks: user-provided TradingView EOD lists. The four variants model
+    the __NSYMS__ direct-price symbols; the integrated 1U/DAY/DXY sleeve uses supplied DXY index marks.
+    EURUSD, JPYUSD and US30Y are outside this portfolio valuation. LCID pilot marks are user-provided. The per-model US10Y additive overlay is retained as a legacy reference only; whole-account US10Y and US30Y multiplier scenarios live in the linked explorer. The Oct 23 ORCL LONG and fifth LCID LONG are included in this EOD model replay.
     Intraday source charts remain through Oct 22. The master <b>Trades Zip PnL.md</b> has not been recalculated for
     the newly reconciled positions, so its totals do not currently match this comparison. Excludes commissions,
     borrow fees and financing.

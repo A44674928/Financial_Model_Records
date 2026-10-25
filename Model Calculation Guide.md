@@ -1,6 +1,6 @@
 # Model Calculation Guide
 
-This guide explains how the repository's portfolio models turn the trade logs into daily lots, PnL, exposure, and comparison lines. It covers the four core variants, the shared-direction $500/1U models, four variant-specific 1U/EOD force models, and the oil-desk daily-buy sidecar. The calculations are a historical paper-trade replay—not a live execution system, forecast, or investment recommendation.
+This guide explains how the repository's portfolio models turn the trade logs into daily lots, PnL, exposure, and comparison lines. It covers the four core variants, the shared-direction $500/1U models, four variant-specific 1U/EOD force models, and the TradingView energy sidecar. BTC/ETH remain outside the core pending recalibration; DXY's chart-directed 1U/DAY index-return sleeve is integrated into core PnL, with sizing alternatives detailed separately. The calculations are a historical paper-trade replay—not a live execution system, forecast, or investment recommendation.
 
 ## At a glance
 
@@ -13,16 +13,17 @@ This guide explains how the repository's portfolio models turn the trade logs in
 | Exponential alternative | Latest logged direction, carried forward; add a lot each priced EOD | Close all old lots at EOD when the carried direction flips | Fixed $500 per active symbol per EOD |
 | Shared-direction force alternative | Same direction path and daily schedule as the $500 model | Close all old-direction lots on any direction flip | Fixed 1U per active symbol per EOD |
 | Variant-specific force family | Same 1U/EOD schedule with V1, V2, V3A, or V3B close/short-compounding rules | Variant-specific | One 1U tranche per active symbol/EOD; V3 compounding can size the event-day short tranche up |
-| Oil-desk daily-buy sidecar | Add an energy long at every supplied energy EOD | No exits during the replay window | 10U / $100,000 notional per energy ticker per covered EOD |
+| DXY currency sleeve | Adds 1U per active EOD in the latest charted direction | Carries LONG/REBUY/SHORT direction; reversals close prior daily lots at EOD | 1U/DAY integrated into every core variant; alternative sizes documented separately |
+| TradingView energy sidecar | Adds a fixed-notional long at each supplied energy EOD | No exits during the schedule | Standalone 0.05U, 1U, or 10U alternatives per energy ticker |
 
-The $500 model, shared-direction 1U model, and four variant-specific 1U/EOD models are separate alternatives; do not stack those force-model families or the four variant rules together. Oil sidecar composites add the daily-buy lots only; they do not add the energy chart positions a second time.
+The $500 model, shared-direction 1U model, and four variant-specific 1U/EOD models are separate alternatives; do not stack those force-model families or the four variant rules together. Energy-sidecar composites add the daily-buy lots only; they do not add the energy chart positions a second time.
 
 ## 1. Common inputs and daily timeline
 
 - The core replay reads the standardized records in `trades/*.txt`, orders events by date, time, ticker, then source-file order, and calculates the four core variants separately.
 - Each event's entry or exit date is assigned to the first priced session on or after that date. This carries weekend and market-holiday events to the next priced session. Events after the October 23, 2026 cutoff are outside this replay.
-- The entry/exit event price in the log is used as the lot's entry basis or close price. Open lots are marked against that ticker's configured EOD price series. The source registry and the underlying data files document the price source by ticker; the marks should not all be assumed to be TradingView-exact.
-- The four core models cover the 33 directly price-covered symbols. DXY, EURUSD, JPYUSD, US10Y, and US30Y are outside these position replays; the whole-account DXY/yield scenarios are separate analyses.
+- The entry/exit event price in the log is used as the lot's entry basis or close price. Open lots are marked against that ticker's configured EOD price series. The current core marks use only the normalized user-provided TradingView lists; the session-mark file records source rows and explicitly flags provisional XRH0 carry-forwards.
+- The four core models directly price 31 TradingView symbols and also include a chart-directed 1U/DAY/DXY index-return sleeve. The DXY signal is the logged LONG/REBUY/SHORT direction carried forward; the current log has one LONG badge, although its caption conflicts. DXY is not modeled as a futures/ETF contract. BTC/ETH remain pending recalibration; EURUSD, JPYUSD, US10Y, and US30Y remain outside these position replays. Whole-account DXY/yield views are historical, not recalculated on this benchmark.
 - A unit is a notional sizing measure, not a fixed number of shares. In these calculations, **1U corresponds to $10,000 of entry notional**. Core V1/V2 use each entry's logged unit size; V3A/V3B normally do too, subject to the compounded-short override below. Most current entries are 1U, and the ORCL entry is 2.5U. The `1U` labels describe standard sizing, not a rule that overrides a different size written in the log.
 
 On a session, the replay processes that session's mapped events, applies any closes and new entries, then marks the remaining open lots to the session's EOD price. A same-day entry can therefore have a gain or loss at EOD if the configured close differs from its logged entry price.
@@ -110,18 +111,19 @@ On every priced EOD with a carried direction, the variant model adds one 1U lot.
 - **V3A/V3B natural-unit behavior:** if a SHORT event is tagged “Compounded short” and the preceding full exit recorded more than 1 unit, that event-day tranche uses the preceding exit's unit count (for example, 2U or 5U). Subsequent carried SHORT days return to 1U additions. This is a one-day sizing override to the baseline daily 1U schedule, not a compounded or reinvested PnL amount.
 - If several directional events for a ticker occur on one session, process them in log order; the final direction determines that session's EOD addition. Weekend/holiday events apply on the first priced session on or after the event date.
 
-The comparison includes each variant-specific model alone and with the incremental oil daily-buy sidecar, plus all 16 additive pairings of a core variant with any of the four variant-specific 1U models and oil. Matching and cross-variant pairings are shown separately. These are illustrative additive PnL/gross-notional comparisons, not account simulations; positions and capital are not netted or merged.
+The comparison includes each variant-specific model alone and with the incremental 10U TradingView energy daily-buy sidecar, plus all 16 additive pairings of a core variant with any of the four variant-specific 1U models and the energy sidecar. Matching and cross-variant pairings are shown separately. These are illustrative additive PnL/gross-notional comparisons, not account simulations; positions and capital are not netted or merged.
 
-## 6. Oil-desk daily-buy sidecar
+## 6. TradingView energy sidecar and integrated DXY sleeve
 
-The oil-desk hypothetical is a separate long-only accumulation schedule for BRENT and OIL:
+The energy sidecar is a separate long-only accumulation schedule for BRENT and OIL. DXY is a hypothetical currency-desk index-return proxy whose 1U/DAY schedule is integrated into every core model:
 
-- Buy 10U ($100,000 notional) of each energy ticker at every supplied EOD session in its covered series.
-- Each new lot starts at that session's EOD mark. It has zero mark-to-market PnL at that purchase close, then remains open and is marked on later covered sessions through October 23.
-- No sidecar lots are closed, and PnL is not reinvested into later buys. Fees, financing, and margin are not modeled.
-- The core replay and oil-desk sidecar use the same exact daily marks from [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv): user-provided BlackBull Markets Brent Cash for BRENT (Sep. 23–Oct. 23, 23 sessions; terminal $117.345) and TradingView TVC:USOIL for OIL (Sep. 10–Oct. 23, 32 sessions; terminal $103.45). The sidecar buys each 10U tranche at that instrument's supplied EOD close. Yahoo BZ=F/CL=F are pre-entry context proxies only; they are not used to mark active lots or sidecar purchases.
+- Energy alternatives are 0.05U ($500), 1U ($10,000), and 10U ($100,000) per ticker/session; each schedule is standalone and is not stacked with the other sizes.
+- Each new energy lot starts at that session's EOD mark, has zero purchase-day PnL, and remains open through October 23. The 10U energy schedule is the only energy size added by strategy composites.
+- For DXY, one 1U ($10,000 notional) long/short index-return lot is added at each EOD while a charted direction is active. The current log has one LONG badge on Sep. 4; the badge controls despite the conflicting caption. A later direction reversal closes older daily lots at that session's EOD mark, then additions follow the new direction. There are no such reversals in the current log.
+- The integrated 1U/DAY/DXY schedule contributes **35 daily lots** and is included in each core variant's PnL, deployed notional, and open exposure. The sidecar report also shows 0.05U and 10U alternatives; do not add its 1U row again to core results. DXY is an index-return/notional proxy—not a modeled futures or ETF contract.
+- The daily DXY lots are distinct from the one-time chart-opened DXY position; the logged chart-position PnL is displayed separately and is not counted in core totals. Fees, financing, contract multipliers, collateral, and tracking error are not modeled.
 
-The sidecar report shows daily-buy PnL separately from the chart-opened energy positions. When the sidecar is combined with a core variant, only the **incremental daily-buy lots** are added: chart-opened energy lots already belong to the core replay and must not be counted twice.
+The energy sidecar report shows daily-buy PnL separately from chart-opened energy positions. When combined with a core variant, only the **incremental 10U daily-buy energy lots** are added: chart-opened energy lots already belong to the core replay and must not be counted twice.
 
 ## 7. How composite lines are formed
 
@@ -129,15 +131,15 @@ A composite line is additive PnL, session by session:
 
 `composite PnL = core-variant PnL + selected independent add-on PnL(s)`
 
-A composite adds the core PnL to a selected 1U/$500 force-model alternative and/or the oil daily-buy sidecar, as labeled in the comparison. The four variant-specific 1U/EOD models are alternatives to one another and to the shared-direction 1U model; they are never stacked together. The comparison shows all 16 core-variant × 1U-variant pairings, both with and without oil, including matching and cross-variant combinations. The percentage-gain graph defines gain as cumulative composite PnL divided by cumulative gross notional added. This deployed-notional ratio is not an account return or capital-normalized ROI; raw dollar PnL, gross cumulative notional, and gross open notional remain separately reported. They are not included in the separate whole-portfolio DXY/yield multiplier scenarios.
+A composite adds the core PnL to a selected 1U/$500 force-model alternative and/or the 10U TradingView energy daily-buy sidecar, as labeled in the comparison. The four variant-specific 1U/EOD models are alternatives to one another and to the shared-direction 1U model; they are never stacked together. The comparison shows all 16 core-variant × 1U-variant pairings, both with and without the energy sidecar, including matching and cross-variant combinations. The percentage-gain graph defines gain as cumulative composite PnL divided by cumulative gross notional added. This deployed-notional ratio is not an account return or capital-normalized ROI; raw dollar PnL, gross cumulative notional, and gross open notional remain separately reported. They are not included in the separate whole-portfolio DXY/yield multiplier scenarios.
 
 ## 8. Where to inspect the calculations
 
 - Core definitions and daily calculations: [`scripts/model_perf_core.py`](scripts/model_perf_core.py).
 - Direction-following models and variant-specific EOD alternatives: [`scripts/build_strategy_sidecar_comparison.py`](scripts/build_strategy_sidecar_comparison.py), [`data/exponential_eod_positions_v1.csv`](data/exponential_eod_positions_v1.csv), [`data/force_multiplier_eod_positions_v1.csv`](data/force_multiplier_eod_positions_v1.csv), and [`data/force_multiplier_variant_eod_positions_v1.csv`](data/force_multiplier_variant_eod_positions_v1.csv).
-- Daily composite PnL, exposure, and return-ratio series: [`data/strategy_sidecar_comparison_daily_v1.csv`](data/strategy_sidecar_comparison_daily_v1.csv); all 16 core/1U variant pairings with oil: [`Charts/performance/21-force-variant-oil-comparison.png`](Charts/performance/21-force-variant-oil-comparison.png); all 32 with/without-oil percentage-gain series: [`Charts/performance/22-force-variant-oil-percent-gain.png`](Charts/performance/22-force-variant-oil-percent-gain.png).
-- Oil daily-buy lot audit: [`data/oil_desk_eod_accumulation_v1.csv`](data/oil_desk_eod_accumulation_v1.csv).
-- Price-source details: [`data/active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv) and [`data/energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv).
-- Latest results: [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md), [`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md), and [`Oil Desk EOD Accumulation Hypothetical.md`](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md).
+- Daily composite PnL, exposure, and return-ratio series: [`data/strategy_sidecar_comparison_daily_v1.csv`](data/strategy_sidecar_comparison_daily_v1.csv); all 16 core/1U variant pairings with the 10U energy schedule: [`Charts/performance/21-force-variant-oil-comparison.png`](Charts/performance/21-force-variant-oil-comparison.png); all 32 with/without-energy percentage-gain series: [`Charts/performance/22-force-variant-oil-percent-gain.png`](Charts/performance/22-force-variant-oil-percent-gain.png).
+- Energy and DXY daily schedules: [`data/tradingview_energy_sidecar_daily_20261024.csv`](data/tradingview_energy_sidecar_daily_20261024.csv) and [`data/dxy_currency_desk_sidecar_daily_20261024.csv`](data/dxy_currency_desk_sidecar_daily_20261024.csv); visible assumptions and sizing rows: [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md).
+- Price-source details: [`data/tradingview_benchmark_session_marks_20261024.csv`](data/tradingview_benchmark_session_marks_20261024.csv) and [`data/tradingview_benchmark_coverage_20261024.csv`](data/tradingview_benchmark_coverage_20261024.csv).
+- Latest core results: [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md) and [`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md). Historical whole-account DXY/yield views are not recalculated on this benchmark.
 
 For a concise description of the four core variants, see the “The Four Models” table in the main comparison. This guide adds the operational details on lot creation, mark-to-market, and close behavior so the table labels are not mistaken for more symmetric rules than the code actually applies.

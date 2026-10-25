@@ -3,10 +3,12 @@
 **Working discussion draft · Fall (Arizona) [2026] paper-trade model · Not an offering document**
 
 > **Important status notice.** This is an educational description of a hypothetical model architecture. It is not a prospectus, private-placement memorandum, offer to sell or solicitation to buy a security, investment recommendation, or promise of return. No actual issuer, security, price, minimum subscription, use of proceeds, fee schedule, redemption right, liquidity term, or offering authorization has been supplied; the illustrative unit price at the end is not an actual offering term. Do not circulate it as offering material without appropriate securities counsel, compliance review, complete offering terms, and substantiated performance disclosures.
+>
+> **Historical draft—not a current performance disclosure (2026-10-24).** The comparison figures and 32-portfolio tables in this educational draft were generated from the prior benchmark/source mix and are retained only as historical material. Do not present them as results from the refreshed TradingView core or use them as offering performance claims. The current four-model results use 31 supplied TradingView direct-price symbols plus an integrated chart-directed 1U/DAY/DXY index-return sleeve; BTC/ETH are excluded pending recalibration, and XRH0 has five flagged provisional carry-forwards. Refer to [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md), [`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md), and the [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md) for current benchmark outputs and scope.
 
 ## 1. Purpose and operating model
 
-The model is a set of historical paper-trade replays built from chart posts and manually entered trade records. The source ledger is maintained in [`trades/`](trades/) and [`trades.zip`](trades.zip); supporting assumptions and calculation rules are in [`Model Calculation Guide.md`](Model%20Calculation%20Guide.md). The covered book has 95 recorded 2026 events, of which 88 are in-scope, price-covered events in the four core replays through October 23, 2026. Seven currency/index/yield events are handled outside those direct-price replays.
+The model is a set of historical paper-trade replays built from chart posts and manually entered trade records. The source ledger is maintained in [`trades/`](trades/) and [`trades.zip`](trades.zip); supporting assumptions and calculation rules are in [`Model Calculation Guide.md`](Model%20Calculation%20Guide.md). The covered book has 95 recorded 2026 events, of which 85 are in-scope, price-covered direct-trade events in the current four core replays through October 23, 2026. The remaining records include BTC/ETH, FX, and yield/index events outside those direct-price replays; DXY's logged trade is not replayed as a direct-price position, while its charted direction separately drives the integrated 1U/DAY index-return sleeve.
 
 The scripts can replay logged records and produce reports. **A broker-connected automated trading system is hypothetical, not operational.** This model is built to be operated manually by **Harshal Priyavadan Patel**: he reviews chart posts and trade records, makes discretionary decisions, enters or updates records, and manually reviews and places any paper or hypothetical order. No live automated order routing, real-time signal validation, or independently verified execution is represented here.
 
@@ -15,9 +17,9 @@ For a logged trade, the chart-posting price recorded in the trade log is the ent
 ### What the historical replay does—and does not—show
 
 - It compares rule-defined hypothetical position paths on one manually assembled paper-trade book; it is not a verified client account or audited investment track record.
-- The direct-price core replay covers 33 symbols and uses a common EOD calendar through Oct. 23, 2026. Intraday source coverage is separate and shorter.
-- Energy marks during active positions use the exact user-provided series in [`data/energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv): BRENT is BlackBull Markets Brent Cash ($117.345 on Oct. 23; 23 sessions from Sep. 23); OIL is TradingView `TVC:USOIL` ($103.45 on Oct. 23; 32 sessions from Sep. 10). Yahoo `BZ=F`/`CL=F` are pre-entry context proxies only.
-- Other symbols use ticker-specific history and endpoint sources recorded in [`data/active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv). Do not assume all marks share one provider or verification standard.
+- The current core replay covers 31 direct-price TradingView symbols plus an integrated chart-directed 1U/DAY/DXY index-return sleeve on a common EOD calendar through Oct. 23, 2026. BTC/ETH remain outside the core pending recalibration. Intraday source coverage is separate and shorter.
+- All current core marks, including BRENT and OIL, are from the normalized user-provided TradingView lists in [`data/tradingview_benchmark_session_marks_20261024.csv`](data/tradingview_benchmark_session_marks_20261024.csv). The standalone energy schedules, DXY 1U audit, and 0.05U/10U DXY alternatives are in [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md); do not add the integrated DXY 1U sleeve twice. XRH0 has five flagged provisional carry-forwards; no legacy price fills are used.
+- The current core uses only the supplied TradingView lists; their source files, coverage, and mark statuses are recorded in the benchmark manifest and session-mark data. The archived source registry applies to historical views only.
 - The replay does not comprehensively charge commissions, bid/ask spread, slippage, taxes, borrow, financing, margin, market impact, option premium, or operational costs. It does not establish executable capacity or customer-level returns.
 - “PnL,” “deployed notional,” “open notional,” and percentage-gain ratios are model measures. The percentage-gain chart uses cumulative PnL divided by cumulative gross notional added; it is a **deployed-notional ratio, not an account return**.
 
@@ -124,17 +126,17 @@ These figures are **historical paper-model outputs through Oct. 23, 2026**, not 
 
 | Historical model/output | Terminal PnL | Cumulative gross notional added | Scope note |
 |---|---:|---:|---|
-| Core V1 — 1U Open | $+99,599.67 | $845,000 | 84.5U; direct-price core replay |
-| Core V2 — 1U SAR | $+74,882.36 | $845,000 | 84.5U; direct-price core replay |
-| Core V3A — Nu Open | $+143,803.02 | $935,000 | 93.5U; includes qualifying compounded shorts |
-| Core V3B — Nu SAR | $+86,049.06 | $935,000 | 93.5U; includes qualifying compounded shorts |
-| Fixed-$500/EOD alternative | $+21,118.86 | $364,000 | Standalone daily accumulation |
-| Shared-direction 1U/EOD alternative | $+422,377.26 | $7,280,000 | Standalone daily accumulation |
+| Core V1 — 1U Open | $+82,270.58 | $845,000 | 84.5U; direct-price core replay |
+| Core V2 — 1U SAR | $+57,553.26 | $845,000 | 84.5U; direct-price core replay |
+| Core V3A — Nu Open | $+126,473.92 | $935,000 | 93.5U; includes qualifying compounded shorts |
+| Core V3B — Nu SAR | $+68,719.96 | $935,000 | 93.5U; includes qualifying compounded shorts |
+| Fixed-$500/EOD alternative | $-1,080.89 | $364,000 | Standalone daily accumulation |
+| Shared-direction 1U/EOD alternative | $-21,617.85 | $7,280,000 | Standalone daily accumulation |
 | Oil-desk daily-buy sidecar | $+499,705.92 | $5,500,000 | Standalone daily accumulation; 55 energy sessions total |
 
-The separate variant-specific 1U/EOD force family produced standalone PnL of $+537,937.28 (V1), $+429,919.69 (V2), $+582,278.04 (V3A), and $+440,601.08 (V3B), on $7.28 million / $7.37 million of cumulative additions as applicable. These are separately defined historical paths, not an endorsement of the highest terminal PnL.
+The separate variant-specific 1U/EOD force family produced standalone PnL of $+93,942.18 (V1), $-14,075.42 (V2), $+138,282.94 (V3A), $-3,394.02 (V3B), on $7.28 million / $7.37 million of cumulative additions as applicable. These are separately defined historical paths, not an endorsement of the highest terminal PnL.
 
-Among the 32 pairings, the top individual terminal deployed-notional ratios were Core V3A + 1U V3A with oil (8.88%), the same pairing without oil (8.74%), Core V1 + 1U V3A with oil (8.62%), and Core V3A + 1U V1 with oil (8.61%). These are **individual-portfolio** ratios, not the ratio for the total split portfolio. The all-32 aggregate result is calculated by summing the 32 separate portfolio PnLs and gross notionals below; all 16 Core × 1U/EOD pairings, including cross-variant pairs, are retained. Full definitions and data are in [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md), [`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md), and [`DXY-Equivalent Portfolio Snapshot.md`](DXY-Equivalent%20Portfolio%20Snapshot.md).
+Among the 32 pairings, the top individual terminal deployed-notional ratios were Core V3A + 1U V3A with oil (5.54%), Core V1 + 1U V3A with oil (5.25%), Core V3A + 1U V1 with oil (5.25%), Core V3B + 1U V3A with oil (5.12%). These are **individual-portfolio** ratios, not the ratio for the total split portfolio. The earlier **8.88% static single-composite proxy is not a result for this 32-portfolio split**. The all-32 aggregate result is calculated by summing the 32 separate portfolio PnLs and gross notionals below; all 16 Core × 1U/EOD pairings, including cross-variant pairs, are retained. Full definitions and data are in [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md), [`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md), and [`DXY-Equivalent Portfolio Snapshot.md`](DXY-Equivalent%20Portfolio%20Snapshot.md).
 
 ## 4. “THE ONE MODEL” — 32-portfolio split strategy
 
@@ -147,20 +149,20 @@ Among the 32 pairings, the top individual terminal deployed-notional ratios were
 | Aggregate statistic | Result |
 |---|---:|
 | Portfolios in aggregate | 32 (16 without oil + 16 with oil) |
-| Terminal aggregate modeled PnL | **$27,155,856.32** |
+| Terminal aggregate modeled PnL | **$12,393,481.92** |
 | Cumulative gross notional added, summed across all portfolios | **$350,880,000.00** |
 | Gross open notional at period end, summed across all portfolios | **$316,000,000.00** |
-| Aggregate PnL ÷ cumulative gross notional added | **7.7394%** |
+| Aggregate PnL ÷ cumulative gross notional added | **3.5321%** |
 | Aggregate PnL peak-to-trough decline | **$1,844,483.12** |
-| Peak to trough | **Sep. 28: +$2,622,698.32 → Sep. 29: +$778,215.20** |
+| Peak to trough | **09-28: +$2,622,698.32 → 09-29: +$778,215.20** |
 | Portfolios with positive terminal modeled PnL | **32 of 32** |
-| Mean / median terminal PnL per portfolio | $848,620.51 / $865,294.52 |
+| Mean / median terminal PnL per portfolio | $387,296.31 / $403,970.31 |
 
-The 7.7394% figure is a **deployed-notional ratio, not an account return**. The drawdown is the peak-to-trough change in the sum of the modeled PnL series, not a loss percentage on defined account equity. The summed total assumes separate funding and gross exposure for all 32 portfolios; positions, capital, and risk are not netted or shared.
+The 3.5321% figure is a **deployed-notional ratio, not an account return**. The drawdown is the peak-to-trough change in the sum of the modeled PnL series, not a loss percentage on defined account equity. The summed total assumes separate funding and gross exposure for all 32 portfolios; positions, capital, and risk are not netted or shared.
 
 ![THE ONE MODEL aggregate modeled PnL, gross notional, and deployed-notional ratio](Charts/superstructure/the-one-model-split-portfolio.png)
 
-The best individual terminal PnL was **Core V3A + 1U/EOD V3A with oil**: $1,225,786.98 PnL on $13,805,000.00 gross notional added and $12,885,000.00 open, an 8.8793% deployed-notional ratio. The lowest individual terminal PnL was **Core V2 + 1U/EOD V2 without oil**: $504,802.05 on $8,125,000.00 added and $6,955,000.00 open, a 6.2129% ratio. These remain two members of the split portfolio, not a selector that chose one winner.
+The best individual terminal PnL was **Core V3A + 1U/EOD V3A with oil**: $764,462.78 PnL on $13,805,000.00 gross notional added and $12,885,000.00 open, a 5.5376% deployed-notional ratio. The lowest individual terminal PnL was **Core V2 + 1U/EOD V2 without oil**: $43,477.84 on $8,125,000.00 added and $6,955,000.00 open, a 0.5351% ratio. These remain two members of the split portfolio, not a selector that chose one winner.
 
 ### Terminal statistics for all 32 portfolios
 
@@ -168,38 +170,38 @@ The oil sidecar is included once in each “Yes” portfolio. Those 16 instances
 
 | Core variant | 1U/EOD variant | Oil sidecar | Terminal PnL | Gross notional added | Gross open notional | PnL / gross added |
 |---|---|:---:|---:|---:|---:|---:|
-| V1 | V1 | No | $637,536.95 | $8,125,000.00 | $7,205,000.00 | 7.8466% |
-| V1 | V1 | Yes | $1,137,242.87 | $13,625,000.00 | $12,705,000.00 | 8.3467% |
-| V1 | V2 | No | $529,519.36 | $8,125,000.00 | $7,005,000.00 | 6.5172% |
-| V1 | V2 | Yes | $1,029,225.28 | $13,625,000.00 | $12,505,000.00 | 7.5539% |
-| V1 | V3A | No | $681,877.71 | $8,215,000.00 | $7,295,000.00 | 8.3004% |
-| V1 | V3A | Yes | $1,181,583.63 | $13,715,000.00 | $12,795,000.00 | 8.6153% |
-| V1 | V3B | No | $540,200.75 | $8,215,000.00 | $7,005,000.00 | 6.5758% |
-| V1 | V3B | Yes | $1,039,906.67 | $13,715,000.00 | $12,505,000.00 | 7.5823% |
-| V2 | V1 | No | $612,819.64 | $8,125,000.00 | $7,155,000.00 | 7.5424% |
-| V2 | V1 | Yes | $1,112,525.56 | $13,625,000.00 | $12,655,000.00 | 8.1653% |
-| V2 | V2 | No | $504,802.05 | $8,125,000.00 | $6,955,000.00 | 6.2129% |
-| V2 | V2 | Yes | $1,004,507.97 | $13,625,000.00 | $12,455,000.00 | 7.3725% |
-| V2 | V3A | No | $657,160.40 | $8,215,000.00 | $7,245,000.00 | 7.9995% |
-| V2 | V3A | Yes | $1,156,866.32 | $13,715,000.00 | $12,745,000.00 | 8.4350% |
-| V2 | V3B | No | $515,483.44 | $8,215,000.00 | $6,955,000.00 | 6.2749% |
-| V2 | V3B | Yes | $1,015,189.36 | $13,715,000.00 | $12,455,000.00 | 7.4020% |
-| V3A | V1 | No | $681,740.30 | $8,215,000.00 | $7,295,000.00 | 8.2987% |
-| V3A | V1 | Yes | $1,181,446.22 | $13,715,000.00 | $12,795,000.00 | 8.6143% |
-| V3A | V2 | No | $573,722.71 | $8,215,000.00 | $7,095,000.00 | 6.9838% |
-| V3A | V2 | Yes | $1,073,428.63 | $13,715,000.00 | $12,595,000.00 | 7.8267% |
-| V3A | V3A | No | $726,081.06 | $8,305,000.00 | $7,385,000.00 | 8.7427% |
-| V3A | V3A | Yes | $1,225,786.98 | $13,805,000.00 | $12,885,000.00 | 8.8793% |
-| V3A | V3B | No | $584,404.10 | $8,305,000.00 | $7,095,000.00 | 7.0368% |
-| V3A | V3B | Yes | $1,084,110.02 | $13,805,000.00 | $12,595,000.00 | 7.8530% |
-| V3B | V1 | No | $623,986.34 | $8,215,000.00 | $7,155,000.00 | 7.5957% |
-| V3B | V1 | Yes | $1,123,692.26 | $13,715,000.00 | $12,655,000.00 | 8.1932% |
-| V3B | V2 | No | $515,968.75 | $8,215,000.00 | $6,955,000.00 | 6.2808% |
-| V3B | V2 | Yes | $1,015,674.67 | $13,715,000.00 | $12,455,000.00 | 7.4056% |
-| V3B | V3A | No | $668,327.10 | $8,305,000.00 | $7,245,000.00 | 8.0473% |
-| V3B | V3A | Yes | $1,168,033.02 | $13,805,000.00 | $12,745,000.00 | 8.4609% |
-| V3B | V3B | No | $526,650.14 | $8,305,000.00 | $6,955,000.00 | 6.3414% |
-| V3B | V3B | Yes | $1,026,356.06 | $13,805,000.00 | $12,455,000.00 | 7.4347% |
+| V1 | V1 | No | $176,212.76 | $8,125,000.00 | $7,205,000.00 | 2.1688% |
+| V1 | V1 | Yes | $675,918.68 | $13,625,000.00 | $12,705,000.00 | 4.9609% |
+| V1 | V2 | No | $68,195.16 | $8,125,000.00 | $7,005,000.00 | 0.8393% |
+| V1 | V2 | Yes | $567,901.08 | $13,625,000.00 | $12,505,000.00 | 4.1681% |
+| V1 | V3A | No | $220,553.52 | $8,215,000.00 | $7,295,000.00 | 2.6848% |
+| V1 | V3A | Yes | $720,259.44 | $13,715,000.00 | $12,795,000.00 | 5.2516% |
+| V1 | V3B | No | $78,876.56 | $8,215,000.00 | $7,005,000.00 | 0.9602% |
+| V1 | V3B | Yes | $578,582.48 | $13,715,000.00 | $12,505,000.00 | 4.2186% |
+| V2 | V1 | No | $151,495.44 | $8,125,000.00 | $7,155,000.00 | 1.8646% |
+| V2 | V1 | Yes | $651,201.36 | $13,625,000.00 | $12,655,000.00 | 4.7795% |
+| V2 | V2 | No | $43,477.84 | $8,125,000.00 | $6,955,000.00 | 0.5351% |
+| V2 | V2 | Yes | $543,183.76 | $13,625,000.00 | $12,455,000.00 | 3.9867% |
+| V2 | V3A | No | $195,836.20 | $8,215,000.00 | $7,245,000.00 | 2.3839% |
+| V2 | V3A | Yes | $695,542.12 | $13,715,000.00 | $12,745,000.00 | 5.0714% |
+| V2 | V3B | No | $54,159.24 | $8,215,000.00 | $6,955,000.00 | 0.6593% |
+| V2 | V3B | Yes | $553,865.16 | $13,715,000.00 | $12,455,000.00 | 4.0384% |
+| V3A | V1 | No | $220,416.10 | $8,215,000.00 | $7,295,000.00 | 2.6831% |
+| V3A | V1 | Yes | $720,122.02 | $13,715,000.00 | $12,795,000.00 | 5.2506% |
+| V3A | V2 | No | $112,398.50 | $8,215,000.00 | $7,095,000.00 | 1.3682% |
+| V3A | V2 | Yes | $612,104.42 | $13,715,000.00 | $12,595,000.00 | 4.4630% |
+| V3A | V3A | No | $264,756.86 | $8,305,000.00 | $7,385,000.00 | 3.1879% |
+| V3A | V3A | Yes | $764,462.78 | $13,805,000.00 | $12,885,000.00 | 5.5376% |
+| V3A | V3B | No | $123,079.90 | $8,305,000.00 | $7,095,000.00 | 1.4820% |
+| V3A | V3B | Yes | $622,785.82 | $13,805,000.00 | $12,595,000.00 | 4.5113% |
+| V3B | V1 | No | $162,662.14 | $8,215,000.00 | $7,155,000.00 | 1.9801% |
+| V3B | V1 | Yes | $662,368.06 | $13,715,000.00 | $12,655,000.00 | 4.8295% |
+| V3B | V2 | No | $54,644.54 | $8,215,000.00 | $6,955,000.00 | 0.6652% |
+| V3B | V2 | Yes | $554,350.46 | $13,715,000.00 | $12,455,000.00 | 4.0419% |
+| V3B | V3A | No | $207,002.90 | $8,305,000.00 | $7,245,000.00 | 2.4925% |
+| V3B | V3A | Yes | $706,708.82 | $13,805,000.00 | $12,745,000.00 | 5.1192% |
+| V3B | V3B | No | $65,325.94 | $8,305,000.00 | $6,955,000.00 | 0.7866% |
+| V3B | V3B | Yes | $565,031.86 | $13,805,000.00 | $12,455,000.00 | 4.0930% |
 
 Full daily audit series: [`the_one_model_split_portfolios_v1.csv`](data/the_one_model_split_portfolios_v1.csv). Machine-readable summary and portfolio-level drawdowns: [`the_one_model_split_portfolios_v1_summary.json`](data/the_one_model_split_portfolios_v1_summary.json). The source is the existing daily Core × variant-specific 1U/EOD comparison with and without the exact-mark oil sidecar; the split aggregator reconciles the oil-inclusive series against each no-oil pairing plus the sidecar.
 
@@ -229,7 +231,7 @@ Full daily audit series: [`the_one_model_split_portfolios_v1.csv`](data/the_one_
 - [Oil Desk EOD Accumulation Hypothetical](Oil%20Desk%20EOD%20Accumulation%20Hypothetical.md)
 - [DXY-Equivalent Portfolio Snapshot](DXY-Equivalent%20Portfolio%20Snapshot.md)
 - [`data/energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv)
-- [`data/active_price_source_registry_v2.csv`](data/active_price_source_registry_v2.csv)
+- [`data/active_price_source_registry_v3.csv`](data/active_price_source_registry_v3.csv)
 
 ---
 

@@ -56,7 +56,7 @@ class US10YAdjustmentTests(unittest.TestCase):
                 series["total"][-1] + series["yield_adjustment"][-1],
                 places=8,
             )
-        self.assertAlmostEqual(self.series["V1"]["yield_adjustment"][-1], 160.90, places=2)
+        self.assertAlmostEqual(self.series["V1"]["yield_adjustment"][-1], 216.63, places=2)
         self.assertGreater(
             self.series["V3A"]["yield_adjustment"][-1],
             self.series["V1"]["yield_adjustment"][-1],

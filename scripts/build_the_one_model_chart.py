@@ -99,10 +99,10 @@ def main():
          "V1 · V2 · V3A · V3B\n\nFour separate 1U/EOD model paths"),
         ("16 CROSS-VARIANT PAIRS",
          "Every Core × 1U/EOD pairing\n\nIncludes matching and cross-variant pairs"),
-        ("2 OIL STATES PER PAIR",
-         "One portfolio without oil\nOne separate portfolio with the\nexact-mark oil daily-buy sidecar"),
+        ("2 ENERGY SIDECAR STATES PER PAIR",
+         "One portfolio without the sidecar\nOne separate portfolio with the\n10U TradingView energy schedule"),
         ("32 SEPARATE PORTFOLIOS",
-         "16 pairings × 2 oil states\n\nEach has its own gross positions,\nnotional, and capital requirement"),
+         "16 pairings × 2 energy-sidecar states\n\nEach has its own gross positions,\nnotional, and capital requirement"),
     ]
     for i, (x, (title, body)) in enumerate(zip(top_x, boxes)):
         add_box(ax, x, top_y, top_w, top_h, title, body,
@@ -120,8 +120,8 @@ def main():
         ax, 0.62, 2.35, 6.95, 1.68,
         "32 INDEPENDENT LEDGERS",
         "Track each portfolio’s PnL, gross notional added, open notional, and drawdown separately.\n"
-        "No positions, capital, or risk are netted. Oil is included once in each with-oil portfolio\n"
-        "(16 separately allocated oil sleeves across the split strategy).",
+        "No positions, capital, or risk are netted. The energy sidecar is included once in each\n"
+        "of the 16 separately funded energy-inclusive portfolios.",
         BLUE, PANEL_BLUE, title_size=10, body_size=8.5, body_y_offset=0.53,
     )
     add_box(
