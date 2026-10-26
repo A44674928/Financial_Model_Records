@@ -28,6 +28,17 @@ The Oct. 25 20:35 MST action is now reconciled closure-first: first apply the mo
 
 Thus, the framing matches the position sizes: after the earlier 10U modeled cover, the largest remaining ATS short is 30U per ticker, less than either approved order. The closure applies only up to the open short; the remaining 5U/4U in the maximum scenario are not short closures.
 
+## Additional modeled ATS fixed-price entries
+
+Per the user's latest instruction, add a separate **50U LONG ATS entry per ticker** at fixed prices of **$115.00 BRENT** and **$101.00 OIL**, modeled on 2026-10-26. The time was not supplied; these are hypothetical modeled open entries, not verified live fills, and no post-entry EOD mark is available. In the maximum 40U-per-ticker short scenario, these additions raise the tagged-campaign long holdings from 35U BRENT / 34U OIL to **85U BRENT / 84U OIL**.
+
+| Ticker | Existing lots in maximum ATS scenario | New modeled ATS lot | Updated tagged-campaign total |
+|---|---|---|---:|
+| BRENT | 10U @ $111.412; 10U @ $115.792; 10U @ $114.800; 5U @ $114.627 | 50U @ $115.00 (2026-10-26; time not supplied) | 85U |
+| OIL (USOIL) | 10U @ $99.04; 10U @ $101.74; 10U @ $101.00; 4U @ $100.74 | 50U @ $101.00 (2026-10-26; time not supplied) | 84U |
+
+These totals are for the tagged campaign and ATS/manual reconciliation only; they exclude other core lots and the daily energy schedule. If the ATS short execution was smaller than the 40U-per-ticker ceiling, additional unsold ATS long units remain, so the total holdings would be larger than 85U/84U.
+
 ## MANUAL LIVE TEST POSITIONS
 
 The four later 10U replenishment entries remain separate manual long lots and are labeled accordingly in the trade logs. Their sizes are not rescaled or netted against the ATS sensitivity. The 17:22 times are modeled midpoints of the user-recalled 17:20–17:25 window; the 20:00 times are approximate. The user-supplied prices remain model inputs, not verified transaction reports.

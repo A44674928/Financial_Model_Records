@@ -21,6 +21,8 @@ LOTS = {
         "ats_exit": 118.0,
         "short_cover": 114.627,
         "manual_closure_order_units": 35,
+        "new_ats_units": 50,
+        "new_ats_entry_price": 115.0,
         "manual_adds": [
             ("2026-10-25", "17:22 MST (modeled midpoint)", "Manual replenishment", 10, 115.792),
             ("2026-10-25", "20:00 MST (approx.)", "Manual replenishment", 10, 114.80),
@@ -30,6 +32,8 @@ LOTS = {
         "ats_exit": 103.50,
         "short_cover": 100.74,
         "manual_closure_order_units": 34,
+        "new_ats_units": 50,
+        "new_ats_entry_price": 101.0,
         "manual_adds": [
             ("2026-10-25", "17:22 MST (modeled midpoint)", "Manual replenishment", 10, 101.74),
             ("2026-10-25", "20:00 MST (approx.)", "Manual replenishment", 10, 101.00),
@@ -87,6 +91,32 @@ def records() -> list[dict[str, str]]:
                     f"to the remaining ATS short. Any unused order units remain LONG and alone count as new long buy supply."
                 ),
             })
+        new_price = lot["new_ats_entry_price"]
+        result.append({
+            "record_type": "ATS modeled open position",
+            "scenario": "Separate fixed-price Oct. 26 addition; modeled, not verified fill",
+            "ticker": ticker,
+            "date": "2026-10-26",
+            "time_mst": "not supplied",
+            "event": "ATS LONG entry at fixed user-supplied price",
+            "units": str(lot["new_ats_units"]),
+            "price": f"{new_price:.3f}" if ticker == "BRENT" else f"{new_price:.2f}",
+            "reference_lot_units": "",
+            "ats_allocation_ceiling_units": "",
+            "manual_reference_allocation_units": "",
+            "ats_long_units_remaining_from_reference_lot": "",
+            "manual_long_units_remaining_from_reference_lot": "",
+            "ats_short_open_units": "",
+            "initial_ats_cover_units": "",
+            "ats_short_units_after_initial_cover": "",
+            "manual_approved_buy_order_units": "",
+            "manual_approved_short_close_units": "",
+            "ats_short_units_remaining_after_manual_close": "",
+            "residual_long_units_from_approved_buy": "",
+            "buy_supply_units_counted_as_new_long": str(lot["new_ats_units"]),
+            "status": "Hypothetical modeled ATS position per user direction; no execution is verified; no later EOD mark supplied",
+            "notes": "Separate 50U fixed-price long addition after the modeled short closures; do not classify as part of the 35U/34U closure orders.",
+        })
         for date, time, event, units, price in lot["manual_adds"]:
             result.append({
                 "record_type": "MANUAL LIVE TEST POSITION",
@@ -119,7 +149,7 @@ def records() -> list[dict[str, str]]:
 def build_csv(rows: list[dict[str, str]]) -> None:
     CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
     with CSV_PATH.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=FIELDS)
+        writer = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
@@ -155,6 +185,17 @@ def build_report() -> None:
         "| OIL (USOIL) | 40U | 30U | 34U | 30U | 0U | 4U |",
         "",
         "Thus, the framing matches the position sizes: after the earlier 10U modeled cover, the largest remaining ATS short is 30U per ticker, less than either approved order. The closure applies only up to the open short; the remaining 5U/4U in the maximum scenario are not short closures.",
+        "",
+        "## Additional modeled ATS fixed-price entries",
+        "",
+        "Per the user's latest instruction, add a separate **50U LONG ATS entry per ticker** at fixed prices of **$115.00 BRENT** and **$101.00 OIL**, modeled on 2026-10-26. The time was not supplied; these are hypothetical modeled open entries, not verified live fills, and no post-entry EOD mark is available. In the maximum 40U-per-ticker short scenario, these additions raise the tagged-campaign long holdings from 35U BRENT / 34U OIL to **85U BRENT / 84U OIL**.",
+        "",
+        "| Ticker | Existing lots in maximum ATS scenario | New modeled ATS lot | Updated tagged-campaign total |",
+        "|---|---|---|---:|",
+        "| BRENT | 10U @ $111.412; 10U @ $115.792; 10U @ $114.800; 5U @ $114.627 | 50U @ $115.00 (2026-10-26; time not supplied) | 85U |",
+        "| OIL (USOIL) | 10U @ $99.04; 10U @ $101.74; 10U @ $101.00; 4U @ $100.74 | 50U @ $101.00 (2026-10-26; time not supplied) | 84U |",
+        "",
+        "These totals are for the tagged campaign and ATS/manual reconciliation only; they exclude other core lots and the daily energy schedule. If the ATS short execution was smaller than the 40U-per-ticker ceiling, additional unsold ATS long units remain, so the total holdings would be larger than 85U/84U.",
         "",
         "## MANUAL LIVE TEST POSITIONS",
         "",

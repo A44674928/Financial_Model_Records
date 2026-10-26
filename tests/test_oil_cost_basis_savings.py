@@ -14,8 +14,10 @@ class OilCostBasisSavingsTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.rows, cls.positions, cls.portfolios = cost_basis.build_rows()
+        cls.ats_basis_rows = cost_basis.build_ats_basis_rows()
         cost_basis.write_csv(cls.rows)
-        cost_basis.write_report(cls.rows, cls.positions, cls.portfolios)
+        cost_basis.write_ats_basis_csv(cls.ats_basis_rows)
+        cost_basis.write_report(cls.rows, cls.positions, cls.portfolios, cls.ats_basis_rows)
         cls.report = cost_basis.REPORT.read_text(encoding="utf-8")
 
     def test_trim_and_short_credits_lower_effective_basis_without_extra_pnl(self):
@@ -87,6 +89,32 @@ class OilCostBasisSavingsTests(unittest.TestCase):
             self.assertTrue(all(row["realized_short_pnl_credited_usd"] == short_credit for row in ticker_rows))
         with cost_basis.OUTPUT_CSV.open(newline="", encoding="utf-8") as handle:
             self.assertEqual(list(csv.DictReader(handle)), self.rows)
+
+    def test_ats_full_size_short_close_is_added_as_separate_basis_sensitivity(self):
+        max_rows = [row for row in self.ats_basis_rows if row["ats_short_opened_units"] == "40"]
+        self.assertEqual(len(max_rows), 2)
+        brent = next(row for row in max_rows if row["ticker"] == "BRENT")
+        oil = next(row for row in max_rows if row["ticker"] == "OIL")
+        self.assertEqual(brent["short_close_pnl_credit_usd"], "11433.90")
+        self.assertEqual(oil["short_close_pnl_credit_usd"], "10666.67")
+        self.assertEqual(brent["residual_long_units_from_manual_order"], "5")
+        self.assertEqual(oil["residual_long_units_from_manual_order"], "4")
+        self.assertEqual(brent["open_long_units_in_basis_scope"], "85")
+        self.assertEqual(oil["open_long_units_in_basis_scope"], "84")
+        self.assertEqual(brent["new_ats_long_units"], "50")
+        self.assertEqual(oil["new_ats_long_units"], "50")
+        self.assertEqual(brent["short_close_credit_adjusted_effective_basis_price"], "113.070827")
+        self.assertEqual(oil["short_close_credit_adjusted_effective_basis_price"], "99.556879")
+        exact_total = sum(
+            Decimal(row["ats_short_opened_units"]) * cost_basis.UNIT_NOTIONAL
+            * (Decimal("1") - cost_basis.ATS_LOTS[row["ticker"]]["cover"] / cost_basis.ATS_LOTS[row["ticker"]]["short_entry"])
+            for row in max_rows
+        )
+        self.assertEqual(cost_basis._money(exact_total), Decimal("22100.56"))
+        self.assertIn("rather than stacks with, the legacy 10U-short credit", self.report)
+        self.assertIn("No post-Oct. 23 TradingView EOD mark is supplied", self.report)
+        with cost_basis.ATS_OUTPUT_CSV.open(newline="", encoding="utf-8") as handle:
+            self.assertEqual(list(csv.DictReader(handle)), self.ats_basis_rows)
 
     def test_report_documents_reclassification_and_missing_post_entry_marks(self):
         self.assertIn("not additional gains", self.report)
