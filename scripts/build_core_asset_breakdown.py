@@ -278,6 +278,9 @@ def write_report(rows, summaries):
                 or "AUTOMATED TRADING SYSTEM LIVE POSITIONS" in event["note"]
                 or "USER-DIRECTED MODEL CLOSURE" in event["note"]
                 or "USER-DIRECTED MODEL LONG ADDITION" in event["note"]
+                or "USER-DIRECTED MODEL SHORT OPEN" in event["note"]
+                or "USER-REPORTED EXECUTED MANUAL LONG CASH-OUT" in event["note"]
+                or "USER-REPORTED EXECUTED ATS MIRROR LONG CASH-OUT" in event["note"]
             )
             side_text = event["tag"] + ("*" if flagged else "")
             lines.append(
@@ -297,12 +300,25 @@ def write_report(rows, summaries):
         if any("USER-DIRECTED MODEL CLOSURE" in event["note"] for event in pending):
             lines.extend([
                 "",
-                "* These user-directed short-cover entries are model-only post-cutoff closures at the supplied prices, not verified fills. The 6U INTC instruction clears all 6U in V3A and is capped at each path's actual short exposure (2U in V1; none in V2/V3B). The 4U META instruction clears only V3A's remaining short after its earlier 1U cover. The logged 13:00 MST time is an ordering placeholder; no execution time was supplied. Their modeled realized PnL is outside the Oct. 23 historical results.",
+                "* These user-directed short-cover entries are model-only post-cutoff closures at the supplied prices, not verified fills. The 6U INTC instruction clears all 6U in V3A and is capped at each path's actual short exposure (2U in V1; none in V2/V3B). The 4U META instruction clears only V3A's remaining short after its earlier 1U cover. The approved CAT close clears V1's 1U and V3A's 2U; PLTR's 3U close is capped at 2U in V2/V3B; TSLA's 1U close clears every variant's open short. The logged 13:00 MST times are ordering placeholders; no execution times were supplied. Their modeled realized PnL is outside the Oct. 23 historical results.",
             ])
         if any("USER-DIRECTED MODEL LONG ADDITION" in event["note"] for event in pending):
             lines.extend([
                 "",
                 "* The 6U INTC LONG @ $87.55 is applied independently to each of the four core variants (not one combined account); it remains unmarked because there is no later EOD close. This is a hypothetical model addition, not a verified fill or a signal to the separate daily sidecar models. The 13:00 MST timestamp is only an ordering placeholder.",
+            ])
+        short_opens = [event for event in pending if "USER-DIRECTED MODEL SHORT OPEN" in event["note"]]
+        if short_opens:
+            details = ", ".join(f"{event['sym']} SHORT @ ${event['px']:,.2f}" for event in short_opens)
+            lines.extend([
+                "",
+                f"* The user-directed {details} are each logged at the default 1U because sizes were not supplied. Each event is applied separately to all four core variants; it does not represent a combined 1U account position, is not a verified fill, and is not a signal for the separate daily sidecar models. The 13:00 MST times are chronology placeholders.",
+            ])
+        cashouts = [event for event in pending if "Explicit close of the specified paired 50U LONG lot" in event["note"]]
+        if cashouts:
+            lines.extend([
+                "",
+                "* The user reports a 50U BRENT manual-lot exit at $117.409 and the synchronized 50U OIL ATS-mirror exit at $102.71. These close only the paired BRENT lot opened at $115.51 and OIL mirror lot opened at $101.11; the separate earlier OIL 50U @ $101.00 lot is untouched. Modeled realized PnL is $8,220.07 BRENT + $7,912.17 OIL = $16,132.24 before costs. User-reported execution is not independently verified. The logged 13:00 MST is only an ordering placeholder; execution time was not supplied.",
             ])
     else:
         lines.append("No direct-price entries fall after the current mark cutoff.")

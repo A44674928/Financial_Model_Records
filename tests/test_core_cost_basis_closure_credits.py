@@ -24,8 +24,8 @@ class CoreCostBasisClosureCreditTests(unittest.TestCase):
 
     def test_open_position_basis_matches_latest_model_lots(self):
         expected = {
-            "BRENT": ("150", "113.888773"),
-            "OIL": ("150", "100.197067"),
+            "BRENT": ("100", "113.078160"),
+            "OIL": ("100", "99.740600"),
             "META": ("3", "692.190000"),
             "INTC": ("9", "93.799444"),
         }
@@ -37,8 +37,8 @@ class CoreCostBasisClosureCreditTests(unittest.TestCase):
 
     def test_designated_closure_credits_are_variant_specific(self):
         for variant in module.VARIANTS:
-            self.assertEqual(self.row("BRENT", variant)["closure_credit_usd"], "7043.82")
-            self.assertEqual(self.row("OIL", variant)["closure_credit_usd"], "4223.99")
+            self.assertEqual(self.row("BRENT", variant)["closure_credit_usd"], "15263.89")
+            self.assertEqual(self.row("OIL", variant)["closure_credit_usd"], "12136.16")
         self.assertEqual(
             [self.row("META", v)["closure_credit_usd"] for v in module.VARIANTS],
             ["1718.87", "0.00", "8594.34", "0.00"],
@@ -47,6 +47,8 @@ class CoreCostBasisClosureCreditTests(unittest.TestCase):
             [self.row("INTC", v)["closure_credit_usd"] for v in module.VARIANTS],
             ["5506.50", "0.00", "17955.56", "0.00"],
         )
+        self.assertEqual(self.row("BRENT", "V1")["adjusted_effective_basis_price"], "111.303740")
+        self.assertEqual(self.row("OIL", "V1")["adjusted_effective_basis_price"], "98.483806")
         self.assertEqual(self.row("META", "V3A")["adjusted_effective_basis_price"], "492.269519")
         self.assertEqual(self.row("INTC", "V3A")["adjusted_effective_basis_price"], "74.268960")
 

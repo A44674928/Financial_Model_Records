@@ -34,6 +34,18 @@ class AtsManualReconciliationTests(unittest.TestCase):
             self.assertEqual([int(row["residual_long_units_from_approved_buy"]) for row in ticker_rows], residuals)
             self.assertTrue(all("quantity unverified" in row["status"] for row in ticker_rows))
 
+    def test_paired_long_cashouts_are_reported_separately_and_leave_111u_per_ticker(self):
+        cashouts = [row for row in self.rows if row["record_type"] == "User-reported post-cutoff LONG liquidation"]
+        self.assertEqual(len(cashouts), 2)
+        by_ticker = {row["ticker"]: row for row in cashouts}
+        self.assertEqual((by_ticker["BRENT"]["units"], by_ticker["BRENT"]["price"]), ("50", "117.409"))
+        self.assertEqual((by_ticker["OIL"]["units"], by_ticker["OIL"]["price"]), ("50", "102.71"))
+        self.assertIn("@ $101.11", by_ticker["OIL"]["notes"])
+        self.assertNotIn("@ $101.00", by_ticker["OIL"]["scenario"])
+        self.assertTrue(all("not independently verified" in row["status"] for row in cashouts))
+        self.assertIn("111U BRENT / 111U OIL", self.report)
+        self.assertIn("$16,132.24 before costs", self.report)
+
     def test_fixed_price_ats_additions_are_modeled_open_not_verified(self):
         added = [row for row in self.rows if row["record_type"] == "ATS modeled open position"]
         self.assertEqual(len(added), 2)
@@ -44,7 +56,7 @@ class AtsManualReconciliationTests(unittest.TestCase):
         self.assertEqual(by_ticker["OIL"]["price"], "101.00")
         self.assertEqual(by_ticker["BRENT"]["date"], "2026-10-26")
         self.assertEqual(by_ticker["BRENT"]["time_mst"], "not supplied")
-        self.assertIn("161U BRENT / 161U OIL", self.report)
+        self.assertIn("111U BRENT / 111U OIL", self.report)
         self.assertTrue(all("no execution is verified" in row["status"] for row in added))
         oil_legacy_lot = by_ticker["OIL"]
         self.assertIn("separate from the later $101.11 mirror entry", oil_legacy_lot["scenario"])
@@ -78,7 +90,7 @@ class AtsManualReconciliationTests(unittest.TestCase):
         self.assertIn("strategy classification unspecified", self.report)
         self.assertIn("classification and execution not independently verified", lookup[("BRENT", "16", "114.900")]["notes"])
         self.assertIn("date-level assumption only", lookup[("OIL", "17", "100.85")]["time_mst"])
-        self.assertIn("161U BRENT / 161U OIL", self.report)
+        self.assertIn("111U BRENT / 111U OIL", self.report)
         self.assertIn("separate additional 50U ATS USOIL LONG @ $101.11", self.report)
         self.assertIn("distinct from—and added on top of—the earlier $101.00 ATS USOIL lot", self.report)
         self.assertIn("LONG is inferred", self.report)
@@ -98,7 +110,7 @@ class AtsManualReconciliationTests(unittest.TestCase):
             archived_index = archive.read("trades/index.txt").decode("utf-8")
         index = (ROOT / "trades/index.txt").read_text(encoding="utf-8")
         self.assertEqual(archived_index, index)
-        self.assertIn("118 standardized log events currently recorded", index)
+        self.assertIn("126 standardized log events currently recorded", index)
 
     def test_manual_test_replenishments_are_separate_from_approved_short_closures(self):
         manual = [row for row in self.rows if row["record_type"] == "MANUAL LIVE TEST POSITION"]

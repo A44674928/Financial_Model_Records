@@ -82,17 +82,29 @@ These are logged after the last EOD mark and are not included in any exposure or
 | 2026-10-26 | 06:30 | RIVN | LONG* | 1U | $11.770 | $10,000 |
 | 2026-10-26 | 07:51 | BRENT | LONG* | 50U | $115.510 | $500,000 |
 | 2026-10-26 | 07:51 | USOIL (OIL) | LONG* | 50U | $101.110 | $500,000 |
+| 2026-10-26 | 13:00 | BRENT | TAKE PROFIT* | 50U | $117.409 | $500,000 |
+| 2026-10-26 | 13:00 | CAT | TAKE PROFIT* | 2U | $692.860 | $20,000 |
+| 2026-10-26 | 13:00 | DIS | SHORT* | 1U | $110.270 | $10,000 |
 | 2026-10-26 | 13:00 | INTC | TAKE PROFIT* | 6U | $87.550 | $60,000 |
 | 2026-10-26 | 13:00 | INTC | LONG* | 6U | $87.550 | $60,000 |
 | 2026-10-26 | 13:00 | META | TAKE PROFIT* | 4U | $637.200 | $40,000 |
+| 2026-10-26 | 13:00 | USOIL (OIL) | TAKE PROFIT* | 50U | $102.710 | $500,000 |
+| 2026-10-26 | 13:00 | PLTR | TAKE PROFIT* | 3U | $199.530 | $30,000 |
+| 2026-10-26 | 13:00 | SPCX | SHORT* | 1U | $148.460 | $10,000 |
+| 2026-10-26 | 13:00 | TSLA | TAKE PROFIT* | 1U | $394.570 | $10,000 |
+| 2026-10-26 | 13:00 | UPS | SHORT* | 1U | $100.080 | $10,000 |
 
 * The 2026-10-26 07:51 MST BRENT entry is the user-requested 50U manual position. The TradingView Brent Cash screenshot shows $115.510 at 07:51:14 UTC−7 with handwritten “PICK UP OPPORTUNITY”; LONG is inferred from that annotation, not explicitly stated. This is not a verified brokerage fill. A second screenshot shows $117.409 at 08:58:03 UTC−7, retained as a later intraday observation only—not an EOD mark or PnL valuation.
 
 * ATS-marked GEV, RIVN, and META rows are user-reported Oct. 26 actions; their date is inferred from conversation context. They are not independently verified brokerage fills. On the user-reported META position, the existing 2U LONG plus the new 1U LONG leaves 3U LONG after the active 1U SHORT is closed. This reported position is distinct from model variants: compounded V3A began with a modeled 5U SHORT; the earlier 1U cover left 4U, and the new user-directed V3A-only close clears those remaining 4U at $637.20. V3A then has no META short; the user-reported 3U LONG remains unchanged. The additional 50U USOIL LONG @ $101.11 at 07:51 MST is the user-reported ATS mirror synchronized with the 50U manual BRENT buy; it is distinct from the earlier 50U ATS OIL lot @ $101.00, whose time was not specified. The USOIL screenshot supports quote/time context, not verified brokerage execution.
 
-* These user-directed short-cover entries are model-only post-cutoff closures at the supplied prices, not verified fills. The 6U INTC instruction clears all 6U in V3A and is capped at each path's actual short exposure (2U in V1; none in V2/V3B). The 4U META instruction clears only V3A's remaining short after its earlier 1U cover. The logged 13:00 MST time is an ordering placeholder; no execution time was supplied. Their modeled realized PnL is outside the Oct. 23 historical results.
+* These user-directed short-cover entries are model-only post-cutoff closures at the supplied prices, not verified fills. The 6U INTC instruction clears all 6U in V3A and is capped at each path's actual short exposure (2U in V1; none in V2/V3B). The 4U META instruction clears only V3A's remaining short after its earlier 1U cover. The approved CAT close clears V1's 1U and V3A's 2U; PLTR's 3U close is capped at 2U in V2/V3B; TSLA's 1U close clears every variant's open short. The logged 13:00 MST times are ordering placeholders; no execution times were supplied. Their modeled realized PnL is outside the Oct. 23 historical results.
 
 * The 6U INTC LONG @ $87.55 is applied independently to each of the four core variants (not one combined account); it remains unmarked because there is no later EOD close. This is a hypothetical model addition, not a verified fill or a signal to the separate daily sidecar models. The 13:00 MST timestamp is only an ordering placeholder.
+
+* The user-directed DIS SHORT @ $110.27, SPCX SHORT @ $148.46, UPS SHORT @ $100.08 are each logged at the default 1U because sizes were not supplied. Each event is applied separately to all four core variants; it does not represent a combined 1U account position, is not a verified fill, and is not a signal for the separate daily sidecar models. The 13:00 MST times are chronology placeholders.
+
+* The user reports a 50U BRENT manual-lot exit at $117.409 and the synchronized 50U OIL ATS-mirror exit at $102.71. These close only the paired BRENT lot opened at $115.51 and OIL mirror lot opened at $101.11; the separate earlier OIL 50U @ $101.00 lot is untouched. Modeled realized PnL is $8,220.07 BRENT + $7,912.17 OIL = $16,132.24 before costs. User-reported execution is not independently verified. The logged 13:00 MST is only an ordering placeholder; execution time was not supplied.
 
 Machine-readable detail: [`core_portfolio_asset_breakdown_20261023.csv`](data/core_portfolio_asset_breakdown_20261023.csv) (128 asset/variant rows).
 
