@@ -23,7 +23,7 @@ class ActionableTickerAuditTests(unittest.TestCase):
         self.assertEqual(self.result["dxy_core_units"], 35.0)
         self.assertAlmostEqual(self.result["dxy_core_terminal_pnl"], 2492.30, places=2)
         self.assertEqual(self.result["sessions"], 36)
-        self.assertEqual(self.result["events"], 89)
+        self.assertEqual(self.result["events"], 91)
         self.assertEqual(self.result["core_daily_rows"], 144)
         self.assertEqual(self.result["force_daily_rows"], 36)
         self.assertEqual(self.result["energy_rows"], 165)

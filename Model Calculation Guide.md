@@ -48,6 +48,12 @@ For example, a 1-unit long entered at $100 and marked at $105 has +$500 PnL. A 1
 
 The replay does not deduct commissions, spread, borrow costs, financing, taxes, or slippage beyond the prices represented in its inputs.
 
+### Cost-basis credit for the Manual-Automatic trim/replenishment cycle
+
+The current cost-basis view treats the realized PnL on a tagged 10U target trim as a credit against the combined open thesis position: the remaining 40U from the original 50U lot plus the later separate 10U manual replenishment. It computes an exposure proxy `Q = Σ(open units × $10,000 ÷ entry price)`, then `effective basis price = (open entry notional − realized trim PnL) ÷ Q`. This is equivalent to the ordinary separate-lot realized-plus-unrealized PnL at any subsequent mark; the realized trim PnL is **reclassified once**, not added as a second gain. The adjustment applies to the core oil lots in all four variants and maps to each of THE ONE MODEL's 32 independent portfolios, not to the separate 1U/EOD or energy sidecar lots.
+
+The 10U manual replenishments are dated Oct. 25, after the current Oct. 23 EOD mark cutoff. Their effective basis can be computed from the logged prices, but current portfolio PnL, ROI, and drawdown outputs remain through Oct. 23 until post-entry EOD marks are supplied. See [`Oil Cost Basis Savings Model.md`](Oil%20Cost%20Basis%20Savings%20Model.md) and [`data/oil_cost_basis_savings_v1.csv`](data/oil_cost_basis_savings_v1.csv) for the 32-portfolio mapping and figures.
+
 ## 3. The four core variants
 
 All four use the same logs, unit notional, price marks, explicit exit events, and PnL formulas. They differ in whether a LONG/REBUY closes an existing short, and whether a qualifying short after a multi-unit full exit is sized up.

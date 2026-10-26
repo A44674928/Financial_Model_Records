@@ -1,6 +1,6 @@
 # Paper Trades — Repository Guide
 
-This repository contains the Fall (Arizona) 2026 paper-trading ledger, model analysis, source records, and supporting research. The refreshed model comparison uses the supplied TradingView benchmark through the **October 23, 2026** EOD close: 31 direct-price core symbols plus an integrated 1U/DAY/DXY index-return sleeve; BTC/ETH remain pending recalibration. THE ONE MODEL adds the 10U/DAY DXY schedule to each of its 32 independent portfolios, for 11U/DAY combined DXY exposure; its 16 energy-inclusive portfolios use 11U/DAY per active BRENT and OIL ticker, matching that combined currency size. The 16 no-energy variants remain in the split. The 0.05U DXY schedule remains an alternative. Other strategy-comparison scopes are unchanged. Legacy whole-portfolio DXY/yield views are explicitly historical and retain their previous benchmark.
+This repository contains the Fall (Arizona) 2026 paper-trading ledger, model analysis, source records, and supporting research. The refreshed model comparison uses the supplied TradingView benchmark through the **October 23, 2026** EOD close: 31 direct-price core symbols plus an integrated 1U/DAY/DXY index-return sleeve; BTC/ETH remain pending recalibration. Two separate manual 10U LONG oil replenishment entries were logged on Oct. 25 after the current mark cutoff, so they are excluded from current portfolio PnL pending subsequent EOD marks. THE ONE MODEL adds the 10U/DAY DXY schedule to each of its 32 independent portfolios, for 11U/DAY combined DXY exposure; its 16 energy-inclusive portfolios use 11U/DAY per active BRENT and OIL ticker, matching that combined currency size. The 16 no-energy variants remain in the split. The 0.05U DXY schedule remains an alternative. Other strategy-comparison scopes are unchanged. Legacy whole-portfolio DXY/yield views are explicitly historical and retain their previous benchmark.
 
 ## Start here
 
@@ -8,6 +8,7 @@ This repository contains the Fall (Arizona) 2026 paper-trading ledger, model ana
 - [THE ONE MODEL vs THE WINNING MODEL](THE%20ONE%20MODEL%20vs%20THE%20WINNING%20MODEL.md) — equal-gross comparison of the 32-portfolio aggregate and its ex-post top terminal-PnL constituent.
 - [Model Performance Explorer](Model%20Performance%20Explorer.html) — interactive view of model results.
 - [Model Calculation Guide](Model%20Calculation%20Guide.md) — plain-language unit sizing, daily position handling, reversal logic, and PnL formulas.
+- [Oil Cost Basis Savings Model](Oil%20Cost%20Basis%20Savings%20Model.md) — realized target-trim PnL credited once to the effective basis of the residual and replenishment lots, mapped across all 32 portfolios.
 - [Trades Zip PnL](Trades%20Zip%20PnL.md) — master historical PnL report; see its scope note for reconciliation status.
 - [TradingView Energy and Currency Desk Sidecars](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md) — standard 10U energy and DXY sizing schedules; the THE ONE MODEL uses a derived 11U/DAY energy tranche per active ticker, while its 1U/DAY core DXY sleeve plus 10U/DAY add-on gives 11U/day combined currency exposure.
 - [Crypto Sidecar — Pending TradingView Recalibration](Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md) — BTC/ETH excluded until source calibration.
@@ -39,6 +40,8 @@ PYTHONPATH=scripts python3 scripts/build_tradingview_sidecars.py
 PYTHONPATH=scripts python3 scripts/build_model_performance.py
 PYTHONPATH=scripts python3 scripts/build_strategy_sidecar_comparison.py
 PYTHONPATH=scripts python3 scripts/build_the_one_model_split_portfolios.py
+PYTHONPATH=scripts python3 scripts/build_weekend_oil_50u_positions.py
+PYTHONPATH=scripts python3 scripts/build_oil_cost_basis_savings.py
 PYTHONPATH=scripts python3 scripts/audit_actionable_tickers.py
 ```
 

@@ -36,6 +36,10 @@ For the open portion, PnL is `open gross notional × (EOD close ÷ entry price �
 
 Session-level export: [`weekend_oil_50u_positions_v1.csv`](data/weekend_oil_50u_positions_v1.csv).
 
+## Subsequent manual replenishment entries (outside this attribution window)
+
+On 2026-10-25, the user added manual LONG replenishment entries of 10U USOIL at $101.74 and 10U BRENT at $115.792, following the earlier 10U target trims. They are separate new lots and are recorded in the trade logs; they fall after this report's final 2026-10-23 EOD mark and are not included in this attribution CSV or chart. No post-entry EOD marks or new exit targets were supplied, so no PnL is modeled for these entries here.
+
 ## Source and scope notes
 
 - Weekend source archive: [`Weekend Oil (10-17 & 10-18).zip`](Weekend%20Oil%20%2810-17%20%26%2010-18%29.zip); [upstream GitHub file](https://github.com/A44674928/Financial_Model_Records/blob/main/Weekend%20Oil%20(10-17%20%26%2010-18).zip) at commit `b5d6a9a0d9abb84d108c82f312b5298ecf9f437a`; SHA-256 `7419893a19fa1416a5dd238d48cacf17e22187da9b392b54ae50f5093b377c6f`.
