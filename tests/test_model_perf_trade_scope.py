@@ -17,7 +17,7 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertEqual(UNMODELED_SYMBOLS, {"BTC", "ETH", "DXY", "EURUSD", "JPYUSD", "US10Y", "US30Y"})
         self.assertTrue(modeled.isdisjoint(UNMODELED_SYMBOLS))
         self.assertTrue(modeled.issubset(PRICES))
-        self.assertEqual(len(events), 89)
+        self.assertEqual(len(events), 91)
         self.assertEqual(sum(event["date"] <= "2026-10-22" for event in events), 85)
         self.assertEqual(sum(event["date"] <= "2026-10-23" for event in events), 89)
         self.assertTrue({"BTC", "ETH"}.isdisjoint(modeled))
@@ -180,6 +180,39 @@ class ModelTradeScopeTests(unittest.TestCase):
             self.assertEqual(archive.read("trades/ORCL.txt"), log)
             self.assertEqual(archive.read("trades/index.txt"), (root / "trades/index.txt").read_bytes())
 
+    def test_oct25_manual_replenishments_are_logged_but_outside_terminal_mark_window(self):
+        root = Path(__file__).resolve().parents[1]
+        events = parse_trades()
+        expected = {
+            "BRENT": (115.792, 10, "after the 2026-10-23 10U target trim at $117"),
+            "OIL": (101.74, 10, "after the 2026-10-23 10U target trim at $102"),
+        }
+        for ticker, (price, units, note_fragment) in expected.items():
+            event = next(
+                event for event in events
+                if event["sym"] == ticker and event["date"] == "2026-10-25"
+                and event["px"] == price
+            )
+            self.assertEqual(event["kind"], "entry")
+            self.assertEqual(event["tag"], "LONG")
+            self.assertEqual(event["units"], units)
+            self.assertIn("Manual replenishment entry", event["note"])
+            self.assertIn(note_fragment, event["note"])
+            self.assertGreater(event["date"], SESSION_DATES[-1])
+            for variant in VARIANTS:
+                lots, _ = build_lots(variant, events)
+                self.assertFalse(any(
+                    lot["sym"] == ticker and lot["entry_px"] == price for lot in lots
+                ))
+
+        with ZipFile(root / "trades.zip") as archive:
+            for ticker in expected:
+                log_name = "OIL.txt" if ticker == "OIL" else f"{ticker}.txt"
+                self.assertEqual(
+                    archive.read(f"trades/{log_name}"),
+                    (root / "trades" / log_name).read_bytes(),
+                )
+
     def test_lcid_small_caps_pilot_has_four_entries_at_oct22_and_five_at_oct23(self):
         root = Path(__file__).resolve().parents[1]
         events = parse_trades()
@@ -239,8 +272,13 @@ class ModelTradeScopeTests(unittest.TestCase):
             graph = root / relpath
             self.assertTrue(graph.is_file())
             self.assertEqual(graph.read_bytes()[:8], b"\x89PNG\r\n\x1a\n")
-        self.assertIn("`89` direct-price events plus `1` DXY direction signals out of `99` total 2026 log events", text)
-        self.assertIn("`0` direct events after cutoff", text)
+        self.assertIn("`89` direct-price events plus `1` DXY direction signals out of `101` total 2026 log events", text)
+        self.assertIn("`2` direct events after cutoff", text)
+        self.assertIn("2026-10-25 BRENT LONG 10U at $115.792", text)
+        self.assertIn("2026-10-25 USOIL (internal ticker OIL) LONG 10U at $101.74", text)
+        self.assertIn("excluded from current core PnL and composites pending a later benchmark refresh", text)
+        self.assertIn("Oil Cost Basis Savings Model.md", text)
+        self.assertIn("PnL reclassification rather than additional profit", text)
         self.assertIn("`31` direct-price core tickers plus the integrated 1U/DAY/DXY sleeve", text)
         self.assertIn("EURUSD, JPYUSD, US10Y, and US30Y", text)
         self.assertIn("Legacy Model-Level US10Y Additive Carry (Reference Only)", text)

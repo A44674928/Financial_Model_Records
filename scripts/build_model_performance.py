@@ -672,6 +672,11 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     )
     modeled_event_count = direct_modeled_event_count + dxy_signal_count
     price_unmodeled_event_count = book_event_count - len(direct_price_events) - dxy_signal_count
+    post_cutoff_manual_replenishments = [
+        event for event in direct_price_events
+        if event["date"] > SESSION_DATES[-1]
+        and "Manual replenishment entry" in event["note"]
+    ]
     term = {v: series[v]["total"][last] for v in VARIANTS}
     spread_ab = term["V1"] - term["V2"]
     spread_cd = term["V3A"] - term["V3B"]
@@ -711,6 +716,23 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"`{post_terminal_event_count}` direct events after cutoff), "
       "`1U = $10,000.00` standard notional, all timestamps in Arizona year-round "
       "**`MST` / `UTC-07:00`**, marked against the **Friday, October 23, 2026** close. Intraday plots remain on their supplied Oct. 22 hourly scope.")
+    A("")
+    if post_cutoff_manual_replenishments:
+        replenishment_details = []
+        for event in post_cutoff_manual_replenishments:
+            symbol = "USOIL (internal ticker OIL)" if event["sym"] == "OIL" else event["sym"]
+            price = f"{event['px']:,.3f}".rstrip("0").rstrip(".")
+            replenishment_details.append(
+                f"{event['date']} {symbol} LONG {event['units']:g}U at ${price}"
+            )
+        A(
+            "> **Post-cutoff manual replenishments:** "
+            + "; ".join(replenishment_details)
+            + " are recorded in the trade logs but fall after the Oct. 23 terminal mark. "
+            "No post-entry EOD marks are included, so these entries are excluded from current core PnL and composites pending a later benchmark refresh."
+        )
+        A("")
+    A("> **Oil cost-basis savings:** the prior target trims' realized PnL is credited once against the remaining-plus-replenishment lot basis, as a PnL reclassification rather than additional profit. The Oct. 25 replenishments are outside the Oct. 23 mark window, so the current core totals remain unchanged. See [`Oil Cost Basis Savings Model.md`](Oil%20Cost%20Basis%20Savings%20Model.md) and [`oil_cost_basis_savings_v1.csv`](data/oil_cost_basis_savings_v1.csv).")
     A("")
     A("> **Interactive version:** open **[`Model Performance Explorer.html`](Model%20Performance%20Explorer.html)** "
       "for a self-contained explorer with toggleable series, a hover crosshair, and per-ticker "

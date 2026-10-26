@@ -99,6 +99,10 @@ class TheOneModelBriefingTests(unittest.TestCase):
 
     def test_aggregate_results_and_full_table_are_disclosed(self):
         self.assertIn("Current-model snapshot — TradingView benchmark through 2026-10-23", self.briefing)
+        self.assertIn("101 recorded 2026 events", self.briefing)
+        self.assertIn("Two separate 10U LONG manual replenishment entries", self.briefing)
+        self.assertIn("excluded from current model PnL and composites pending subsequent EOD marks", self.briefing)
+        self.assertIn("Oil Cost Basis Savings Model.md", self.briefing)
         self.assertIn("32 independently tracked portfolios", self.briefing)
         self.assertIn("$17,497,700.08", self.briefing)
         self.assertIn("$490,880,000.00", self.briefing)
