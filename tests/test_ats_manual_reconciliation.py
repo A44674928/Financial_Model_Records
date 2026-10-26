@@ -34,6 +34,19 @@ class AtsManualReconciliationTests(unittest.TestCase):
             self.assertEqual([int(row["residual_long_units_from_approved_buy"]) for row in ticker_rows], residuals)
             self.assertTrue(all("quantity unverified" in row["status"] for row in ticker_rows))
 
+    def test_fixed_price_ats_additions_are_modeled_open_not_verified(self):
+        added = [row for row in self.rows if row["record_type"] == "ATS modeled open position"]
+        self.assertEqual(len(added), 2)
+        by_ticker = {row["ticker"]: row for row in added}
+        self.assertEqual(by_ticker["BRENT"]["units"], "50")
+        self.assertEqual(by_ticker["BRENT"]["price"], "115.000")
+        self.assertEqual(by_ticker["OIL"]["units"], "50")
+        self.assertEqual(by_ticker["OIL"]["price"], "101.00")
+        self.assertEqual(by_ticker["BRENT"]["date"], "2026-10-26")
+        self.assertEqual(by_ticker["BRENT"]["time_mst"], "not supplied")
+        self.assertIn("85U BRENT / 84U OIL", self.report)
+        self.assertTrue(all("no execution is verified" in row["status"] for row in added))
+
     def test_manual_test_replenishments_are_separate_from_approved_short_closures(self):
         manual = [row for row in self.rows if row["record_type"] == "MANUAL LIVE TEST POSITION"]
         self.assertEqual(len(manual), 4)

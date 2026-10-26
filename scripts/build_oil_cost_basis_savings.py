@@ -21,8 +21,24 @@ CENT = Decimal("0.01")
 PRICE_QUANTUM = Decimal("0.000001")
 PORTFOLIO_SUMMARY = ROOT / "data" / "the_one_model_split_portfolios_v1_summary.json"
 OUTPUT_CSV = ROOT / "data" / "oil_cost_basis_savings_v1.csv"
+ATS_OUTPUT_CSV = ROOT / "data" / "ats_oil_cost_basis_adjustment_v1.csv"
 REPORT = ROOT / "Oil Cost Basis Savings Model.md"
 TICKERS = ("BRENT", "OIL")
+ATS_SHORT_SCENARIOS = (10, 20, 30, 40)
+ATS_LOTS = {
+    "BRENT": {
+        "entry": Decimal("111.412"), "short_entry": Decimal("118.00"),
+        "cover": Decimal("114.627"), "manual_order_units": 35,
+        "new_ats_units": 50, "new_ats_entry": Decimal("115.00"),
+        "replenishments": [(10, Decimal("115.792")), (10, Decimal("114.80"))],
+    },
+    "OIL": {
+        "entry": Decimal("99.04"), "short_entry": Decimal("103.50"),
+        "cover": Decimal("100.74"), "manual_order_units": 34,
+        "new_ats_units": 50, "new_ats_entry": Decimal("101.00"),
+        "replenishments": [(10, Decimal("101.74")), (10, Decimal("101.00"))],
+    },
+}
 
 
 def _decimal(value):
@@ -43,6 +59,73 @@ def _fmt_money(value):
 
 def _fmt_price(value):
     return f"${_price(value):,.6f}"
+
+
+def build_ats_basis_rows():
+    """Build scenario-only cost-basis adjustments for the revised ATS short closure."""
+    rows = []
+    for ticker, spec in ATS_LOTS.items():
+        for short_units in ATS_SHORT_SCENARIOS:
+            initial_cover = min(10, short_units)
+            short_after_initial = short_units - initial_cover
+            manual_cover = min(spec["manual_order_units"], short_after_initial)
+            residual_manual_long = spec["manual_order_units"] - manual_cover
+            # Open long basket: unexecuted ATS portion, 10U manual remainder,
+            # four 10U replenishments, and any excess from the closure order.
+            open_lots = (
+                [(40 - short_units, spec["entry"]), (10, spec["entry"])]
+                + spec["replenishments"]
+                + [(residual_manual_long, spec["cover"])]
+                + [(spec["new_ats_units"], spec["new_ats_entry"])]
+            )
+            gross_open_notional = sum(
+                (Decimal(units) * UNIT_NOTIONAL for units, _ in open_lots), Decimal("0")
+            )
+            exposure_quantity = sum(
+                (Decimal(units) * UNIT_NOTIONAL / price for units, price in open_lots), Decimal("0")
+            )
+            short_close_pnl = (
+                Decimal(short_units) * UNIT_NOTIONAL
+                * (Decimal("1") - spec["cover"] / spec["short_entry"])
+            )
+            net_basis = gross_open_notional - short_close_pnl
+            unadjusted_effective_basis = gross_open_notional / exposure_quantity
+            adjusted_effective_basis = net_basis / exposure_quantity
+            rows.append({
+                "ticker": ticker,
+                "scenario": f"{short_units}U short opened per ticker",
+                "ats_short_opened_units": str(short_units),
+                "initial_cover_units": str(initial_cover),
+                "manual_approved_short_close_units": str(manual_cover),
+                "total_short_closed_units": str(initial_cover + manual_cover),
+                "ats_short_units_remaining": str(short_units - initial_cover - manual_cover),
+                "short_entry_price": f"{spec['short_entry']:.3f}" if ticker == "BRENT" else f"{spec['short_entry']:.2f}",
+                "short_cover_price": f"{spec['cover']:.3f}" if ticker == "BRENT" else f"{spec['cover']:.2f}",
+                "short_close_pnl_credit_usd": f"{_money(short_close_pnl):.2f}",
+                "manual_closure_order_units": str(spec["manual_order_units"]),
+                "residual_long_units_from_manual_order": str(residual_manual_long),
+                "new_ats_long_units": str(spec["new_ats_units"]),
+                "new_ats_long_entry_price": f"{spec['new_ats_entry']:.3f}" if ticker == "BRENT" else f"{spec['new_ats_entry']:.2f}",
+                "new_ats_long_entry_date": "2026-10-26",
+                "new_ats_long_entry_time": "not supplied",
+                "open_long_units_in_basis_scope": str(sum(units for units, _ in open_lots)),
+                "gross_open_long_notional_usd": f"{_money(gross_open_notional):.2f}",
+                "unadjusted_effective_basis_price": f"{_price(unadjusted_effective_basis):.6f}",
+                "short_close_credit_adjusted_effective_basis_price": f"{_price(adjusted_effective_basis):.6f}",
+                "basis_reduction_per_exposure_unit": f"{_price(unadjusted_effective_basis - adjusted_effective_basis):.6f}",
+                "mark_status": "No post-Oct. 23 EOD mark supplied; basis price is not a current market quote",
+                "status": "Scenario only; 40U per ticker is the ceiling, actual ATS size/fills unverified",
+            })
+    return rows
+
+
+def write_ats_basis_csv(rows):
+    ATS_OUTPUT_CSV.parent.mkdir(parents=True, exist_ok=True)
+    with ATS_OUTPUT_CSV.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]), lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
+    return ATS_OUTPUT_CSV
 
 
 def _replenishment_time_label(event):
@@ -269,7 +352,7 @@ def write_csv(rows):
     return OUTPUT_CSV
 
 
-def write_report(rows, positions, portfolios):
+def write_report(rows, positions, portfolios, ats_basis_rows):
     count_by_variant = Counter(portfolio["core_variant"] for portfolio in portfolios)
     trim_credit_per_portfolio = sum(
         (position["realized_trim_pnl"] for position in positions.values()), Decimal("0")
@@ -361,6 +444,44 @@ def write_report(rows, positions, portfolios):
         f"Machine-readable portfolio mapping: [`{OUTPUT_CSV.name}`](data/{OUTPUT_CSV.name}) ({len(rows)} ticker/portfolio rows). See [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md) and [`Hypothetical Securities Offering Briefing.md`](Hypothetical%20Securities%20Offering%20Briefing.md) for the current mark window and total-PnL scope.",
         "",
     ])
+    max_scenario = [row for row in ats_basis_rows if row["ats_short_opened_units"] == "40"]
+    max_by_ticker = {row["ticker"]: row for row in max_scenario}
+    ats_short_credit_total = sum(
+        (
+            Decimal(row["ats_short_opened_units"]) * UNIT_NOTIONAL
+            * (Decimal("1") - ATS_LOTS[row["ticker"]]["cover"] / ATS_LOTS[row["ticker"]]["short_entry"])
+            for row in max_scenario
+        ),
+        Decimal("0"),
+    )
+    lines.extend([
+        "## ATS full-size short-closure basis adjustment (separate scenario)",
+        "",
+        "This additional calculation uses the **maximum 80U ATS scenario**: 40U SHORT opened per ticker at $118.00 BRENT / $103.50 OIL and fully closed at $114.627 / $100.74. It applies the model's short PnL formula `units × $10,000 × (1 − cover price ÷ entry price)`. Each close is 10U from the earlier modeled partial cover plus 30U allocated from the 35U/34U MANUALLY APPROVED SHORT CLOSURE order. The short-close PnL is credited against the remaining tagged oil longs as a basis reduction; it is not additional to the realized short PnL.",
+        "",
+        "| Ticker | ATS short closed | Short-close PnL credit | Remaining long basket in scope | Gross open notional | Unadjusted effective basis | Basis after short-close credit | Basis reduction per exposure unit |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|",
+    ])
+    for ticker in TICKERS:
+        row = max_by_ticker[ticker]
+        display = "OIL (USOIL)" if ticker == "OIL" else ticker
+        lines.append(
+            f"| {display} | {row['total_short_closed_units']}U | ${Decimal(row['short_close_pnl_credit_usd']):,.2f} | "
+            f"{row['open_long_units_in_basis_scope']}U | ${Decimal(row['gross_open_long_notional_usd']):,.2f} | "
+            f"${Decimal(row['unadjusted_effective_basis_price']):,.6f} | "
+            f"${Decimal(row['short_close_credit_adjusted_effective_basis_price']):,.6f} | "
+            f"${Decimal(row['basis_reduction_per_exposure_unit']):,.6f} |"
+        )
+    lines.extend([
+        f"| **Combined short-close PnL credit** | **80U** | **${_money(ats_short_credit_total):,.2f}** | — | — | — | — | — |",
+        "",
+        f"The full-size short-close credit is **${_money(ats_short_credit_total):,.2f}** per modeled two-ticker book: **${Decimal(max_by_ticker['BRENT']['short_close_pnl_credit_usd']):,.2f} BRENT + ${Decimal(max_by_ticker['OIL']['short_close_pnl_credit_usd']):,.2f} OIL**. At the 40U-per-ticker scenario, the approved manual orders leave 5U BRENT and 4U OIL long after covering the 30U residual shorts. The remaining basket shown above includes those residuals, the 10U manual reference lot, the two 10U replenishments per ticker, and the new 50U ATS LONG additions modeled on Oct. 26 at $115 BRENT / $101 OIL (time not supplied). That is 85U BRENT / 84U OIL in this tagged-campaign basis scope. The effective basis is a PnL-equivalent price—not a fill or live quote. This short-close-only adjustment does **not** include gains on the separate 40U ATS long liquidation.",
+        "",
+        "This is a separate ATS scenario and **replaces**, rather than stacks with, the legacy 10U-short credit in the table above. The historical legacy table is retained for audit continuity; do not add its old $3,263.50 short credit or old 10U trim credit to this scenario basis. The actual ATS size is still unverified; see the scenario sensitivity in [`ATS and Manual Live Position Reconciliation.md`](ATS%20and%20Manual%20Live%20Position%20Reconciliation.md). No post-Oct. 23 TradingView EOD mark is supplied, so this reports an adjusted basis for checking against a later user-supplied current mark, not current mark-to-market PnL.",
+        "",
+        f"Machine-readable ATS basis sensitivity: [`{ATS_OUTPUT_CSV.name}`](data/{ATS_OUTPUT_CSV.name}). It includes 10U, 20U, 30U, and 40U short-size scenarios; only the maximum 80U total case is summarized above.",
+        "",
+    ])
     REPORT.write_text("\n".join(lines), encoding="utf-8")
     return REPORT
 
@@ -368,8 +489,11 @@ def write_report(rows, positions, portfolios):
 def main():
     rows, positions, portfolios = build_rows()
     csv_path = write_csv(rows)
-    report_path = write_report(rows, positions, portfolios)
+    ats_basis_rows = build_ats_basis_rows()
+    ats_csv_path = write_ats_basis_csv(ats_basis_rows)
+    report_path = write_report(rows, positions, portfolios, ats_basis_rows)
     print(f"Wrote {csv_path.relative_to(ROOT)} ({len(rows)} rows)")
+    print(f"Wrote {ats_csv_path.relative_to(ROOT)} ({len(ats_basis_rows)} rows)")
     print(f"Wrote {report_path.relative_to(ROOT)}")
 
 
