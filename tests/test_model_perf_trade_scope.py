@@ -19,11 +19,95 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertEqual(UNMODELED_SYMBOLS, {"BTC", "ETH", "DXY", "EURUSD", "JPYUSD", "US10Y", "US30Y"})
         self.assertTrue(modeled.isdisjoint(UNMODELED_SYMBOLS))
         self.assertTrue(modeled.issubset(PRICES))
-        self.assertEqual(len(events), 99)
+        self.assertEqual(len(events), 108)
         self.assertEqual(sum(event["date"] <= "2026-10-22" for event in events), 85)
         self.assertEqual(sum(event["date"] <= "2026-10-23" for event in events), 91)
         self.assertTrue({"BTC", "ETH"}.isdisjoint(modeled))
         self.assertEqual(SESSION_DATES[-1], "2026-10-23")
+
+    def test_reported_ats_core_entries_and_meta_short_close_are_separate_lots(self):
+        # Isolate the earlier Oct. 26 ATS action before the later user-directed
+        # 13:00 V3A/INTC closure events.
+        events = [event for event in parse_trades() if "USER-DIRECTED MODEL CLOSURE" not in event["note"]]
+        date = "2026-10-26"
+        additions = [event for event in events if event["date"] == date and event["time"] == "06:30"]
+        self.assertEqual(len(additions), 4)
+        self.assertEqual({event["sym"] for event in additions}, {"GEV", "RIVN", "META"})
+        self.assertTrue(all("AUTOMATED TRADING SYSTEM LIVE POSITIONS" in event["note"] for event in additions))
+        root = Path(__file__).resolve().parents[1]
+        with ZipFile(root / "trades.zip") as archive:
+            for filename in ("GEV.txt", "RIVN.txt", "INTC.txt", "META.txt", "index.txt"):
+                self.assertEqual(archive.read(f"trades/{filename}"), (root / "trades" / filename).read_bytes())
+        self.assertIn("118 standardized log events currently recorded", (root / "trades/index.txt").read_text())
+        extended_dates = SESSION_DATES + [date]
+        with patch.object(model_perf_core, "SESSION_DATES", extended_dates), patch.object(
+            model_perf_core, "N_SESS", len(extended_dates)
+        ):
+            for variant in VARIANTS:
+                lots, realized = build_lots(variant, events)
+                for ticker, price in (("GEV", 823.81), ("RIVN", 11.77), ("META", 637.2)):
+                    new_longs = [lot for lot in lots if lot["sym"] == ticker and lot["side"] == "long"
+                                 and lot["entry_date"] == date and lot["entry_px"] == price]
+                    self.assertEqual(len(new_longs), 1, (variant, ticker))
+                    self.assertEqual(new_longs[0]["qty"], 1)
+                date_closes = [row for row in realized if row["sym"] == "META" and row["date"] == date]
+                if variant in ("V1", "V3A"):
+                    self.assertEqual(len(date_closes), 1)
+                    self.assertEqual(date_closes[0]["qty"], 1)
+                else:
+                    # SAR paths already covered the active short before this
+                    # date, so the user-reported close does not double-close it.
+                    self.assertEqual(date_closes, [])
+                open_meta_shorts = [lot for lot in lots if lot["sym"] == "META" and lot["side"] == "short" and lot["open"]]
+                if variant == "V1":
+                    self.assertEqual(open_meta_shorts, [])
+                elif variant == "V3A":
+                    self.assertEqual(sum(lot["qty"] for lot in open_meta_shorts), 4)
+                else:
+                    self.assertEqual(open_meta_shorts, [])
+
+    def test_user_directed_short_closures_cover_remaining_exposure_at_supplied_prices(self):
+        events = parse_trades()
+        date = "2026-10-26"
+        extended_dates = SESSION_DATES + [date]
+        with patch.object(model_perf_core, "SESSION_DATES", extended_dates), patch.object(
+            model_perf_core, "N_SESS", len(extended_dates)
+        ):
+            for variant, expected_intc_closed, expected_meta_closed in (
+                ("V1", 2, 1), ("V2", 0, 0), ("V3A", 6, 5), ("V3B", 0, 0)
+            ):
+                lots, realized = build_lots(variant, events)
+                self.assertEqual(
+                    [lot for lot in lots if lot["side"] == "short" and lot["open"]
+                     and lot["sym"] in {"INTC", "META"}],
+                    [],
+                    variant,
+                )
+                new_intc_longs = [
+                    lot for lot in lots
+                    if lot["sym"] == "INTC" and lot["side"] == "long"
+                    and lot["entry_date"] == date and lot["entry_px"] == 87.55 and lot["open"]
+                ]
+                self.assertEqual(sum(lot["qty"] for lot in new_intc_longs), 6, variant)
+                intc_closes = [
+                    lot for lot in lots
+                    if lot["sym"] == "INTC" and lot["side"] == "short" and lot.get("close_date") == date
+                ]
+                self.assertEqual(sum(lot["qty"] for lot in intc_closes), expected_intc_closed)
+                self.assertTrue(all(lot["close_px"] == 87.55 for lot in intc_closes))
+                meta_closes = [
+                    lot for lot in lots
+                    if lot["sym"] == "META" and lot["side"] == "short" and lot.get("close_date") == date
+                ]
+                self.assertEqual(sum(lot["qty"] for lot in meta_closes), expected_meta_closed)
+                self.assertTrue(all(lot["close_px"] == 637.20 for lot in meta_closes))
+                close_events = [
+                    event for event in events
+                    if event["date"] == date and event["time"] == "13:00"
+                    and event["kind"] == "exit" and event["sym"] in {"INTC", "META"}
+                ]
+                self.assertEqual({(event["sym"], event["units"], event["px"]) for event in close_events},
+                                 {("INTC", 6, 87.55), ("META", 4, 637.2)})
 
     def test_manual_short_exits_override_sar_only_for_tagged_oil_target_shorts(self):
         events = parse_trades()
@@ -375,8 +459,19 @@ class ModelTradeScopeTests(unittest.TestCase):
             graph = root / relpath
             self.assertTrue(graph.is_file())
             self.assertEqual(graph.read_bytes()[:8], b"\x89PNG\r\n\x1a\n")
-        self.assertIn("`91` direct-price events plus `1` DXY direction signals out of `109` total 2026 log events", text)
-        self.assertIn("`8` direct events after cutoff", text)
+        self.assertIn("`91` direct-price events plus `1` DXY direction signals out of `118` total 2026 log events", text)
+        self.assertIn("`17` direct events after cutoff", text)
+        self.assertIn("2026-10-26 06:30 MST GEV LONG 1U at $823.81", text)
+        self.assertIn("close 1U META SHORT at $637.20", text)
+        self.assertIn("existing 2U META LONG plus this new 1U LONG leaves 3U LONG", text)
+        self.assertIn("compounded V3A began with a modeled 5U SHORT", text)
+        self.assertIn("the separately disclosed user-directed V3A close subsequently closes that remainder", text)
+        self.assertIn("User-directed post-cutoff short closures", text)
+        self.assertIn("6U INTC instruction closes V3A's full 6U exposure", text)
+        self.assertIn("4U META instruction applies only to V3A", text)
+        self.assertIn("The separate user-reported META position remains 3U LONG", text)
+        self.assertIn("User-directed post-cutoff core-model long addition", text)
+        self.assertIn("6U INTC lot is applied independently to each of the four core variants", text)
         self.assertIn("2026-10-25 BRENT LONG 10U at $115.792", text)
         self.assertIn("2026-10-25 USOIL (internal ticker OIL) LONG 10U at $101.74", text)
         self.assertIn("2026-10-25 BRENT LONG 10U at $114.8", text)

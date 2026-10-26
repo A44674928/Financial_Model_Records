@@ -160,11 +160,52 @@ def build_lots(variant, events):
         idx = session_index(ev["date"], ev["kind"])
 
         if ev["kind"] == "exit":
+            if "Explicit close of reported active" in ev["note"] and "SHORT" in ev["note"]:
+                if "V3A-only" in ev["note"] and variant != "V3A":
+                    # This closure is explicitly scoped to the compounded V3A
+                    # core path; do not apply it to sibling model variants.
+                    continue
+                # Close only the explicitly reported active short quantity. A
+                # path may already have covered it via SAR, so cap at the short
+                # exposure still open in that variant rather than double-close.
+                remaining = u
+                targets = [
+                    lot for lot in lots
+                    if lot["sym"] == sym and lot["side"] == "short" and lot["open"]
+                    and not lot.get("oil_target_short", False)
+                ]
+                for lot in targets:
+                    if remaining <= 1e-12:
+                        break
+                    qty = min(lot["qty"], remaining)
+                    if qty <= 0:
+                        continue
+                    if qty < lot["qty"]:
+                        lot["qty"] -= qty
+                        lot_id += 1
+                        closed = {**lot, "id": lot_id, "qty": qty}
+                        lots.append(closed)
+                    else:
+                        closed = lot
+                    closed["open"] = False
+                    closed["close_idx"] = idx
+                    closed["close_date"] = ev["date"]
+                    closed["close_px"] = px
+                    realized.append({
+                        "sym": sym,
+                        "idx": idx,
+                        "date": ev["date"],
+                        "qty": qty,
+                        "pnl": qty * UNIT * (1.0 - px / closed["entry_px"]),
+                    })
+                    remaining -= qty
+                # If no short remains, an earlier SAR cover already flattened
+                # this model path; the user's accompanying LONG is still a new lot.
             # Tagged Manual-Automatic trims are lot-scoped: unlike generic exits,
             # they reduce only the explicitly tagged entry and leave every other
             # open long lot in the ticker untouched. The exit's units are the
             # quantity trimmed, not a replacement size for the whole position.
-            if "Explicit close of the tagged 2026-10-23 10U" in ev["note"]:
+            elif "Explicit close of the tagged 2026-10-23 10U" in ev["note"]:
                 remaining = u
                 targets = [
                     lot for lot in lots

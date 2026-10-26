@@ -259,7 +259,7 @@ def write_report(rows, summaries):
         "| DXY index proxy | " + " | ".join(dxy_cells) +
         f" | ${float(dxy_row['total_pnl_usd']):+,.2f} |"
     )
-    pending = [event for event in parse_trades() if event["date"] > cutoff_date and event["sym"] in {"BRENT", "OIL"}]
+    pending = [event for event in parse_trades() if event["date"] > cutoff_date and event["sym"] in PRICES]
     lines.extend([
         "",
         "## Post-cutoff ledger entries",
@@ -273,15 +273,44 @@ def write_report(rows, summaries):
         for event in pending:
             display = "USOIL (OIL)" if event["sym"] == "OIL" else event["sym"]
             time_text = f"~{event['time']}" if "approximate time per user" in event["note"] else event["time"]
+            flagged = (
+                "LONG inferred from handwritten PICK UP OPPORTUNITY" in event["note"]
+                or "AUTOMATED TRADING SYSTEM LIVE POSITIONS" in event["note"]
+                or "USER-DIRECTED MODEL CLOSURE" in event["note"]
+                or "USER-DIRECTED MODEL LONG ADDITION" in event["note"]
+            )
+            side_text = event["tag"] + ("*" if flagged else "")
             lines.append(
-                f"| {event['date']} | {time_text} | {display} | {event['tag']} | {event['units']:g}U | "
+                f"| {event['date']} | {time_text} | {display} | {side_text} | {event['units']:g}U | "
                 f"${event['px']:,.3f} | ${float(event['units']) * UNIT:,.0f} |"
             )
+        if any("LONG inferred from handwritten PICK UP OPPORTUNITY" in event["note"] for event in pending):
+            lines.extend([
+                "",
+                "* The 2026-10-26 07:51 MST BRENT entry is the user-requested 50U manual position. The TradingView Brent Cash screenshot shows $115.510 at 07:51:14 UTC−7 with handwritten “PICK UP OPPORTUNITY”; LONG is inferred from that annotation, not explicitly stated. This is not a verified brokerage fill. A second screenshot shows $117.409 at 08:58:03 UTC−7, retained as a later intraday observation only—not an EOD mark or PnL valuation.",
+            ])
+        if any("AUTOMATED TRADING SYSTEM LIVE POSITIONS" in event["note"] for event in pending):
+            lines.extend([
+                "",
+                "* ATS-marked GEV, RIVN, and META rows are user-reported Oct. 26 actions; their date is inferred from conversation context. They are not independently verified brokerage fills. On the user-reported META position, the existing 2U LONG plus the new 1U LONG leaves 3U LONG after the active 1U SHORT is closed. This reported position is distinct from model variants: compounded V3A began with a modeled 5U SHORT; the earlier 1U cover left 4U, and the new user-directed V3A-only close clears those remaining 4U at $637.20. V3A then has no META short; the user-reported 3U LONG remains unchanged. The additional 50U USOIL LONG @ $101.11 at 07:51 MST is the user-reported ATS mirror synchronized with the 50U manual BRENT buy; it is distinct from the earlier 50U ATS OIL lot @ $101.00, whose time was not specified. The USOIL screenshot supports quote/time context, not verified brokerage execution.",
+            ])
+        if any("USER-DIRECTED MODEL CLOSURE" in event["note"] for event in pending):
+            lines.extend([
+                "",
+                "* These user-directed short-cover entries are model-only post-cutoff closures at the supplied prices, not verified fills. The 6U INTC instruction clears all 6U in V3A and is capped at each path's actual short exposure (2U in V1; none in V2/V3B). The 4U META instruction clears only V3A's remaining short after its earlier 1U cover. The logged 13:00 MST time is an ordering placeholder; no execution time was supplied. Their modeled realized PnL is outside the Oct. 23 historical results.",
+            ])
+        if any("USER-DIRECTED MODEL LONG ADDITION" in event["note"] for event in pending):
+            lines.extend([
+                "",
+                "* The 6U INTC LONG @ $87.55 is applied independently to each of the four core variants (not one combined account); it remains unmarked because there is no later EOD close. This is a hypothetical model addition, not a verified fill or a signal to the separate daily sidecar models. The 13:00 MST timestamp is only an ordering placeholder.",
+            ])
     else:
         lines.append("No direct-price entries fall after the current mark cutoff.")
     lines.extend([
         "",
         f"Machine-readable detail: [`{OUTPUT_CSV.name}`](data/{OUTPUT_CSV.name}) ({len(rows)} asset/variant rows).",
+        "",
+        "Economic closure-credit basis view: [`Core Cost Basis After Closure Credits.md`](Core%20Cost%20Basis%20After%20Closure%20Credits.md), with per-variant CSV [`core_cost_basis_closure_credits_v1.csv`](data/core_cost_basis_closure_credits_v1.csv). Credits are economic reclassifications, not additional PnL.",
         "",
         "### Reading notes",
         "",

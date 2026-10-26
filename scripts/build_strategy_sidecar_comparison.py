@@ -73,7 +73,8 @@ def direction_following_daily_model(events=None, tranche_notional_usd=EXPONENTIA
     events = events if events is not None else parse_trades()
     events_by_date = defaultdict(list)
     for event in events:
-        if event["date"] > SESSION_DATES[-1] or event["kind"] != "entry":
+        if (event["date"] > SESSION_DATES[-1] or event["kind"] != "entry"
+                or "CORE MODEL ONLY, not a direction signal or daily sidecar action" in event["note"]):
             continue
         direction = _direction(event["tag"])
         if not direction:
@@ -237,6 +238,8 @@ def variant_force_multiplier_daily_model(variant, events=None):
         event_day_units = {}
         for event in events_by_day.get(day, []):
             symbol = event["sym"]
+            if "CORE MODEL ONLY, not a direction signal or daily sidecar action" in event["note"]:
+                continue
             if event["kind"] == "exit":
                 if "Manual-Automatic target trim" in event["note"]:
                     continue
