@@ -31,12 +31,14 @@ ATS_LOTS = {
         "cover": Decimal("114.627"), "manual_order_units": 35,
         "new_ats_units": 50, "new_ats_entry": Decimal("115.00"),
         "replenishments": [(10, Decimal("115.792")), (10, Decimal("114.80"))],
+        "later_user_entries": [(10, Decimal("115.025")), (16, Decimal("114.90")), (50, Decimal("115.51"))],
     },
     "OIL": {
         "entry": Decimal("99.04"), "short_entry": Decimal("103.50"),
         "cover": Decimal("100.74"), "manual_order_units": 34,
         "new_ats_units": 50, "new_ats_entry": Decimal("101.00"),
         "replenishments": [(10, Decimal("101.74")), (10, Decimal("101.00"))],
+        "later_user_entries": [(10, Decimal("100.96")), (17, Decimal("100.85")), (50, Decimal("101.11"))],
     },
 }
 
@@ -77,6 +79,7 @@ def build_ats_basis_rows():
                 + spec["replenishments"]
                 + [(residual_manual_long, spec["cover"])]
                 + [(spec["new_ats_units"], spec["new_ats_entry"])]
+                + spec["later_user_entries"]
             )
             gross_open_notional = sum(
                 (Decimal(units) * UNIT_NOTIONAL for units, _ in open_lots), Decimal("0")
@@ -108,6 +111,9 @@ def build_ats_basis_rows():
                 "new_ats_long_entry_price": f"{spec['new_ats_entry']:.3f}" if ticker == "BRENT" else f"{spec['new_ats_entry']:.2f}",
                 "new_ats_long_entry_date": "2026-10-26",
                 "new_ats_long_entry_time": "not supplied",
+                "later_user_reported_long_units": str(sum(units for units, _ in spec["later_user_entries"])),
+                "later_user_reported_long_lots": "; ".join(f"{units}U@{price:f}" for units, price in spec["later_user_entries"]),
+                "unit_weighted_average_entry_price": f"{_price(sum((Decimal(units) * price for units, price in open_lots), Decimal('0')) / sum(units for units, _ in open_lots)):.6f}",
                 "open_long_units_in_basis_scope": str(sum(units for units, _ in open_lots)),
                 "gross_open_long_notional_usd": f"{_money(gross_open_notional):.2f}",
                 "unadjusted_effective_basis_price": f"{_price(unadjusted_effective_basis):.6f}",
@@ -475,7 +481,7 @@ def write_report(rows, positions, portfolios, ats_basis_rows):
     lines.extend([
         f"| **Combined short-close PnL credit** | **80U** | **${_money(ats_short_credit_total):,.2f}** | — | — | — | — | — |",
         "",
-        f"The full-size short-close credit is **${_money(ats_short_credit_total):,.2f}** per modeled two-ticker book: **${Decimal(max_by_ticker['BRENT']['short_close_pnl_credit_usd']):,.2f} BRENT + ${Decimal(max_by_ticker['OIL']['short_close_pnl_credit_usd']):,.2f} OIL**. At the 40U-per-ticker scenario, the approved manual orders leave 5U BRENT and 4U OIL long after covering the 30U residual shorts. The remaining basket shown above includes those residuals, the 10U manual reference lot, the two 10U replenishments per ticker, and the new 50U ATS LONG additions modeled on Oct. 26 at $115 BRENT / $101 OIL (time not supplied). That is 85U BRENT / 84U OIL in this tagged-campaign basis scope. The effective basis is a PnL-equivalent price—not a fill or live quote. This short-close-only adjustment does **not** include gains on the separate 40U ATS long liquidation.",
+        f"The full-size short-close credit is **${_money(ats_short_credit_total):,.2f}** per modeled two-ticker book: **${Decimal(max_by_ticker['BRENT']['short_close_pnl_credit_usd']):,.2f} BRENT + ${Decimal(max_by_ticker['OIL']['short_close_pnl_credit_usd']):,.2f} OIL**. At the 40U-per-ticker scenario, the approved manual orders leave 5U BRENT and 4U OIL long after covering the 30U residual shorts. The remaining basket includes those residuals, the 10U manual reference lot, the two 10U Oct. 25 replenishments per ticker, the 50U-per-ticker Oct. 26 ATS LONG entries at $115 BRENT / $101 OIL, and the later user-reported additions: BRENT 10U @ $115.025 via a manually approved ATS order, 16U @ $114.90 with category unspecified, and 50U manual @ $115.51; OIL 10U @ $100.96 via a manually approved ATS order, 17U @ $100.85 with category unspecified, and a separate additional 50U ATS USOIL mirror LONG @ $101.11 at 07:51 MST synchronized with the manual BRENT purchase. The mirror description applies to this new $101.11 lot, which is distinct from the earlier 50U ATS OIL LONG @ $101.00. The screenshot-supported manual BRENT entry is timestamped 07:51:14 MST, with date inferred as 2026-10-26 and LONG inferred from its handwritten “PICK UP OPPORTUNITY” annotation. A second screenshot shows $117.409 at 08:58:03 UTC−7; it is a subsequent intraday quote only, not an EOD mark. Other Oct. 26 dates/times were not supplied; these user-reported entries are not independently verified. The expanded tagged-campaign basis scope is 161U BRENT / 161U OIL. Straight unit-weighted averages of the modeled entry prices are **${Decimal(max_by_ticker['BRENT']['unit_weighted_average_entry_price']):,.6f} BRENT / ${Decimal(max_by_ticker['OIL']['unit_weighted_average_entry_price']):,.6f} OIL**; these are not the ratio-equivalent effective bases, which are shown above, and do not represent fills or current market quotes. This short-close-only adjustment does **not** include gains on the separate 40U ATS long liquidation.",
         "",
         "This is a separate ATS scenario and **replaces**, rather than stacks with, the legacy 10U-short credit in the table above. The historical legacy table is retained for audit continuity; do not add its old $3,263.50 short credit or old 10U trim credit to this scenario basis. The actual ATS size is still unverified; see the scenario sensitivity in [`ATS and Manual Live Position Reconciliation.md`](ATS%20and%20Manual%20Live%20Position%20Reconciliation.md). No post-Oct. 23 TradingView EOD mark is supplied, so this reports an adjusted basis for checking against a later user-supplied current mark, not current mark-to-market PnL.",
         "",

@@ -20,7 +20,7 @@ class AtsManualReconciliationTests(unittest.TestCase):
             cls.rows = list(csv.DictReader(f))
 
     def test_ats_scenarios_and_closure_first_allocations_reconcile(self):
-        ats = [row for row in self.rows if row["record_type"].startswith("AUTOMATED TRADING SYSTEM")]
+        ats = [row for row in self.rows if row["record_type"] == "AUTOMATED TRADING SYSTEM LIVE POSITIONS — scenario"]
         self.assertEqual(len(ats), 8)
         self.assertEqual({row["ats_allocation_ceiling_units"] for row in ats}, {"40"})
         self.assertEqual({row["manual_reference_allocation_units"] for row in ats}, {"10"})
@@ -44,13 +44,66 @@ class AtsManualReconciliationTests(unittest.TestCase):
         self.assertEqual(by_ticker["OIL"]["price"], "101.00")
         self.assertEqual(by_ticker["BRENT"]["date"], "2026-10-26")
         self.assertEqual(by_ticker["BRENT"]["time_mst"], "not supplied")
-        self.assertIn("85U BRENT / 84U OIL", self.report)
+        self.assertIn("161U BRENT / 161U OIL", self.report)
         self.assertTrue(all("no execution is verified" in row["status"] for row in added))
+        oil_legacy_lot = by_ticker["OIL"]
+        self.assertIn("separate from the later $101.11 mirror entry", oil_legacy_lot["scenario"])
+        self.assertIn("Earlier separate 50U ATS OIL LONG @ $101.00", oil_legacy_lot["notes"])
+        self.assertNotIn("OIL lot is the mirror", oil_legacy_lot["notes"])
+        mirror = next(row for row in self.rows if row["record_type"].endswith("user-reported mirror"))
+        self.assertEqual((mirror["ticker"], mirror["units"], mirror["price"], mirror["time_mst"]), ("OIL", "50", "101.11", "07:51 MST (synchronized with BRENT; seconds not supplied)"))
+        self.assertIn("earlier 50U OIL @ $101.00", mirror["scenario"])
+        self.assertIn("TradingView 1-minute USOIL screenshot", mirror["notes"])
+        self.assertIn("ATS WAIT", mirror["notes"])
+        self.assertIn("not a confirmed fill", mirror["status"])
+        self.assertIn("mirror description applies to this new $101.11 lot, not the older $101.00 lot", self.report)
+        self.assertNotIn("original OIL @ $101.00 lot as the synchronized mirror", self.report)
+
+    def test_user_reported_additions_and_screenshot_supported_manual_brent_lot(self):
+        additions = [row for row in self.rows if row["record_type"] == "User-reported additional LONG position"]
+        self.assertEqual(len(additions), 4)
+        lookup = {(row["ticker"], row["units"], row["price"]): row for row in additions}
+        self.assertIn(("BRENT", "10", "115.025"), lookup)
+        self.assertIn(("OIL", "10", "100.96"), lookup)
+        self.assertIn(("BRENT", "16", "114.900"), lookup)
+        self.assertIn(("OIL", "17", "100.85"), lookup)
+        manual = [row for row in self.rows if row["record_type"] == "MANUAL LIVE TEST POSITION"]
+        screenshot_lot = next(row for row in manual if row["units"] == "50")
+        self.assertEqual(screenshot_lot["ticker"], "BRENT")
+        self.assertEqual(screenshot_lot["price"], "115.510")
+        self.assertIn("07:51:14 MST", screenshot_lot["time_mst"])
+        self.assertIn("LONG is inferred", screenshot_lot["notes"])
+        self.assertIn("PICK UP OPPORTUNITY", screenshot_lot["notes"])
+        self.assertIn("$117.409 at 08:58:03 UTC−7", screenshot_lot["notes"])
+        self.assertIn("strategy classification unspecified", self.report)
+        self.assertIn("classification and execution not independently verified", lookup[("BRENT", "16", "114.900")]["notes"])
+        self.assertIn("date-level assumption only", lookup[("OIL", "17", "100.85")]["time_mst"])
+        self.assertIn("161U BRENT / 161U OIL", self.report)
+        self.assertIn("separate additional 50U ATS USOIL LONG @ $101.11", self.report)
+        self.assertIn("distinct from—and added on top of—the earlier $101.00 ATS USOIL lot", self.report)
+        self.assertIn("LONG is inferred", self.report)
+
+    def test_screenshot_supported_manual_and_ats_mirror_entries_are_synced_to_trade_archive(self):
+        import zipfile
+        brent_log = (ROOT / "trades/BRENT.txt").read_text(encoding="utf-8")
+        self.assertIn("2026-10-26 07:51 MST | SIMULATED PAPER [LONG]", brent_log)
+        self.assertIn("LONG inferred from handwritten PICK UP OPPORTUNITY", brent_log)
+        oil_log = (ROOT / "trades/OIL.txt").read_text(encoding="utf-8")
+        self.assertIn("2026-10-26 07:51 MST | SIMULATED PAPER [LONG]", oil_log)
+        self.assertIn("$101.11", oil_log)
+        self.assertIn("separate from the previously recorded 50U ATS OIL LONG @ $101.00 model lot", oil_log)
+        with zipfile.ZipFile(ROOT / "trades.zip") as archive:
+            self.assertEqual(archive.read("trades/BRENT.txt").decode("utf-8"), brent_log)
+            self.assertEqual(archive.read("trades/OIL.txt").decode("utf-8"), oil_log)
+            archived_index = archive.read("trades/index.txt").decode("utf-8")
+        index = (ROOT / "trades/index.txt").read_text(encoding="utf-8")
+        self.assertEqual(archived_index, index)
+        self.assertIn("118 standardized log events currently recorded", index)
 
     def test_manual_test_replenishments_are_separate_from_approved_short_closures(self):
         manual = [row for row in self.rows if row["record_type"] == "MANUAL LIVE TEST POSITION"]
-        self.assertEqual(len(manual), 4)
-        self.assertEqual(sum(int(row["units"]) for row in manual if row["ticker"] == "BRENT"), 20)
+        self.assertEqual(len(manual), 5)
+        self.assertEqual(sum(int(row["units"]) for row in manual if row["ticker"] == "BRENT"), 70)
         self.assertEqual(sum(int(row["units"]) for row in manual if row["ticker"] == "OIL"), 20)
         self.assertIn("MANUAL LIVE TEST POSITIONS", self.report)
         self.assertIn("MANUALLY APPROVED SHORT CLOSURE", self.report)

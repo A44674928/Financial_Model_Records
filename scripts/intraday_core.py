@@ -105,9 +105,32 @@ def build_intraday(variant, events, symbols=None):
         sym, px, u = ev["sym"], ev["px"], ev["units"]
         if keep and sym not in keep:
             continue
+        # The hourly source ends on Oct. 22; later events have no valid bar
+        # and must not be clamped onto the final intraday observation.
+        if ev["date"] > INTRADAY_SESSION_DATES[-1]:
+            continue
         b = bar_index(ev["date"], ev["time"])
 
         if ev["kind"] == "exit":
+            if "Explicit close of reported active" in ev["note"] and "SHORT" in ev["note"]:
+                if "V3A-only" in ev["note"] and variant != "V3A":
+                    continue
+                remaining = u
+                for lot in lots:
+                    if lot["sym"] != sym or lot["side"] != "short" or not lot["open"]:
+                        continue
+                    qty = min(lot["qty"], remaining)
+                    if qty <= 0:
+                        break
+                    lot["open"] = False
+                    lot["close_bar"] = b
+                    lot["close_px"] = px
+                    realized.append({"sym": sym, "bar": b,
+                                     "pnl": qty * UNIT * (1.0 - px / lot["entry_px"])})
+                    remaining -= qty
+                    if remaining <= 1e-12:
+                        break
+                continue
             last_exit_units[sym] = u
             for lot in lots:
                 if lot["sym"] == sym and lot["side"] == "long" and lot["open"]:

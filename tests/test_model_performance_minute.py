@@ -4,7 +4,8 @@ import unittest
 
 from minute_closeup import minute_series
 from minute_session_data import CLOSES_1M, LOGGED_ENTRY_PRICE
-from model_perf_core import VARIANTS
+from model_perf_core import VARIANTS, parse_trades
+from intraday_core import INTRADAY_SESSION_DATES, N_BARS, build_intraday
 
 
 class MinuteSessionTests(unittest.TestCase):
@@ -25,6 +26,15 @@ class MinuteSessionTests(unittest.TestCase):
         self.assertEqual(series["V3A"], series["V3B"])
         self.assertGreater(series["V3A"][0], series["V1"][0])
         self.assertEqual(set(series), set(VARIANTS))
+
+    def test_post_oct22_events_are_not_clamped_to_last_hourly_bar(self):
+        self.assertEqual(INTRADAY_SESSION_DATES[-1], "2026-10-22")
+        events = parse_trades()
+        for variant in VARIANTS:
+            lots, realized = build_intraday(variant, events, ["META"])
+            self.assertFalse(any(lot["entry_bar"] >= N_BARS for lot in lots))
+            self.assertFalse(any(row["bar"] >= N_BARS for row in realized))
+            self.assertFalse(any(lot["entry_px"] == 637.2 for lot in lots))
 
     def test_logged_fill_discrepancy_is_preserved_not_repriced(self):
         rows, _ = minute_series()
