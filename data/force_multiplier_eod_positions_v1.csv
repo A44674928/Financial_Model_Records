@@ -1086,7 +1086,7 @@ force_multiplier,2026-10-22,XLE,long,67.57000000,10000.00,10000.00,14,140000.00,
 force_multiplier,2026-10-22,XRH0,long,782.50000000,10000.00,10000.00,35,350000.00,9696.48,Latest trade-log LONG/SHORT/REBUY entry carried forward
 force_multiplier,2026-10-23,AAPL,long,348.72500000,10000.00,10000.00,35,350000.00,13688.12,Latest trade-log LONG/SHORT/REBUY entry carried forward
 force_multiplier,2026-10-23,AMZN,long,248.00000000,10000.00,10000.00,25,250000.00,-5811.70,Latest trade-log LONG/SHORT/REBUY entry carried forward
-force_multiplier,2026-10-23,BRENT,long,117.34500000,10000.00,10000.00,23,230000.00,22546.12,Latest trade-log LONG/SHORT/REBUY entry carried forward
+force_multiplier,2026-10-23,BRENT,short,117.34500000,10000.00,10000.00,1,10000.00,0.00,Latest trade-log LONG/SHORT/REBUY entry carried forward
 force_multiplier,2026-10-23,CAT,long,687.00000000,10000.00,10000.00,5,50000.00,-2022.75,Latest trade-log LONG/SHORT/REBUY entry carried forward
 force_multiplier,2026-10-23,CVX,long,233.21000000,10000.00,10000.00,27,270000.00,26176.45,Latest trade-log LONG/SHORT/REBUY entry carried forward
 force_multiplier,2026-10-23,DIS,short,112.52000000,10000.00,10000.00,25,250000.00,-13036.57,Latest trade-log LONG/SHORT/REBUY entry carried forward
@@ -1101,7 +1101,7 @@ force_multiplier,2026-10-23,META,long,642.62000000,10000.00,10000.00,21,210000.0
 force_multiplier,2026-10-23,NET,long,325.73000000,10000.00,10000.00,27,270000.00,-7880.13,Latest trade-log LONG/SHORT/REBUY entry carried forward
 force_multiplier,2026-10-23,NFLX,long,65.85000000,10000.00,10000.00,15,150000.00,-7274.81,Latest trade-log LONG/SHORT/REBUY entry carried forward
 force_multiplier,2026-10-23,NVDA,long,210.96000000,10000.00,10000.00,36,360000.00,-20635.18,Latest trade-log LONG/SHORT/REBUY entry carried forward
-force_multiplier,2026-10-23,OIL,long,103.45000000,10000.00,10000.00,32,320000.00,27534.71,Latest trade-log LONG/SHORT/REBUY entry carried forward
+force_multiplier,2026-10-23,OIL,short,103.45000000,10000.00,10000.00,1,10000.00,0.00,Latest trade-log LONG/SHORT/REBUY entry carried forward
 force_multiplier,2026-10-23,ORCL,long,126.16000000,10000.00,10000.00,5,50000.00,-825.04,Latest trade-log LONG/SHORT/REBUY entry carried forward
 force_multiplier,2026-10-23,PEP,long,135.77000000,10000.00,10000.00,11,110000.00,3719.14,Latest trade-log LONG/SHORT/REBUY entry carried forward
 force_multiplier,2026-10-23,PLTR,short,196.75000000,10000.00,10000.00,10,100000.00,846.57,Latest trade-log LONG/SHORT/REBUY entry carried forward

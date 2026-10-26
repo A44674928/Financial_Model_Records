@@ -10,16 +10,16 @@ For THE ONE MODEL only, the 11U/DAY schedule per active ticker is derived from t
 
 | Daily size | Ticker | Daily notional | Sessions | Cumulative notional added | Daily-buy terminal PnL | Chart-position PnL (separate) |
 |---|---|---:|---:|---:|---:|---:|
-| 0.05U | BRENT | $500.00 | 23 | $11,500.00 | $+1,127.31 | $+26,327.68 |
-| 0.05U | OIL | $500.00 | 32 | $16,000.00 | $+1,376.74 | $+24,425.55 |
-| 1U | BRENT | $10,000.00 | 23 | $230,000.00 | $+22,546.12 | $+26,327.68 |
-| 1U | OIL | $10,000.00 | 32 | $320,000.00 | $+27,534.71 | $+24,425.55 |
-| 10U | BRENT | $100,000.00 | 23 | $2,300,000.00 | $+225,461.20 | $+26,327.68 |
-| 10U | OIL | $100,000.00 | 32 | $3,200,000.00 | $+275,347.06 | $+24,425.55 |
+| 0.05U | BRENT | $500.00 | 23 | $11,500.00 | $+1,127.31 | $+26,032.81 |
+| 0.05U | OIL | $500.00 | 32 | $16,000.00 | $+1,376.74 | $+23,003.98 |
+| 1U | BRENT | $10,000.00 | 23 | $230,000.00 | $+22,546.12 | $+26,032.81 |
+| 1U | OIL | $10,000.00 | 32 | $320,000.00 | $+27,534.71 | $+23,003.98 |
+| 10U | BRENT | $100,000.00 | 23 | $2,300,000.00 | $+225,461.20 | $+26,032.81 |
+| 10U | OIL | $100,000.00 | 32 | $3,200,000.00 | $+275,347.06 | $+23,003.98 |
 
 ## One-time Weekend Oil position overlay
 
-The user-specified 50U LONG BRENT and 50U LONG USOIL Manual-Automatic lots opened at the supplied TradingView marks on 2026-10-19, with 10U target trims at $117 and $102 respectively, are integrated in all four core variants and therefore flow into core-based strategy composites and THE ONE MODEL. Their first recorded EOD marks at/above target are on 2026-10-23; intraday touch and execution are unverified. [`Weekend Oil 50U Position Hypothetical.md`](Weekend%20Oil%2050U%20Position%20Hypothetical.md) reports those same lots as an attribution only, not as a separate add-on to the sidecar schedules or aggregate. Separate manual LONG 10U replenishment entries in BRENT at $115.792 and USOIL (internal ticker OIL) at $101.74 are logged on 2026-10-25; they fall after this report's Oct. 23 mark window and are excluded from the current totals pending subsequent EOD marks.
+The user-specified 50U LONG BRENT and 50U LONG USOIL Manual-Automatic lots opened at the supplied TradingView marks on 2026-10-19, with 10U target trims at $117 and $102 respectively, are integrated in all four core variants and therefore flow into core-based strategy composites and THE ONE MODEL. Their first recorded EOD marks at/above target are on 2026-10-23; intraday touch and execution are unverified. Separate user-directed hypothetical 10U SHORT lots at those same target levels are recorded as a force-multiplier sentiment overlay. Their explicit modeled exits are $114.627 BRENT and $100.74 OIL on 2026-10-25 at 20:35 MST, after the four earlier Oct. 25 LONG replenishments and simultaneous with distinct 35U BRENT and 34U OIL LONG Weekend Oil buys. The buys count toward weekly buy supply; the 10U short closures do not. After the modeled exits, the all-core oil long exposure reaches 100U BRENT + 100U OIL = 200U combined ($2,000,000 fixed-unit notional). Those lot-specific exits override SAR auto-close only for these shorts and all prices/timing remain hypothetical, not verified executions. [`Weekend Oil 50U Position Hypothetical.md`](Weekend%20Oil%2050U%20Position%20Hypothetical.md) attributes only the tagged long lots, not these separate shorts or the daily-buy schedule. Four separate manual LONG 10U replenishment entries are logged after the Oct. 23 mark cutoff, all on Oct. 25: BRENT at $115.792 and OIL at $101.74 use the user-recalled 17:20–17:25 MST window, modeled at a 17:22 midpoint, while BRENT at $114.80 and OIL at $101.00 use an approximate 20:00 MST timestamp per the user's recollection. Both times are modeling assumptions, not verified transaction times; the supplied prices remain the modeled replenishment prices. The four replenishments, 35U BRENT and 34U OIL additional buys, and explicit Oct. 25 20:35 MST SHORT exits are post-cutoff and excluded from current totals pending later EOD marks. The additional buys are distinct LONG lots; their simultaneous short closures do not count toward weekly buy supply. Together with existing post-close all-core exposure of 65U BRENT + 66U OIL, the buys bring the all-core long total to 100U per ticker, 200U combined. The user-specified short-exit prices override SAR only for these two tagged shorts.
 
 ## DXY currency desk: daily long-investment alternatives
 

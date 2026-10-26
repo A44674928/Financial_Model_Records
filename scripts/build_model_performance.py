@@ -722,8 +722,14 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
         for event in post_cutoff_manual_replenishments:
             symbol = "USOIL (internal ticker OIL)" if event["sym"] == "OIL" else event["sym"]
             price = f"{event['px']:,.3f}".rstrip("0").rstrip(".")
+            if "approximate time per user" in event["note"] and "17:20–17:25" in event["note"]:
+                time_label = "approx. 17:20–17:25 MST (modeled at 17:22)"
+            elif "approximate time per user" in event["note"]:
+                time_label = f"approx. {event['time']} MST"
+            else:
+                time_label = f"{event['time']} MST"
             replenishment_details.append(
-                f"{event['date']} {symbol} LONG {event['units']:g}U at ${price}"
+                f"{event['date']} {symbol} LONG {event['units']:g}U at ${price} ({time_label})"
             )
         A(
             "> **Post-cutoff manual replenishments:** "
@@ -732,7 +738,8 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
             "No post-entry EOD marks are included, so these entries are excluded from current core PnL and composites pending a later benchmark refresh."
         )
         A("")
-    A("> **Oil cost-basis savings:** the prior target trims' realized PnL is credited once against the remaining-plus-replenishment lot basis, as a PnL reclassification rather than additional profit. The Oct. 25 replenishments are outside the Oct. 23 mark window, so the current core totals remain unchanged. See [`Oil Cost Basis Savings Model.md`](Oil%20Cost%20Basis%20Savings%20Model.md) and [`oil_cost_basis_savings_v1.csv`](data/oil_cost_basis_savings_v1.csv).")
+    A("> **Oil target-trim force-multiplier shorts:** separate hypothetical 10U SHORT lots in BRENT at $117 and OIL at $102 are modeled from the Oct. 23 target-trim session, in addition to the partial sales and remaining longs. The target-level EOD trigger is the model entry assumption, not a verified intraday touch or fill. Both shorts remain open at the Oct. 23 cutoff; at that session's EOD marks, they contribute -$294.87 BRENT and -$1,421.57 OIL unrealized PnL (-$1,716.44 per core path). Their user-directed modeled exits are $114.627 BRENT and $100.74 OIL at 2026-10-25 20:35 MST, after the four earlier Oct. 25 10U replenishments and simultaneous with separate 35U BRENT and 34U OIL LONG Weekend Oil buys. Those new LONG lots are distinct from the 10U SHORT closures and count toward buy-side weekly supply; closing the shorts does not count toward that supply. Added to the existing post-close 65U BRENT plus 66U OIL core longs, they bring all-core long exposure to 100U per ticker, 200U total ($2,000,000 fixed-unit notional). The exits override SAR auto-close only for the two tagged target-level shorts; all prices/timing and trades are hypothetical model inputs, not verified brokerage executions. At the fixed $100,000 notional per lot, the exits imply +$2,028.21 BRENT and +$1,235.29 OIL (+$3,263.50 combined short PnL before costs) when replayed, but this post-cutoff result is excluded from current terminal core totals.")
+    A("> **Oil cost-basis savings:** the realized target-trim PnL and the separately modeled post-cutoff SHORT-exit PnL are credited against tagged residual-plus-replenishment long lots as basis reclassifications, not additional profit. The short-exit credit is excluded from current Oct. 23 core PnL. The additional 35U BRENT and 34U OIL LONG buys are separate post-cutoff lots, not part of the existing residual-plus-10U-replenishment basis-credit calculation. See [`Oil Cost Basis Savings Model.md`](Oil%20Cost%20Basis%20Savings%20Model.md) and [`oil_cost_basis_savings_v1.csv`](data/oil_cost_basis_savings_v1.csv).")
     A("")
     A("> **Interactive version:** open **[`Model Performance Explorer.html`](Model%20Performance%20Explorer.html)** "
       "for a self-contained explorer with toggleable series, a hover crosshair, and per-ticker "

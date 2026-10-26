@@ -4,9 +4,11 @@ import sys
 import unittest
 from pathlib import Path
 from zipfile import ZipFile
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
+import model_perf_core
 from model_perf_core import DXY_PRICES, MODEL_PRICES, PRICES, SESSION_DATES, UNMODELED_SYMBOLS, VARIANTS, all_series, build_dxy_daily_lots, build_lots, parse_trades  # noqa: E402
 
 
@@ -17,11 +19,59 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertEqual(UNMODELED_SYMBOLS, {"BTC", "ETH", "DXY", "EURUSD", "JPYUSD", "US10Y", "US30Y"})
         self.assertTrue(modeled.isdisjoint(UNMODELED_SYMBOLS))
         self.assertTrue(modeled.issubset(PRICES))
-        self.assertEqual(len(events), 91)
+        self.assertEqual(len(events), 99)
         self.assertEqual(sum(event["date"] <= "2026-10-22" for event in events), 85)
-        self.assertEqual(sum(event["date"] <= "2026-10-23" for event in events), 89)
+        self.assertEqual(sum(event["date"] <= "2026-10-23" for event in events), 91)
         self.assertTrue({"BTC", "ETH"}.isdisjoint(modeled))
         self.assertEqual(SESSION_DATES[-1], "2026-10-23")
+
+    def test_manual_short_exits_override_sar_only_for_tagged_oil_target_shorts(self):
+        events = parse_trades()
+        extended_dates = SESSION_DATES + ["2026-10-26"]
+        expected = {"BRENT": (114.627, 2028.2051282051275), "OIL": (100.74, 1235.294117647059)}
+        with patch.object(model_perf_core, "SESSION_DATES", extended_dates), patch.object(
+            model_perf_core, "N_SESS", len(extended_dates)
+        ):
+            for variant in VARIANTS:
+                lots, realized = build_lots(variant, events)
+                for ticker, (exit_px, pnl) in expected.items():
+                    target_shorts = [
+                        lot for lot in lots
+                        if lot["sym"] == ticker and lot.get("oil_target_short")
+                    ]
+                    self.assertEqual(len(target_shorts), 1)
+                    self.assertFalse(target_shorts[0]["open"])
+                    self.assertEqual(target_shorts[0]["close_date"], "2026-10-25")
+                    self.assertEqual(target_shorts[0]["close_px"], exit_px)
+                    close_event = [
+                        row for row in realized
+                        if row["sym"] == ticker and row["date"] == "2026-10-25"
+                        and row["qty"] == 10
+                    ]
+                    self.assertEqual(len(close_event), 1)
+                    self.assertAlmostEqual(close_event[0]["pnl"], pnl, places=6)
+
+    def test_additional_weekend_oil_buys_are_separate_from_tagged_short_closes(self):
+        events = parse_trades()
+        buys = {
+            event["sym"]: event
+            for event in events
+            if event["date"] == "2026-10-25" and event["time"] == "20:35"
+            and event["tag"] == "LONG" and event["px"] in (114.627, 100.74)
+        }
+        self.assertEqual(buys["BRENT"]["units"], 35)
+        self.assertEqual(buys["OIL"]["units"], 34)
+        self.assertTrue(all("counts toward weekly buy supply" in event["note"] for event in buys.values()))
+        for ticker, price in (("BRENT", 114.627), ("OIL", 100.74)):
+            closes = [
+                event for event in events
+                if event["sym"] == ticker and event["date"] == "2026-10-25"
+                and event["time"] == "20:35" and event["kind"] == "exit"
+                and event["px"] == price
+            ]
+            self.assertEqual(len(closes), 1)
+            self.assertEqual(closes[0]["units"], 10)
+            self.assertIn("tagged", closes[0]["note"])
 
     def test_chart_directed_dxy_daily_sleeve_is_integrated_in_each_core_variant(self):
         dxy_lots, dxy_realized = build_dxy_daily_lots()
@@ -180,22 +230,24 @@ class ModelTradeScopeTests(unittest.TestCase):
             self.assertEqual(archive.read("trades/ORCL.txt"), log)
             self.assertEqual(archive.read("trades/index.txt"), (root / "trades/index.txt").read_bytes())
 
-    def test_oct25_manual_replenishments_are_logged_but_outside_terminal_mark_window(self):
+    def test_post_cutoff_manual_replenishments_are_logged_but_outside_terminal_mark_window(self):
         root = Path(__file__).resolve().parents[1]
         events = parse_trades()
-        expected = {
-            "BRENT": (115.792, 10, "after the 2026-10-23 10U target trim at $117"),
-            "OIL": (101.74, 10, "after the 2026-10-23 10U target trim at $102"),
-        }
-        for ticker, (price, units, note_fragment) in expected.items():
+        expected = [
+            ("BRENT", "2026-10-25", 115.792, 10, "17:22", "17:20–17:25"),
+            ("OIL", "2026-10-25", 101.74, 10, "17:22", "17:20–17:25"),
+            ("BRENT", "2026-10-25", 114.8, 10, "20:00", "approximate time per user"),
+            ("OIL", "2026-10-25", 101.0, 10, "20:00", "approximate time per user"),
+        ]
+        for ticker, date, price, units, time, note_fragment in expected:
             event = next(
                 event for event in events
-                if event["sym"] == ticker and event["date"] == "2026-10-25"
-                and event["px"] == price
+                if event["sym"] == ticker and event["date"] == date and event["px"] == price
             )
             self.assertEqual(event["kind"], "entry")
             self.assertEqual(event["tag"], "LONG")
             self.assertEqual(event["units"], units)
+            self.assertEqual(event["time"], time)
             self.assertIn("Manual replenishment entry", event["note"])
             self.assertIn(note_fragment, event["note"])
             self.assertGreater(event["date"], SESSION_DATES[-1])
@@ -206,12 +258,63 @@ class ModelTradeScopeTests(unittest.TestCase):
                 ))
 
         with ZipFile(root / "trades.zip") as archive:
-            for ticker in expected:
+            for ticker in {item[0] for item in expected}:
                 log_name = "OIL.txt" if ticker == "OIL" else f"{ticker}.txt"
                 self.assertEqual(
                     archive.read(f"trades/{log_name}"),
                     (root / "trades" / log_name).read_bytes(),
                 )
+
+    def test_oil_trim_shorts_use_explicit_exit_prices_after_replenishment_override_sar(self):
+        events = parse_trades()
+        expected = {
+            "BRENT": (117.0, 114.627, 2028.2051282051275),
+            "OIL": (102.0, 100.74, 1235.294117647059),
+        }
+        for ticker, (entry_price, exit_price, _) in expected.items():
+            short_event = next(
+                event for event in events
+                if event["sym"] == ticker and event["date"] == "2026-10-23"
+                and event["tag"] == "SHORT" and event["px"] == entry_price
+            )
+            self.assertEqual(short_event["units"], 10)
+            self.assertIn("Compounded short", short_event["note"])
+            self.assertIn("not a verified intraday touch or execution", short_event["note"])
+            exit_event = next(
+                event for event in events
+                if event["sym"] == ticker and event["date"] == "2026-10-25"
+                and event["kind"] == "exit" and event["px"] == exit_price
+            )
+            self.assertEqual(exit_event["time"], "20:35")
+            self.assertEqual(exit_event["units"], 10)
+            self.assertIn("override SAR auto-close only for this tagged short", exit_event["note"])
+            replenishment = next(
+                event for event in events
+                if event["sym"] == ticker and event["date"] == "2026-10-25"
+                and event["kind"] == "entry" and event["px"] in {115.792, 101.74}
+            )
+            self.assertLess(replenishment["time"], exit_event["time"])
+
+        # At the Oct. 23 cutoff, both short lots remain open. On an extended
+        # replay, their 20:35 Oct. 25 explicit closes supersede SAR only for
+        # these tagged lots; all four variants use the user-specified prices.
+        extended_dates = SESSION_DATES + ["2026-10-26"]
+        with patch.object(model_perf_core, "SESSION_DATES", extended_dates), patch.object(
+            model_perf_core, "N_SESS", len(extended_dates)
+        ):
+            for variant in VARIANTS:
+                lots, realized = build_lots(variant, events)
+                for ticker, (entry_price, exit_price, pnl) in expected.items():
+                    short = next(
+                        lot for lot in lots
+                        if lot["sym"] == ticker and lot["side"] == "short" and lot["entry_px"] == entry_price
+                    )
+                    self.assertFalse(short["open"])
+                    self.assertEqual(short["close_px"], exit_price)
+                    self.assertEqual(short["close_date"], "2026-10-25")
+                    closed = [row for row in realized if row["sym"] == ticker and row["date"] == "2026-10-25"]
+                    self.assertEqual(len(closed), 1)
+                    self.assertAlmostEqual(closed[0]["pnl"], pnl, places=6)
 
     def test_lcid_small_caps_pilot_has_four_entries_at_oct22_and_five_at_oct23(self):
         root = Path(__file__).resolve().parents[1]
@@ -272,13 +375,16 @@ class ModelTradeScopeTests(unittest.TestCase):
             graph = root / relpath
             self.assertTrue(graph.is_file())
             self.assertEqual(graph.read_bytes()[:8], b"\x89PNG\r\n\x1a\n")
-        self.assertIn("`89` direct-price events plus `1` DXY direction signals out of `101` total 2026 log events", text)
-        self.assertIn("`2` direct events after cutoff", text)
+        self.assertIn("`91` direct-price events plus `1` DXY direction signals out of `109` total 2026 log events", text)
+        self.assertIn("`8` direct events after cutoff", text)
         self.assertIn("2026-10-25 BRENT LONG 10U at $115.792", text)
         self.assertIn("2026-10-25 USOIL (internal ticker OIL) LONG 10U at $101.74", text)
+        self.assertIn("2026-10-25 BRENT LONG 10U at $114.8", text)
+        self.assertIn("2026-10-25 USOIL (internal ticker OIL) LONG 10U at $101", text)
         self.assertIn("excluded from current core PnL and composites pending a later benchmark refresh", text)
         self.assertIn("Oil Cost Basis Savings Model.md", text)
-        self.assertIn("PnL reclassification rather than additional profit", text)
+        self.assertIn("basis reclassifications, not additional profit", text)
+        self.assertIn("100U per ticker, 200U total", text)
         self.assertIn("`31` direct-price core tickers plus the integrated 1U/DAY/DXY sleeve", text)
         self.assertIn("EURUSD, JPYUSD, US10Y, and US30Y", text)
         self.assertIn("Legacy Model-Level US10Y Additive Carry (Reference Only)", text)
@@ -292,7 +398,7 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertIn("TradingView Energy and Currency Desk Sidecars.md", text)
         self.assertIn("shared/variant-specific 1U/EOD force models", text)
         self.assertIn("Model Calculation Guide.md", text)
-        self.assertIn("89` direct-price events plus `1` DXY direction signals", text)
+        self.assertIn("91` direct-price events plus `1` DXY direction signals", text)
         self.assertIn("master ledger are not recalculated by this run", text)
         self.assertIn("TradingView Energy Sidecar", text)
         self.assertIn("tradingview_energy_sidecar_daily_20261024.csv", text)
