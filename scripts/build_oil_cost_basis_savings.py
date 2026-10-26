@@ -31,14 +31,16 @@ ATS_LOTS = {
         "cover": Decimal("114.627"), "manual_order_units": 35,
         "new_ats_units": 50, "new_ats_entry": Decimal("115.00"),
         "replenishments": [(10, Decimal("115.792")), (10, Decimal("114.80"))],
-        "later_user_entries": [(10, Decimal("115.025")), (16, Decimal("114.90")), (50, Decimal("115.51"))],
+        "later_user_entries": [(10, Decimal("115.025")), (16, Decimal("114.90"))],
+        "cashout": (50, Decimal("115.51"), Decimal("117.409")),
     },
     "OIL": {
         "entry": Decimal("99.04"), "short_entry": Decimal("103.50"),
         "cover": Decimal("100.74"), "manual_order_units": 34,
         "new_ats_units": 50, "new_ats_entry": Decimal("101.00"),
         "replenishments": [(10, Decimal("101.74")), (10, Decimal("101.00"))],
-        "later_user_entries": [(10, Decimal("100.96")), (17, Decimal("100.85")), (50, Decimal("101.11"))],
+        "later_user_entries": [(10, Decimal("100.96")), (17, Decimal("100.85"))],
+        "cashout": (50, Decimal("101.11"), Decimal("102.71")),
     },
 }
 
@@ -91,9 +93,17 @@ def build_ats_basis_rows():
                 Decimal(short_units) * UNIT_NOTIONAL
                 * (Decimal("1") - spec["cover"] / spec["short_entry"])
             )
+            cashout_units, cashout_entry, cashout_exit = spec["cashout"]
+            cashout_pnl = (
+                Decimal(cashout_units) * UNIT_NOTIONAL
+                * (cashout_exit / cashout_entry - Decimal("1"))
+            )
+            total_basis_credit = short_close_pnl + cashout_pnl
             net_basis = gross_open_notional - short_close_pnl
+            fully_credited_net_basis = gross_open_notional - total_basis_credit
             unadjusted_effective_basis = gross_open_notional / exposure_quantity
             adjusted_effective_basis = net_basis / exposure_quantity
+            fully_credited_effective_basis = fully_credited_net_basis / exposure_quantity
             rows.append({
                 "ticker": ticker,
                 "scenario": f"{short_units}U short opened per ticker",
@@ -105,6 +115,8 @@ def build_ats_basis_rows():
                 "short_entry_price": f"{spec['short_entry']:.3f}" if ticker == "BRENT" else f"{spec['short_entry']:.2f}",
                 "short_cover_price": f"{spec['cover']:.3f}" if ticker == "BRENT" else f"{spec['cover']:.2f}",
                 "short_close_pnl_credit_usd": f"{_money(short_close_pnl):.2f}",
+                "cashout_pnl_basis_credit_usd": f"{_money(cashout_pnl):.2f}",
+                "total_basis_credit_usd": f"{_money(total_basis_credit):.2f}",
                 "manual_closure_order_units": str(spec["manual_order_units"]),
                 "residual_long_units_from_manual_order": str(residual_manual_long),
                 "new_ats_long_units": str(spec["new_ats_units"]),
@@ -113,12 +125,18 @@ def build_ats_basis_rows():
                 "new_ats_long_entry_time": "not supplied",
                 "later_user_reported_long_units": str(sum(units for units, _ in spec["later_user_entries"])),
                 "later_user_reported_long_lots": "; ".join(f"{units}U@{price:f}" for units, price in spec["later_user_entries"]),
+                "user_reported_cashout_units": str(spec["cashout"][0]),
+                "cashout_lot_entry_price": f"{spec['cashout'][1]:.3f}" if ticker == "BRENT" else f"{spec['cashout'][1]:.2f}",
+                "cashout_exit_price": f"{spec['cashout'][2]:.3f}" if ticker == "BRENT" else f"{spec['cashout'][2]:.2f}",
+                "cashout_realized_pnl_usd": f"{_money(Decimal(spec['cashout'][0]) * UNIT_NOTIONAL * (spec['cashout'][2] / spec['cashout'][1] - Decimal('1'))):.2f}",
                 "unit_weighted_average_entry_price": f"{_price(sum((Decimal(units) * price for units, price in open_lots), Decimal('0')) / sum(units for units, _ in open_lots)):.6f}",
                 "open_long_units_in_basis_scope": str(sum(units for units, _ in open_lots)),
                 "gross_open_long_notional_usd": f"{_money(gross_open_notional):.2f}",
                 "unadjusted_effective_basis_price": f"{_price(unadjusted_effective_basis):.6f}",
                 "short_close_credit_adjusted_effective_basis_price": f"{_price(adjusted_effective_basis):.6f}",
+                "cashout_credit_adjusted_effective_basis_price": f"{_price(fully_credited_effective_basis):.6f}",
                 "basis_reduction_per_exposure_unit": f"{_price(unadjusted_effective_basis - adjusted_effective_basis):.6f}",
+                "total_basis_reduction_per_exposure_unit": f"{_price(unadjusted_effective_basis - fully_credited_effective_basis):.6f}",
                 "mark_status": "No post-Oct. 23 EOD mark supplied; basis price is not a current market quote",
                 "status": "Scenario only; 40U per ticker is the ceiling, actual ATS size/fills unverified",
             })
@@ -157,17 +175,21 @@ def _position_inputs(events):
         short_exits = [event for event in ticker_events
                        if event["kind"] == "exit"
                        and "Explicit close of the tagged 2026-10-23 10U" in event["note"]]
+        cashout_exits = [event for event in ticker_events
+                         if event["kind"] == "exit"
+                         and "Explicit close of the specified paired 50U LONG lot" in event["note"]]
         replenishments = sorted(
             (event for event in ticker_events
              if event["kind"] == "entry" and "Manual replenishment entry" in event["note"]),
             key=lambda event: (event["date"], event["time"], event["order"]),
         )
         if (len(original) != 1 or len(trims) != 1 or not replenishments
-                or len(short_entries) != 1 or len(short_exits) != 1):
+                or len(short_entries) != 1 or len(short_exits) != 1 or len(cashout_exits) != 1):
             raise ValueError(
                 f"{ticker} requires one tagged 50U entry/trim, at least one replenishment, "
-                f"and one tagged SHORT entry/exit; found {len(original)}, {len(trims)}, "
-                f"{len(replenishments)}, {len(short_entries)}, {len(short_exits)}"
+                f"one tagged SHORT entry/exit, and one paired 50U cash-out; found "
+                f"{len(original)}, {len(trims)}, {len(replenishments)}, {len(short_entries)}, "
+                f"{len(short_exits)}, {len(cashout_exits)}"
             )
         original, trim = original[0], trims[0]
         short_entry, short_exit = short_entries[0], short_exits[0]
@@ -194,7 +216,17 @@ def _position_inputs(events):
         short_entry_price = _decimal(short_entry["px"])
         short_exit_price = _decimal(short_exit["px"])
         realized_short_pnl = short_units * UNIT_NOTIONAL * (Decimal("1") - short_exit_price / short_entry_price)
-        total_realized_credit = realized_trim_pnl + realized_short_pnl
+        cashout = cashout_exits[0]
+        cashout_units = _decimal(cashout["units"])
+        cashout_entry_price = ATS_LOTS[ticker]["cashout"][1]
+        cashout_exit_price = _decimal(cashout["px"])
+        if (cashout_units != Decimal(ATS_LOTS[ticker]["cashout"][0])
+                or cashout_exit_price != ATS_LOTS[ticker]["cashout"][2]):
+            raise ValueError(f"{ticker} paired cash-out does not match the designated lot/price")
+        realized_cashout_pnl = cashout_units * UNIT_NOTIONAL * (
+            cashout_exit_price / cashout_entry_price - Decimal("1")
+        )
+        total_realized_credit = realized_trim_pnl + realized_short_pnl + realized_cashout_pnl
 
         gross_open_notional = combined_open_units * UNIT_NOTIONAL
         exposure_quantity_proxy = remaining_original_units * UNIT_NOTIONAL / original_price
@@ -248,6 +280,11 @@ def _position_inputs(events):
             "short_exit_time": short_exit["time"],
             "short_exit_price": short_exit_price,
             "realized_short_pnl": realized_short_pnl,
+            "cashout_date": cashout["date"],
+            "cashout_units": cashout_units,
+            "cashout_entry_price": cashout_entry_price,
+            "cashout_exit_price": cashout_exit_price,
+            "realized_cashout_pnl": realized_cashout_pnl,
             "total_realized_credit": total_realized_credit,
             "replenishments": replenishments,
             "replenishment_units_by_entry": replenishment_units_by_entry,
@@ -308,6 +345,11 @@ def build_rows():
                 "short_exit_time_mst": position["short_exit_time"],
                 "short_exit_price": f"{position['short_exit_price']:f}",
                 "realized_short_pnl_credited_usd": f"{_money(position['realized_short_pnl']):.2f}",
+                "cashout_date": position["cashout_date"],
+                "cashout_units": f"{position['cashout_units']:g}",
+                "cashout_entry_price": f"{position['cashout_entry_price']:f}",
+                "cashout_exit_price": f"{position['cashout_exit_price']:f}",
+                "realized_cashout_pnl_credited_usd": f"{_money(position['realized_cashout_pnl']):.2f}",
                 "total_realized_pnl_credited_usd": f"{_money(position['total_realized_credit']):.2f}",
                 "replenishment_entry_count": str(len(position["replenishments"])),
                 "replenishment_dates": ";".join(event["date"] for event in position["replenishments"]),
@@ -366,6 +408,9 @@ def write_report(rows, positions, portfolios, ats_basis_rows):
     short_credit_per_portfolio = sum(
         (position["realized_short_pnl"] for position in positions.values()), Decimal("0")
     )
+    cashout_credit_per_portfolio = sum(
+        (position["realized_cashout_pnl"] for position in positions.values()), Decimal("0")
+    )
     combined_credit_per_portfolio = sum(
         (position["total_realized_credit"] for position in positions.values()), Decimal("0")
     )
@@ -384,8 +429,8 @@ def write_report(rows, positions, portfolios, ats_basis_rows):
             "outside the cutoff. The two modeled short exits at $114.627 BRENT and $100.74 OIL on "
             "2026-10-25 at 20:35 MST are also post-cutoff. Core and 32-portfolio results through the cutoff "
             "include the open shorts' Oct. 23 mark-to-market, but do not include these later replenishment "
-            "entries or the realized short-exit PnL. This cost-basis view applies the realized short PnL as a "
-            "basis credit only; it does not add it to current core PnL."
+            "entries or the realized short-exit and paired cash-out PnL. This cost-basis view applies the realized "
+            "short and cash-out PnL as basis credits only; it does not add them to current core PnL."
         )
     else:
         latest_mark_date = max(
@@ -404,14 +449,14 @@ def write_report(rows, positions, portfolios, ats_basis_rows):
         "",
         "## Method and scope",
         "",
-        "At the user's direction, both the realized 10U Manual-Automatic target-trim PnL and the separate realized 10U SHORT PnL are credited against the combined open long exposure for that ticker: the original tagged 40U residual plus each separate manual replenishment lot. The four replenishments are all recorded on 2026-10-25: the $115.792 BRENT/$101.74 OIL entries use the user-recalled 17:20–17:25 MST window, modeled at a 17:22 midpoint, and the $114.80 BRENT/$101.00 OIL entries use approximately 20:00 MST. These are approximate ordering assumptions, not verified transaction times; the user's supplied replenishment prices are retained. The short exits are modeled at $114.627 BRENT and $100.74 OIL on 2026-10-25 at 20:35 MST, after the four earlier replenishments and simultaneous with separate 35U BRENT and 34U OIL LONG Weekend Oil buys; the lot-specific exits override SAR only for the tagged shorts. Those additional buys count toward weekly buy supply, while closing the 10U shorts does not. After the modeled short closures, the buys raise all-core oil long exposure from 65U BRENT + 66U OIL to 100U each (200U combined); this broader exposure is not the scope of the basis-credit table below. This cost-basis calculation remains scoped to the tagged 40U residual plus the two 10U replenishment lots per ticker (60U); it does not fold the separate 35U/34U post-cutoff buys into that prior basis-credit allocation. The entry/exit records remain intact. Both credits are **reclassifications of PnL already recognized in their respective model events**, not additional gains; the credit must not increase current core PnL a second time. The short exits and their PnL are post-cutoff and are shown here only as basis-credit inputs.",
+        "At the user's direction, the realized 10U Manual-Automatic target-trim PnL, separate realized 10U SHORT PnL, and paired 50U cash-out PnL are credited against the combined remaining open-long basis for that ticker. The legacy target-trim/short basis table below retains its narrower 60U tagged basket (the original 40U residual plus two manual replenishment lots); the separate cash-out is an additional credit reclassified against that basket. The four replenishments are all recorded on 2026-10-25: the $115.792 BRENT/$101.74 OIL entries use the user-recalled 17:20–17:25 MST window, modeled at a 17:22 midpoint, and the $114.80 BRENT/$101.00 OIL entries use approximately 20:00 MST. These are approximate ordering assumptions, not verified transaction times; the user's supplied replenishment prices are retained. The short exits are modeled at $114.627 BRENT and $100.74 OIL on 2026-10-25 at 20:35 MST, after the four earlier replenishments and simultaneous with separate 35U BRENT and 34U OIL LONG Weekend Oil buys; the lot-specific exits override SAR only for the tagged shorts. Those additional buys count toward weekly buy supply, while closing the 10U shorts does not. After the modeled short closures, the buys raise all-core oil long exposure from 65U BRENT + 66U OIL to 100U each (200U combined); this broader exposure is not the scope of the basis-credit table below. This cost-basis calculation remains scoped to the tagged 40U residual plus the two 10U replenishment lots per ticker (60U); it does not fold the separate 35U/34U post-cutoff buys into that prior basis-credit allocation. The entry/exit records remain intact. The target-trim, short-close, and paired cash-out credits are **reclassifications of PnL already recognized in their respective model events**, not additional gains; they must not increase current core PnL a second time. The short exits and paired 50U cash-out are post-cutoff; their realized PnL is folded into this basis-credit reconciliation but remains realized only once in total PnL.",
         "",
-        "Because model `1U` is a fixed $10,000 entry-notional tranche, not a fixed number of barrels, the effective price basis is computed using the model-implied exposure quantity: `Q = Σ(entry notional ÷ entry price)`. The derived unadjusted effective basis is `combined open long notional ÷ Q`; the cost-credited effective basis is `(combined open long notional − total realized PnL credits) ÷ Q`, where total credits include the trim and separately modeled SHORT-exit PnL for the ticker. These are blended, PnL-equivalent prices—not logged entry prices or fills. The simple unit-count average for the modeled open lots is $" + f"{positions['BRENT']['unit_weighted_average_price']:,.3f}" + f" for BRENT and ${positions['OIL']['unit_weighted_average_price']:,.3f} for OIL; the ratio-equivalent unadjusted blended bases are {_fmt_price(positions['BRENT']['unadjusted_effective_basis_price'])} and {_fmt_price(positions['OIL']['unadjusted_effective_basis_price'])}, respectively. The distinction occurs because the model's 1U is not a fixed barrel quantity. This report applies only to the tagged long lots' effective basis; the SHORT positions are not included as open long exposure, but their explicitly modeled realized PnL is credited against the corresponding ticker's long basis. At any later supplied mark, the basis view must reconcile to standard realized-plus-unrealized PnL without counting either credit a second time. Target-to-rebuy gaps are shown only as quote differences, not dollar-savings estimates.",
+        "Because model `1U` is a fixed $10,000 entry-notional tranche, not a fixed number of barrels, the effective price basis is computed using the model-implied exposure quantity: `Q = Σ(entry notional ÷ entry price)`. The derived unadjusted effective basis is `combined open long notional ÷ Q`; the cost-credited effective basis is `(combined open long notional − total realized PnL credits) ÷ Q`, where total credits include the trim, separately modeled SHORT-exit PnL, and the specified paired-lot cash-out PnL for the ticker. These are blended, PnL-equivalent prices—not logged entry prices or fills. The simple unit-count average for the modeled open lots is $" + f"{positions['BRENT']['unit_weighted_average_price']:,.3f}" + f" for BRENT and ${positions['OIL']['unit_weighted_average_price']:,.3f} for OIL; the ratio-equivalent unadjusted blended bases are {_fmt_price(positions['BRENT']['unadjusted_effective_basis_price'])} and {_fmt_price(positions['OIL']['unadjusted_effective_basis_price'])}, respectively. The distinction occurs because the model's 1U is not a fixed barrel quantity. This report applies only to the tagged long lots' effective basis; the SHORT positions are not included as open long exposure, but their explicitly modeled realized PnL is credited against the corresponding ticker's long basis. At any later supplied mark, the basis view must reconcile to standard realized-plus-unrealized PnL without counting either credit a second time. Target-to-rebuy gaps are shown only as quote differences, not dollar-savings estimates.",
         "",
         "Dollar amounts and prices are rounded independently for display; cent-rounded components may differ by $0.01 from a cent-rounded total. All basis calculations use unrounded event PnL.",
         "",
-        "| Core ticker | Original Manual-Automatic entry | 10U target trim | Trim PnL credit | Modeled SHORT exit | SHORT PnL credit | Total PnL credits | Replenishment lots | Open lot combination | Gross open notional | Net cost basis after credits | Derived unadjusted effective basis (not trade price) | Cost-credited basis | Basis reduction per exposure unit | Target-to-rebuy quote gaps |",
-        "|---|---:|---|---:|---|---:|---:|---|---|---:|---:|---:|---:|---:|---:|",
+        "| Core ticker | Original Manual-Automatic entry | 10U target trim | Trim PnL credit | Modeled SHORT exit | SHORT PnL credit | Paired 50U cash-out PnL credit | Total PnL basis credits | Replenishment lots | Open lot combination | Gross open notional | Net cost basis after credits | Derived unadjusted effective basis (not trade price) | Cost-credited basis | Basis reduction per exposure unit | Target-to-rebuy quote gaps |",
+        "|---|---:|---|---:|---|---:|---:|---:|---:|---|---|---:|---:|---:|---:|---:|",
     ]
     for ticker in TICKERS:
         position = positions[ticker]
@@ -427,8 +472,8 @@ def write_report(rows, positions, portfolios, ats_basis_rows):
             f"{_fmt_money(position['realized_trim_pnl'])} | "
             f"{position['short_entry_units']:g}U SHORT at ${position['short_entry_price']:,.3f} → "
             f"${position['short_exit_price']:,.3f} on {position['short_exit_date']} {position['short_exit_time']} MST | "
-            f"{_fmt_money(position['realized_short_pnl'])} | {_fmt_money(position['total_realized_credit'])} | "
-            f"{replenishment_lots} | "
+            f"{_fmt_money(position['realized_short_pnl'])} | {_fmt_money(position['realized_cashout_pnl'])} | "
+            f"{_fmt_money(position['total_realized_credit'])} | {replenishment_lots} | "
             f"{position['remaining_original_units']:g}U residual + {position['replenishment_units']:g}U replenishments | "
             f"{_fmt_money(position['gross_open_notional'])} | {_fmt_money(position['adjusted_net_basis'])} | "
             f"{_fmt_price(position['unadjusted_effective_basis_price'])} | "
@@ -438,7 +483,7 @@ def write_report(rows, positions, portfolios, ats_basis_rows):
         )
     lines.extend([
         "",
-        f"Per full two-ticker core book, the target-trim credit is {_fmt_money(trim_credit_per_portfolio)}, the modeled SHORT-exit credit (combined short PnL before costs) is {_fmt_money(short_credit_per_portfolio)}, and total basis credits are {_fmt_money(combined_credit_per_portfolio)}. The target-trim PnL is already present in current realized results; the SHORT-exit PnL is post-cutoff and is excluded from current terminal PnL. On a later replay, both are realized once and then reclassified into the basis view—not added again as profit. The same ticker credits map to each of THE ONE MODEL's 32 independent core-based portfolios; across all 32 the reclassified basis amount is {_fmt_money(aggregate_credit)}, **not additional portfolio PnL**. It applies only to these tagged core long lots, not the original 1U ticker lots or the separate daily energy/1U sidecars.",
+        f"Per full two-ticker core book, the target-trim credit is {_fmt_money(trim_credit_per_portfolio)}, the modeled SHORT-exit credit is {_fmt_money(short_credit_per_portfolio)}, and the paired 50U cash-out credit is {_fmt_money(cashout_credit_per_portfolio)}; total basis credits are {_fmt_money(combined_credit_per_portfolio)}. The target-trim, short-exit, and cash-out PnL remain realized exactly once; their basis credits are reclassifications, not additional PnL. The post-cutoff short exits and cash-out do not change Oct. 23 historical terminal totals. The same ticker credits map to each of THE ONE MODEL's 32 independent core-based portfolios; across all 32 the reclassified basis amount is {_fmt_money(aggregate_credit)}, **not additional portfolio PnL**. It applies only to these tagged core long lots, not the original 1U ticker lots or the separate daily energy/1U sidecars.",
         "",
         "## Portfolio propagation and current cutoff",
         "",
@@ -460,28 +505,38 @@ def write_report(rows, positions, portfolios, ats_basis_rows):
         ),
         Decimal("0"),
     )
+    ats_cashout_credit_total = sum(
+        (
+            Decimal(ATS_LOTS[row["ticker"]]["cashout"][0]) * UNIT_NOTIONAL
+            * (ATS_LOTS[row["ticker"]]["cashout"][2] / ATS_LOTS[row["ticker"]]["cashout"][1] - Decimal("1"))
+            for row in max_scenario
+        ),
+        Decimal("0"),
+    )
+    ats_total_basis_credit = ats_short_credit_total + ats_cashout_credit_total
     lines.extend([
         "## ATS full-size short-closure basis adjustment (separate scenario)",
         "",
-        "This additional calculation uses the **maximum 80U ATS scenario**: 40U SHORT opened per ticker at $118.00 BRENT / $103.50 OIL and fully closed at $114.627 / $100.74. It applies the model's short PnL formula `units × $10,000 × (1 − cover price ÷ entry price)`. Each close is 10U from the earlier modeled partial cover plus 30U allocated from the 35U/34U MANUALLY APPROVED SHORT CLOSURE order. The short-close PnL is credited against the remaining tagged oil longs as a basis reduction; it is not additional to the realized short PnL.",
+        "This additional calculation uses the **maximum 80U ATS scenario**: 40U SHORT opened per ticker at $118.00 BRENT / $103.50 OIL and fully closed at $114.627 / $100.74. It applies the model's short PnL formula `units × $10,000 × (1 − cover price ÷ entry price)`. Each close is 10U from the earlier modeled partial cover plus 30U allocated from the 35U/34U MANUALLY APPROVED SHORT CLOSURE order. The short-close PnL and specified paired-lot cash-out PnL are credited against the remaining tagged oil longs as basis reductions; each is a reclassification, not additional realized PnL.",
         "",
-        "| Ticker | ATS short closed | Short-close PnL credit | Remaining long basket in scope | Gross open notional | Unadjusted effective basis | Basis after short-close credit | Basis reduction per exposure unit |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|",
+        "| Ticker | ATS short closed | Short-close PnL credit | Paired-lot cash-out | Cash-out PnL basis credit | Total basis credit | Remaining long basket | Gross open notional | Unadjusted effective basis | After short-close credit | After short-close + cash-out credits |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ])
     for ticker in TICKERS:
         row = max_by_ticker[ticker]
         display = "OIL (USOIL)" if ticker == "OIL" else ticker
         lines.append(
             f"| {display} | {row['total_short_closed_units']}U | ${Decimal(row['short_close_pnl_credit_usd']):,.2f} | "
-            f"{row['open_long_units_in_basis_scope']}U | ${Decimal(row['gross_open_long_notional_usd']):,.2f} | "
-            f"${Decimal(row['unadjusted_effective_basis_price']):,.6f} | "
+            f"{row['user_reported_cashout_units']}U sale | ${Decimal(row['cashout_realized_pnl_usd']):,.2f} | "
+            f"${Decimal(row['total_basis_credit_usd']):,.2f} | {row['open_long_units_in_basis_scope']}U | "
+            f"${Decimal(row['gross_open_long_notional_usd']):,.2f} | ${Decimal(row['unadjusted_effective_basis_price']):,.6f} | "
             f"${Decimal(row['short_close_credit_adjusted_effective_basis_price']):,.6f} | "
-            f"${Decimal(row['basis_reduction_per_exposure_unit']):,.6f} |"
+            f"${Decimal(row['cashout_credit_adjusted_effective_basis_price']):,.6f} |"
         )
     lines.extend([
-        f"| **Combined short-close PnL credit** | **80U** | **${_money(ats_short_credit_total):,.2f}** | — | — | — | — | — |",
+        f"| **Combined basis credits** | **80U** | **${_money(ats_short_credit_total):,.2f}** | — | **${_money(ats_cashout_credit_total):,.2f}** | **${_money(ats_total_basis_credit):,.2f}** | — | — | — | — | — |",
         "",
-        f"The full-size short-close credit is **${_money(ats_short_credit_total):,.2f}** per modeled two-ticker book: **${Decimal(max_by_ticker['BRENT']['short_close_pnl_credit_usd']):,.2f} BRENT + ${Decimal(max_by_ticker['OIL']['short_close_pnl_credit_usd']):,.2f} OIL**. At the 40U-per-ticker scenario, the approved manual orders leave 5U BRENT and 4U OIL long after covering the 30U residual shorts. The remaining basket includes those residuals, the 10U manual reference lot, the two 10U Oct. 25 replenishments per ticker, the 50U-per-ticker Oct. 26 ATS LONG entries at $115 BRENT / $101 OIL, and the later user-reported additions: BRENT 10U @ $115.025 via a manually approved ATS order, 16U @ $114.90 with category unspecified, and 50U manual @ $115.51; OIL 10U @ $100.96 via a manually approved ATS order, 17U @ $100.85 with category unspecified, and a separate additional 50U ATS USOIL mirror LONG @ $101.11 at 07:51 MST synchronized with the manual BRENT purchase. The mirror description applies to this new $101.11 lot, which is distinct from the earlier 50U ATS OIL LONG @ $101.00. The screenshot-supported manual BRENT entry is timestamped 07:51:14 MST, with date inferred as 2026-10-26 and LONG inferred from its handwritten “PICK UP OPPORTUNITY” annotation. A second screenshot shows $117.409 at 08:58:03 UTC−7; it is a subsequent intraday quote only, not an EOD mark. Other Oct. 26 dates/times were not supplied; these user-reported entries are not independently verified. The expanded tagged-campaign basis scope is 161U BRENT / 161U OIL. Straight unit-weighted averages of the modeled entry prices are **${Decimal(max_by_ticker['BRENT']['unit_weighted_average_entry_price']):,.6f} BRENT / ${Decimal(max_by_ticker['OIL']['unit_weighted_average_entry_price']):,.6f} OIL**; these are not the ratio-equivalent effective bases, which are shown above, and do not represent fills or current market quotes. This short-close-only adjustment does **not** include gains on the separate 40U ATS long liquidation.",
+        f"The full-size short-close credit is **${_money(ats_short_credit_total):,.2f}** and the paired cash-out basis credit is **${_money(ats_cashout_credit_total):,.2f}**, for **${_money(ats_total_basis_credit):,.2f} total basis credits** per modeled two-ticker book. The reported paired-lot cash-out separately sells 50U BRENT from $115.51 at $117.409 (realized PnL **${Decimal(max_by_ticker['BRENT']['cashout_realized_pnl_usd']):,.2f}**) and the synchronized 50U OIL ATS mirror from $101.11 at $102.71 (realized PnL **${Decimal(max_by_ticker['OIL']['cashout_realized_pnl_usd']):,.2f}**), totaling **$16,132.24 before costs**. In the maximum 40U-per-ticker ATS scenario, these exits reduce the tagged-campaign open basket from 161U to **111U BRENT / 111U OIL**. The earlier separate 50U OIL ATS LONG @ $101.00 is not part of the cash-out and remains distinct. The screenshot's $117.409 at 08:58:03 UTC−7 is a later intraday observation only—not an execution timestamp or EOD mark. The reported cash-out PnL is included as an additional basis credit on the remaining basket; it is still realized only once and is not added a second time to PnL. The remaining basket includes the residual oil lots, manual reference lot, replenishments, and unsold ATS/user-reported additions. Straight unit-weighted averages of remaining modeled entry prices are **${Decimal(max_by_ticker['BRENT']['unit_weighted_average_entry_price']):,.6f} BRENT / ${Decimal(max_by_ticker['OIL']['unit_weighted_average_entry_price']):,.6f} OIL**; these are not ratio-equivalent effective bases or current market quotes. The actual ATS size and all brokerage executions remain unverified; the reported 13:00 MST cash-out timestamps are chronology placeholders because execution times were not supplied. These credits do **not** include gains on the separate 40U ATS long liquidation." ,
         "",
         "This is a separate ATS scenario and **replaces**, rather than stacks with, the legacy 10U-short credit in the table above. The historical legacy table is retained for audit continuity; do not add its old $3,263.50 short credit or old 10U trim credit to this scenario basis. The actual ATS size is still unverified; see the scenario sensitivity in [`ATS and Manual Live Position Reconciliation.md`](ATS%20and%20Manual%20Live%20Position%20Reconciliation.md). No post-Oct. 23 TradingView EOD mark is supplied, so this reports an adjusted basis for checking against a later user-supplied current mark, not current mark-to-market PnL.",
         "",

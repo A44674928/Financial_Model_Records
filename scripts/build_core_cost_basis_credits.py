@@ -67,8 +67,8 @@ def _closure_credits(ticker, variant, lots, oil_positions):
         # Same tagged-cycle treatment as Oil Cost Basis Savings Model:
         # realized 10U target trim plus the explicit tagged short closure.
         return oil_positions[ticker]["total_realized_credit"], (
-            "10U Manual-Automatic target-trim realized PnL plus the tagged 10U short-cover PnL; "
-            "not the uncertain-size maximum-ATS scenario"
+            "10U Manual-Automatic target-trim PnL, tagged 10U short-cover PnL, and paired 50U cash-out PnL "
+            "reclassified against remaining core oil longs; not the separate ATS/manual scenario"
         )
 
     relevant = [
@@ -152,7 +152,7 @@ def write_outputs(rows):
         "",
         "> **Scope and disclosure:** This is an economic cost-basis reclassification of modeled open LONG lots, not a tax-basis statement, brokerage record, verified fill report, or current market valuation. It uses the repository convention of $10,000 fixed notional per unit and the same notional-minus-realized-credit divided by exposure-quantity method used in the oil cost-basis report. No commissions, borrow costs, financing, or slippage are included.",
         "",
-        "The core model positions are replayed through the latest logged date, 2026-10-26. Post-Oct. 23 entries and exits have no later supplied EOD mark, so they do not change the historical Oct. 23 performance totals. The $87.55 INTC LONG is included in each model variant; the separate variants are not one combined account.",
+        "The core model positions are replayed through the latest logged date, 2026-10-26. Post-Oct. 23 entries and exits have no later supplied EOD mark, so they do not change the historical Oct. 23 performance totals. The paired 50U BRENT manual lot and 50U OIL ATS-mirror lot are closed in each variant, leaving 100U open LONG per ticker. Their user-reported realized cash-out PnL ($8,220.07 BRENT + $7,912.17 OIL) is included as a basis credit against the remaining open-long basket; it is a reclassification, not additional PnL. The $87.55 INTC LONG is included in each model variant; the separate variants are not one combined account.",
         "",
         "## Open-long basis by core variant",
         "",
@@ -175,7 +175,7 @@ def write_outputs(rows):
         "",
         "### What is credited",
         "",
-        "- **BRENT and USOIL:** the 10U Manual-Automatic target-trim realized PnL and the explicit tagged 10U short-cover PnL are credited to each variant's open long basket, matching the existing [`Oil Cost Basis Savings Model.md`](Oil%20Cost%20Basis%20Savings%20Model.md) method. This is separate from the uncertain-size maximum-ATS campaign scenario; do not stack that campaign's 161U basis with these core rows.",
+        "- **BRENT and USOIL:** the 10U Manual-Automatic target-trim PnL, tagged 10U short-cover PnL, and user-reported paired-lot cash-out PnL are credited to each variant's remaining open-long basket, matching the [`Oil Cost Basis Savings Model.md`](Oil%20Cost%20Basis%20Savings%20Model.md) method. This is separate from the uncertain-size maximum-ATS campaign scenario; do not stack that scenario basis with these core rows.",
         "- **INTC:** credits use the user-directed covers at $87.55 applied to the open short lots in each variant (V1's 2U and V3A's 6U). V2 and V3B had no INTC short exposure remaining at the time of those covers, so no new cover credit is assigned there.",
         "- **META:** credits use the explicit $637.20 covers applied in each variant (V1's 1U; V3A's 5U total across the earlier 1U cover and the later 4U close). V2 and V3B had no META short exposure remaining at that time, so no new cover credit is assigned there. This model calculation does not establish the full basis of the user's reported 3U META LONG because the basis of the existing 2U was not supplied.",
         "- Earlier SAR-driven covers for META/INTC are excluded from the new short-cover credit; they are not part of the user-directed close instructions reconciled here. Other realized trades are not added again. The credits reclassify modeled realized PnL and do not create additional portfolio PnL.",

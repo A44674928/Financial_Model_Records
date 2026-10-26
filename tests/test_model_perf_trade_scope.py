@@ -19,7 +19,7 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertEqual(UNMODELED_SYMBOLS, {"BTC", "ETH", "DXY", "EURUSD", "JPYUSD", "US10Y", "US30Y"})
         self.assertTrue(modeled.isdisjoint(UNMODELED_SYMBOLS))
         self.assertTrue(modeled.issubset(PRICES))
-        self.assertEqual(len(events), 108)
+        self.assertEqual(len(events), 116)
         self.assertEqual(sum(event["date"] <= "2026-10-22" for event in events), 85)
         self.assertEqual(sum(event["date"] <= "2026-10-23" for event in events), 91)
         self.assertTrue({"BTC", "ETH"}.isdisjoint(modeled))
@@ -38,7 +38,7 @@ class ModelTradeScopeTests(unittest.TestCase):
         with ZipFile(root / "trades.zip") as archive:
             for filename in ("GEV.txt", "RIVN.txt", "INTC.txt", "META.txt", "index.txt"):
                 self.assertEqual(archive.read(f"trades/{filename}"), (root / "trades" / filename).read_bytes())
-        self.assertIn("118 standardized log events currently recorded", (root / "trades/index.txt").read_text())
+        self.assertIn("126 standardized log events currently recorded", (root / "trades/index.txt").read_text())
         extended_dates = SESSION_DATES + [date]
         with patch.object(model_perf_core, "SESSION_DATES", extended_dates), patch.object(
             model_perf_core, "N_SESS", len(extended_dates)
@@ -108,6 +108,86 @@ class ModelTradeScopeTests(unittest.TestCase):
                 ]
                 self.assertEqual({(event["sym"], event["units"], event["px"]) for event in close_events},
                                  {("INTC", 6, 87.55), ("META", 4, 637.2)})
+
+    def test_manually_approved_short_closes_and_new_short_opens_reconcile(self):
+        events = parse_trades()
+        date = "2026-10-26"
+        extended_dates = SESSION_DATES + [date]
+        with patch.object(model_perf_core, "SESSION_DATES", extended_dates), patch.object(
+            model_perf_core, "N_SESS", len(extended_dates)
+        ):
+            expected_closed = {
+                "V1": {"CAT": 1, "PLTR": 3, "TSLA": 1},
+                "V2": {"CAT": 0, "PLTR": 2, "TSLA": 1},
+                "V3A": {"CAT": 2, "PLTR": 3, "TSLA": 1},
+                "V3B": {"CAT": 0, "PLTR": 2, "TSLA": 1},
+            }
+            for variant in VARIANTS:
+                lots, _ = build_lots(variant, events)
+                for ticker in ("CAT", "PLTR", "TSLA"):
+                    self.assertFalse(
+                        any(lot["sym"] == ticker and lot["side"] == "short" and lot["open"] for lot in lots),
+                        (variant, ticker),
+                    )
+                    closed = [
+                        lot for lot in lots if lot["sym"] == ticker and lot["side"] == "short"
+                        and lot.get("close_date") == date
+                    ]
+                    self.assertEqual(sum(lot["qty"] for lot in closed), expected_closed[variant][ticker])
+                for ticker, price, total in (("DIS", 110.27, 2), ("UPS", 100.08, 3), ("SPCX", 148.46, 4)):
+                    open_shorts = [
+                        lot for lot in lots if lot["sym"] == ticker and lot["side"] == "short" and lot["open"]
+                    ]
+                    self.assertEqual(sum(lot["qty"] for lot in open_shorts), total, (variant, ticker))
+                    new_lots = [lot for lot in open_shorts if lot["entry_date"] == date and lot["entry_px"] == price]
+                    self.assertEqual(sum(lot["qty"] for lot in new_lots), 1, (variant, ticker))
+        root = Path(__file__).resolve().parents[1]
+        with ZipFile(root / "trades.zip") as archive:
+            for filename in ("CAT.txt", "DIS.txt", "PLTR.txt", "SPCX.txt", "TSLA.txt", "UPS.txt", "index.txt"):
+                self.assertEqual(archive.read(f"trades/{filename}"), (root / "trades" / filename).read_bytes())
+        self.assertIn("126 standardized log events currently recorded", (root / "trades/index.txt").read_text())
+
+    def test_reported_oil_cashout_closes_only_the_named_paired_lots(self):
+        events = parse_trades()
+        date = "2026-10-26"
+        closures = [
+            event for event in events
+            if "Explicit close of the specified paired 50U LONG lot" in event["note"]
+        ]
+        self.assertEqual({(e["sym"], e["units"], e["px"]) for e in closures},
+                         {("BRENT", 50, 117.409), ("OIL", 50, 102.71)})
+        extended_dates = SESSION_DATES + [date]
+        expected_pnl = {"BRENT": 8220.067526621078, "OIL": 7912.174859064369}
+        with patch.object(model_perf_core, "SESSION_DATES", extended_dates), patch.object(
+            model_perf_core, "N_SESS", len(extended_dates)
+        ):
+            for variant in VARIANTS:
+                lots, realized = build_lots(variant, events)
+                for ticker, tag, price in (
+                    ("BRENT", "paired_manual_brent_50u", 117.409),
+                    ("OIL", "paired_ats_oil_mirror_50u", 102.71),
+                ):
+                    closed = [lot for lot in lots if lot["sym"] == ticker
+                              and lot.get("cashout_lot_tag") == tag and not lot["open"]]
+                    self.assertEqual(sum(lot["qty"] for lot in closed), 50, (variant, ticker))
+                    self.assertTrue(all(lot["close_px"] == price for lot in closed))
+                    self.assertEqual(sum(lot["qty"] for lot in lots if lot["sym"] == ticker
+                                         and lot["side"] == "long" and lot["open"]), 100)
+                older_oil_lot = [lot for lot in lots if lot["sym"] == "OIL" and lot["side"] == "long"
+                                 and lot["entry_px"] == 101.0 and lot["open"]]
+                self.assertEqual(sum(lot["qty"] for lot in older_oil_lot), 10)
+                # Only the $101.11 tagged mirror lot is closed; the $101.00
+                # replenishment and separate ATS lot remain distinct.
+                paired_pnl = {ticker: sum(row["pnl"] for row in realized
+                                          if row["sym"] == ticker and row["date"] == date
+                                          and row["qty"] == 50)
+                              for ticker in ("BRENT", "OIL")}
+                for ticker in expected_pnl:
+                    self.assertAlmostEqual(paired_pnl[ticker], expected_pnl[ticker], places=6)
+        with ZipFile(Path(__file__).resolve().parents[1] / "trades.zip") as archive:
+            for filename in ("BRENT.txt", "OIL.txt", "index.txt"):
+                self.assertEqual(archive.read(f"trades/{filename}"),
+                                 (Path(__file__).resolve().parents[1] / "trades" / filename).read_bytes())
 
     def test_manual_short_exits_override_sar_only_for_tagged_oil_target_shorts(self):
         events = parse_trades()
@@ -459,8 +539,8 @@ class ModelTradeScopeTests(unittest.TestCase):
             graph = root / relpath
             self.assertTrue(graph.is_file())
             self.assertEqual(graph.read_bytes()[:8], b"\x89PNG\r\n\x1a\n")
-        self.assertIn("`91` direct-price events plus `1` DXY direction signals out of `118` total 2026 log events", text)
-        self.assertIn("`17` direct events after cutoff", text)
+        self.assertIn("`91` direct-price events plus `1` DXY direction signals out of `126` total 2026 log events", text)
+        self.assertIn("`25` direct events after cutoff", text)
         self.assertIn("2026-10-26 06:30 MST GEV LONG 1U at $823.81", text)
         self.assertIn("close 1U META SHORT at $637.20", text)
         self.assertIn("existing 2U META LONG plus this new 1U LONG leaves 3U LONG", text)
@@ -472,6 +552,13 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertIn("The separate user-reported META position remains 3U LONG", text)
         self.assertIn("User-directed post-cutoff core-model long addition", text)
         self.assertIn("6U INTC lot is applied independently to each of the four core variants", text)
+        self.assertIn("User-directed post-cutoff core-model short opens", text)
+        self.assertIn("DIS 1U SHORT at $110.27", text)
+        self.assertIn("Quantities were not supplied", text)
+        self.assertIn("UPS 1U SHORT at $100.08", text)
+        self.assertIn("SPCX 1U SHORT at $148.46", text)
+        self.assertIn("CAT 2U close clears V1's 1U and V3A's 2U", text)
+        self.assertIn("PLTR's 3U close clears all 3U in V1/V3A", text)
         self.assertIn("2026-10-25 BRENT LONG 10U at $115.792", text)
         self.assertIn("2026-10-25 USOIL (internal ticker OIL) LONG 10U at $101.74", text)
         self.assertIn("2026-10-25 BRENT LONG 10U at $114.8", text)

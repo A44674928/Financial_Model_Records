@@ -160,7 +160,47 @@ def build_lots(variant, events):
         idx = session_index(ev["date"], ev["kind"])
 
         if ev["kind"] == "exit":
-            if "Explicit close of reported active" in ev["note"] and "SHORT" in ev["note"]:
+            if "Explicit close of the specified paired 50U LONG lot" in ev["note"]:
+                target_lot = (
+                    "paired_manual_brent_50u" if sym == "BRENT" else
+                    "paired_ats_oil_mirror_50u" if sym == "OIL" else None
+                )
+                remaining = u
+                targets = [
+                    lot for lot in lots
+                    if lot["sym"] == sym and lot["side"] == "long" and lot["open"]
+                    and lot.get("cashout_lot_tag") == target_lot
+                ]
+                for lot in targets:
+                    if remaining <= 1e-12:
+                        break
+                    qty = min(lot["qty"], remaining)
+                    if qty <= 0:
+                        continue
+                    if qty < lot["qty"]:
+                        lot["qty"] -= qty
+                        lot_id += 1
+                        closed = {**lot, "id": lot_id, "qty": qty}
+                        lots.append(closed)
+                    else:
+                        closed = lot
+                    closed["open"] = False
+                    closed["close_idx"] = idx
+                    closed["close_date"] = ev["date"]
+                    closed["close_px"] = px
+                    realized.append({
+                        "sym": sym,
+                        "idx": idx,
+                        "date": ev["date"],
+                        "qty": qty,
+                        "pnl": qty * UNIT * (px / closed["entry_px"] - 1.0),
+                    })
+                    remaining -= qty
+                if remaining > 1e-8:
+                    raise ValueError(
+                        f"{sym} paired-lot LONG close exceeds tagged open units by {remaining:g}"
+                    )
+            elif "Explicit close of reported active" in ev["note"] and "SHORT" in ev["note"]:
                 if "V3A-only" in ev["note"] and variant != "V3A":
                     # This closure is explicitly scoped to the compounded V3A
                     # core path; do not apply it to sibling model variants.
@@ -333,6 +373,13 @@ def build_lots(variant, events):
                     "entry_px": px, "entry_idx": idx, "entry_date": ev["date"],
                     "open": True, "close_idx": None, "close_px": None,
                     "manual_automatic_entry": "Manual-Automatic Entry" in ev["note"],
+                    "cashout_lot_tag": (
+                        "paired_manual_brent_50u"
+                        if sym == "BRENT" and "user-requested 50U manual BRENT position" in ev["note"]
+                        else "paired_ats_oil_mirror_50u"
+                        if sym == "OIL" and "user-reported 50U ATS USOIL LONG mirror move" in ev["note"]
+                        else None
+                    ),
                 }
             )
 

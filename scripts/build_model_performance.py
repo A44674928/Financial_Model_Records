@@ -692,6 +692,16 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
         if event["date"] > SESSION_DATES[-1]
         and "USER-DIRECTED MODEL LONG ADDITION" in event["note"]
     ]
+    post_cutoff_model_short_opens = [
+        event for event in direct_price_events
+        if event["date"] > SESSION_DATES[-1]
+        and "USER-DIRECTED MODEL SHORT OPEN" in event["note"]
+    ]
+    post_cutoff_oil_cashouts = [
+        event for event in direct_price_events
+        if event["date"] > SESSION_DATES[-1]
+        and "Explicit close of the specified paired 50U LONG lot" in event["note"]
+    ]
     term = {v: series[v]["total"][last] for v in VARIANTS}
     spread_ab = term["V1"] - term["V2"]
     spread_cd = term["V3A"] - term["V3B"]
@@ -778,7 +788,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
         A(
             "> **User-directed post-cutoff short closures (separate model actions):** "
             + "; ".join(closure_details)
-            + ". The 6U INTC instruction closes V3A's full 6U exposure and is capped to open shorts in each other path (V1 had 2U; V2/V3B had none). The 4U META instruction applies only to V3A: after the earlier 1U cover, it closes the remaining 4U of the modeled 5U short; V3A then has no META short. The separate user-reported META position remains 3U LONG. The date is inferred as 2026-10-26; 13:00 MST is only a chronology placeholder because no time was supplied. These are hypothetical model exits, not verified brokerage fills; any implied realized PnL is post-cutoff and excluded from the Oct. 23 historical totals."
+            + ". The 6U INTC instruction closes V3A's full 6U exposure and is capped to open shorts in each other path (V1 had 2U; V2/V3B had none). The 4U META instruction applies only to V3A: after the earlier 1U cover, it closes the remaining 4U of the modeled 5U short; V3A then has no META short. The separate user-reported META position remains 3U LONG. The approved CAT 2U close clears V1's 1U and V3A's 2U; PLTR's 3U close clears all 3U in V1/V3A and caps at 2U in V2/V3B; TSLA's 1U close clears each variant's open short. The date is inferred as 2026-10-26; 13:00 MST is only a chronology placeholder because no time was supplied. These are hypothetical model exits, not verified brokerage fills; any implied realized PnL is post-cutoff and excluded from the Oct. 23 historical totals."
         )
         A("")
     if post_cutoff_model_long_additions:
@@ -792,9 +802,35 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
             + ". This 6U INTC lot is applied independently to each of the four core variants, not combined into one account position. The $87.55 level is the user's specified open/reference price and is also the price used for the INTC short closures. The date is inferred as 2026-10-26; 13:00 MST is only an ordering placeholder because no time was supplied. This hypothetical position is not a verified fill, is excluded from the Oct. 23 historical results, and has no subsequent EOD mark. It is not a signal for the separate daily sidecar models."
         )
         A("")
+    if post_cutoff_model_short_opens:
+        opens = "; ".join(
+            f"{event['sym']} {event['units']:g}U SHORT at ${event['px']:,.2f}"
+            for event in post_cutoff_model_short_opens
+        )
+        A(
+            "> **User-directed post-cutoff core-model short opens:** "
+            + opens
+            + ". Quantities were not supplied, so each new short is logged at the standard 1U per core variant; these add to any existing model short lots rather than replacing them. These are hypothetical, unverified entries, dated 2026-10-26 by context with 13:00 MST as an ordering placeholder. They are excluded from the Oct. 23 historical results and are not signals for the separate daily sidecar models."
+        )
+        A("")
+    if post_cutoff_oil_cashouts:
+        details = []
+        for event in post_cutoff_oil_cashouts:
+            entry_price = 115.51 if event["sym"] == "BRENT" else 101.11
+            pnl = event["units"] * 10000 * (event["px"] / entry_price - 1)
+            details.append(
+                f"{event['sym']} {event['units']:g}U from the paired lot at ${entry_price:,.2f} "
+                f"closed at ${event['px']:,.3f} (modeled realized PnL ${pnl:,.2f})"
+            )
+        A(
+            "> **User-reported post-cutoff oil long cash-out:** "
+            + "; ".join(details)
+            + ". The BRENT sale closes only the 50U manual lot entered at $115.51; the OIL sale closes only its synchronized 50U ATS mirror entered at $101.11, not the older $101.00 ATS lot. The user reports these exits as executed, but they are not independently verified. Date is inferred as 2026-10-26; 13:00 MST is an ordering placeholder because no execution time was supplied. Modeled combined realized PnL is $16,132.24 before costs and remains separate from the Oct. 23 historical totals."
+        )
+        A("")
     A("> **Oil target-trim force-multiplier shorts:** separate hypothetical 10U SHORT lots in BRENT at $117 and OIL at $102 are modeled from the Oct. 23 target-trim session, in addition to the partial sales and remaining longs. The target-level EOD trigger is the model entry assumption, not a verified intraday touch or fill. Both shorts remain open at the Oct. 23 cutoff; at that session's EOD marks, they contribute -$294.87 BRENT and -$1,421.57 OIL unrealized PnL (-$1,716.44 per core path). Their user-directed modeled exits are $114.627 BRENT and $100.74 OIL at 2026-10-25 20:35 MST, after the four earlier Oct. 25 10U replenishments and simultaneous with separate 35U BRENT and 34U OIL LONG Weekend Oil buys. Those new LONG lots are distinct from the 10U SHORT closures and count toward buy-side weekly supply; closing the shorts does not count toward that supply. Added to the existing post-close 65U BRENT plus 66U OIL core longs, they bring all-core long exposure to 100U per ticker, 200U total ($2,000,000 fixed-unit notional). The exits override SAR auto-close only for the two tagged target-level shorts; all prices/timing and trades are hypothetical model inputs, not verified brokerage executions. At the fixed $100,000 notional per lot, the exits imply +$2,028.21 BRENT and +$1,235.29 OIL (+$3,263.50 combined short PnL before costs) when replayed, but this post-cutoff result is excluded from current terminal core totals.")
     A("> **Oil cost-basis savings:** the realized target-trim PnL and the separately modeled post-cutoff SHORT-exit PnL are credited against tagged residual-plus-replenishment long lots as basis reclassifications, not additional profit. The short-exit credit is excluded from current Oct. 23 core PnL. The additional 35U BRENT and 34U OIL LONG buys are separate post-cutoff lots, not part of the existing residual-plus-10U-replenishment basis-credit calculation. See [`Oil Cost Basis Savings Model.md`](Oil%20Cost%20Basis%20Savings%20Model.md) and [`oil_cost_basis_savings_v1.csv`](data/oil_cost_basis_savings_v1.csv).")
-    A("> **Core basis after closure credits:** the same economic basis-credit method is applied to current open BRENT, USOIL, META, and INTC model lots, with variant-specific INTC/META short-cover credits. This is a reclassification, not additional portfolio PnL; actual brokerage basis remains unverified. See [`Core Cost Basis After Closure Credits.md`](Core%20Cost%20Basis%20After%20Closure%20Credits.md) and [`core_cost_basis_closure_credits_v1.csv`](data/core_cost_basis_closure_credits_v1.csv).")
+    A("> **Core basis after closure credits:** the same economic basis-credit method is applied to current open BRENT, USOIL, META, and INTC model lots, including the user-reported paired 50U oil cash-out PnL credited against remaining oil longs and variant-specific INTC/META short-cover credits. Credits reclassify realized PnL; they do not create additional portfolio PnL. Brokerage basis and execution remain unverified. See [`Core Cost Basis After Closure Credits.md`](Core%20Cost%20Basis%20After%20Closure%20Credits.md), [`Oil Cost Basis Savings Model.md`](Oil%20Cost%20Basis%20Savings%20Model.md), and [`core_cost_basis_closure_credits_v1.csv`](data/core_cost_basis_closure_credits_v1.csv).")
     A("")
     A("> **ATS / manual live-position reconciliation:** a separate ledger uses the tagged 50U-per-ticker Weekend Oil lots as a sizing proxy (ATS ceiling 40U, manual remainder 10U). Because the user-reported Oct. 23 ATS quantity is uncertain, matched ATS sales/shorts at $118 BRENT / $103.50 OIL are shown as 10U / 20U / 30U / 40U scenarios, with the Oct. 25 10U modeled covers attached as partial ATS covers. The earlier Oct. 23 10U trim/short records remain in this historical replay for audit continuity but are superseded—not stacked—in the new reconciliation. The four Oct. 25 10U replenishments are labeled **MANUAL LIVE TEST POSITIONS**; the 35U/34U orders are **MANUALLY APPROVED SHORT CLOSURE**, allocated to remaining ATS shorts first, with only any excess left long and counted as new buy supply in the reconciliation. The historical replay retains the earlier 69U long-buy treatment for audit continuity. The existing Oct. 26 ATS fixed-price LONG entries remain 50U each at $115 BRENT / $101 OIL (time unspecified); the user identifies a separate 50U ATS USOIL mirror LONG @ $101.11 at 07:51 MST, synchronized with the 50U manual BRENT entry and distinct from the earlier OIL @ $101.00 lot. Later user-reported additions are 10U per ticker via a manually approved ATS order ($115.025 BRENT / $100.96 OIL; date inferred from context, time unspecified), plus 16U BRENT @ $114.90 and 17U OIL @ $100.85 (date inferred, category/time unspecified), and a 50U manual BRENT LONG @ $115.51 at 07:51:14 MST from a TradingView screenshot (date inferred; LONG inferred from handwritten “PICK UP OPPORTUNITY”; not a verified fill). Under the maximum ATS short scenario, the tagged campaign totals 161U BRENT / 161U OIL. These scenario records do not modify the Oct. 23 core results or represent verified brokerage fills. See [`ATS and Manual Live Position Reconciliation.md`](ATS%20and%20Manual%20Live%20Position%20Reconciliation.md) and [`ats_manual_live_positions_v1.csv`](data/ats_manual_live_positions_v1.csv).")
     A("> **Interactive version:** open **[`Model Performance Explorer.html`](Model%20Performance%20Explorer.html)** "
