@@ -26,8 +26,8 @@ class StrategySidecarComparisonTests(unittest.TestCase):
         self.assertEqual(force_daily[-1]["force_multiplier_active_symbols"], 31)
         self.assertEqual(exp_daily[-1]["exponential_cumulative_notional_added_usd"], "328000.00")
         self.assertEqual(force_daily[-1]["force_multiplier_cumulative_notional_added_usd"], "6560000.00")
-        self.assertEqual(exp_daily[-1]["exponential_open_notional_usd"], "279500.00")
-        self.assertEqual(force_daily[-1]["force_multiplier_open_notional_usd"], "5590000.00")
+        self.assertEqual(exp_daily[-1]["exponential_open_notional_usd"], "253000.00")
+        self.assertEqual(force_daily[-1]["force_multiplier_open_notional_usd"], "5060000.00")
         self.assertAlmostEqual(
             float(force_daily[-1]["force_multiplier_total_pnl_usd"]),
             20 * float(exp_daily[-1]["exponential_total_pnl_usd"]),
@@ -111,7 +111,7 @@ class StrategySidecarComparisonTests(unittest.TestCase):
             f"{core['V1']['total'][-1] + float(terminal['force_multiplier_plus_oil_pnl_usd']):.2f}",
         )
         self.assertEqual(terminal["force_multiplier_plus_oil_cumulative_notional_usd"], "12060000.00")
-        self.assertEqual(terminal["force_multiplier_plus_oil_open_notional_usd"], "11090000.00")
+        self.assertEqual(terminal["force_multiplier_plus_oil_open_notional_usd"], "10560000.00")
         self.assertEqual(terminal["V1_force_1u_pnl_usd"], "127180.97")
         self.assertEqual(terminal["V2_force_1u_pnl_usd"], "125900.58")
         self.assertEqual(terminal["V3A_force_1u_pnl_usd"], "148084.09")
@@ -162,8 +162,8 @@ class StrategySidecarComparisonTests(unittest.TestCase):
                 terminal[f"{prefix}_return_on_cumulative_notional_pct"],
                 f"{pnl / notional * 100:.6f}",
             )
-        self.assertEqual(terminal["V1_core_plus_V1_force_1u_and_oil_pnl_usd"], "733296.93")
-        self.assertEqual(terminal["V3A_core_plus_V3A_force_1u_and_oil_pnl_usd"], "775483.54")
+        self.assertEqual(terminal["V1_core_plus_V1_force_1u_and_oil_pnl_usd"], "731580.49")
+        self.assertEqual(terminal["V3A_core_plus_V3A_force_1u_and_oil_pnl_usd"], "773767.10")
         self.assertEqual(terminal["oil_desk_cumulative_notional_usd"], "5500000.00")
         before_oil = next(row for row in rows if row["date"] == "2026-09-09")
         first_oil = next(row for row in rows if row["date"] == "2026-09-10")

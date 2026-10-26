@@ -23,7 +23,7 @@ class ActionableTickerAuditTests(unittest.TestCase):
         self.assertEqual(self.result["dxy_core_units"], 35.0)
         self.assertAlmostEqual(self.result["dxy_core_terminal_pnl"], 2492.30, places=2)
         self.assertEqual(self.result["sessions"], 36)
-        self.assertEqual(self.result["events"], 91)
+        self.assertEqual(self.result["events"], 99)
         self.assertEqual(self.result["core_daily_rows"], 144)
         self.assertEqual(self.result["force_daily_rows"], 36)
         self.assertEqual(self.result["energy_rows"], 165)
@@ -50,8 +50,8 @@ class ActionableTickerAuditTests(unittest.TestCase):
             )
 
     def test_32_portfolio_aggregate_and_energy_sleeves_reconcile(self):
-        self.assertEqual(self.result["terminal_aggregate"], "17497700.08")
-        self.assertEqual(self.result["terminal_notional"], "490880000.00")
+        self.assertEqual(self.result["terminal_aggregate"], "17442774.00")
+        self.assertEqual(self.result["terminal_notional"], "497280000.00")
         # Each core and force book occurs in eight of the 32 independent
         # portfolios. The integrated 1U DXY sleeve is part of core; an added
         # 10U DXY sidecar is included in all 32; 11U energy is included in 16.

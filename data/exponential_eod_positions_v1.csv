@@ -1086,7 +1086,7 @@ exponential,2026-10-22,XLE,long,67.57000000,500.00,500.00,14,7000.00,140.47,Late
 exponential,2026-10-22,XRH0,long,782.50000000,500.00,500.00,35,17500.00,484.82,Latest trade-log LONG/SHORT/REBUY entry carried forward
 exponential,2026-10-23,AAPL,long,348.72500000,500.00,500.00,35,17500.00,684.41,Latest trade-log LONG/SHORT/REBUY entry carried forward
 exponential,2026-10-23,AMZN,long,248.00000000,500.00,500.00,25,12500.00,-290.59,Latest trade-log LONG/SHORT/REBUY entry carried forward
-exponential,2026-10-23,BRENT,long,117.34500000,500.00,500.00,23,11500.00,1127.31,Latest trade-log LONG/SHORT/REBUY entry carried forward
+exponential,2026-10-23,BRENT,short,117.34500000,500.00,500.00,1,500.00,0.00,Latest trade-log LONG/SHORT/REBUY entry carried forward
 exponential,2026-10-23,CAT,long,687.00000000,500.00,500.00,5,2500.00,-101.14,Latest trade-log LONG/SHORT/REBUY entry carried forward
 exponential,2026-10-23,CVX,long,233.21000000,500.00,500.00,27,13500.00,1308.82,Latest trade-log LONG/SHORT/REBUY entry carried forward
 exponential,2026-10-23,DIS,short,112.52000000,500.00,500.00,25,12500.00,-651.83,Latest trade-log LONG/SHORT/REBUY entry carried forward
@@ -1101,7 +1101,7 @@ exponential,2026-10-23,META,long,642.62000000,500.00,500.00,21,10500.00,-1102.72
 exponential,2026-10-23,NET,long,325.73000000,500.00,500.00,27,13500.00,-394.01,Latest trade-log LONG/SHORT/REBUY entry carried forward
 exponential,2026-10-23,NFLX,long,65.85000000,500.00,500.00,15,7500.00,-363.74,Latest trade-log LONG/SHORT/REBUY entry carried forward
 exponential,2026-10-23,NVDA,long,210.96000000,500.00,500.00,36,18000.00,-1031.76,Latest trade-log LONG/SHORT/REBUY entry carried forward
-exponential,2026-10-23,OIL,long,103.45000000,500.00,500.00,32,16000.00,1376.74,Latest trade-log LONG/SHORT/REBUY entry carried forward
+exponential,2026-10-23,OIL,short,103.45000000,500.00,500.00,1,500.00,0.00,Latest trade-log LONG/SHORT/REBUY entry carried forward
 exponential,2026-10-23,ORCL,long,126.16000000,500.00,500.00,5,2500.00,-41.25,Latest trade-log LONG/SHORT/REBUY entry carried forward
 exponential,2026-10-23,PEP,long,135.77000000,500.00,500.00,11,5500.00,185.96,Latest trade-log LONG/SHORT/REBUY entry carried forward
 exponential,2026-10-23,PLTR,short,196.75000000,500.00,500.00,10,5000.00,42.33,Latest trade-log LONG/SHORT/REBUY entry carried forward

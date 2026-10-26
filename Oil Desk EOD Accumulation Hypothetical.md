@@ -26,9 +26,9 @@ For the daily position and PnL methodology across all variants and sidecars, see
 
 | Instrument | EOD sessions | Daily-buy units | Daily-buy notional | Daily-buy PnL | Chart-open units | Chart-open unrealized PnL | Combined energy PnL |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| BRENT | 23 | 230 | $2,300,000.00 | $+224,358.86 | 45 | $+26,327.68 | $+250,686.54 |
-| OIL | 32 | 320 | $3,200,000.00 | $+275,347.06 | 46 | $+24,425.55 | $+299,772.61 |
-| **All energy** | 55 | 550 | $5,500,000.00 | $+499,705.92 | 91 | $+50,753.23 | $+550,459.15 |
+| BRENT | 23 | 230 | $2,300,000.00 | $+224,358.86 | 55 | $+26,032.81 | $+250,391.67 |
+| OIL | 32 | 320 | $3,200,000.00 | $+275,347.06 | 56 | $+23,003.98 | $+298,351.04 |
+| **All energy** | 55 | 550 | $5,500,000.00 | $+499,705.92 | 111 | $+49,036.79 | $+548,742.71 |
 
 ![Daily EOD accumulation and chart positions](Charts/performance/19-oil-desk-daily-accumulation.png)
 

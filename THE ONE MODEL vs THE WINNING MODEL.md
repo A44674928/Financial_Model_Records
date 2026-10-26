@@ -6,19 +6,19 @@
 
 “THE WINNING MODEL” here means **V3A Core + V3A variant-specific 1U/EOD, with the 11U/DAY energy sidecar per active ticker**—portfolio `core_v3a__1u_v3a__with_oil`. It includes core’s integrated 1U/DAY DXY sleeve plus the 10U/DAY DXY add-on (11U/DAY total), just as each of the 32 THE ONE MODEL portfolios does.
 
-The equal-gross comparison scales every daily PnL, notional addition, and open-notional value of this one winning portfolio by **26.598754×**, so its period-end cumulative gross additions match THE ONE MODEL at **$490,880,000.00**. This scales the winner’s unit sizes too: its combined DXY schedule becomes **292.5863U/DAY**, versus the original 11U/DAY. It is a proportional arithmetic scaling of all components, not an assertion that the larger orders could be executed at unchanged prices, spreads, capacity, financing, or risk. The original, unscaled 1× winner is shown alongside it for context; that original portfolio does not have the same total gross additions as the 32-portfolio aggregate.
+The equal-gross comparison scales every daily PnL, notional addition, and open-notional value of this one winning portfolio by **26.656660×**, so its period-end cumulative gross additions match THE ONE MODEL at **$497,280,000.00**. This scales the winner’s unit sizes too: its combined DXY schedule becomes **293.2233U/DAY**, versus the original 11U/DAY. It is a proportional arithmetic scaling of all components, not an assertion that the larger orders could be executed at unchanged prices, spreads, capacity, financing, or risk. The original, unscaled 1× winner is shown alongside it for context; that original portfolio does not have the same total gross additions as the 32-portfolio aggregate.
 
 ## Terminal comparison
 
 | Historical result through 2026-10-23 | THE ONE MODEL: 32 independent portfolios | Winning constituent: original 1× | Winning constituent: equal-gross scaled |
 |---|---:|---:|---:|
-| Terminal modeled PnL | $17,497,700.08 | $850,487.40 | **$22,621,904.90** |
-| Cumulative gross notional added | $490,880,000.00 | $18,455,000.00 | **$490,880,000.00** |
-| Gross open notional at period end | $449,600,000.00 | $17,335,000.00 | $461,089,395.83 |
-| PnL ÷ cumulative gross additions | 3.5646% | 4.6084% | **4.6084%** |
-| Peak-to-trough modeled PnL drawdown | $1,786,528.08 | $101,438.78 | $2,698,145.12 |
+| Terminal modeled PnL | $17,442,774.00 | $848,770.96 | **$22,625,399.25** |
+| Cumulative gross notional added | $497,280,000.00 | $18,655,000.00 | **$497,280,000.00** |
+| Gross open notional at period end | $456,000,000.00 | $17,535,000.00 | $467,424,540.34 |
+| PnL ÷ cumulative gross additions | 3.5076% | 4.5498% | **4.5498%** |
+| Peak-to-trough modeled PnL drawdown | $1,786,528.08 | $101,438.78 | $2,704,019.11 |
 
-At the equal-gross terminal additions, the scaled winning curve exceeds THE ONE MODEL's terminal modeled PnL by **$5,124,204.82** and its deployed-notional ratio by **1.0439 percentage points** in this historical sample. The comparison does not establish future outperformance. The winning portfolio was chosen using the same period being compared; this creates survivorship/selection bias, and its advantage is not an independent or out-of-sample result.
+At the equal-gross terminal additions, the scaled winning curve exceeds THE ONE MODEL's terminal modeled PnL by **$5,182,625.25** and its deployed-notional ratio by **1.0422 percentage points** in this historical sample. The comparison does not establish future outperformance. The winning portfolio was chosen using the same period being compared; this creates survivorship/selection bias, and its advantage is not an independent or out-of-sample result.
 
 ![THE ONE MODEL and the equal-gross scaled winning constituent](Charts/superstructure/the-one-model-vs-winning-model.png)
 

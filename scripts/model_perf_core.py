@@ -164,7 +164,43 @@ def build_lots(variant, events):
             # they reduce only the explicitly tagged entry and leave every other
             # open long lot in the ticker untouched. The exit's units are the
             # quantity trimmed, not a replacement size for the whole position.
-            if "Manual-Automatic target trim" in ev["note"]:
+            if "Explicit close of the tagged 2026-10-23 10U" in ev["note"]:
+                remaining = u
+                targets = [
+                    lot for lot in lots
+                    if lot["sym"] == sym and lot["side"] == "short" and lot["open"]
+                    and lot.get("oil_target_short", False)
+                ]
+                for lot in targets:
+                    if remaining <= 1e-12:
+                        break
+                    qty = min(lot["qty"], remaining)
+                    if qty <= 0:
+                        continue
+                    if qty < lot["qty"]:
+                        lot["qty"] -= qty
+                        lot_id += 1
+                        closed = {**lot, "id": lot_id, "qty": qty}
+                        lots.append(closed)
+                    else:
+                        closed = lot
+                    closed["open"] = False
+                    closed["close_idx"] = idx
+                    closed["close_date"] = ev["date"]
+                    closed["close_px"] = px
+                    realized.append({
+                        "sym": sym,
+                        "idx": idx,
+                        "date": ev["date"],
+                        "qty": qty,
+                        "pnl": qty * UNIT * (1.0 - px / closed["entry_px"]),
+                    })
+                    remaining -= qty
+                if remaining > 1e-8:
+                    raise ValueError(
+                        f"{sym} explicit SHORT close exceeds tagged open units by {remaining:g}"
+                    )
+            elif "Manual-Automatic target trim" in ev["note"]:
                 remaining = u
                 targets = [
                     lot for lot in lots
@@ -226,13 +262,17 @@ def build_lots(variant, events):
                     "id": lot_id, "sym": sym, "side": "short", "qty": eff,
                     "entry_px": px, "entry_idx": idx, "entry_date": ev["date"],
                     "open": True, "close_idx": None, "close_px": None,
+                    "oil_target_short": "user-directed hypothetical force-multiplier short" in ev["note"],
                 }
             )
 
         else:  # LONG / REBUY
             if sar:
                 for lot in lots:
-                    if lot["sym"] == sym and lot["side"] == "short" and lot["open"]:
+                    if (
+                        lot["sym"] == sym and lot["side"] == "short" and lot["open"]
+                        and not lot.get("oil_target_short", False)
+                    ):
                         lot["open"] = False
                         lot["close_idx"] = idx
                         lot["close_px"] = px

@@ -17,11 +17,12 @@
 
 ## Model Performance Comparison — *Fall (Arizona) [2026]*
 
-Day-by-day (and, where market data supports it, intraday) comparison of the four portfolio models carried on the same standardized book: **[`trades/`](trades/)** / **[`trades.zip`](trades.zip)** — `31` direct-price core tickers plus the integrated 1U/DAY/DXY sleeve, `89` direct-price events plus `1` DXY direction signals out of `101` total 2026 log events (`9` other events outside scope; `2` direct events after cutoff), `1U = $10,000.00` standard notional, all timestamps in Arizona year-round **`MST` / `UTC-07:00`**, marked against the **Friday, October 23, 2026** close. Intraday plots remain on their supplied Oct. 22 hourly scope.
+Day-by-day (and, where market data supports it, intraday) comparison of the four portfolio models carried on the same standardized book: **[`trades/`](trades/)** / **[`trades.zip`](trades.zip)** — `31` direct-price core tickers plus the integrated 1U/DAY/DXY sleeve, `91` direct-price events plus `1` DXY direction signals out of `109` total 2026 log events (`9` other events outside scope; `8` direct events after cutoff), `1U = $10,000.00` standard notional, all timestamps in Arizona year-round **`MST` / `UTC-07:00`**, marked against the **Friday, October 23, 2026** close. Intraday plots remain on their supplied Oct. 22 hourly scope.
 
-> **Post-cutoff manual replenishments:** 2026-10-25 BRENT LONG 10U at $115.792; 2026-10-25 USOIL (internal ticker OIL) LONG 10U at $101.74 are recorded in the trade logs but fall after the Oct. 23 terminal mark. No post-entry EOD marks are included, so these entries are excluded from current core PnL and composites pending a later benchmark refresh.
+> **Post-cutoff manual replenishments:** 2026-10-25 BRENT LONG 10U at $115.792 (approx. 17:20–17:25 MST (modeled at 17:22)); 2026-10-25 USOIL (internal ticker OIL) LONG 10U at $101.74 (approx. 17:20–17:25 MST (modeled at 17:22)); 2026-10-25 BRENT LONG 10U at $114.8 (approx. 20:00 MST); 2026-10-25 USOIL (internal ticker OIL) LONG 10U at $101 (approx. 20:00 MST) are recorded in the trade logs but fall after the Oct. 23 terminal mark. No post-entry EOD marks are included, so these entries are excluded from current core PnL and composites pending a later benchmark refresh.
 
-> **Oil cost-basis savings:** the prior target trims' realized PnL is credited once against the remaining-plus-replenishment lot basis, as a PnL reclassification rather than additional profit. The Oct. 25 replenishments are outside the Oct. 23 mark window, so the current core totals remain unchanged. See [`Oil Cost Basis Savings Model.md`](Oil%20Cost%20Basis%20Savings%20Model.md) and [`oil_cost_basis_savings_v1.csv`](data/oil_cost_basis_savings_v1.csv).
+> **Oil target-trim force-multiplier shorts:** separate hypothetical 10U SHORT lots in BRENT at $117 and OIL at $102 are modeled from the Oct. 23 target-trim session, in addition to the partial sales and remaining longs. The target-level EOD trigger is the model entry assumption, not a verified intraday touch or fill. Both shorts remain open at the Oct. 23 cutoff; at that session's EOD marks, they contribute -$294.87 BRENT and -$1,421.57 OIL unrealized PnL (-$1,716.44 per core path). Their user-directed modeled exits are $114.627 BRENT and $100.74 OIL at 2026-10-25 20:35 MST, after the four earlier Oct. 25 10U replenishments and simultaneous with separate 35U BRENT and 34U OIL LONG Weekend Oil buys. Those new LONG lots are distinct from the 10U SHORT closures and count toward buy-side weekly supply; closing the shorts does not count toward that supply. Added to the existing post-close 65U BRENT plus 66U OIL core longs, they bring all-core long exposure to 100U per ticker, 200U total ($2,000,000 fixed-unit notional). The exits override SAR auto-close only for the two tagged target-level shorts; all prices/timing and trades are hypothetical model inputs, not verified brokerage executions. At the fixed $100,000 notional per lot, the exits imply +$2,028.21 BRENT and +$1,235.29 OIL (+$3,263.50 combined short PnL before costs) when replayed, but this post-cutoff result is excluded from current terminal core totals.
+> **Oil cost-basis savings:** the realized target-trim PnL and the separately modeled post-cutoff SHORT-exit PnL are credited against tagged residual-plus-replenishment long lots as basis reclassifications, not additional profit. The short-exit credit is excluded from current Oct. 23 core PnL. The additional 35U BRENT and 34U OIL LONG buys are separate post-cutoff lots, not part of the existing residual-plus-10U-replenishment basis-credit calculation. See [`Oil Cost Basis Savings Model.md`](Oil%20Cost%20Basis%20Savings%20Model.md) and [`oil_cost_basis_savings_v1.csv`](data/oil_cost_basis_savings_v1.csv).
 
 > **Interactive version:** open **[`Model Performance Explorer.html`](Model%20Performance%20Explorer.html)** for a self-contained explorer with toggleable series, a hover crosshair, and per-ticker breakdowns. Machine-readable exports live in [`data/`](data/): [`model_performance_daily.csv`](data/model_performance_daily.csv), [`model_performance_tickers.csv`](data/model_performance_tickers.csv), [`model_performance_summary.json`](data/model_performance_summary.json).
 > **DXY and historical account views:** the 1U/DAY/DXY index-return sleeve is included in every core variant. THE ONE MODEL's 32-portfolio split aggregate additionally adds the 10U/DAY DXY schedule to each portfolio, for 11U/DAY total; its regenerated totals are shown in the aggregate chart and portfolio audit export. Do not add the 1U sleeve twice. The 0.05U schedule remains an alternative. The separate DXY-numeraire and yield-multiplier views have been rebuilt using the current core paths; they remain sensitivities rather than additional core PnL.
@@ -34,10 +35,10 @@ Day-by-day (and, where market data supports it, intraday) comparison of the four
 
 | Model | Rule | Units deployed | Realized | Unrealized | Base PnL | Legacy additive US10Y carry (reference) | **Legacy adjusted PnL** | **Legacy adjusted ROI** |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
-| **Variant 1 — 1U Open** | logged entry sizes; explicit exits close longs | 216.5U ($2,165,000) | $33,565.74 | $71,741.96 | $105,307.70 | $241.29 | **$105,548.99** | **4.88%** |
-| **Variant 2 — 1U SAR** | V1 sizing plus LONG/REBUY closes open shorts | 216.5U ($2,165,000) | $39,389.88 | $63,074.62 | $102,464.50 | $241.29 | **$102,705.79** | **4.74%** |
-| **Variant 3A — Nu Open** | V1 behavior; qualifying compounded shorts use preceding full-exit units | 225.5U ($2,255,000) | $33,565.74 | $93,025.45 | $126,591.19 | $264.52 | **$126,855.71** | **5.63%** |
-| **Variant 3B — Nu SAR** | V2 behavior plus qualifying compounded shorts | 225.5U ($2,255,000) | $50,556.58 | $63,074.62 | $113,631.20 | $264.52 | **$113,895.72** | **5.05%** |
+| **Variant 1 — 1U Open** | logged entry sizes; explicit exits close longs | 236.5U ($2,365,000) | $33,565.74 | $70,025.52 | $103,591.26 | $241.29 | **$103,832.55** | **4.39%** |
+| **Variant 2 — 1U SAR** | V1 sizing plus LONG/REBUY closes open shorts | 236.5U ($2,365,000) | $39,389.88 | $61,358.18 | $100,748.06 | $241.29 | **$100,989.35** | **4.27%** |
+| **Variant 3A — Nu Open** | V1 behavior; qualifying compounded shorts use preceding full-exit units | 245.5U ($2,455,000) | $33,565.74 | $91,309.01 | $124,874.75 | $264.52 | **$125,139.27** | **5.10%** |
+| **Variant 3B — Nu SAR** | V2 behavior plus qualifying compounded shorts | 245.5U ($2,455,000) | $50,556.58 | $61,358.18 | $111,914.76 | $264.52 | **$112,179.28** | **4.57%** |
 
 Displayed dollar components are rounded to cents and reconciled so realized plus unrealized equals Base PnL; legacy adjusted PnL equals displayed Base PnL plus the displayed carry. Unrounded replay values drive model calculations and charts.
 
@@ -78,7 +79,7 @@ All four models agree on `27` of the `31` tickers. They diverge only on **`CAT`,
 
 This chart shows base trading PnL before the legacy additive US10Y carry; the legacy adjusted ROI is shown for reference in the model table above and selectable in the interactive explorer. For whole-account factor scenarios, use the linked Yield Multiplier Explorer.
 
-Raw dollars flatter V3A/V3B because they deploy more capital — `225.5` units (`$2,255,000.00`) against V1/V2's `216.5` units (`$2,165,000.00`). ROI normalises for that, and the terminal ranking is unchanged: compounding shorts into full exits beats flat sizing on both capital bases, and *not* stop-and-reversing beats stop-and-reversing on both.
+Raw dollars flatter V3A/V3B because they deploy more capital — `245.5` units (`$2,455,000.00`) against V1/V2's `236.5` units (`$2,365,000.00`). ROI normalises for that, and the terminal ranking is unchanged: compounding shorts into full exits beats flat sizing on both capital bases, and *not* stop-and-reversing beats stop-and-reversing on both.
 
 ## Day-by-Day Moves
 
@@ -121,7 +122,7 @@ Raw dollars flatter V3A/V3B because they deploy more capital — `225.5` units (
 | `2026-10-20` | -575.22 | -868.55 | +125.56 | -868.55 | widest split (V3A best, V2 worst) |
 | `2026-10-21` | -3,665.40 | -2,746.32 | -4,408.17 | -2,746.32 | widest split (V2 best, V3A worst) |
 | `2026-10-22` | +30,024.23 | +27,437.84 | +35,323.21 | +27,437.84 | widest split (V3A best, V3B worst) |
-| `2026-10-23` | +40,772.99 | +40,768.48 | +40,831.44 | +40,768.48 | Terminal mark |
+| `2026-10-23` | +39,056.55 | +39,052.04 | +39,115.00 | +39,052.04 | Terminal mark |
 
 ## Where the Models Diverge
 
@@ -138,10 +139,10 @@ Raw dollars flatter V3A/V3B because they deploy more capital — `225.5` units (
 
 | Model | Peak | Peak day | Trough | Trough day | Max drawdown | Max DD day | Best day | Worst day |
 |---|---:|---|---:|---:|---|---:|---|---:|
-| **Variant 1 — 1U Open** | $105,307.70 | `2026-10-23` | $59.27 | `2026-09-03` | -$12,777.95 | `2026-10-21` | $40,772.99 (`2026-10-23`) | -$8,537.33 (`2026-10-19`) |
-| **Variant 2 — 1U SAR** | $102,464.50 | `2026-10-23` | $59.27 | `2026-09-03` | -$11,445.07 | `2026-10-21` | $40,768.48 (`2026-10-23`) | -$7,830.20 (`2026-10-19`) |
-| **Variant 3A — Nu Open** | $126,591.19 | `2026-10-23` | $59.27 | `2026-09-03` | -$13,252.24 | `2026-10-21` | $40,831.44 (`2026-10-23`) | -$8,969.63 (`2026-10-19`) |
-| **Variant 3B — Nu SAR** | $113,631.20 | `2026-10-23` | $59.27 | `2026-09-03` | -$11,431.43 | `2026-10-21` | $40,768.48 (`2026-10-23`) | -$7,816.55 (`2026-10-19`) |
+| **Variant 1 — 1U Open** | $103,591.26 | `2026-10-23` | $59.27 | `2026-09-03` | -$12,777.95 | `2026-10-21` | $39,056.55 (`2026-10-23`) | -$8,537.33 (`2026-10-19`) |
+| **Variant 2 — 1U SAR** | $100,748.06 | `2026-10-23` | $59.27 | `2026-09-03` | -$11,445.07 | `2026-10-21` | $39,052.04 (`2026-10-23`) | -$7,830.20 (`2026-10-19`) |
+| **Variant 3A — Nu Open** | $124,874.75 | `2026-10-23` | $59.27 | `2026-09-03` | -$13,252.24 | `2026-10-21` | $39,115.00 (`2026-10-23`) | -$8,969.63 (`2026-10-19`) |
+| **Variant 3B — Nu SAR** | $111,914.76 | `2026-10-23` | $59.27 | `2026-09-03` | -$11,431.43 | `2026-10-21` | $39,052.04 (`2026-10-23`) | -$7,816.55 (`2026-10-19`) |
 
 ## Terminal Composition
 
@@ -149,10 +150,10 @@ Raw dollars flatter V3A/V3B because they deploy more capital — `225.5` units (
 
 | Model | Realized (closed) | Unrealized (open) | Closed lots | Open lots |
 |---|---:|---:|---:|---:|
-| **Variant 1 — 1U Open** | $33,565.74 | $71,741.96 | 17 | 102 |
-| **Variant 2 — 1U SAR** | $39,389.88 | $63,074.62 | 22 | 97 |
-| **Variant 3A — Nu Open** | $33,565.74 | $93,025.45 | 17 | 102 |
-| **Variant 3B — Nu SAR** | $50,556.58 | $63,074.62 | 22 | 97 |
+| **Variant 1 — 1U Open** | $33,565.74 | $70,025.52 | 17 | 104 |
+| **Variant 2 — 1U SAR** | $39,389.88 | $61,358.18 | 22 | 99 |
+| **Variant 3A — Nu Open** | $33,565.74 | $91,309.01 | 17 | 104 |
+| **Variant 3B — Nu SAR** | $50,556.58 | $61,358.18 | 22 | 99 |
 
 ## Contribution by Ticker
 
@@ -171,8 +172,8 @@ Raw dollars flatter V3A/V3B because they deploy more capital — `225.5` units (
 
 | Ticker | Units | Realized | Unrealized | **Total** |
 |---|---:|---:|---:|---:|
-| `BRENT` | 55U | $5,015.62 | $26,327.68 | **$31,343.30** |
-| `OIL` | 56U | $2,988.69 | $24,425.55 | **$27,414.24** |
+| `BRENT` | 65U | $5,015.62 | $26,032.81 | **$31,048.43** |
+| `OIL` | 66U | $2,988.69 | $23,003.98 | **$25,992.67** |
 | `INTC` | 14U | $10,955.99 | $12,998.59 | **$23,954.58** |
 | `META` | 13U | $10,430.36 | $6,100.53 | **$16,530.89** |
 | `LMT` | 4U | $0.00 | $6,990.06 | **$6,990.06** |
@@ -292,13 +293,13 @@ The next chart contains all **16 Core × variant-specific 1U/EOD pairings**, inc
 
 ![All 16 Core × 1U variant pairings with energy sidecar](Charts/performance/21-force-variant-oil-comparison.png)
 
-The percentage-gain view plots all **32 series**: the same 16 Core × 1U pairings, each with and without the energy sidecar. Gain is cumulative PnL divided by cumulative gross notional added—a deployed-notional ratio, **not an account return**. Only the top four terminal performers are named in the legend; all 32 are plotted. The earlier **8.88% static single-composite proxy is not a result for this 32-portfolio split**. The leading terminal ratios are Core V3A + 1U V3A with energy sidecar, **5.38%**; Core V3A + 1U V3B with energy sidecar, **5.30%**; Core V3B + 1U V3A with energy sidecar, **5.29%**; Core V3A + 1U V1 with energy sidecar, **5.27%**.
+The percentage-gain view plots all **32 series**: the same 16 Core × 1U pairings, each with and without the energy sidecar. Gain is cumulative PnL divided by cumulative gross notional added—a deployed-notional ratio, **not an account return**. Only the top four terminal performers are named in the legend; all 32 are plotted. The earlier **8.88% static single-composite proxy is not a result for this 32-portfolio split**. The leading terminal ratios are Core V3A + 1U V3A with energy sidecar, **5.30%**; Core V3A + 1U V3B with energy sidecar, **5.22%**; Core V3B + 1U V3A with energy sidecar, **5.21%**; Core V3A + 1U V1 with energy sidecar, **5.19%**.
 
 ![All 32 Core × 1U variant pairings with and without the energy sidecar, shown as deployed-notional percentage gain](Charts/performance/22-force-variant-oil-percent-gain.png)
 
 ## Method & Caveats
 
-- **Model coverage:** the four variants directly price `31` TradingView tickers and include the chart-directed 1U/DAY/DXY index-return sleeve. `89` direct-price trade events plus `1` DXY direction signal are in scope through Oct. 23; `2` direct-price events after the mark are excluded. `9` other BTC, ETH, EURUSD, JPYUSD, US10Y, and US30Y log events are not replayed as direct-price positions. The two US10Y events establish yield-adjustment context; this report's additive carry is retained only as a legacy reference. Whole-account US10Y and compounded US30Y multiplier scenarios remain historical. DXY uses an index-return proxy, not an exchange-traded contract model.
+- **Model coverage:** the four variants directly price `31` TradingView tickers and include the chart-directed 1U/DAY/DXY index-return sleeve. `91` direct-price trade events plus `1` DXY direction signal are in scope through Oct. 23; `8` direct-price events after the mark are excluded. `9` other BTC, ETH, EURUSD, JPYUSD, US10Y, and US30Y log events are not replayed as direct-price positions. The two US10Y events establish yield-adjustment context; this report's additive carry is retained only as a legacy reference. Whole-account US10Y and compounded US30Y multiplier scenarios remain historical. DXY uses an index-return proxy, not an exchange-traded contract model.
 - **Price source:** every direct-price core mark comes from the normalized user-provided TradingView Part A/Part B lists, aligned in [`data/tradingview_benchmark_session_marks_20261024.csv`](data/tradingview_benchmark_session_marks_20261024.csv). DXY's 1U/day proxy uses its separate supplied TradingView index marks and the charted direction signal; it is integrated into the core totals but is not a directly traded security. BTC/ETH remain pending and outside the core. Five missing XRH0 sessions use the last prior supplied TradingView close, with each carry-forward row explicitly flagged; this is a provisional mark convention. No Yahoo or historical-series fill is used.
 - **Benchmark provenance and alignment:** Part A and Part B raw observations, per-ticker coverage, and archive hashes are preserved in the paired CSV/JSON artifacts under `data/`. DXY is marked separately from the 31 direct-price tickers but its chart-directed 1U/day proxy is integrated into this core portfolio. EURUSD, JPYUSD, US10Y, and US30Y remain outside. Do not interpret the historical whole-portfolio DXY/yield pages as recalculated from this benchmark.
 - **Session calendar:** the `36` U.S. equity regular sessions from `2026-09-03` to `2026-10-23`. DXY index marks align to the same sessions; BTC/ETH remain excluded pending recalibration.
