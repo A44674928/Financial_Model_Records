@@ -165,6 +165,13 @@ class CleanSheetSpecTests(unittest.TestCase):
             "TOM_CURRENT_TOTAL",
             "TOM_NO_DXY_TOTAL",
             "TOM_CURRENT_EACH",
+            "Optional per-ticker sleeve-based investing design",
+            "TICKER_EACH",
+            "TICKER_TOTAL",
+            "INTC_CORE_V3A",
+            "**13.3359%** | **29.6353%**",
+            "$296.35 / $2,222.22 / $79.36",
+            "$2,963.53 / $22,222.22 / $793.57",
             "$235.07 / $1,000.00 / $11.70",
             "$2,350.66 / $10,000.00 / $116.99",
             "V3A core-only still has its integrated chart-directed 1U/DAY DXY sleeve",
@@ -202,6 +209,20 @@ class CleanSheetSpecTests(unittest.TestCase):
                 if row["variant"] == variant and Decimal(row["units_deployed"]) > 0
             ]
             self.assertEqual(max(candidates)[1], "LMT")
+
+        intc = {row["variant"]: row for row in ticker_rows if row["ticker"] == "INTC"}
+        expected_intc_ratios = {
+            "V1": Decimal("8.8892"),
+            "V2": Decimal("7.1148"),
+            "V3A": Decimal("13.3359"),
+            "V3B": Decimal("9.2179"),
+        }
+        for variant, expected_ratio in expected_intc_ratios.items():
+            row = intc[variant]
+            additions = Decimal(row["units_deployed"]) * Decimal("10000")
+            ratio = Decimal(row["total_usd"]) / additions * Decimal("100")
+            self.assertEqual(ratio.quantize(Decimal("0.0001")), expected_ratio)
+            self.assertIn(f"INTC_CORE_{variant}", self.roi_design)
 
 
 if __name__ == "__main__":

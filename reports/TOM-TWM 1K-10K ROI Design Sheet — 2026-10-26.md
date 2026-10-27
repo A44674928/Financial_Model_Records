@@ -31,6 +31,37 @@ Yes—**V3A core-only is included as its own design**, separate from the current
 
 The core-only standard V3A view therefore returns 4.5968% on the assumed funded base; its DXY-free counterfactual returns 5.1030%. The latter has a somewhat higher additions ratio too, but it is a distinct scope and must not be described as the unchanged canonical V3A core.
 
+## Optional per-ticker sleeve-based investing design
+
+A user may select one or more ticker sleeves instead of funding a whole multi-ticker core or TOM/TWM composite. A sleeve is keyed by `(model family, variant, ticker, sidecar scope)`—for example, `CORE_V3A / INTC / no extra sidecars`. Each sleeve keeps its own confirmed trade events, realized and unrealized PnL, gross additions, open lots, drawdown, marks, and scale factor. A sleeve is not an inferred live order or a substitute for the underlying all-ticker model record.
+
+### Allocation modes
+
+- **`TICKER_EACH`** — assign the $1K or $10K maximum-gross-open target to each selected ticker/variant sleeve independently. With N selected sleeves, aggregate funded open notional is N × the per-sleeve target. Each sleeve uses its own scale factor.
+- **`TICKER_TOTAL`** — cap the combined selected sleeves at $1K or $10K maximum gross open. The allocation weights must be supplied and recorded. Do not silently pick equal weights; an equal-weight proposal, if requested, is a separately labeled assumption.
+
+For either mode, display both PnL/additions and PnL/funded max-open return. Keep additions and funded cash denominators distinct; do not pool or net risk across tickers. Any reinvestment or transfer of realized PnL between sleeves would require a separate, explicit cash-flow rule.
+
+### INTC example: standalone core ticker sleeve, Oct. 26 supplied mark
+
+INTC's supplied TradingView EOD mark is **$90.47 on 2026-10-26**. Across the four core variants, the INTC book has **9 open units / $90,000 maximum gross open notional**. Native additions differ by variant ($160K for V1/V2; $200K for V3A/V3B), because previously closed lots remain in cumulative additions. The 1K and 10K projections uniformly scale each variant's complete INTC-only history by **1/90** and **1/9**, respectively.
+
+| Sleeve ID | Native realized / unrealized / total PnL | Native additions / max open | PnL / additions | PnL / funded max open | **$1K target:** PnL / additions / MDD | **$10K target:** PnL / additions / MDD |
+|---|---:|---:|---:|---:|---:|---:|
+| **INTC_CORE_V1** | $16,462.48 / −$2,239.77 / $14,222.71 | $160,000 / $90,000 | 8.8892% | 15.8030% | $158.03 / $1,777.78 / $79.36 | $1,580.30 / $17,777.78 / $793.57 |
+| **INTC_CORE_V2** | $13,623.38 / −$2,239.77 / $11,383.61 | $160,000 / $90,000 | 7.1148% | 12.6485% | $126.48 / $1,777.78 / $79.36 | $1,264.85 / $17,777.78 / $793.57 |
+| **INTC_CORE_V3A** | $28,911.54 / −$2,239.77 / **$26,671.77** | $200,000 / $90,000 | **13.3359%** | **29.6353%** | **$296.35 / $2,222.22 / $79.36** | **$2,963.53 / $22,222.22 / $793.57** |
+| **INTC_CORE_V3B** | $20,675.54 / −$2,239.77 / $18,435.77 | $200,000 / $90,000 | 9.2179% | 20.4842% | $204.84 / $2,222.22 / $79.36 | $2,048.42 / $22,222.22 / $793.57 |
+
+The projected percentages are unchanged by uniform scaling. For example, INTC V3A's **13.3359%** is PnL divided by $200K cumulative additions; **29.6353%** is PnL divided by the $90K maximum-open funded base. Its $1K sleeve projects $296.35 PnL on $2,222.22 cumulative additions, not $296.35 on $1K of additions. The historical INTC maximum peak-to-trough drawdown is $7,142.13 natively, shown scaled in the target columns.
+
+### Sleeve bookkeeping and limits
+
+- Keep ticker, variant, direction, entry/exit type, supplied quantity/price/timing, and ATS/manual categories intact. Do not infer fills or trades from screenshots; use the established user-confirmed event ledger.
+- Use TradingView-only valuation marks and the supplied session calendar. Keep legacy marks out. DXY remains a separate index-return sleeve—not an equity ticker—and must not be duplicated. BRENT/OIL sidecars remain separate U-equivalents, never shares.
+- A selected ticker sleeve is a historical research view. Selecting INTC V3A from a same-window comparison is subject to the same ex-post selection bias as selecting LMT or any other best-performing ticker. This sheet does not enable automatic ticker selection, broker execution, or cross-sleeve cash transfers.
+- Dollar scaling is mathematical. Whole-share/fractional-share rules, costs, slippage, taxes, spreads, market impact, and capacity remain unmodeled.
+
 ## TOM aggregate designs: TOTAL vs EACH
 
 All 32 TOM members are independent books; no positions, risk, or capital are netted. Native TOM currently includes the combined 11U/DAY DXY sleeve in every member. The no-DXY rows are counterfactual arithmetic carve-outs that remove both the integrated 1U/DAY core DXY and separate 10U/DAY DXY sleeve.
@@ -68,7 +99,7 @@ These constant factors reproduce the table projections and scale the full histor
 
 ## Source data
 
-- [`data/model_performance_summary.json`](../data/model_performance_summary.json), [`data/model_performance_daily.csv`](../data/model_performance_daily.csv), [`data/model_performance_tickers.csv`](../data/model_performance_tickers.csv): core-model PnL, additions, and ticker contributions.
+- [`data/model_performance_summary.json`](../data/model_performance_summary.json), [`data/model_performance_daily.csv`](../data/model_performance_daily.csv), [`data/model_performance_tickers.csv`](../data/model_performance_tickers.csv), and [`data/core_portfolio_asset_breakdown_20261026.csv`](../data/core_portfolio_asset_breakdown_20261026.csv): core-model PnL, additions, ticker contributions, realized/unrealized split, and current exposure.
 - [`data/the_one_model_split_portfolios_v1_summary.json`](../data/the_one_model_split_portfolios_v1_summary.json) and [`data/the_one_model_split_portfolios_v1.csv`](../data/the_one_model_split_portfolios_v1.csv): all 32 TOM members and sidecar paths.
 - [`data/the_one_model_energy_11u_sidecar_daily_v1.csv`](../data/the_one_model_energy_11u_sidecar_daily_v1.csv): BRENT/OIL 11U sidecar rows with TradingView marks.
 - [`data/the_one_model_vs_winning_model_v1_summary.json`](../data/the_one_model_vs_winning_model_v1_summary.json): existing TWM_1M_FULL, TWM_1M_LIGHT, and TWM_1M_MAX.

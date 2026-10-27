@@ -11,6 +11,7 @@ This repository contains the Fall (Arizona) 2026 paper-trading ledger, model ana
 - [THE ONE MODEL — Winning Model and Contender Specification](THE%20ONE%20MODEL%20%E2%80%94%20Winning%20Model%20and%20Contender%20Specification.md) — current champion, all 32 candidates, and how future models such as V4 can contend.
 - [THE ONE MODEL (TOM) — Clean-Sheet Specification](THE%20ONE%20MODEL%20%28TOM%29%20%E2%80%94%20Clean-Sheet%20Specification.md) — TOM construction, winner rules, and aggregate vs per-constituent $1K/$10K sizing.
 - [TOM / TWM 1K–10K ROI Design Sheet — 2026-10-26](reports/TOM-TWM%201K-10K%20ROI%20Design%20Sheet%20%E2%80%94%202026-10-26.md) — $1K/$10K projections for V3A core-only, DXY-free, LMT-only, BRENT-only, TWM, and TOM aggregate/per-member designs.
+- [Weightless Randomized Demo Portfolios — 2026-10-26](reports/Weightless%20Randomized%20Demo%20Portfolios%20%E2%80%94%202026-10-26.md) — fixed-seed equal-dollar mixed compositions, daily aggregate paths, and a composition-agnostic accounting demonstration (not a profitability forecast).
 - [Model Performance Explorer](Model%20Performance%20Explorer.html) — interactive view of model results.
 - [Model Calculation Guide](Model%20Calculation%20Guide.md) — plain-language unit sizing, daily position handling, reversal logic, and PnL formulas.
 - [Oil Cost Basis Savings Model](Oil%20Cost%20Basis%20Savings%20Model.md) — realized target-trim and modeled SHORT-exit PnL credited once to the effective basis of the residual and replenishment lots, mapped across all 32 portfolios.
@@ -46,6 +47,7 @@ PYTHONPATH=scripts python3 scripts/build_model_performance.py
 PYTHONPATH=scripts python3 scripts/build_core_asset_breakdown.py
 PYTHONPATH=scripts python3 scripts/build_strategy_sidecar_comparison.py
 PYTHONPATH=scripts python3 scripts/build_the_one_model_split_portfolios.py
+python3 scripts/build_weightless_randomized_demo_portfolios.py
 PYTHONPATH=scripts python3 scripts/build_weekend_oil_50u_positions.py
 PYTHONPATH=scripts python3 scripts/build_oil_cost_basis_savings.py
 PYTHONPATH=scripts python3 scripts/audit_actionable_tickers.py

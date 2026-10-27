@@ -1,0 +1,145 @@
+demo_id,component_id,component_type,component_description,native_max_open_notional_usd,equal_sleeve_target_usd,scale_factor,dxy_units_per_active_eod
+WLESS-01,CORE_V2_NO_DXY,core,V2 direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-01,TOM_32_AGGREGATE_NO_DXY,model,TOM aggregate of 32 independent books; both DXY sleeves removed arithmetically,352080000.00,1000.00,0.000002840264,0.0000
+WLESS-01,CORE_TICKER_V3A_HD,ticker,V3A core ticker HD; DXY excluded,10000.00,1000.00,0.100000000000,0.0000
+WLESS-02,CORE_V3B_NO_DXY,core,V3B direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-02,TWM_1M_MAX_NO_DXY_10U_ENERGY,model,"Existing TWM_1M_MAX: no DXY, 10U/DAY energy",1000000.00,1000.00,0.001000000000,0.0000
+WLESS-02,FORCE_V3A_1U_EOD,force,V3A variant-specific 1U/EOD force model; no DXY,5880000.00,1000.00,0.000170068027,0.0000
+WLESS-03,CORE_V3B_NO_DXY,core,V3B direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-03,TOM_32_AGGREGATE_NO_DXY,model,TOM aggregate of 32 independent books; both DXY sleeves removed arithmetically,352080000.00,1000.00,0.000002840264,0.0000
+WLESS-03,CORE_TICKER_V1_GEV,ticker,V1 core ticker GEV; DXY excluded,20000.00,1000.00,0.050000000000,0.0000
+WLESS-03,ENERGY_BRENT_11U_DAY,energy,"11U/DAY BRENT daily-buy sidecar; U-equivalents, no share conversion",2640000.00,1000.00,0.000378787879,0.0000
+WLESS-03,DXY_10U_STANDALONE,dxy,"Standalone TradingView DXY index-return sleeve, 10U; not a share ticker",3600000.00,1000.00,0.000277777778,10.0000
+WLESS-04,CORE_V3B_NO_DXY,core,V3B direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-04,TOM_32_AGGREGATE_NO_DXY,model,TOM aggregate of 32 independent books; both DXY sleeves removed arithmetically,352080000.00,1000.00,0.000002840264,0.0000
+WLESS-04,CORE_TICKER_V3B_CAT,ticker,V3B core ticker CAT; DXY excluded,20000.00,1000.00,0.050000000000,0.0000
+WLESS-04,DXY_10U_STANDALONE,dxy,"Standalone TradingView DXY index-return sleeve, 10U; not a share ticker",3600000.00,1000.00,0.000277777778,10.0000
+WLESS-04,FORCE_V3B_1U_EOD,force,V3B variant-specific 1U/EOD force model; no DXY,5590000.00,1000.00,0.000178890877,0.0000
+WLESS-04,ENERGY_OIL_11U_DAY,energy,"11U/DAY OIL daily-buy sidecar; U-equivalents, no share conversion",3630000.00,1000.00,0.000275482094,0.0000
+WLESS-05,CORE_V2_NO_DXY,core,V2 direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-05,TOM_32_AGGREGATE_NO_DXY,model,TOM aggregate of 32 independent books; both DXY sleeves removed arithmetically,352080000.00,1000.00,0.000002840264,0.0000
+WLESS-05,FORCE_V3A_1U_EOD,force,V3A variant-specific 1U/EOD force model; no DXY,5880000.00,1000.00,0.000170068027,0.0000
+WLESS-05,CORE_TICKER_V3A_LULU,ticker,V3A core ticker LULU; DXY excluded,10000.00,1000.00,0.100000000000,0.0000
+WLESS-05,ENERGY_OIL_11U_DAY,energy,"11U/DAY OIL daily-buy sidecar; U-equivalents, no share conversion",3630000.00,1000.00,0.000275482094,0.0000
+WLESS-06,CORE_V1_NO_DXY,core,V1 direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-06,TOM_MEMBER_NO_DXY_core_v2__1u_v3a__with_oil,model,One TOM constituent core_v2__1u_v3a__with_oil; both DXY sleeves removed,14315000.00,1000.00,0.000069856794,0.0000
+WLESS-06,DXY_1U_STANDALONE,dxy,"Standalone TradingView DXY index-return sleeve, 1U; not a share ticker",360000.00,1000.00,0.002777777778,1.0000
+WLESS-06,CORE_TICKER_V1_WMT,ticker,V1 core ticker WMT; DXY excluded,10000.00,1000.00,0.100000000000,0.0000
+WLESS-06,FORCE_V3B_1U_EOD,force,V3B variant-specific 1U/EOD force model; no DXY,5590000.00,1000.00,0.000178890877,0.0000
+WLESS-07,CORE_V3B_NO_DXY,core,V3B direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-07,TOM_MEMBER_NO_DXY_core_v3b__1u_v1__with_oil,model,One TOM constituent core_v3b__1u_v1__with_oil; both DXY sleeves removed,14225000.00,1000.00,0.000070298770,0.0000
+WLESS-07,FORCE_V3A_1U_EOD,force,V3A variant-specific 1U/EOD force model; no DXY,5880000.00,1000.00,0.000170068027,0.0000
+WLESS-07,CORE_TICKER_V3A_ORCL,ticker,V3A core ticker ORCL; DXY excluded,35000.00,1000.00,0.028571428571,0.0000
+WLESS-08,CORE_V1_NO_DXY,core,V1 direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-08,TOM_32_AGGREGATE_NO_DXY,model,TOM aggregate of 32 independent books; both DXY sleeves removed arithmetically,352080000.00,1000.00,0.000002840264,0.0000
+WLESS-08,CORE_TICKER_V2_PEP,ticker,V2 core ticker PEP; DXY excluded,10000.00,1000.00,0.100000000000,0.0000
+WLESS-09,CORE_V3A_NO_DXY,core,V3A direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-09,TWM_1M_MAX_NO_DXY_10U_ENERGY,model,"Existing TWM_1M_MAX: no DXY, 10U/DAY energy",1000000.00,1000.00,0.001000000000,0.0000
+WLESS-09,FORCE_V3A_1U_EOD,force,V3A variant-specific 1U/EOD force model; no DXY,5880000.00,1000.00,0.000170068027,0.0000
+WLESS-09,CORE_TICKER_V3A_XRH0,ticker,V3A core ticker XRH0; DXY excluded,10000.00,1000.00,0.100000000000,0.0000
+WLESS-10,CORE_V3A_NO_DXY,core,V3A direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-10,TWM_1M_MAX_NO_DXY_10U_ENERGY,model,"Existing TWM_1M_MAX: no DXY, 10U/DAY energy",1000000.00,1000.00,0.001000000000,0.0000
+WLESS-10,ENERGY_BRENT_11U_DAY,energy,"11U/DAY BRENT daily-buy sidecar; U-equivalents, no share conversion",2640000.00,1000.00,0.000378787879,0.0000
+WLESS-11,CORE_V3A_NO_DXY,core,V3A direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-11,TOM_MEMBER_NO_DXY_core_v3a__1u_v1__with_oil,model,One TOM constituent core_v3a__1u_v1__with_oil; both DXY sleeves removed,14225000.00,1000.00,0.000070298770,0.0000
+WLESS-11,FORCE_V1_1U_EOD,force,V1 variant-specific 1U/EOD force model; no DXY,5790000.00,1000.00,0.000172711572,0.0000
+WLESS-11,CORE_TICKER_V1_AMZN,ticker,V1 core ticker AMZN; DXY excluded,10000.00,1000.00,0.100000000000,0.0000
+WLESS-11,DXY_1U_STANDALONE,dxy,"Standalone TradingView DXY index-return sleeve, 1U; not a share ticker",360000.00,1000.00,0.002777777778,1.0000
+WLESS-11,ENERGY_BRENT_11U_DAY,energy,"11U/DAY BRENT daily-buy sidecar; U-equivalents, no share conversion",2640000.00,1000.00,0.000378787879,0.0000
+WLESS-12,CORE_V3B_NO_DXY,core,V3B direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-12,TOM_32_AGGREGATE_NO_DXY,model,TOM aggregate of 32 independent books; both DXY sleeves removed arithmetically,352080000.00,1000.00,0.000002840264,0.0000
+WLESS-12,CORE_TICKER_V1_VLO,ticker,V1 core ticker VLO; DXY excluded,10000.00,1000.00,0.100000000000,0.0000
+WLESS-12,DXY_1U_STANDALONE,dxy,"Standalone TradingView DXY index-return sleeve, 1U; not a share ticker",360000.00,1000.00,0.002777777778,1.0000
+WLESS-12,ENERGY_OIL_11U_DAY,energy,"11U/DAY OIL daily-buy sidecar; U-equivalents, no share conversion",3630000.00,1000.00,0.000275482094,0.0000
+WLESS-13,CORE_V3B_NO_DXY,core,V3B direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-13,TOM_MEMBER_NO_DXY_core_v3a__1u_v3b__with_oil,model,One TOM constituent core_v3a__1u_v3b__with_oil; both DXY sleeves removed,14005000.00,1000.00,0.000071403070,0.0000
+WLESS-13,ENERGY_OIL_11U_DAY,energy,"11U/DAY OIL daily-buy sidecar; U-equivalents, no share conversion",3630000.00,1000.00,0.000275482094,0.0000
+WLESS-13,DXY_10U_STANDALONE,dxy,"Standalone TradingView DXY index-return sleeve, 10U; not a share ticker",3600000.00,1000.00,0.000277777778,10.0000
+WLESS-13,CORE_TICKER_V2_V,ticker,V2 core ticker V; DXY excluded,10000.00,1000.00,0.100000000000,0.0000
+WLESS-14,CORE_V2_NO_DXY,core,V2 direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-14,TOM_32_AGGREGATE_NO_DXY,model,TOM aggregate of 32 independent books; both DXY sleeves removed arithmetically,352080000.00,1000.00,0.000002840264,0.0000
+WLESS-14,DXY_1U_STANDALONE,dxy,"Standalone TradingView DXY index-return sleeve, 1U; not a share ticker",360000.00,1000.00,0.002777777778,1.0000
+WLESS-14,ENERGY_BRENT_11U_DAY,energy,"11U/DAY BRENT daily-buy sidecar; U-equivalents, no share conversion",2640000.00,1000.00,0.000378787879,0.0000
+WLESS-14,CORE_TICKER_V2_XRH0,ticker,V2 core ticker XRH0; DXY excluded,10000.00,1000.00,0.100000000000,0.0000
+WLESS-14,FORCE_V3A_1U_EOD,force,V3A variant-specific 1U/EOD force model; no DXY,5880000.00,1000.00,0.000170068027,0.0000
+WLESS-15,CORE_V3A_NO_DXY,core,V3A direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-15,TWM_1M_MAX_NO_DXY_10U_ENERGY,model,"Existing TWM_1M_MAX: no DXY, 10U/DAY energy",1000000.00,1000.00,0.001000000000,0.0000
+WLESS-15,CORE_TICKER_V1_PLTR,ticker,V1 core ticker PLTR; DXY excluded,30000.00,1000.00,0.033333333333,0.0000
+WLESS-15,DXY_10U_STANDALONE,dxy,"Standalone TradingView DXY index-return sleeve, 10U; not a share ticker",3600000.00,1000.00,0.000277777778,10.0000
+WLESS-15,ENERGY_OIL_11U_DAY,energy,"11U/DAY OIL daily-buy sidecar; U-equivalents, no share conversion",3630000.00,1000.00,0.000275482094,0.0000
+WLESS-16,CORE_V3B_NO_DXY,core,V3B direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-16,TWM_1M_MAX_NO_DXY_10U_ENERGY,model,"Existing TWM_1M_MAX: no DXY, 10U/DAY energy",1000000.00,1000.00,0.001000000000,0.0000
+WLESS-16,DXY_1U_STANDALONE,dxy,"Standalone TradingView DXY index-return sleeve, 1U; not a share ticker",360000.00,1000.00,0.002777777778,1.0000
+WLESS-16,CORE_TICKER_V3A_TMO,ticker,V3A core ticker TMO; DXY excluded,10000.00,1000.00,0.100000000000,0.0000
+WLESS-16,FORCE_V3A_1U_EOD,force,V3A variant-specific 1U/EOD force model; no DXY,5880000.00,1000.00,0.000170068027,0.0000
+WLESS-16,ENERGY_OIL_11U_DAY,energy,"11U/DAY OIL daily-buy sidecar; U-equivalents, no share conversion",3630000.00,1000.00,0.000275482094,0.0000
+WLESS-17,CORE_V3B_NO_DXY,core,V3B direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-17,TWM_1M_MAX_NO_DXY_10U_ENERGY,model,"Existing TWM_1M_MAX: no DXY, 10U/DAY energy",1000000.00,1000.00,0.001000000000,0.0000
+WLESS-17,CORE_TICKER_V3A_GEV,ticker,V3A core ticker GEV; DXY excluded,20000.00,1000.00,0.050000000000,0.0000
+WLESS-18,CORE_V3A_NO_DXY,core,V3A direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-18,TOM_MEMBER_NO_DXY_core_v3b__1u_v2__no_oil,model,One TOM constituent core_v3b__1u_v2__no_oil; both DXY sleeves removed,7735000.00,1000.00,0.000129282482,0.0000
+WLESS-18,CORE_TICKER_V1_WMT,ticker,V1 core ticker WMT; DXY excluded,10000.00,1000.00,0.100000000000,0.0000
+WLESS-18,DXY_1U_STANDALONE,dxy,"Standalone TradingView DXY index-return sleeve, 1U; not a share ticker",360000.00,1000.00,0.002777777778,1.0000
+WLESS-18,ENERGY_BRENT_11U_DAY,energy,"11U/DAY BRENT daily-buy sidecar; U-equivalents, no share conversion",2640000.00,1000.00,0.000378787879,0.0000
+WLESS-18,FORCE_V3A_1U_EOD,force,V3A variant-specific 1U/EOD force model; no DXY,5880000.00,1000.00,0.000170068027,0.0000
+WLESS-19,CORE_V3A_NO_DXY,core,V3A direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-19,TOM_32_AGGREGATE_NO_DXY,model,TOM aggregate of 32 independent books; both DXY sleeves removed arithmetically,352080000.00,1000.00,0.000002840264,0.0000
+WLESS-19,CORE_TICKER_V3A_XRH0,ticker,V3A core ticker XRH0; DXY excluded,10000.00,1000.00,0.100000000000,0.0000
+WLESS-19,ENERGY_OIL_11U_DAY,energy,"11U/DAY OIL daily-buy sidecar; U-equivalents, no share conversion",3630000.00,1000.00,0.000275482094,0.0000
+WLESS-19,FORCE_V3B_1U_EOD,force,V3B variant-specific 1U/EOD force model; no DXY,5590000.00,1000.00,0.000178890877,0.0000
+WLESS-20,CORE_V3A_NO_DXY,core,V3A direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-20,TOM_MEMBER_NO_DXY_core_v3b__1u_v3b__no_oil,model,One TOM constituent core_v3b__1u_v3b__no_oil; both DXY sleeves removed,7735000.00,1000.00,0.000129282482,0.0000
+WLESS-20,FORCE_V3B_1U_EOD,force,V3B variant-specific 1U/EOD force model; no DXY,5590000.00,1000.00,0.000178890877,0.0000
+WLESS-21,CORE_V1_NO_DXY,core,V1 direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-21,TWM_1M_MAX_NO_DXY_10U_ENERGY,model,"Existing TWM_1M_MAX: no DXY, 10U/DAY energy",1000000.00,1000.00,0.001000000000,0.0000
+WLESS-21,CORE_TICKER_V1_HD,ticker,V1 core ticker HD; DXY excluded,10000.00,1000.00,0.100000000000,0.0000
+WLESS-21,DXY_1U_STANDALONE,dxy,"Standalone TradingView DXY index-return sleeve, 1U; not a share ticker",360000.00,1000.00,0.002777777778,1.0000
+WLESS-22,CORE_V3A_NO_DXY,core,V3A direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-22,TWM_1M_MAX_NO_DXY_10U_ENERGY,model,"Existing TWM_1M_MAX: no DXY, 10U/DAY energy",1000000.00,1000.00,0.001000000000,0.0000
+WLESS-22,CORE_TICKER_V1_OIL,ticker,V1 core ticker OIL; DXY excluded,1000000.00,1000.00,0.001000000000,0.0000
+WLESS-22,DXY_1U_STANDALONE,dxy,"Standalone TradingView DXY index-return sleeve, 1U; not a share ticker",360000.00,1000.00,0.002777777778,1.0000
+WLESS-22,FORCE_V1_1U_EOD,force,V1 variant-specific 1U/EOD force model; no DXY,5790000.00,1000.00,0.000172711572,0.0000
+WLESS-22,ENERGY_BRENT_11U_DAY,energy,"11U/DAY BRENT daily-buy sidecar; U-equivalents, no share conversion",2640000.00,1000.00,0.000378787879,0.0000
+WLESS-23,CORE_V3A_NO_DXY,core,V3A direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-23,TWM_1M_MAX_NO_DXY_10U_ENERGY,model,"Existing TWM_1M_MAX: no DXY, 10U/DAY energy",1000000.00,1000.00,0.001000000000,0.0000
+WLESS-23,FORCE_V2_1U_EOD,force,V2 variant-specific 1U/EOD force model; no DXY,5590000.00,1000.00,0.000178890877,0.0000
+WLESS-23,DXY_1U_STANDALONE,dxy,"Standalone TradingView DXY index-return sleeve, 1U; not a share ticker",360000.00,1000.00,0.002777777778,1.0000
+WLESS-24,CORE_V3B_NO_DXY,core,V3B direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-24,TOM_32_AGGREGATE_NO_DXY,model,TOM aggregate of 32 independent books; both DXY sleeves removed arithmetically,352080000.00,1000.00,0.000002840264,0.0000
+WLESS-24,DXY_10U_STANDALONE,dxy,"Standalone TradingView DXY index-return sleeve, 10U; not a share ticker",3600000.00,1000.00,0.000277777778,10.0000
+WLESS-25,CORE_V3B_NO_DXY,core,V3B direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-25,TOM_MEMBER_NO_DXY_core_v3b__1u_v3b__with_oil,model,One TOM constituent core_v3b__1u_v3b__with_oil; both DXY sleeves removed,14005000.00,1000.00,0.000071403070,0.0000
+WLESS-25,ENERGY_OIL_11U_DAY,energy,"11U/DAY OIL daily-buy sidecar; U-equivalents, no share conversion",3630000.00,1000.00,0.000275482094,0.0000
+WLESS-26,CORE_V2_NO_DXY,core,V2 direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-26,TWM_1M_MAX_NO_DXY_10U_ENERGY,model,"Existing TWM_1M_MAX: no DXY, 10U/DAY energy",1000000.00,1000.00,0.001000000000,0.0000
+WLESS-26,DXY_1U_STANDALONE,dxy,"Standalone TradingView DXY index-return sleeve, 1U; not a share ticker",360000.00,1000.00,0.002777777778,1.0000
+WLESS-26,FORCE_V1_1U_EOD,force,V1 variant-specific 1U/EOD force model; no DXY,5790000.00,1000.00,0.000172711572,0.0000
+WLESS-26,ENERGY_OIL_11U_DAY,energy,"11U/DAY OIL daily-buy sidecar; U-equivalents, no share conversion",3630000.00,1000.00,0.000275482094,0.0000
+WLESS-26,CORE_TICKER_V1_AMZN,ticker,V1 core ticker AMZN; DXY excluded,10000.00,1000.00,0.100000000000,0.0000
+WLESS-27,CORE_V3B_NO_DXY,core,V3B direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-27,TOM_MEMBER_NO_DXY_core_v3b__1u_v1__with_oil,model,One TOM constituent core_v3b__1u_v1__with_oil; both DXY sleeves removed,14225000.00,1000.00,0.000070298770,0.0000
+WLESS-27,CORE_TICKER_V3A_META,ticker,V3A core ticker META; DXY excluded,70000.00,1000.00,0.014285714286,0.0000
+WLESS-28,CORE_V3A_NO_DXY,core,V3A direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-28,TWM_1M_MAX_NO_DXY_10U_ENERGY,model,"Existing TWM_1M_MAX: no DXY, 10U/DAY energy",1000000.00,1000.00,0.001000000000,0.0000
+WLESS-28,CORE_TICKER_V3A_CVX,ticker,V3A core ticker CVX; DXY excluded,30000.00,1000.00,0.033333333333,0.0000
+WLESS-29,CORE_V3B_NO_DXY,core,V3B direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-29,TOM_32_AGGREGATE_NO_DXY,model,TOM aggregate of 32 independent books; both DXY sleeves removed arithmetically,352080000.00,1000.00,0.000002840264,0.0000
+WLESS-29,FORCE_V2_1U_EOD,force,V2 variant-specific 1U/EOD force model; no DXY,5590000.00,1000.00,0.000178890877,0.0000
+WLESS-29,CORE_TICKER_V3A_VLO,ticker,V3A core ticker VLO; DXY excluded,10000.00,1000.00,0.100000000000,0.0000
+WLESS-29,ENERGY_OIL_11U_DAY,energy,"11U/DAY OIL daily-buy sidecar; U-equivalents, no share conversion",3630000.00,1000.00,0.000275482094,0.0000
+WLESS-29,DXY_10U_STANDALONE,dxy,"Standalone TradingView DXY index-return sleeve, 10U; not a share ticker",3600000.00,1000.00,0.000277777778,10.0000
+WLESS-30,CORE_V2_NO_DXY,core,V2 direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-30,TWM_1M_MAX_NO_DXY_10U_ENERGY,model,"Existing TWM_1M_MAX: no DXY, 10U/DAY energy",1000000.00,1000.00,0.001000000000,0.0000
+WLESS-30,CORE_TICKER_V1_TSLA,ticker,V1 core ticker TSLA; DXY excluded,10000.00,1000.00,0.100000000000,0.0000
+WLESS-30,DXY_10U_STANDALONE,dxy,"Standalone TradingView DXY index-return sleeve, 10U; not a share ticker",3600000.00,1000.00,0.000277777778,10.0000
+WLESS-30,ENERGY_BRENT_11U_DAY,energy,"11U/DAY BRENT daily-buy sidecar; U-equivalents, no share conversion",2640000.00,1000.00,0.000378787879,0.0000
+WLESS-30,FORCE_V2_1U_EOD,force,V2 variant-specific 1U/EOD force model; no DXY,5590000.00,1000.00,0.000178890877,0.0000
+WLESS-31,CORE_V3A_NO_DXY,core,V3A direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-31,TOM_32_AGGREGATE_NO_DXY,model,TOM aggregate of 32 independent books; both DXY sleeves removed arithmetically,352080000.00,1000.00,0.000002840264,0.0000
+WLESS-31,FORCE_V2_1U_EOD,force,V2 variant-specific 1U/EOD force model; no DXY,5590000.00,1000.00,0.000178890877,0.0000
+WLESS-31,CORE_TICKER_V3A_DIS,ticker,V3A core ticker DIS; DXY excluded,20000.00,1000.00,0.050000000000,0.0000
+WLESS-31,ENERGY_OIL_11U_DAY,energy,"11U/DAY OIL daily-buy sidecar; U-equivalents, no share conversion",3630000.00,1000.00,0.000275482094,0.0000
+WLESS-32,CORE_V3A_NO_DXY,core,V3A direct-price core; integrated 1U/DAY DXY removed,2595000.00,1000.00,0.000385356455,0.0000
+WLESS-32,TOM_32_AGGREGATE_NO_DXY,model,TOM aggregate of 32 independent books; both DXY sleeves removed arithmetically,352080000.00,1000.00,0.000002840264,0.0000
+WLESS-32,FORCE_V2_1U_EOD,force,V2 variant-specific 1U/EOD force model; no DXY,5590000.00,1000.00,0.000178890877,0.0000
+WLESS-32,DXY_10U_STANDALONE,dxy,"Standalone TradingView DXY index-return sleeve, 10U; not a share ticker",3600000.00,1000.00,0.000277777778,10.0000
