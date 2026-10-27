@@ -61,6 +61,17 @@ class StrategySidecarComparisonTests(unittest.TestCase):
         audits = {}
         for variant in ("V1", "V2", "V3A", "V3B"):
             daily[variant], audits[variant] = variant_force_multiplier_daily_model(variant, events)
+        realized_daily, realized_audits, realized_events = variant_force_multiplier_daily_model(
+            "V3A", events, return_realized=True
+        )
+        self.assertEqual(realized_daily, daily["V3A"])
+        self.assertEqual(realized_audits, audits["V3A"])
+        self.assertTrue(realized_events)
+        self.assertAlmostEqual(
+            sum(event["pnl"] for event in realized_events),
+            float(realized_daily[-1]["V3A_force_1u_realized_pnl_usd"]),
+            delta=0.01,
+        )
 
         def audit(variant, ticker, day):
             return next(row for row in audits[variant] if row["ticker"] == ticker and row["date"] == day)
