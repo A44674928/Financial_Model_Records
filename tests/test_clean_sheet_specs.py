@@ -19,9 +19,13 @@ class CleanSheetSpecTests(unittest.TestCase):
 
     def test_twm_spec_covers_chart_intake_sizes_and_accumulator_limits(self):
         for phrase in (
+            "TWM terminology",
+            "**TWM** is the prefix for the **The Winning Model** chart-to-model series",
             "Chart submission and event-intake contract",
             "The user supplies intent",
             "human-in-the-loop specification",
+            "TWM_1X",
+            "1.000000×",
             "TWM_1M_FULL",
             "TWM_1M_LIGHT",
             "TWM_1M_MAX",
