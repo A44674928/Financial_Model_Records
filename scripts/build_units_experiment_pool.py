@@ -18,6 +18,7 @@ ONE_SUMMARY = ROOT / "data/the_one_model_split_portfolios_v1_summary.json"
 WINNER_SUMMARY = ROOT / "data/the_one_model_vs_winning_model_v1_summary.json"
 STRATEGY_DAILY = ROOT / "data/strategy_sidecar_comparison_daily_v1.csv"
 DXY_DAILY = ROOT / "data/dxy_currency_desk_sidecar_daily_20261026.csv"
+TRADINGVIEW_MARKS = ROOT / "data/tradingview_benchmark_session_marks_20261026.csv"
 OUTPUT_CSV = ROOT / "data/units_experiment_pool_allocation_20261026.csv"
 COSTS_CSV = ROOT / "data/units_experiment_model_costs_20261026.csv"
 OUTPUT_REPORT = ROOT / "Units Experiment Pool Allocation.md"
@@ -26,7 +27,11 @@ STARTING_POOL_USD = Decimal("20000000000.00")
 LARGE_UNIT_USD = Decimal("1000000000.00")
 SMALL_UNIT_USD = Decimal("10000.00")
 ALLOCATION_FRACTION = Decimal("0.5")
-BUY_PRICES = {"BRENT": Decimal("115.00"), "OIL": Decimal("101.00")}
+# User-reported month/day and entry basis; 2026 is aligned to the active model window.
+ENTRY_DATE_TEXT = {"BRENT": "Sep 23", "OIL": "Sep 22"}
+ENTRY_DATES = {"BRENT": "2026-09-23", "OIL": "2026-09-22"}
+ENTRY_YEAR_NOTE = "2026 model-year alignment; user text supplied month/day but not a year"
+BUY_PRICES = {"BRENT": Decimal("102.315"), "OIL": Decimal("89.89")}
 LOCK_TARGET_USD = Decimal("200.00")
 
 
@@ -41,6 +46,24 @@ def read_csv(path: Path) -> list[dict[str, str]]:
 
 def floor_to_int(value: Decimal) -> int:
     return int(value.to_integral_value(rounding=ROUND_FLOOR))
+
+
+def current_energy_marks() -> tuple[str, dict[str, Decimal]]:
+    """Get latest supplied TradingView EOD closes for the two locked-up legs."""
+    rows = read_csv(TRADINGVIEW_MARKS)
+    marks: dict[str, tuple[str, Decimal]] = {}
+    for row in rows:
+        ticker = row["Ticker"]
+        if ticker not in ENTRY_DATES or row["Mark_Status"] != "provided_tradingview_close":
+            continue
+        date = row["Date"]
+        if ticker not in marks or date > marks[ticker][0]:
+            marks[ticker] = (date, dec(row["Close"]))
+    if set(marks) != set(ENTRY_DATES):
+        raise ValueError("Latest supplied TradingView closes are required for BRENT and OIL")
+    if marks["BRENT"][0] != marks["OIL"][0]:
+        raise ValueError("BRENT and OIL lock-status marks must share a session date")
+    return marks["BRENT"][0], {ticker: mark[1] for ticker, mark in marks.items()}
 
 
 def current_costs() -> tuple[dict, dict, list[dict]]:
@@ -118,6 +141,8 @@ def build_rows() -> tuple[dict, dict, list[dict], list[dict]]:
     if remaining < 0:
         raise ValueError("Current modeled open notional exceeds the user-stated starting pool")
 
+    mark_date, current_marks = current_energy_marks()
+    lock_status = "LOCKED" if not all(mark >= LOCK_TARGET_USD for mark in current_marks.values()) else "LOCK CONDITION MET"
     allocation_rows = []
     for ticker, price in BUY_PRICES.items():
         allocation = remaining * ALLOCATION_FRACTION
@@ -127,13 +152,19 @@ def build_rows() -> tuple[dict, dict, list[dict], list[dict]]:
         large_notional = Decimal(large_units) * LARGE_UNIT_USD
         small_notional = Decimal(small_units) * SMALL_UNIT_USD
         cash_remainder = allocation - large_notional - small_notional
+        quantity_equivalent = allocation / price
+        current_value = quantity_equivalent * current_marks[ticker]
+        mark_change = current_value - allocation
         allocation_rows.append({
             "ticker": ticker,
+            "user_reported_entry_date_text": ENTRY_DATE_TEXT[ticker],
+            "modeled_entry_date": ENTRY_DATES[ticker],
+            "entry_year_assumption": ENTRY_YEAR_NOTE,
+            "user_reported_entry_price_usd": str(price),
             "starting_profit_pool_usd": f"{STARTING_POOL_USD:.2f}",
             "total_active_model_deductions_usd": f"{total_deductions:.2f}",
             "allocation_fraction": f"{ALLOCATION_FRACTION:.4f}",
             "allocation_usd": f"{allocation:.2f}",
-            "modeled_buy_price_usd": f"{price:.2f}",
             "large_unit_value_usd": f"{LARGE_UNIT_USD:.2f}",
             "large_unit_count": str(large_units),
             "large_unit_notional_usd": f"{large_notional:.2f}",
@@ -141,10 +172,17 @@ def build_rows() -> tuple[dict, dict, list[dict], list[dict]]:
             "small_unit_count": str(small_units),
             "small_unit_notional_usd": f"{small_notional:.2f}",
             "residual_cash_under_small_unit_usd": f"{cash_remainder:.2f}",
-            "modeled_instrument_quantity_equivalent": f"{allocation / price:.8f}",
-            "lock_condition": "both supplied BRENT and OIL EOD marks reach $200.00",
-            "execution_status": "hypothetical allocation only; no order or brokerage execution",
+            "modeled_instrument_quantity_equivalent": f"{quantity_equivalent:.8f}",
+            "current_tradingview_mark_date": mark_date,
+            "current_tradingview_mark_usd": f"{current_marks[ticker]:.2f}",
+            "modeled_current_mark_value_usd": f"{current_value:.2f}",
+            "modeled_unrealized_mark_change_usd": f"{mark_change:.2f}",
+            "modeled_price_return_pct": f"{mark_change / allocation * Decimal('100'):.6f}",
+            "lock_target_mark_usd": f"{LOCK_TARGET_USD:.2f}",
+            "lock_status_as_of_current_marks": lock_status,
+            "execution_status": "user-reported entry basis; allocation math is hypothetical; no order or brokerage execution is represented; actual quantity is unspecified",
         })
+    modeled_change_total = sum((dec(row["modeled_unrealized_mark_change_usd"]) for row in allocation_rows), Decimal("0"))
     totals = {
         "starting_pool_usd": f"{STARTING_POOL_USD:.2f}",
         "total_deductions_usd": f"{total_deductions:.2f}",
@@ -153,7 +191,9 @@ def build_rows() -> tuple[dict, dict, list[dict], list[dict]]:
         "winner_open_notional_usd": winner["winning_model_equal_gross_gross_open_notional_usd"],
         "winner_scale_factor": winner["equal_gross_scale_factor"],
         "deduction_method": "Current open gross notional; historical cumulative gross additions shown separately and not deducted.",
-        "mark_date": "2026-10-26",
+        "mark_date": allocation_rows[0]["current_tradingview_mark_date"],
+        "locked_status": allocation_rows[0]["lock_status_as_of_current_marks"],
+        "modeled_unrealized_mark_change_usd": f"{modeled_change_total:.2f}",
     }
     return totals, winner, costs, allocation_rows
 
@@ -205,21 +245,21 @@ Minor books are included only when separately maintained outside THE ONE/WINNING
 | User-estimated starting pool | ${start:,.2f} |
 | Less: selected model-book active gross notional | (${deductions:,.2f}) |
 | **Remaining pool for the $200 LONG PORTFOLIO** | **${remaining:,.2f}** |
-| BRENT allocation — 50% | ${each:,.2f} |
-| OIL allocation — 50% | ${each:,.2f} |
+| BRENT allocation — 50%, using its reported entry basis | ${each:,.2f} |
+| OIL allocation — 50%, using its reported entry basis | ${each:,.2f} |
 | Residual cash below the $10,000 denomination | ${cash_left:,.2f} |
 
 ## $200 LONG PORTFOLIO — balanced OIL/BRENT allocation
 
-The remaining pool is split equally by dollar notional and modeled as long at the specified user-provided prices: BRENT **$115.00** and OIL/USOIL **$101.00**. Each ticker allocation is converted into $1,000,000,000 Large Units first, then $10,000 Small Units; sub-$10,000 balances remain cash.
+The $20B pool experiment's residual is split equally by dollar notional. Per your supplied entry data, the modeled BRENT leg uses **Sep. 23 at $102.315** and the OIL/USOIL leg uses **Sep. 22 at $89.89**. The year was not stated in your text; this run maps both dates to **2026** to align with the accompanying September 2026 TradingView/model context. These are user-reported historical entry-basis inputs, not independently verified fills. The Sep. 22 USOIL screenshot supports ticker context; its “Trade active / Target hit” note is not modeled as a fill or close event. The $200 label is the **price lock threshold**, not the funding amount; the experiment continues to use the $20B pool bridge and its hypothetical allocations. Each ticker allocation is converted into $1,000,000,000 Large Units first, then $10,000 Small Units; sub-$10,000 balances remain cash.
 
-| Ticker | Entry-price assumption | Dollar allocation | Large Units | Small Units | Residual cash | Quantity equivalent (not contracts/barrels) |
-|---|---:|---:|---:|---:|---:|---:|
-| BRENT | $115.00 | ${each:,.2f} | {allocation_rows[0]['large_unit_count']} | {int(allocation_rows[0]['small_unit_count']):,} | ${dec(allocation_rows[0]['residual_cash_under_small_unit_usd']):,.2f} | {dec(allocation_rows[0]['modeled_instrument_quantity_equivalent']):,.8f} |
-| OIL (USOIL) | $101.00 | ${each:,.2f} | {allocation_rows[1]['large_unit_count']} | {int(allocation_rows[1]['small_unit_count']):,} | ${dec(allocation_rows[1]['residual_cash_under_small_unit_usd']):,.2f} | {dec(allocation_rows[1]['modeled_instrument_quantity_equivalent']):,.8f} |
-| **Total** | — | **${remaining:,.2f}** | **{large_total}** | **{small_total:,}** | **${cash_left:,.2f}** | — |
+| Ticker | User-stated date / entry basis (2026 model alignment*) | Dollar allocation | Large Units | Small Units | Residual cash | Quantity equivalent (not contracts/barrels) | 2026-10-26 TradingView mark | Modeled unrealized mark change* |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| BRENT | Sep. 23 / $102.315 | ${each:,.2f} | {allocation_rows[0]['large_unit_count']} | {int(allocation_rows[0]['small_unit_count']):,} | ${dec(allocation_rows[0]['residual_cash_under_small_unit_usd']):,.2f} | {dec(allocation_rows[0]['modeled_instrument_quantity_equivalent']):,.8f} | ${dec(allocation_rows[0]['current_tradingview_mark_usd']):,.2f} | ${dec(allocation_rows[0]['modeled_unrealized_mark_change_usd']):,.2f} |
+| OIL (USOIL) | Sep. 22 / $89.89 | ${each:,.2f} | {allocation_rows[1]['large_unit_count']} | {int(allocation_rows[1]['small_unit_count']):,} | ${dec(allocation_rows[1]['residual_cash_under_small_unit_usd']):,.2f} | {dec(allocation_rows[1]['modeled_instrument_quantity_equivalent']):,.8f} | ${dec(allocation_rows[1]['current_tradingview_mark_usd']):,.2f} | ${dec(allocation_rows[1]['modeled_unrealized_mark_change_usd']):,.2f} |
+| **Total** | — | **${remaining:,.2f}** | **{large_total}** | **{small_total:,}** | **${cash_left:,.2f}** | — | — | **${dec(totals['modeled_unrealized_mark_change_usd']):,.2f}** |
 
-**Lock rule:** keep the $200 LONG PORTFOLIO locked until **both** supplied BRENT and OIL EOD marks reach **$200.00**. This is a scenario rule, not an automated order or an independently verified market trigger. The quantity equivalents are dollar allocations divided by the stated prices; they are **not** contract, barrel, share, or broker-order quantities because contract multipliers, execution quality, fees, financing, and market impact are unspecified.
+**Current lock status:** **{totals['locked_status']}** as of supplied TradingView marks dated **{totals['mark_date']}**. Keep the portfolio locked until **both** supplied BRENT and OIL EOD marks reach **$200.00**; the current marks are BRENT ${dec(allocation_rows[0]['current_tradingview_mark_usd']):,.2f} and OIL ${dec(allocation_rows[1]['current_tradingview_mark_usd']):,.2f}. The *modeled unrealized mark change* is a simple, linear price-equivalent calculation on the hypothetical residual-pool allocations; it is not actual account PnL, a verified fill, liquid/withdrawable cash, or an addition to pool deductions. The quantity equivalents are allocation dollars divided by the reported entry basis; they are **not** contract, barrel, share, or broker-order quantities because contract multipliers, execution quality, fees, financing, and market impact are unspecified.
 
 CSV audits: [model-book deductions](data/{COSTS_CSV.name}) and [balanced allocation](data/{OUTPUT_CSV.name}). The winner scale factor is {winner['equal_gross_scale_factor']}× on cumulative gross additions; the pool deduction uses its scaled current open notional of ${dec(totals['winner_open_notional_usd']):,.2f}.
 """

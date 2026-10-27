@@ -24,9 +24,19 @@ def test_pool_subtracts_selected_open_books_and_splits_the_remainder_evenly():
     assert [row["large_unit_count"] for row in rows] == ["9", "9"]
     assert [row["small_unit_count"] for row in rows] == ["50637", "50637"]
     assert [row["residual_cash_under_small_unit_usd"] for row in rows] == ["7052.37", "7052.37"]
+    assert [row["user_reported_entry_date_text"] for row in rows] == ["Sep 23", "Sep 22"]
+    assert [row["modeled_entry_date"] for row in rows] == ["2026-09-23", "2026-09-22"]
+    assert all("month/day but not a year" in row["entry_year_assumption"] for row in rows)
+    assert [row["user_reported_entry_price_usd"] for row in rows] == ["102.315", "89.89"]
     assert [row["modeled_instrument_quantity_equivalent"] for row in rows] == [
-        "82664148.28147826", "94122545.07297030"
+        "92912838.31666911", "105755668.62131494"
     ]
+    assert [row["current_tradingview_mark_date"] for row in rows] == ["2026-10-26", "2026-10-26"]
+    assert [row["current_tradingview_mark_usd"] for row in rows] == ["115.38", "101.30"]
+    assert [row["modeled_unrealized_mark_change_usd"] for row in rows] == [
+        "1213906232.61", "1206672178.97"
+    ]
+    assert [row["lock_status_as_of_current_marks"] for row in rows] == ["LOCKED", "LOCKED"]
 
 
 def test_written_csv_and_report_keep_two_stage_and_hypothetical_scope_explicit():
@@ -49,4 +59,10 @@ def test_written_csv_and_report_keep_two_stage_and_hypothetical_scope_explicit()
     assert "$19,012,754,104.74" in report
     assert "both** supplied BRENT and OIL EOD marks reach **$200.00**" in report
     assert "they are **not** contract, barrel, share, or broker-order quantities" in report
-    assert "$115.00" in report and "$101.00" in report
+    assert "Sep. 23 / $102.315" in report
+    assert "Sep. 22 / $89.89" in report
+    assert "The year was not stated in your text" in report
+    assert "not modeled as a fill or close event" in report
+    assert "**LOCKED** as of supplied TradingView marks dated **2026-10-26**" in report
+    assert "$1,213,906,232.61" in report and "$1,206,672,178.97" in report
+    assert "not actual account PnL" in report
