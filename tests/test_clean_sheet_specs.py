@@ -1,4 +1,5 @@
 """Checks the clean-sheet specifications against the current model registry."""
+import csv
 import json
 import unittest
 from decimal import Decimal
@@ -8,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TWM_SPEC = ROOT / "TWM Chart-to-Model Series — Clean-Sheet Specification.md"
 WINNER_SPEC = ROOT / "THE ONE MODEL — Winning Model and Contender Specification.md"
 TOM_SPEC = ROOT / "THE ONE MODEL (TOM) — Clean-Sheet Specification.md"
+ROI_DESIGN_SHEET = ROOT / "reports" / "TOM-TWM 1K-10K ROI Design Sheet — 2026-10-26.md"
 
 
 class CleanSheetSpecTests(unittest.TestCase):
@@ -16,6 +18,10 @@ class CleanSheetSpecTests(unittest.TestCase):
         cls.twm = TWM_SPEC.read_text(encoding="utf-8")
         cls.winner = WINNER_SPEC.read_text(encoding="utf-8")
         cls.tom = TOM_SPEC.read_text(encoding="utf-8")
+        cls.roi_design = ROI_DESIGN_SHEET.read_text(encoding="utf-8")
+        cls.core_summary = json.loads(
+            (ROOT / "data" / "model_performance_summary.json").read_text(encoding="utf-8")
+        )
         cls.summary = json.loads(
             (ROOT / "data" / "the_one_model_split_portfolios_v1_summary.json").read_text(encoding="utf-8")
         )
@@ -148,6 +154,54 @@ class CleanSheetSpecTests(unittest.TestCase):
             self.assertEqual(f"${each_additions:,.2f}", expected_additions)
             self.assertIn(expected_pnl, self.tom)
             self.assertIn(expected_additions, self.tom)
+
+    def test_roi_design_sheet_includes_standalone_v3a_and_reconciles_1k_10k_core_sizes(self):
+        for phrase in (
+            "V3A_CORE_ONLY",
+            "V3A_CORE_ONLY_NO_DXY",
+            "V3A_V3A_FORCE_11U_NO_DXY",
+            "LMT_CORE_ONLY",
+            "BRENT_11U_ONLY",
+            "TOM_CURRENT_TOTAL",
+            "TOM_NO_DXY_TOTAL",
+            "TOM_CURRENT_EACH",
+            "$235.07 / $1,000.00 / $11.70",
+            "$2,350.66 / $10,000.00 / $116.99",
+            "V3A core-only still has its integrated chart-directed 1U/DAY DXY sleeve",
+            "23.5066%",
+        ):
+            self.assertIn(phrase, self.roi_design)
+
+        with (ROOT / "data" / "model_performance_daily.csv").open(encoding="utf-8") as handle:
+            core_rows = list(csv.DictReader(handle))
+        v3a_rows = [row for row in core_rows if row["variant"] == "V3A"]
+        maximum_open = max(Decimal(row["open_units"]) * Decimal("10000") for row in v3a_rows)
+        v3a = self.core_summary["variants"]["V3A"]
+        terminal_pnl = Decimal(str(v3a["series"]["total"][-1]))
+        cumulative_additions = Decimal(str(v3a["stats"]["deployed"]))
+        max_drawdown = abs(Decimal(str(v3a["stats"]["max_drawdown"])))
+        for target, expected in (
+            (Decimal("1000"), "$45.97 / $1,582.06 / $4.48"),
+            (Decimal("10000"), "$459.68 / $15,820.64 / $44.85"),
+        ):
+            factor = target / maximum_open
+            actual = (
+                f"${terminal_pnl * factor:,.2f} / "
+                f"${cumulative_additions * factor:,.2f} / "
+                f"${max_drawdown * factor:,.2f}"
+            )
+            self.assertEqual(actual, expected)
+            self.assertIn(expected, self.roi_design)
+
+        with (ROOT / "data" / "model_performance_tickers.csv").open(encoding="utf-8") as handle:
+            ticker_rows = list(csv.DictReader(handle))
+        for variant in ("V1", "V2", "V3A", "V3B"):
+            candidates = [
+                (Decimal(row["total_usd"]) / (Decimal(row["units_deployed"]) * Decimal("10000")), row["ticker"])
+                for row in ticker_rows
+                if row["variant"] == variant and Decimal(row["units_deployed"]) > 0
+            ]
+            self.assertEqual(max(candidates)[1], "LMT")
 
 
 if __name__ == "__main__":
