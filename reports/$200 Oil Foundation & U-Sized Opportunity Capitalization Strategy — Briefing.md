@@ -29,7 +29,7 @@ The current pool-allocation report carries these user-reported entry bases into 
 | BRENT LONG | Sep. 23 | $102.315 | $115.38 on 2026-10-26 | Below $200; remains locked |
 | OIL/USOIL LONG | Sep. 22 | $89.89 | $101.30 on 2026-10-26 | Below $200; remains locked |
 
-The year was not included in the user's text; the pool model aligns both dates to **2026** to match the surrounding September 2026 records. These are user-reported model inputs, not independently verified brokerage fills. The Sep. 22 USOIL chart note about a trade being active/target hit is not treated as an entry, exit, or verified fill.
+The year was not included in the user's text; the pool model aligns both dates to **2026** to match the surrounding September 2026 records. These are user-reported model inputs, not independently verified brokerage fills. The Sep. 22 USOIL chart note about a trade being active/target hit is not treated as an entry, exit, or verified fill. Source screenshots are retained in [`Archive/200_OIL_LONG_foundation/`](../Archive/200_OIL_LONG_foundation/README.md): the BRENT LONG post, the Sep. 22 activity note, and the USOIL chart post.
 
 The $200 label is treated here as the **price lock threshold**, not as the amount invested. The $20B pool remains a user-estimated hypothetical scenario, not verified capital, profit, account equity, or executable capacity. The detailed allocation report contains the pool bridge, hypothetical quantity-equivalent arithmetic, and its explicit limits: [Units Experiment Pool Allocation](../Units%20Experiment%20Pool%20Allocation.md).
 

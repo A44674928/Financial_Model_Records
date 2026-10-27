@@ -42,6 +42,16 @@ class OilFoundationStrategyBriefingTests(unittest.TestCase):
         ):
             self.assertTrue((ROOT / relative).exists(), relative)
 
+    def test_original_screenshots_are_archived_and_linked_from_briefing(self):
+        archive = ROOT / "Archive" / "200_OIL_LONG_foundation"
+        for name in ("IMG_1165.png", "IMG_1167.png", "IMG_1168.png"):
+            self.assertGreater((archive / name).stat().st_size, 0)
+        index = (archive / "README.md").read_text(encoding="utf-8")
+        self.assertIn("no separate fill, exit, or close event is inferred", index)
+        self.assertIn("102.315", index)
+        self.assertIn("89.89", index)
+        self.assertIn("Archive/200_OIL_LONG_foundation/", self.text)
+
 
 if __name__ == "__main__":
     unittest.main()
