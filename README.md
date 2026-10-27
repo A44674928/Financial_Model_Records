@@ -9,6 +9,7 @@ This repository contains the Fall (Arizona) 2026 paper-trading ledger, model ana
 - [THE ONE MODEL vs THE WINNING MODEL](THE%20ONE%20MODEL%20vs%20THE%20WINNING%20MODEL.md) — equal-gross comparison of the 32-portfolio aggregate and its ex-post top terminal-PnL constituent.
 - [TWM Chart-to-Model Series — Clean-Sheet Specification](TWM%20Chart-to-Model%20Series%20%E2%80%94%20Clean-Sheet%20Specification.md) — private-chart intake, TWM_1M/TWM_20B boundaries, and optional accumulator rules.
 - [THE ONE MODEL — Winning Model and Contender Specification](THE%20ONE%20MODEL%20%E2%80%94%20Winning%20Model%20and%20Contender%20Specification.md) — current champion, all 32 candidates, and how future models such as V4 can contend.
+- [THE ONE MODEL (TOM) — Clean-Sheet Specification](THE%20ONE%20MODEL%20%28TOM%29%20%E2%80%94%20Clean-Sheet%20Specification.md) — TOM construction, winner rules, and aggregate vs per-constituent $1K/$10K sizing.
 - [Model Performance Explorer](Model%20Performance%20Explorer.html) — interactive view of model results.
 - [Model Calculation Guide](Model%20Calculation%20Guide.md) — plain-language unit sizing, daily position handling, reversal logic, and PnL formulas.
 - [Oil Cost Basis Savings Model](Oil%20Cost%20Basis%20Savings%20Model.md) — realized target-trim and modeled SHORT-exit PnL credited once to the effective basis of the residual and replenishment lots, mapped across all 32 portfolios.
