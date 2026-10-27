@@ -105,7 +105,26 @@ The **TWM scale family** separates native 1× sizing from the $1M open-notional 
 
 For each TWM_1M row, the $1M open-notional target is treated as a fully funded cash base under the user's debit convention; cumulative additions may exceed it because closed-position cash can be reused. TWM_1X remains at native model sizing and its $18.275M terminal gross open notional is **not** the $1M funded base used by TWM_1M. PnL divided by a funded base is distinct from PnL divided by gross additions. Existing dated outputs and labels control; reruns must use a new version/date when the mark window, event book, or construction changes.
 
-## 6. TWM_20B series and what it does—and does not—mean today
+## 6. Proposed TWM_MICRO sizing family: $1K and $10K
+
+**TWM_MICRO** is a smaller-size wrapper around an explicitly selected existing recipe; it changes the target size, not the strategy rules. The two suggested targets are both useful, so the clean-sheet design includes **TWM_1K** and **TWM_10K** as sibling scales rather than forcing a single choice. Here, `1K` and `10K` mean **$1,000 or $10,000 of terminal gross open notional**, respectively—not 1,000/10,000 model units, PnL, or cumulative deposits. One model unit remains 1U = $10,000 entry notional.
+
+The proposed version IDs append the existing scope suffix so FULL/LIGHT/MAX are not conflated. Each small path is the corresponding TWM_1M path uniformly multiplied by **0.001** for TWM_1K or **0.01** for TWM_10K. Values below are cent-rounded arithmetic projections from the Oct. 26 TWM_1M summary, not independently rerun or execution-adjusted results.
+
+| Proposed version | TWM_1M source | Scale relative to source | Terminal open target | Projected PnL | Projected gross additions |
+|---|---|---:|---:|---:|---:|
+| **TWM_1K_FULL** | TWM_1M_FULL | 0.001× | $1,000.00 | $41.22 | $1,176.74 |
+| **TWM_1K_LIGHT** | TWM_1M_LIGHT | 0.001× | $1,000.00 | $35.02 | $1,384.30 |
+| **TWM_1K_MAX** | TWM_1M_MAX | 0.001× | $1,000.00 | $49.27 | $1,234.99 |
+| **TWM_10K_FULL** | TWM_1M_FULL | 0.01× | $10,000.00 | $412.24 | $11,767.44 |
+| **TWM_10K_LIGHT** | TWM_1M_LIGHT | 0.01× | $10,000.00 | $350.15 | $13,842.95 |
+| **TWM_10K_MAX** | TWM_1M_MAX | 0.01× | $10,000.00 | $492.67 | $12,349.95 |
+
+Under pure linear scaling, PnL divided by the fully funded $1K/$10K base and PnL divided by gross additions retain the corresponding source ratios (apart from cent rounding). This is a proportional historical paper replay; it does not account for minimum order sizes, whole-share requirements, commissions, spreads, slippage, taxes, or broker constraints. At these small targets, those omitted frictions may materially change real-world results, so the micro table is **not an executable-order specification**.
+
+The optional accumulator toggle can be evaluated alongside either size, but it remains a separate share/U ledger funded only by realized PnL. It is not included in the base target above. If the user wants the $1K/$10K label to cap **all-in** exposure including accumulated holdings, a liquidation/throttling rule must be specified first.
+
+## 7. TWM_20B series and what it does—and does not—mean today
 
 **TWM_20B** is the proposed $20B pool-scale wrapper for the chart-to-model workflow. The repository's current `$20B Paper Portfolio — Units Experiment` is explicitly a **user-estimated hypothetical pool**, not independently verified cash, profit, or equity. It is not currently specified as a `20,000× TWM_1M` clone and must not be scaled that way by implication.
 
@@ -121,7 +140,7 @@ Before a TWM_20B result is called a model replay, the run sheet must say which c
 
 Every TWM_20B report must display selected books, gross open notional, cumulative additions, funded-pool assumption, unallocated balance, ticker concentration, any reserve/lock rules, and the explicit scaling definition. The 20B paper pool must never be described as verified capital or as executable capacity.
 
-## 7. Optional realized-PnL accumulator: OFF / ON
+## 8. Optional realized-PnL accumulator: OFF / ON
 
 The accumulator is a separate, explicit toggle (`ACCUMULATOR=OFF|ON`) applied alongside a named base model. It is designed for share/model-unit control—not to overwrite the base model's dollar PnL.
 
@@ -140,7 +159,7 @@ The accumulator is a separate, explicit toggle (`ACCUMULATOR=OFF|ON`) applied al
 - The current prototype has been generated for TWM_1M_MAX through 2026-10-26. It does not alter the base TWM_1M_MAX PnL or sizing; its holdings and incremental PnL are separate. Do not silently claim the same accumulator has been implemented for FULL, LIGHT, or TWM_20B.
 - The current accumulator is **outside the base open-notional path**. If a strict all-in $1M/$20B gross-exposure cap is required, define whether accumulator market value counts toward that cap and how to throttle or liquidate before enabling it.
 
-## 8. Standard output package and versioning
+## 9. Standard output package and versioning
 
 Each accepted chart batch/model run should produce or update, with a visible as-of date and source revision:
 
@@ -153,7 +172,7 @@ Each accepted chart batch/model run should produce or update, with a visible as-
 
 Never overwrite an old result as though it used the same inputs when the chart event book, price-source revision, mark window, sidecar scope, or model rules change. Keep `TWM_1M_FULL`, `TWM_1M_LIGHT`, and `TWM_1M_MAX` names intact; any new TWM_20B sizing rule or V4 chart interpretation receives a versioned specification before it is used.
 
-## 9. Key references
+## 10. Key references
 
 - [`THE ONE MODEL vs THE WINNING MODEL.md`](THE%20ONE%20MODEL%20vs%20THE%20WINNING%20MODEL.md) — current TWM_1M comparisons and construction.
 - [`TWM_1M_MAX Realized-PnL Share Accumulator.md`](TWM_1M_MAX%20Realized-PnL%20Share%20Accumulator.md) — current accumulator prototype and ledgers.
