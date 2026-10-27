@@ -4,6 +4,10 @@
 
 **Scope:** TWM_1M sizing family, the proposed TWM_20B pool wrapper, and an optional realized-PnL share/model-unit accumulator. The model names identify hypothetical paper replays—not brokerage accounts, verified fills, or investment advice.
 
+## TWM terminology
+
+**TWM** is the prefix for the **The Winning Model** chart-to-model series described here. In this document, TWM names the family of chart-driven replay and sizing configurations; it does not mean every TWM configuration is itself the current winner selected from THE ONE MODEL. In particular, `TWM_1M_FULL`, `TWM_1M_LIGHT`, and `TWM_1M_MAX` have distinct sidecar scopes, and the current THE ONE MODEL winner is a dated, replaceable selection. See the [THE ONE MODEL winner and contender specification](THE%20ONE%20MODEL%20%E2%80%94%20Winning%20Model%20and%20Contender%20Specification.md) for that selection and its future-contender rules.
+
 ## 1. Governing principles
 
 1. **The user supplies intent.** A chart may show context, but only the user's explicit direction/position statement authorizes a model event. The model must not infer a LONG, SHORT, exit, price, quantity, fill, or position state from an ambiguous picture.
@@ -90,15 +94,16 @@ For all variants, daily reporting must keep these measures distinct:
 
 ## 5. TWM_1M series
 
-**TWM_1M** is a sizing family for the selected model construction, not a $1M-PnL target. Current sublabels remain authoritative; they differ by sidecar scope and must not be collapsed into one unlabeled line. Each current $1M version scales its source path to **$1,000,000 terminal gross open notional**; in the current historical window that is also its peak gross open notional. The scaling is an arithmetic replay and does not establish fill capacity or execution.
+The **TWM scale family** separates native 1× sizing from the $1M open-notional views. `TWM_1X` is the unscaled current THE WINNING MODEL construction; it is not a $1M-PnL target, a $1M capital account, or a claim that every TWM variant uses that recipe. **TWM_1M** is the normalized sizing family below: each member scales its source path to **$1,000,000 terminal gross open notional**. In this historical window, the $1M terminal open is also the peak open. Scaling is arithmetic and does not establish fill capacity or execution.
 
-| Version | Current construction through 2026-10-26 | Scale | Terminal modeled PnL | Cumulative additions | Scope |
-|---|---|---:|---:|---:|---|
-| **TWM_1M_FULL** | V3A core + V3A-specific 1U/EOD + 11U/DAY energy per active ticker + combined 11U/DAY DXY (integrated core 1U plus 10U sidecar) | 0.054719562244× | $41,223.62 | $1,176,744.19 | Full current THE WINNING MODEL construction at $1M terminal open notional. |
-| **TWM_1M_LIGHT** | V3A core + V3A-specific 1U/EOD; retain core DXY; omit the extra 10U/DAY DXY and energy daily-buy sidecar | 0.118976799524× | $35,015.42 | $1,384,295.06 | Light sidecar scope; still contains core DXY once. |
-| **TWM_1M_MAX** | Current-data V3A core + V3A-specific 1U/EOD + 10U/DAY energy, excluding DXY to match its named comparison scope | 0.072753728629× | $49,267.44 | $1,234,994.54 | Existing no-DXY/10U-energy current-data comparison. It is not an all-sleeve superset of FULL. |
+| Version | Current construction through 2026-10-26 | Scale | Terminal gross open notional | Terminal modeled PnL | Cumulative additions | Scope |
+|---|---|---:|---:|---:|---:|---|
+| **TWM_1X** | V3A core + V3A-specific 1U/EOD + 11U/DAY energy per active ticker + combined 11U/DAY DXY (integrated core 1U plus 10U sidecar) | **1.000000×** | **$18,275,000.00** | **$753,361.68** | $21,505,000.00 | Native, unscaled current winner (`core_v3a__1u_v3a__with_oil`); PnL/additions 3.503193%. |
+| **TWM_1M_FULL** | Same full winner construction as TWM_1X, scaled to $1M terminal open | 0.054719562244× | $1,000,000.00 | $41,223.62 | $1,176,744.19 | Full current THE WINNING MODEL construction. |
+| **TWM_1M_LIGHT** | V3A core + V3A-specific 1U/EOD; retain core DXY; omit the extra 10U/DAY DXY and energy daily-buy sidecar | 0.118976799524× | $1,000,000.00 | $35,015.42 | $1,384,295.06 | Light sidecar scope; still contains core DXY once. |
+| **TWM_1M_MAX** | Current-data V3A core + V3A-specific 1U/EOD + 10U/DAY energy, excluding DXY to match its named comparison scope | 0.072753728629× | $1,000,000.00 | $49,267.44 | $1,234,994.54 | Existing no-DXY/10U-energy current-data comparison. It is not an all-sleeve superset of FULL. |
 
-For every row, $1M open notional is treated as the fully funded cash base under the user's debit convention. PnL divided by that base is distinct from PnL divided by gross additions. Existing dated outputs and labels control; reruns must use a new version/date when the mark window, event book, or construction changes.
+For each TWM_1M row, the $1M open-notional target is treated as a fully funded cash base under the user's debit convention; cumulative additions may exceed it because closed-position cash can be reused. TWM_1X remains at native model sizing and its $18.275M terminal gross open notional is **not** the $1M funded base used by TWM_1M. PnL divided by a funded base is distinct from PnL divided by gross additions. Existing dated outputs and labels control; reruns must use a new version/date when the mark window, event book, or construction changes.
 
 ## 6. TWM_20B series and what it does—and does not—mean today
 
