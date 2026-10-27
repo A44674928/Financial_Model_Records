@@ -44,21 +44,30 @@ UNMODELED_SYMBOLS = frozenset({"BTC", "ETH", "DXY", "EURUSD", "JPYUSD", "US10Y",
 # --------------------------------------------------------------------------
 # Session calendar and exclusive TradingView benchmark
 # --------------------------------------------------------------------------
-SESSION_DATES = [datetime.fromtimestamp(t, MST).strftime("%Y-%m-%d") for t in EQUITY_TS]
+BENCHMARK_SESSION_FILE = DATA_DIR / "tradingview_benchmark_session_marks_20261026.csv"
+with BENCHMARK_SESSION_FILE.open(newline="", encoding="utf-8") as _handle:
+    _session_rows = list(csv.DictReader(_handle))
+BASE_SESSION_DATES = [datetime.fromtimestamp(t, MST).strftime("%Y-%m-%d") for t in EQUITY_TS]
+SESSION_DATES = sorted(set(BASE_SESSION_DATES) | {row["Date"].strip() for row in _session_rows})
 N_SESS = len(SESSION_DATES)
-BENCHMARK_SESSION_FILE = DATA_DIR / "tradingview_benchmark_session_marks_20261024.csv"
+if not set(BASE_SESSION_DATES).issubset(SESSION_DATES):
+    raise ValueError("TradingView benchmark session calendar omits a base equity session")
 _benchmark = {}
 _dxy_marks = {}
-with BENCHMARK_SESSION_FILE.open(newline="", encoding="utf-8") as _handle:
-    for _row in csv.DictReader(_handle):
-        _ticker = _row["Ticker"].strip().upper()
-        _day = _row["Date"].strip()
-        if _day not in SESSION_DATES:
-            raise ValueError(f"Benchmark mark is outside the common session calendar: {_ticker} {_day}")
-        if _ticker == "DXY":
-            _dxy_marks[_day] = float(_row["Close"])
-            continue
-        _benchmark.setdefault(_ticker, {})[_day] = float(_row["Close"])
+_seen_marks = set()
+for _row in _session_rows:
+    _ticker = _row["Ticker"].strip().upper()
+    _day = _row["Date"].strip()
+    if _day not in SESSION_DATES:
+        raise ValueError(f"Benchmark mark is outside the common session calendar: {_ticker} {_day}")
+    _key = (_ticker, _day)
+    if _key in _seen_marks:
+        raise ValueError(f"Duplicate TradingView session mark: {_ticker} {_day}")
+    _seen_marks.add(_key)
+    if _ticker == "DXY":
+        _dxy_marks[_day] = float(_row["Close"])
+        continue
+    _benchmark.setdefault(_ticker, {})[_day] = float(_row["Close"])
 
 if {ticker for ticker in _benchmark} & {"BTC", "ETH"}:
     raise ValueError("BTC and ETH must remain outside the core TradingView benchmark")

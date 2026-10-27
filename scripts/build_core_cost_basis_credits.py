@@ -133,7 +133,7 @@ def build_rows():
                 "basis_reduction_per_exposure_unit": f"{_price(raw_effective - adjusted):.6f}",
                 "credit_scope": scope,
                 "as_of_date": latest_date,
-                "mark_status": "No post-Oct. 23 EOD mark supplied; this is entry/economic basis, not mark-to-market value",
+                "mark_status": f"EOD marks supplied through {core.SESSION_DATES[-1]}; this is entry/economic basis, not mark-to-market value",
                 "execution_status": "Hypothetical paper-model positions and user-directed close inputs; brokerage executions are not independently verified",
             })
     return rows
@@ -152,7 +152,7 @@ def write_outputs(rows):
         "",
         "> **Scope and disclosure:** This is an economic cost-basis reclassification of modeled open LONG lots, not a tax-basis statement, brokerage record, verified fill report, or current market valuation. It uses the repository convention of $10,000 fixed notional per unit and the same notional-minus-realized-credit divided by exposure-quantity method used in the oil cost-basis report. No commissions, borrow costs, financing, or slippage are included.",
         "",
-        "The core model positions are replayed through the latest logged date, 2026-10-26. Post-Oct. 23 entries and exits have no later supplied EOD mark, so they do not change the historical Oct. 23 performance totals. The paired 50U BRENT manual lot and 50U OIL ATS-mirror lot are closed in each variant, leaving 100U open LONG per ticker. Their user-reported realized cash-out PnL ($8,220.07 BRENT + $7,912.17 OIL) is included as a basis credit against the remaining open-long basket; it is a reclassification, not additional PnL. The $87.55 INTC LONG is included in each model variant; the separate variants are not one combined account.",
+        f"The core model is marked to the latest supplied EOD close, {core.SESSION_DATES[-1]}, while the preserved historical baseline through Oct. 23 remains unchanged. The Oct. 26 marks include post-Oct. 23 entries and exits in the current daily replay. The paired 50U BRENT manual lot and 50U OIL ATS-mirror lot are closed in each variant, leaving 100U open LONG per ticker. Their user-reported realized cash-out PnL ($8,220.07 BRENT + $7,912.17 OIL) is included as a basis credit against the remaining open-long basket; it is a reclassification, not additional PnL. The $87.55 INTC LONG is included in each model variant; the separate variants are not one combined account.",
         "",
         "## Open-long basis by core variant",
         "",

@@ -15,6 +15,8 @@ from pathlib import Path
 from urllib.parse import quote
 from zipfile import ZipFile
 
+from model_perf_core import BENCHMARK_SESSION_FILE, SESSION_DATES
+
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -22,7 +24,7 @@ import matplotlib.pyplot as plt
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 SOURCE_ARCHIVE = ROOT / "Weekend Oil (10-17 & 10-18).zip"
-ENERGY_MARKS = DATA / "energy_provider_eod_marks_v1.csv"
+ENERGY_MARKS = BENCHMARK_SESSION_FILE
 OUTPUT_CSV = DATA / "weekend_oil_50u_positions_v1.csv"
 REPORT = ROOT / "Weekend Oil 50U Position Hypothetical.md"
 CHART_DIR = ROOT / "Charts" / "CLN25" / "Weekend Oil"
@@ -40,7 +42,7 @@ CENT = Decimal("0.01")
 POSITIONS = {
     "BRENT": {
         "display_ticker": "BRENT",
-        "instrument": "BlackBull Markets Brent Cash EOD marks",
+        "instrument": "User-provided TradingView BRENT EOD marks",
         "entry_price": Decimal("111.412"),
         "entry_source": "User-provided TradingView opening mark for 2026-10-19",
         "trim_units_u": Decimal("10"),
@@ -48,7 +50,7 @@ POSITIONS = {
     },
     "OIL": {
         "display_ticker": "USOIL (repository ticker OIL)",
-        "instrument": "TradingView TVC:USOIL EOD marks",
+        "instrument": "User-provided TradingView TVC:USOIL EOD marks",
         "entry_price": Decimal("99.04"),
         "entry_source": "User-provided TradingView opening mark for 2026-10-19",
         "trim_units_u": Decimal("10"),
@@ -74,30 +76,30 @@ def _money(value):
 def load_marks():
     marks = {ticker: [] for ticker in POSITIONS}
     with ENERGY_MARKS.open(newline="", encoding="utf-8") as handle:
-        for row in csv.DictReader(handle):
+        reader = csv.DictReader(handle)
+        required = {"Ticker", "Date", "Close", "Source_File", "Mark_Status"}
+        if not reader.fieldnames or not required.issubset(reader.fieldnames):
+            raise ValueError(f"{ENERGY_MARKS.name} must contain {sorted(required)}")
+        for row in reader:
             ticker = row["Ticker"].strip().upper()
             day = row["Date"].strip()
             if ticker not in POSITIONS or day < ENTRY_DATE:
                 continue
-            close = Decimal(row["EOD_Close"])
             marks[ticker].append({
                 "date": day,
-                "close": close,
-                "source": row["Source"].strip(),
-                "instrument": row["Instrument"].strip(),
+                "close": Decimal(row["Close"]),
+                "source": row["Source_File"].strip(),
+                "instrument": "TVC:USOIL" if ticker == "OIL" else "BRENT",
+                "mark_status": row["Mark_Status"].strip(),
             })
+    expected_dates = [day for day in SESSION_DATES if day >= ENTRY_DATE]
     for ticker, values in marks.items():
         values.sort(key=lambda item: item["date"])
-        if not values or values[0]["date"] != ENTRY_DATE:
-            raise ValueError(f"{ticker} is missing the 2026-10-19 EOD mark")
-        if values[-1]["date"] != "2026-10-23":
-            raise ValueError(f"{ticker} marks must extend through 2026-10-23")
-        if len(values) != 5:
-            raise ValueError(f"Expected five EOD marks for {ticker} from {ENTRY_DATE} to 2026-10-23")
+        if [row["date"] for row in values] != expected_dates:
+            raise ValueError(f"{ticker} must have exact supplied TradingView marks through {SESSION_DATES[-1]}")
     if [row["date"] for row in marks["BRENT"]] != [row["date"] for row in marks["OIL"]]:
         raise ValueError("BRENT and USOIL mark dates must align")
     return marks
-
 
 def build_rows():
     if not SOURCE_ARCHIVE.is_file():
@@ -246,7 +248,7 @@ def write_chart(rows):
     ax.set_title("Core-Integrated Weekend Oil — 50U Long Each; Trim 10U at Targets", color=FG, loc="left", fontsize=15, pad=14)
     ax.legend(facecolor=BG, edgecolor=GRID, labelcolor=FG)
     terminal = combined[-1]
-    ax.annotate(f"Oct 23 combined: ${terminal:,.2f}", (dates[-1], float(terminal)),
+    ax.annotate(f"Latest session: ${terminal:,.2f}", (dates[-1], float(terminal)),
                 xytext=(-175, 18), textcoords="offset points", color=FG,
                 arrowprops={"arrowstyle": "->", "color": MUTED})
     fig.text(0.5, 0.015,
@@ -270,7 +272,7 @@ def write_report(rows):
         "",
         "The user specified a **50U LONG** position each in BRENT and USOIL at the **2026-10-19 market open**, with entry marks of $111.412 and $99.04 respectively. The thesis instruction is modeled as selling **10U of BRENT at $117** and **10U of USOIL at $102**, leaving **40U open in each new lot** after the assumed trims. Each ticker also retains its separate original 1U core lot. At $10,000 notional per unit, the new entries open $1,000,000 total gross notional; $200,000 of unit-basis gross notional is trimmed and $800,000 remains open in the new lots."
         "",
-        "| Instrument | Entry price | Trim instruction | Modeled trigger session | Realized PnL on 10U sale | Oct. 23 EOD mark | Remaining 40U unrealized PnL | Total realized + unrealized PnL | Remaining gross open notional |",
+        f"| Instrument | Entry price | Trim instruction | Modeled trigger session | Realized PnL on 10U sale | {SESSION_DATES[-1]} EOD mark | Remaining 40U unrealized PnL | Total realized + unrealized PnL | Remaining gross open notional |",
         "|---|---:|---|---|---:|---:|---:|---:|---:|",
     ]
     terminal_by_ticker = {}
@@ -299,7 +301,7 @@ def write_report(rows):
     lines.extend([
         f"| **Combined** | — | **Sell 20U total** | **2026-10-23 assumed** | **${combined_realized:+,.2f}** | — | **${combined_unrealized:+,.2f}** | **${combined_total:+,.2f}** | **$800,000.00** |",
         "",
-        f"The combined realized PnL is **${combined_realized:,.2f}**; the remaining open positions carry **${combined_unrealized:,.2f}** unrealized PnL at the Oct. 23 marks. Total modeled PnL is **${combined_total:,.2f}**, or {combined_ratio:.4f}% of the original $1,000,000 gross notional—not an account return.",
+        f"The combined realized PnL is **${combined_realized:,.2f}**; the remaining open positions carry **${combined_unrealized:,.2f}** unrealized PnL at the supplied {SESSION_DATES[-1]} TradingView marks. Total modeled PnL is **${combined_total:,.2f}**, or {combined_ratio:.4f}% of the original $1,000,000 gross notional—not an account return.",
         "",
         "## Session marks and PnL",
         "",
@@ -328,14 +330,14 @@ def write_report(rows):
         "",
         "## Subsequent manual replenishment entries (outside this attribution window)",
         "",
-        "The user added four manual LONG replenishment entries after the earlier 10U target trims, all on Oct. 25: 10U USOIL at $101.74 and 10U BRENT at $115.792 use the user-recalled 17:20–17:25 MST window, modeled at a 17:22 midpoint; the additional 10U USOIL at $101.00 and 10U BRENT at $114.80 use an approximate 20:00 MST time per the user's recollection. Both times are modeled ordering assumptions, not verified transaction times. These are separate new lots; all fall after this report's final 2026-10-23 EOD mark and are not included in this attribution CSV or chart. The supplied prices remain the modeled entry prices; no later EOD marks or new exit targets were supplied, so no PnL is modeled for these entries here. Separately, the user specified additional Weekend Oil LONG buys simultaneous with the modeled short closes at 20:35 MST: 35U BRENT at $114.627 and 34U USOIL (internal ticker OIL) at $100.74. These distinct buy lots add 69U ($690,000 fixed-notional) to the post-cutoff long campaign and count toward weekly buy supply; the separate 10U short closures do not count toward that supply. The Weekend Oil tagged long campaign is then 95U BRENT (40U residual + 20U earlier replenishments + 35U buy) and 94U OIL (40U residual + 20U earlier replenishments + 34U buy). Including other logged core oil longs, and assuming the tagged shorts are closed, all-core long exposure reaches 100U per ticker (200U combined, $2,000,000 fixed-unit notional). They are not part of this report’s original 50U-only attribution CSV/chart or the existing residual-plus-replenishment basis-credit scope; they are hypothetical model inputs, not verified fills, and remain unmarked after the Oct. 23 cutoff.",
+        "The user added four manual LONG replenishment entries after the earlier 10U target trims, all on Oct. 25: 10U USOIL at $101.74 and 10U BRENT at $115.792 use the user-recalled 17:20–17:25 MST window, modeled at a 17:22 midpoint; the additional 10U USOIL at $101.00 and 10U BRENT at $114.80 use an approximate 20:00 MST time per the user's recollection. Both times are modeled ordering assumptions, not verified transaction times. These are separate new lots and are outside this original-50U attribution CSV/chart; the current supplied Oct. 26 marks for these and other scenario lots are documented in the separate reconciliation and do not make them verified positions. Separately, the user specified additional Weekend Oil LONG buys simultaneous with the modeled short closes at 20:35 MST: 35U BRENT at $114.627 and 34U USOIL (internal ticker OIL) at $100.74. These distinct buy lots add 69U ($690,000 fixed-notional) to the broader long campaign and count toward weekly buy supply; the separate 10U short closures do not count toward that supply. The Weekend Oil tagged long campaign is then 95U BRENT (40U residual + 20U earlier replenishments + 35U buy) and 94U OIL (40U residual + 20U earlier replenishments + 34U buy). Including other logged core oil longs, and assuming the tagged shorts are closed, all-core long exposure reaches 100U per ticker (200U combined, $2,000,000 fixed-unit notional). These additional lots are not part of this report’s original 50U-only attribution CSV/chart or the existing residual-plus-replenishment basis-credit scope; they are hypothetical model inputs, not verified fills.",
         "",
         "## Source and scope notes",
         "",
         f"- Weekend source archive: [`{SOURCE_ARCHIVE.name}`]({quote(SOURCE_ARCHIVE.name)}); [upstream GitHub file]({SOURCE_URL}) at commit `{SOURCE_COMMIT}`; SHA-256 `{SOURCE_SHA256}`.",
         "- The archive contains two annotated IG **Weekend Oil – US Crude (CLN25)** screenshots dated Oct. 17 and Oct. 18, not a complete OHLC history and not separate BRENT/USOIL Monday-open price files. The screenshots are retained as source context, not transcribed as daily marks.",
         "- The two Oct. 19 open prices, BRENT $111.412 and USOIL $99.04, and the trim levels/size were provided by the user. BRENT is stored internally as `BRENT`; USOIL maps to repository ticker `OIL`.",
-        "- Subsequent EOD values come from [`energy_provider_eod_marks_v1.csv`](data/energy_provider_eod_marks_v1.csv): BlackBull Markets Brent Cash for BRENT and TradingView TVC:USOIL for OIL. No new or external daily prices are inserted.",
+        "- Subsequent EOD values use the aligned user-provided TradingView benchmark marks in [`tradingview_benchmark_session_marks_20261026.csv`](data/tradingview_benchmark_session_marks_20261026.csv), including the supplied Oct. 26 BRENT $115.38 and TVC:USOIL $101.30 marks. No legacy or substitute prices are used.",
         "- The tagged entries/trim are recorded in [`trades/BRENT.txt`](trades/BRENT.txt) and [`trades/OIL.txt`](trades/OIL.txt), integrated in all four core variants, and therefore flow once through downstream core-based outputs, including THE ONE MODEL's 32-book aggregate. This document and CSV are a lot-level attribution only, not a second position allocation.",
         "- The first recorded EOD marks at/above the target are dated 2026-10-23. The daily-close source cannot establish an intraday touch or actual fill; the target execution is an explicit model assumption.",
         "- PnL excludes commissions, spread, slippage, financing, CFD contract multipliers/tracking differences, taxes, margin, and execution constraints. The percentage shown is measured against opening gross notional, not account equity.",

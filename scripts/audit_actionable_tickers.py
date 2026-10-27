@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Independently replay and reconcile every actionable ticker through Oct. 23.
+"""Independently replay and reconcile every actionable ticker through Oct. 26.
 
 This is an audit utility, separate from the report builders. It rebuilds the
 four core books including the chart-directed 1U/DAY/DXY sleeve, four
@@ -15,12 +15,11 @@ import csv
 from collections import defaultdict
 from pathlib import Path
 
-from daily_closes import OCT23_EOD_FILE
 from model_perf_core import DXY_PRICES, PRICES, SESSION_DATES, UNIT, VARIANTS, parse_trades
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
-AUDIT_CSV = DATA / "actionable_ticker_reconciliation_20261023_v1.csv"
+AUDIT_CSV = DATA / "actionable_ticker_reconciliation_20261026_v1.csv"
 CENT_TOL = 0.011
 
 
@@ -38,17 +37,31 @@ def _read_csv(path):
         return list(csv.DictReader(handle))
 
 
-def _close_lots(lots, ticker, side, price, day_idx, realized_by_ticker, realized_by_day):
-    for lot in lots[ticker]:
-        if lot["open"] and lot["side"] == side:
-            sign = 1.0 if side == "long" else -1.0
-            pnl = lot["units"] * UNIT * sign * (price / lot["entry_price"] - 1.0)
-            lot["open"] = False
-            lot["close_idx"] = day_idx
-            lot["close_price"] = price
-            lot["realized_pnl"] = pnl
-            realized_by_ticker[ticker] += pnl
-            realized_by_day[day_idx] += pnl
+def _close_lots(lots, ticker, side, price, day_idx, realized_by_ticker, realized_by_day,
+                qty=None, predicate=None):
+    """Close all or a capped quantity of selected lots; split partial lots."""
+    remaining = float("inf") if qty is None else float(qty)
+    for lot in list(lots[ticker]):
+        if remaining <= 1e-12:
+            break
+        if not lot["open"] or lot["side"] != side or (predicate and not predicate(lot)):
+            continue
+        closed_qty = min(lot["units"], remaining)
+        if closed_qty < lot["units"]:
+            lot["units"] -= closed_qty
+            closed = {**lot, "units": closed_qty}
+            lots[ticker].append(closed)
+        else:
+            closed = lot
+        sign = 1.0 if side == "long" else -1.0
+        pnl = closed_qty * UNIT * sign * (price / closed["entry_price"] - 1.0)
+        closed["open"] = False
+        closed["close_idx"] = day_idx
+        closed["close_price"] = price
+        closed["realized_pnl"] = pnl
+        realized_by_ticker[ticker] += pnl
+        realized_by_day[day_idx] += pnl
+        remaining -= closed_qty
 
 
 def _close_manual_auto_lots(lots, ticker, qty, price, day_idx, realized_by_ticker, realized_by_day):
@@ -82,7 +95,7 @@ def _close_manual_auto_lots(lots, ticker, qty, price, day_idx, realized_by_ticke
 
 def _dxy_daily_lots_from_export():
     """Independently reconstruct the integrated 1U/DAY DXY sleeve from its audit rows."""
-    rows = [row for row in _read_csv(DATA / "dxy_currency_desk_sidecar_daily_20261024.csv")
+    rows = [row for row in _read_csv(DATA / "dxy_currency_desk_sidecar_daily_20261026.csv")
             if float(row["unit_size_u"]) == 1.0]
     lots = []
     realized = []
@@ -127,11 +140,27 @@ def _core_replay(variant, events):
         if idx >= len(SESSION_DATES):
             continue
         if event["kind"] == "exit":
-            if "Manual-Automatic target trim" in event["note"]:
+            note = event["note"]
+            if "Manual-Automatic target trim" in note:
                 _close_manual_auto_lots(
                     lots, ticker, float(event["units"]), float(event["px"]), idx,
                     realized_by_ticker, realized_by_day,
                 )
+            elif "Explicit close of the specified paired 50U LONG lot" in note:
+                tag = "paired_manual_brent_50u" if ticker == "BRENT" else "paired_ats_oil_mirror_50u"
+                _close_lots(lots, ticker, "long", float(event["px"]), idx,
+                            realized_by_ticker, realized_by_day, qty=event["units"],
+                            predicate=lambda lot: lot.get("cashout_lot_tag") == tag)
+            elif "Explicit close of reported active" in note and "SHORT" in note:
+                if "V3A-only" in note and variant != "V3A":
+                    continue
+                _close_lots(lots, ticker, "short", float(event["px"]), idx,
+                            realized_by_ticker, realized_by_day, qty=event["units"],
+                            predicate=lambda lot: not lot.get("oil_target_short", False))
+            elif "Explicit close of the tagged 2026-10-23 10U" in note:
+                _close_lots(lots, ticker, "short", float(event["px"]), idx,
+                            realized_by_ticker, realized_by_day, qty=event["units"],
+                            predicate=lambda lot: lot.get("oil_target_short", False))
             else:
                 last_exit_units[ticker] = float(event["units"])
                 _close_lots(lots, ticker, "long", float(event["px"]), idx,
@@ -144,17 +173,26 @@ def _core_replay(variant, events):
                 "side": "short", "units": units, "entry_price": float(event["px"]),
                 "entry_idx": idx, "close_idx": None, "close_price": None,
                 "open": True, "realized_pnl": 0.0,
+                "oil_target_short": "user-directed hypothetical force-multiplier short" in event["note"],
             })
         else:  # LONG / REBUY
             if sar:
                 _close_lots(lots, ticker, "short", float(event["px"]), idx,
-                            realized_by_ticker, realized_by_day)
+                            realized_by_ticker, realized_by_day,
+                            predicate=lambda lot: not lot.get("oil_target_short", False))
             lots[ticker].append({
                 "side": "long", "units": float(event["units"]),
                 "entry_price": float(event["px"]), "entry_idx": idx,
                 "close_idx": None, "close_price": None, "open": True,
                 "realized_pnl": 0.0,
                 "manual_automatic_entry": "Manual-Automatic Entry" in event["note"],
+                "cashout_lot_tag": (
+                    "paired_manual_brent_50u"
+                    if ticker == "BRENT" and "user-requested 50U manual BRENT position" in event["note"]
+                    else "paired_ats_oil_mirror_50u"
+                    if ticker == "OIL" and "user-reported 50U ATS USOIL LONG mirror move" in event["note"]
+                    else None
+                ),
             })
 
     dxy_lots, dxy_realized = _dxy_daily_lots_from_export()
@@ -216,6 +254,8 @@ def _variant_force_replay(variant, events):
     for idx, day in enumerate(SESSION_DATES):
         event_day_units = {}
         for event in by_day.get(day, []):
+            if "CORE MODEL ONLY, not a direction signal or daily sidecar action" in event["note"]:
+                continue
             ticker = event["sym"]
             if event["kind"] == "exit":
                 if "Manual-Automatic target trim" in event["note"]:
@@ -287,7 +327,8 @@ def _variant_force_replay(variant, events):
 def _direction_force_replay(events, tranche_notional):
     by_day = defaultdict(list)
     for event in events:
-        if event["date"] > SESSION_DATES[-1] or event["kind"] != "entry":
+        if (event["date"] > SESSION_DATES[-1] or event["kind"] != "entry"
+                or "CORE MODEL ONLY, not a direction signal or daily sidecar action" in event["note"]):
             continue
         direction = "long" if event["tag"] in {"LONG", "REBUY"} else "short" if event["tag"] == "SHORT" else None
         if direction is None:
@@ -386,11 +427,11 @@ def terminal_ticker_metrics(lots, realized_by_ticker):
 
 def _audit_price_sources(events):
     """Validate the active user-supplied TradingView universe and marks."""
-    mark_rows = _read_csv(DATA / "tradingview_benchmark_session_marks_20261024.csv")
+    mark_rows = _read_csv(DATA / "tradingview_benchmark_session_marks_20261026.csv")
     by_ticker_day = {(row["Ticker"], row["Date"]): row for row in mark_rows}
     symbols = set(PRICES)
     expected_sessions = set(SESSION_DATES)
-    if len(symbols) != 31 or len(SESSION_DATES) != 36:
+    if len(symbols) != 31 or len(SESSION_DATES) != 37:
         raise AssertionError(f"Unexpected TradingView core/session count: {len(symbols)}/{len(SESSION_DATES)}")
     if symbols & {"BTC", "ETH", "DXY"}:
         raise AssertionError("BTC/ETH and DXY must remain outside the direct-price core")
@@ -418,7 +459,7 @@ def _audit_price_sources(events):
     if actionable != symbols:
         raise AssertionError(f"Actionable symbols and priced symbols differ: {actionable ^ symbols}")
     eod = {ticker: {"EOD_Close": f"{PRICES[ticker][-1]:.8f}"} for ticker in symbols}
-    registry = {ticker: {"2026-10-23_Source": by_ticker_day[(ticker, SESSION_DATES[-1])]["Source_File"]}
+    registry = {ticker: {f"{SESSION_DATES[-1]}_Source": by_ticker_day[(ticker, SESSION_DATES[-1])]["Source_File"]}
                 for ticker in symbols}
     return eod, registry, mark_rows
 
@@ -516,9 +557,13 @@ def _audit_position_exports(force_positions, shared_positions, fixed_positions):
 def _audit_energy_sidecar(benchmark_rows):
     """Reconcile all 0.05U/1U/10U daily energy schedules to supplied marks."""
     benchmark = {(row["Ticker"], row["Date"]): row for row in benchmark_rows}
-    rows = _read_csv(DATA / "tradingview_energy_sidecar_daily_20261024.csv")
-    if len(rows) != 165:
-        raise AssertionError(f"Expected 165 energy sidecar rows, got {len(rows)}")
+    rows = _read_csv(DATA / "tradingview_energy_sidecar_daily_20261026.csv")
+    expected_rows = 3 * (
+        sum(day >= "2026-09-23" for day in SESSION_DATES)
+        + sum(day >= "2026-09-10" for day in SESSION_DATES)
+    )
+    if len(rows) != expected_rows:
+        raise AssertionError(f"Expected {expected_rows} energy sidecar rows, got {len(rows)}")
     groups = defaultdict(list)
     for row in rows:
         size = float(row["unit_size_u"])
@@ -553,9 +598,10 @@ def _audit_energy_sidecar(benchmark_rows):
 def _audit_dxy_sidecar(benchmark_rows):
     """Reconcile the separate DXY currency-desk schedule and its three sizes."""
     benchmark = {(row["Ticker"], row["Date"]): row for row in benchmark_rows}
-    rows = _read_csv(DATA / "dxy_currency_desk_sidecar_daily_20261024.csv")
-    if len(rows) != 105:
-        raise AssertionError(f"Expected 105 DXY sidecar rows, got {len(rows)}")
+    rows = _read_csv(DATA / "dxy_currency_desk_sidecar_daily_20261026.csv")
+    expected_rows = 3 * sum(day >= "2026-09-04" for day in SESSION_DATES)
+    if len(rows) != expected_rows:
+        raise AssertionError(f"Expected {expected_rows} DXY sidecar rows, got {len(rows)}")
     groups = defaultdict(list)
     for row in rows:
         size = float(row["unit_size_u"])
@@ -589,7 +635,7 @@ def _audit_dxy_sidecar(benchmark_rows):
 
 def _audit_composites(core_daily, force_daily, shared_daily, fixed_daily):
     strategy = _read_csv(DATA / "strategy_sidecar_comparison_daily_v1.csv")
-    energy = [row for row in _read_csv(DATA / "tradingview_energy_sidecar_daily_20261024.csv")
+    energy = [row for row in _read_csv(DATA / "tradingview_energy_sidecar_daily_20261026.csv")
               if float(row["unit_size_u"]) == 10.0]
     energy_by_day = defaultdict(list)
     for energy_row in energy:
@@ -609,8 +655,12 @@ def _audit_composites(core_daily, force_daily, shared_daily, fixed_daily):
         oil_open_by_day[day] = last_open
 
     energy_11_rows = _read_csv(DATA / "the_one_model_energy_11u_sidecar_daily_v1.csv")
-    if len(energy_11_rows) != 55 or any(float(row["unit_size_u"]) != 11.0 for row in energy_11_rows):
-        raise AssertionError("THE ONE MODEL energy sidecar must contain 55 rows at 11U per active ticker")
+    expected_energy_11_rows = (
+        sum(day >= "2026-09-23" for day in SESSION_DATES)
+        + sum(day >= "2026-09-10" for day in SESSION_DATES)
+    )
+    if len(energy_11_rows) != expected_energy_11_rows or any(float(row["unit_size_u"]) != 11.0 for row in energy_11_rows):
+        raise AssertionError(f"THE ONE MODEL energy sidecar must contain {expected_energy_11_rows} rows at 11U per active ticker")
     if any(abs(float(row["daily_buy_units"]) - 11.0) > CENT_TOL for row in energy_11_rows):
         raise AssertionError("THE ONE MODEL energy daily tranches must be 11U per active ticker")
     energy_11u_by_day = defaultdict(list)
@@ -634,7 +684,7 @@ def _audit_composites(core_daily, force_daily, shared_daily, fixed_daily):
     if len(aggregate_rows) != len(SESSION_DATES):
         raise AssertionError("THE ONE MODEL aggregate has an unexpected row count")
     dxy_10u_by_day = {
-        row["date"]: row for row in _read_csv(DATA / "dxy_currency_desk_sidecar_daily_20261024.csv")
+        row["date"]: row for row in _read_csv(DATA / "dxy_currency_desk_sidecar_daily_20261026.csv")
         if float(row["unit_size_u"]) == 10.0
     }
     for idx, (row, split_row) in enumerate(zip(strategy, aggregate_rows)):
@@ -733,8 +783,8 @@ def audit_all():
                 "Trade_Log_Events": len(dxy_log_events),
                 "First_Trade_Date": dxy_log_events[0][:10],
                 "Last_Trade_Date": dxy_log_events[-1][:10],
-                "Oct23_Close": f"{DXY_PRICES[-1]:.8f}",
-                "Oct23_Source": dxy_source["Source_File"],
+                "EOD_Close": f"{DXY_PRICES[-1]:.8f}",
+                "EOD_Source": dxy_source["Source_File"],
             }
         else:
             row = {
@@ -742,8 +792,8 @@ def audit_all():
                 "Trade_Log_Events": event_counts[ticker],
                 "First_Trade_Date": min(event_dates[ticker]),
                 "Last_Trade_Date": max(event_dates[ticker]),
-                "Oct23_Close": f"{PRICES[ticker][-1]:.8f}",
-                "Oct23_Source": registry[ticker]["2026-10-23_Source"],
+                "EOD_Close": f"{PRICES[ticker][-1]:.8f}",
+                "EOD_Source": registry[ticker][f"{SESSION_DATES[-1]}_Source"],
             }
         for variant in VARIANTS:
             core_summary = terminal_ticker_metrics(core_lots[variant], core_realized[variant])[ticker]

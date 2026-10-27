@@ -1,0 +1,35 @@
+Ticker,Role,Coverage_Status,Provided_Source_Rows,Comparison_Session_Rows,Missing_Comparison_Sessions,First_Provided_Date,Last_Provided_Date,2026-10-23_Close,Source_Files
+AAPL,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,348.72500000,AAPL PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+AMZN,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,248.00000000,AMZN PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+BRENT,core_price_symbol,complete_source_marks,40,37,,2026-09-01,2026-10-26,117.34500000,BRENT PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+BTC,pending_crypto_sidecar,pending_tradingview_recalibration,0,0,2026-09-03;2026-09-04;2026-09-08;2026-09-09;2026-09-10;2026-09-11;2026-09-14;2026-09-15;2026-09-16;2026-09-17;2026-09-18;2026-09-21;2026-09-22;2026-09-23;2026-09-24;2026-09-25;2026-09-28;2026-09-29;2026-09-30;2026-10-01;2026-10-02;2026-10-05;2026-10-06;2026-10-07;2026-10-08;2026-10-09;2026-10-12;2026-10-13;2026-10-14;2026-10-15;2026-10-16;2026-10-19;2026-10-20;2026-10-21;2026-10-22;2026-10-23;2026-10-26,,,,
+CAT,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,687.00000000,CAT PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+CVX,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,233.21000000,CVX PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+DIS,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,112.52000000,DIS PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+DXY,currency_desk_sidecar,complete_source_marks,40,37,,2026-09-01,2026-10-26,101.75100000,DXY PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+ETH,pending_crypto_sidecar,pending_tradingview_recalibration,0,0,2026-09-03;2026-09-04;2026-09-08;2026-09-09;2026-09-10;2026-09-11;2026-09-14;2026-09-15;2026-09-16;2026-09-17;2026-09-18;2026-09-21;2026-09-22;2026-09-23;2026-09-24;2026-09-25;2026-09-28;2026-09-29;2026-09-30;2026-10-01;2026-10-02;2026-10-05;2026-10-06;2026-10-07;2026-10-08;2026-10-09;2026-10-12;2026-10-13;2026-10-14;2026-10-15;2026-10-16;2026-10-19;2026-10-20;2026-10-21;2026-10-22;2026-10-23;2026-10-26,,,,
+GEV,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,815.00000000,GEV PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+HD,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,319.83000000,HD PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+INTC,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,86.96000000,INTC PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+LCID,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,3.52000000,LCID PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+LLY,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,1273.46000000,LLY PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+LMT,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,604.18000000,LMT PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+LULU,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,99.01000000,LULU PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+META,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,642.62000000,META PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+NET,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,325.73000000,NET PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+NFLX,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,65.85000000,NFLX PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+NVDA,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,210.96000000,NVDA PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+OIL,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,103.45000000,USOIL PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+ORCL,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,126.16000000,ORCL PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+PEP,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,135.77000000,PEP PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+PLTR,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,196.75000000,PLTR PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+RIVN,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,11.83000000,RIVN PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+SPCX,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,147.49000000,SPCX PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+TMO,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,673.82000000,TMO PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+TSLA,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,372.22000000,TSLA PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+UPS,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,101.06000000,UPS PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+V,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,407.92000000,V PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+VLO,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,419.28000000,VLO PRICE CHART (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+WMT,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,119.89000000,WMT PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+XLE,core_price_symbol,complete_source_marks,39,37,,2026-09-01,2026-10-26,69.33000000,XLE PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv
+XRH0,core_price_symbol,complete_with_user_TV_carry_forward,35,37,2026-09-15;2026-10-07;2026-10-08;2026-10-19;2026-10-22,2026-09-01,2026-10-26,785.00000000,XRH0 PRICE LIST (TRADINGVIEW).rtf;tradingview_eod_marks_20261026.csv

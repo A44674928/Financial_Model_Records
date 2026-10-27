@@ -19,7 +19,7 @@ class TradingViewSidecarChartTests(unittest.TestCase):
 
         with sidecars.DXY_CSV.open(newline="", encoding="utf-8") as handle:
             rows = list(csv.DictReader(handle))
-        self.assertEqual(len(rows), 105)
+        self.assertEqual(len(rows), 108)
         self.assertEqual({row["unit_size_label"] for row in rows}, {"0.05U", "1U", "10U"})
 
         report = sidecars.REPORT.read_text(encoding="utf-8")

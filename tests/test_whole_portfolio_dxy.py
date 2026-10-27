@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import build_whole_portfolio_dxy_view as dxy_view
-from model_perf_core import SESSION_DATES, VARIANTS, all_series
+from model_perf_core import VARIANTS, all_series
 from us10y_adjustment import apply_us10y_adjustment
 
 
@@ -16,8 +16,8 @@ def test_uploaded_daily_inputs_cover_all_model_sessions_and_terminal_marks():
     fx = dxy_view.read_fx_daily()
     dxy_view.validate_terminal_marks(dxy, fx)
 
-    assert len(SESSION_DATES) == 36
-    assert SESSION_DATES[-1] == "2026-10-23"
+    assert len(dxy_view.VIEW_SESSION_DATES) == 36
+    assert dxy_view.VIEW_SESSION_DATES[-1] == "2026-10-23"
     assert dxy["2026-09-03"] == 98.95
     assert dxy["2026-10-22"] == 102.22
     assert fx["EURUSD"]["2026-10-22"] == 1.0728
@@ -29,8 +29,8 @@ def test_uploaded_daily_inputs_cover_all_model_sessions_and_terminal_marks():
 
 def test_entry_date_fx_baselines_and_daily_marks_are_rebased_as_selected():
     _, fx, _, _, _, result = dxy_view.build_daily_series()
-    eur_entry_index = SESSION_DATES.index("2026-09-15")
-    jpy_first_session_index = SESSION_DATES.index("2026-09-08")
+    eur_entry_index = dxy_view.VIEW_SESSION_DATES.index("2026-09-15")
+    jpy_first_session_index = dxy_view.VIEW_SESSION_DATES.index("2026-09-08")
     for variant in VARIANTS:
         assert result[variant]["fx_eur_usd"][eur_entry_index] == 0
         jpy_first_session = dxy_view.UNIT * (
@@ -45,7 +45,7 @@ def test_entry_date_fx_baselines_and_daily_marks_are_rebased_as_selected():
 
 def test_whole_book_numeraire_uses_usd_account_value_over_dxy_not_a_dxy_lot():
     dxy, _, _, _, _, result = dxy_view.build_daily_series()
-    terminal = SESSION_DATES.index("2026-10-23")
+    terminal = dxy_view.VIEW_SESSION_DATES.index("2026-10-23")
     start = 0
     for variant in VARIANTS:
         usd_value = result[variant]["usd_account_value"][terminal]
@@ -53,7 +53,7 @@ def test_whole_book_numeraire_uses_usd_account_value_over_dxy_not_a_dxy_lot():
         expected = usd_value / dxy["2026-10-23"]
         assert abs(dxy_value - expected) < 1e-10
         assert abs(result[variant]["dxy_equivalent_value"][start] -
-                   dxy_view.CAPITAL_BASIS_USD[variant] / dxy[SESSION_DATES[start]]) < 1e-10
+                   dxy_view.CAPITAL_BASIS_USD[variant] / dxy[dxy_view.VIEW_SESSION_DATES[start]]) < 1e-10
         expected_return = (expected / result[variant]["dxy_equivalent_value"][start] - 1) * 100
         assert abs(result[variant]["dxy_return_pct"][terminal] - expected_return) < 1e-10
 
@@ -62,12 +62,12 @@ def test_us30y_holiday_mark_is_forward_filled_and_oct23_long_is_marked():
     marks, sources = dxy_view.read_us30y_daily()
     assert marks["2026-10-12"] == 5.6
     assert sources["2026-10-12"] == "2026-10-09"
-    assert SESSION_DATES[-1] == "2026-10-23"
+    assert dxy_view.VIEW_SESSION_DATES[-1] == "2026-10-23"
     assert marks["2026-10-23"] == 5.43
     assert sources["2026-10-23"] == "2026-10-23"
     _, _, _, _, _, result = dxy_view.build_daily_series()
-    oct22 = SESSION_DATES.index("2026-10-22")
-    oct23 = SESSION_DATES.index("2026-10-23")
+    oct22 = dxy_view.VIEW_SESSION_DATES.index("2026-10-22")
+    oct23 = dxy_view.VIEW_SESSION_DATES.index("2026-10-23")
     for variant in VARIANTS:
         assert result[variant]["us30y_long_unrealized_usd"][oct22] == 0
         assert abs(result[variant]["us30y_long_unrealized_usd"][oct23] - 224.0632649218588) < 1e-8
@@ -76,7 +76,7 @@ def test_us30y_holiday_mark_is_forward_filled_and_oct23_long_is_marked():
 def test_us10y_carry_preserves_established_core_model_basis():
     core, _ = all_series()
     expected = copy.deepcopy(core)
-    expected_rows = apply_us10y_adjustment(expected, SESSION_DATES)
+    expected_rows = apply_us10y_adjustment(expected, dxy_view.VIEW_SESSION_DATES)
     _, cumulative = dxy_view.established_us10y_carry(core, expected_rows)
     for variant in VARIANTS:
         assert cumulative[variant] == expected[variant]["yield_adjustment"]
@@ -86,7 +86,7 @@ def test_base_pnl_excludes_legacy_carry_and_scenarios_scale_full_account_value()
     _, _, _, _, _, result = dxy_view.build_daily_series()
     for variant in VARIANTS:
         row = result[variant]
-        for i in range(len(SESSION_DATES)):
+        for i in range(len(dxy_view.VIEW_SESSION_DATES)):
             expected = row["realized_usd"][i] + row["unrealized_usd"][i]
             assert abs(row["total_pnl_usd"][i] - expected) < 1e-8
             base_value = row["usd_account_value"][i]
@@ -121,7 +121,7 @@ def test_exported_csvs_are_complete_and_oct23_values_reconcile():
         daily_rows = list(csv.DictReader(fh))
     with dxy_view.SUMMARY_CSV.open(newline="", encoding="utf-8") as fh:
         summary_rows = list(csv.DictReader(fh))
-    assert len(daily_rows) == len(VARIANTS) * len(SESSION_DATES)
+    assert len(daily_rows) == len(VARIANTS) * len(dxy_view.VIEW_SESSION_DATES)
     assert len(summary_rows) == len(VARIANTS)
     assert daily_rows[-1]["session_date"] == "2026-10-23"
     assert daily_rows[-1]["dxy_close"] == "102.1"
@@ -137,7 +137,7 @@ def test_exported_csvs_are_complete_and_oct23_values_reconcile():
     assert holiday["us30y_source_date"] == "2026-10-09"
     with dxy_view.YIELD_SCENARIO_CSV.open(newline="", encoding="utf-8") as fh:
         scenario_rows = list(csv.DictReader(fh))
-    assert len(scenario_rows) == len(VARIANTS) * len(SESSION_DATES) * 3
+    assert len(scenario_rows) == len(VARIANTS) * len(dxy_view.VIEW_SESSION_DATES) * 3
     assert scenario_rows[-1]["scenario"] == "us10y_us30y"
     assert dxy_view.YIELD_EXPLORER.exists()
     html = dxy_view.YIELD_EXPLORER.read_text(encoding="utf-8")

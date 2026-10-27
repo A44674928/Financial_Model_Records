@@ -19,9 +19,10 @@ DATA = ROOT / "data"
 PART_A = DATA / "tradingview_benchmark_price_lists_part_a_20261024.csv"
 PART_B = DATA / "tradingview_benchmark_price_lists_part_b_20261024.csv"
 COMBINED = DATA / "tradingview_benchmark_price_lists_20261024.csv"
-SESSION_MARKS = DATA / "tradingview_benchmark_session_marks_20261024.csv"
-COVERAGE = DATA / "tradingview_benchmark_coverage_20261024.csv"
-MANIFEST = DATA / "tradingview_benchmark_source_manifest_20261024.json"
+EOD_UPDATE = DATA / "tradingview_eod_marks_20261026.csv"
+SESSION_MARKS = DATA / "tradingview_benchmark_session_marks_20261026.csv"
+COVERAGE = DATA / "tradingview_benchmark_coverage_20261026.csv"
+MANIFEST = DATA / "tradingview_benchmark_source_manifest_20261026.json"
 PENDING_CRYPTO = {"BTC", "ETH"}
 DXY = "DXY"
 
@@ -43,6 +44,31 @@ def build():
             raise AssertionError(f"Duplicate TradingView price-list observation: {key}")
         raw_by_key[key] = row
         by_ticker[row["Ticker"]][row["Date"]] = row
+
+    update_rows = _read(EOD_UPDATE)
+    supplied_updates = [row for row in update_rows if row["Status"] == "supplied"]
+    expected_update_symbols = set(PRICES) | {DXY}
+    if (
+        len(supplied_updates) != len(expected_update_symbols)
+        or {row["Ticker"].strip().upper() for row in supplied_updates} != expected_update_symbols
+        or {row["Date"].strip() for row in supplied_updates} != {"2026-10-26"}
+    ):
+        raise AssertionError("The 2026-10-26 update must contain all 31 core marks and DXY exactly once")
+    for row in supplied_updates:
+        ticker, day = row["Ticker"].strip().upper(), row["Date"].strip()
+        if day in by_ticker[ticker]:
+            raise AssertionError(f"Duplicate supplied TradingView update: {ticker} {day}")
+        close = float(row["EOD_Close"])
+        if close <= 0:
+            raise AssertionError(f"Nonpositive supplied close for {ticker} on {day}")
+        by_ticker[ticker][day] = {
+            "Ticker": ticker,
+            "Date": day,
+            "Close": f"{close:.8f}",
+            "Source_File": EOD_UPDATE.name,
+            "Source_File_URL": "",
+            "Archive_SHA256": "",
+        }
 
     core_symbols = set(PRICES) - PENDING_CRYPTO
     missing_core_files = core_symbols - set(by_ticker)
@@ -160,12 +186,16 @@ def build():
         "part_a_archive_sha256": part_a_sha,
         "part_b_archive_sha256": part_b_sha,
         "raw_price_data_path": str(COMBINED.relative_to(ROOT)),
+        "supplemental_eod_update_path": str(EOD_UPDATE.relative_to(ROOT)),
+        "supplemental_eod_update_date": "2026-10-26",
+        "supplemental_eod_update_mark_count": len(supplied_updates),
         "aligned_session_marks_path": str(SESSION_MARKS.relative_to(ROOT)),
         "coverage_path": str(COVERAGE.relative_to(ROOT)),
+        "latest_direct_price_date": SESSION_DATES[-1],
         "source_reconciliation": {
             "LLY": "The updated Part B archive supplies a 2026-10-20 close of 1283.66, replacing the prior archive's 12833.66 mark; all downstream outputs use the updated row.",
             "XRH0": "Five missing common-session marks are carried forward from the previous supplied TradingView close; each row is explicitly flagged.",
-            "DXY": "Provided in Part B as a non-equity index mark; its chart-directed 1U/DAY index-return sleeve is integrated into each core portfolio variant.",
+            "DXY": "Provided in Part B through Oct. 23 and supplemented with the user-provided TradingView Oct. 26 close of 102.017; its chart-directed 1U/DAY index-return sleeve is integrated into each core portfolio variant, not double-counted.",
             "BTC_ETH": "No legacy Yahoo or previous project marks enter the core model or pending sidecar calculations.",
         },
     }

@@ -10,7 +10,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 from import_tradingview_price_lists import _parse_price_file, _ticker_from_filename
-from model_perf_core import PRICES, SESSION_DATES
+from model_perf_core import BASE_SESSION_DATES as SESSION_DATES, PRICES
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"

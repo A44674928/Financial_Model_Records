@@ -1,0 +1,8 @@
+model_book,current_open_gross_notional_usd,historical_cumulative_gross_additions_usd,pool_deduction_usd,scope_note
+THE ONE MODEL — aggregate of 32 independent portfolios,478800000.00,584960000.00,478800000.00,"Current gross-open notional across all 32 modeled books; includes core, variant-specific 1U/EOD, 11U energy in 16 portfolios, and 10U DXY in all 32."
+THE WINNING MODEL — selected portfolio scaled 27.201116x,497100395.26,584960000.00,497100395.26,"Separately funded scaled book per user direction; it is selected from THE ONE universe, so this is an additional modeled allocation, not a unique signal set."
+Fixed-$500/EOD direction-following alternative,267500.00,343500.00,267500.00,Separate fixed-tranche comparison book; not a THE ONE constituent.
+Shared-direction 1U/EOD force alternative,5350000.00,6870000.00,5350000.00,Separate shared-direction comparison book; THE ONE includes variant-specific 1U/EOD books instead.
+Generic 10U/DAY TradingView energy sidecar,5700000.00,5700000.00,5700000.00,Separate 10U/DAY comparison book; THE ONE energy-inclusive portfolios use 11U/DAY.
+0.05U/DAY DXY alternative,18000.00,18000.00,18000.00,"Alternative DXY sizing, excluded from THE ONE; 1U core and 10U sidecar schedules are already included there and are not counted again."
+One-time chart-opened DXY position,10000.00,10000.00,10000.00,"Separate logged position outside core and THE ONE daily DXY schedules; counted once, not once per sizing row."

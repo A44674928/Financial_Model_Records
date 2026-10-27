@@ -16,7 +16,7 @@ from datetime import date
 from pathlib import Path
 from urllib.parse import quote
 
-from model_perf_core import PRICES, SESSION_DATES
+from model_perf_core import BASE_SESSION_DATES as SESSION_DATES, PRICES
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"

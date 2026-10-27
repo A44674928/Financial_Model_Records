@@ -28,7 +28,7 @@ from model_perf_core import (
 )
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
-ENERGY_SIDECAR_CSV = DATA / "tradingview_energy_sidecar_daily_20261024.csv"
+ENERGY_SIDECAR_CSV = DATA / "tradingview_energy_sidecar_daily_20261026.csv"
 CHARTS = ROOT / "Charts" / "performance"
 DAILY_CSV = DATA / "strategy_sidecar_comparison_daily_v1.csv"
 POSITION_CSV = DATA / "exponential_eod_positions_v1.csv"
@@ -729,7 +729,7 @@ def write_report(rows):
     lines = [
         "# Strategy and Sidecar Comparison",
         "",
-        "> **TradingView-only interim refresh — 2026-10-24.** Core comparisons use 31 supplied direct-price symbols plus the chart-directed 1U/DAY/DXY index-return sleeve integrated into each core variant; BTC/ETH are excluded pending recalibration. The energy add-on below uses the independently published 10U daily-buy schedule from the same TradingView benchmark. XRH0 includes five flagged carry-forward marks; see the benchmark coverage and session-mark files.",
+        "> **TradingView-only refresh — 2026-10-26.** Core comparisons use 31 supplied direct-price symbols plus the chart-directed 1U/DAY/DXY index-return sleeve integrated into each core variant; BTC/ETH are excluded pending recalibration. TradingView sidecar schedules through 2026-10-26 use the same benchmark, with the generic energy add-on held at 10U/DAY. XRH0 includes five flagged carry-forward marks; see the benchmark coverage and session-mark files.",
         "> **Updated Part B source:** the revised user-provided archive corrects LLY's Oct. 20 close to `$1,283.66`, superseding the prior `$12,833.66` row; all strategy/core figures below use the revised mark.",
         "",
         "![Core models, both direction-following model sizes, and sidecar combinations](Charts/performance/20-strategy-sidecar-comparison.png)",
@@ -738,7 +738,7 @@ def write_report(rows):
         "",
         "## Model rules and combination math",
         "",
-        "- **Core variants:** existing V1, V2, V3A, and V3B model replays from the main comparison. The core logs also contain separate hypothetical 10U SHORT force-multiplier lots in BRENT at $117 and OIL at $102, modeled at the Oct. 23 target-level EOD trigger (not a verified intraday execution). Their explicit modeled exits are $114.627 BRENT and $100.74 OIL at 2026-10-25 20:35 MST, after the four earlier Oct. 25 replenishments and simultaneous with separate 35U BRENT/34U OIL LONG Weekend Oil buys; the buys count toward weekly supply, but the short closures do not. They raise post-close all-core oil long exposure from 65U BRENT + 66U OIL to 100U each (200U combined). The $115.792 BRENT/$101.74 OIL lots use the user-recalled 17:20–17:25 MST window, modeled at 17:22; the $114.80 BRENT/$101.00 OIL lot times are approximate around 20:00 MST per the user's recollection. These lot-specific exits override SAR only for the two tagged shorts; prices and timings are hypothetical model inputs, not verified executions. All these events are post-cutoff, so current terminal core metrics remain marked at Oct. 23. These short positions are part of core, not the energy sidecar.",
+        "- **Core variants:** existing V1, V2, V3A, and V3B model replays from the main comparison. The core logs also contain separate hypothetical 10U SHORT force-multiplier lots in BRENT at $117 and OIL at $102, modeled at the Oct. 23 target-level EOD trigger (not a verified intraday execution). Their explicit modeled exits are $114.627 BRENT and $100.74 OIL at 2026-10-25 20:35 MST, after the four earlier Oct. 25 replenishments and simultaneous with separate 35U BRENT/34U OIL LONG Weekend Oil buys; the buys count toward weekly supply, but the short closures do not. They raise post-close all-core oil long exposure from 65U BRENT + 66U OIL to 100U each (200U combined). The $115.792 BRENT/$101.74 OIL lots use the user-recalled 17:20–17:25 MST window, modeled at 17:22; the $114.80 BRENT/$101.00 OIL lot times are approximate around 20:00 MST per the user's recollection. These lot-specific exits override SAR only for the two tagged shorts; prices and timings are hypothetical model inputs, not verified executions. The Oct. 25 events and short exits are included in the current core replay through Oct. 26 and remain separate from the preserved Oct. 23 historical baseline. These short positions are part of core, not the energy sidecar.",
         "- **Exponential ($500/EOD):** after a ticker first has a logged direction, add a new fixed **$500 notional** lot in its latest LONG/SHORT/REBUY direction each EOD. $500 does not compound.",
         "- **Shared-direction force multiplier (1U/EOD):** one 1U tranche per symbol with a carried direction each priced EOD; close all prior lots at the EOD mark on any LONG/SHORT flip. This remains a separate alternative to the $500 model.",
         "- **Variant-specific 1U/EOD force family:** four separate daily-addition replays apply V1, V2, V3A, or V3B position handling to the 1U schedule. Explicit EXIT/TAKE PROFIT records close open long lots at their logged prices in all four; the carried direction remains active, so the scheduled EOD addition still occurs. V1/V3A leave opposite-side lots open on direction changes. V2/V3B cover shorts on LONG/REBUY at the logged signal price; as in the core implementation, SHORT does not close open longs. A qualifying V3A/V3B compounded-short entry uses the preceding full-exit unit count for that event-day tranche only; subsequent carried days return to 1U additions.",
@@ -746,7 +746,7 @@ def write_report(rows):
         "- **Additive comparisons:** each core base already contains the 1U/DAY/DXY index-return sleeve. The comparison adds shared $500/1U alternatives and the 10U TradingView energy schedule; variant-specific force models are shown alone, with energy, and in all 16 core-variant × 1U-variant pairings plus energy. Matching and cross-variant combinations are included. Do not add the DXY 1U sleeve a second time, net positions/capital, duplicate chart-opened energy positions, or stack alternative force models or variant rules.",
         "- Universe: all 31 directly price-covered TradingView core tickers plus DXY as an integrated index-return sleeve; BTC/ETH are pending recalibration, and EURUSD, JPYUSD, US10Y, and US30Y are outside this portfolio comparison.",
         "",
-        "## Standalone model and sidecar terminal comparison — Oct. 23, 2026",
+        "## Standalone model and sidecar terminal comparison — Oct. 26, 2026",
         "",
         "| Component/scenario | Terminal PnL | Cumulative notional added | Open notional |",
         "|---|---:|---:|---:|",
@@ -861,7 +861,7 @@ def write_report(rows):
         "- Shared-direction force model audit: [`force_multiplier_eod_positions_v1.csv`](data/force_multiplier_eod_positions_v1.csv).",
         "- Variant-specific 1U EOD position audit: [`force_multiplier_variant_eod_positions_v1.csv`](data/force_multiplier_variant_eod_positions_v1.csv).",
         "- Percent-gain chart for all 32 core/1U pairings with and without energy: [`22-force-variant-oil-percent-gain.png`](Charts/performance/22-force-variant-oil-percent-gain.png).",
-        "- Price source map: [`tradingview_benchmark_session_marks_20261024.csv`](data/tradingview_benchmark_session_marks_20261024.csv); sidecar schedule: [`tradingview_energy_sidecar_daily_20261024.csv`](data/tradingview_energy_sidecar_daily_20261024.csv).",
+        "- Price source map: [`tradingview_benchmark_session_marks_20261026.csv`](data/tradingview_benchmark_session_marks_20261026.csv); sidecar schedule: [`tradingview_energy_sidecar_daily_20261026.csv`](data/tradingview_energy_sidecar_daily_20261026.csv).",
         "- Core models: [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md). Energy schedule and DXY sizing/audit alternatives: [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md).",
         "",
         "**Scope note:** new direction-following models and composites are unadjusted USD PnL comparisons; they are not included in the existing whole-portfolio DXY/yield account scenarios. This historical paper-trade replay is not a live system, risk forecast, or investment recommendation.",

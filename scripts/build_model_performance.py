@@ -31,7 +31,7 @@ import matplotlib.ticker as mticker
 from matplotlib.ticker import FuncFormatter
 
 from model_perf_core import (  # noqa: E402
-    CHARTS_DIR, DATA_DIR, MODEL_PRICES, MST, PRICES, ROOT, SESSION_DATES, UNIT, VARIANTS,
+    BENCHMARK_SESSION_FILE, CHARTS_DIR, DATA_DIR, MODEL_PRICES, MST, PRICES, ROOT, SESSION_DATES, UNIT, VARIANTS,
     VARIANT_COLOR, VARIANT_LABEL, all_series, parse_trades,
 )
 from intraday_core import (  # noqa: E402
@@ -338,22 +338,24 @@ def make_us10y_adjustment_chart(series, yield_rows):
 def make_energy_eod_history_chart():
     """Plot only exact user-provided EOD marks over each active energy period."""
     CHARTS_DIR.mkdir(parents=True, exist_ok=True)
-    source_path = DATA_DIR / "energy_provider_eod_marks_v1.csv"
+    source_path = BENCHMARK_SESSION_FILE
     marks = {"BRENT": [], "OIL": []}
+    active_starts = {"BRENT": "2026-09-23", "OIL": "2026-09-10"}
     with source_path.open(newline="", encoding="utf-8") as fh:
         for row in csv.DictReader(fh):
-            ticker = row["Ticker"]
-            if ticker in marks:
+            ticker = row["Ticker"].strip().upper()
+            day = row["Date"].strip()
+            if ticker in marks and day >= active_starts[ticker]:
                 marks[ticker].append((
-                    datetime.strptime(row["Date"], "%Y-%m-%d"),
-                    float(row["EOD_Close"]),
+                    datetime.strptime(day, "%Y-%m-%d"),
+                    float(row["Close"]),
                 ))
 
     fig, ax = plt.subplots(figsize=(12, 5.6))
     colors = {"BRENT": "#38bdf8", "OIL": "#f59e0b"}
     sources = {
-        "BRENT": "BlackBull Markets Brent Cash",
-        "OIL": "TradingView TVC:USOIL",
+        "BRENT": "User-provided TradingView EOD marks",
+        "OIL": "User-provided TradingView TVC:USOIL marks",
     }
     for ticker in ("BRENT", "OIL"):
         points = sorted(marks[ticker])
@@ -719,7 +721,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("")
     A("*Equal-gross comparison with the top terminal-PnL constituent selected ex post from this same period; its daily path is scaled to match THE ONE MODEL's terminal gross additions. This is a hypothetical, selection-biased comparison—not out-of-sample evidence.*")
     A("")
-    A("> **TradingView-only interim recalculation — 2026-10-24.** Core results below combine the 31 supplied direct-price TradingView symbols with a 1U/DAY/DXY currency-index sleeve across 36 common sessions. The DXY sleeve adds one 1U tranche each active EOD in the latest charted LONG/REBUY/SHORT direction; its current single LONG badge controls despite the conflicting caption. BTC and ETH remain excluded pending recalibration. No legacy or substitute prices are used. XRH0 has five transparently flagged carry-forward marks from prior supplied TradingView closes. See [`data/tradingview_benchmark_coverage_20261024.csv`](data/tradingview_benchmark_coverage_20261024.csv), [`data/tradingview_benchmark_session_marks_20261024.csv`](data/tradingview_benchmark_session_marks_20261024.csv), and the [crypto pending page](Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md).")
+    A("> **TradingView-only model update — 2026-10-26.** Core results combine the 31 direct-price TradingView symbols with the integrated 1U/DAY/DXY currency-index sleeve across 37 common sessions. The Oct. 26 user-provided EOD update supplies all 31 core marks plus DXY at 102.017; the DXY sleeve adds one 1U tranche per active EOD in the charted direction and is not double-counted. BTC and ETH remain excluded pending recalibration. No legacy or substitute prices are used. XRH0’s five historical missing-session marks remain transparently carried forward, and its Oct. 26 close is supplied at 770.00. See [`data/tradingview_benchmark_coverage_20261026.csv`](data/tradingview_benchmark_coverage_20261026.csv), [`data/tradingview_benchmark_session_marks_20261026.csv`](data/tradingview_benchmark_session_marks_20261026.csv), and the [crypto pending page](Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md).")
     A("> **Updated source archive:** the revised Part B ZIP changes LLY's Oct. 20 TradingView mark from `$12,833.66` to `$1,283.66`; all model results below use the revised source and have been regenerated. See [`research/notes/tradingview-benchmark-import-20261024.md`](research/notes/tradingview-benchmark-import-20261024.md) and the Part B manifest.")
     A("")
     A("![THE ONE MODEL 32-portfolio split-strategy superstructure](Charts/superstructure/the-one-model.png)")
@@ -740,7 +742,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"`{book_event_count}` total 2026 log events (`{price_unmodeled_event_count}` other events outside scope; "
       f"`{post_terminal_event_count}` direct events after cutoff), "
       "`1U = $10,000.00` standard notional, all timestamps in Arizona year-round "
-      "**`MST` / `UTC-07:00`**, marked against the **Friday, October 23, 2026** close. Intraday plots remain on their supplied Oct. 22 hourly scope.")
+      "**`MST` / `UTC-07:00`**, marked against the **Monday, October 26, 2026** EOD close. Intraday plots remain on their supplied Oct. 22 hourly scope.")
     A("")
     if post_cutoff_manual_replenishments:
         replenishment_details = []
@@ -759,8 +761,8 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
         A(
             "> **Post-cutoff manual replenishments:** "
             + "; ".join(replenishment_details)
-            + " are recorded in the trade logs but fall after the Oct. 23 terminal mark. "
-            "No post-entry EOD marks are included, so these entries are excluded from current core PnL and composites pending a later benchmark refresh."
+            + " are recorded after the Oct. 23 historical baseline and are now included in the Oct. 26 EOD replay at the supplied marks. "
+            "The updated marks support model valuation, but do not independently verify the reported entries or execution details."
         )
         A("")
     if post_cutoff_ats_core_events:
@@ -776,7 +778,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
         A(
             "> **Post-cutoff ATS core activity (user-reported):** "
             + "; ".join(ats_details)
-            + ". The date is inferred as 2026-10-26 from conversation context. These are hypothetical ledger inputs, not independently verified brokerage fills, and are excluded from the Oct. 23 historical core PnL pending later EOD marks. On the user-reported position, the existing 2U META LONG plus this new 1U LONG leaves 3U LONG after the 1U SHORT is closed. This reported position is distinct from model variants: compounded V3A began with a modeled 5U SHORT, so the 1U cover initially left 4U SHORT; the separately disclosed user-directed V3A close subsequently closes that remainder. Other paths close only exposure still open and are not treated as brokerage holdings."
+            + ". The date is inferred as 2026-10-26 from conversation context. These are hypothetical ledger inputs, not independently verified brokerage fills, and remain excluded from the preserved Oct. 23 historical baseline; they are included in the current Oct. 26 EOD replay at supplied marks. On the user-reported position, the existing 2U META LONG plus this new 1U LONG leaves 3U LONG after the 1U SHORT is closed. This reported position is distinct from model variants: compounded V3A began with a modeled 5U SHORT, so the 1U cover initially left 4U SHORT; the separately disclosed user-directed V3A close subsequently closes that remainder. Other paths close only exposure still open and are not treated as brokerage holdings."
         )
         A("")
     if post_cutoff_model_short_closures:
@@ -788,7 +790,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
         A(
             "> **User-directed post-cutoff short closures (separate model actions):** "
             + "; ".join(closure_details)
-            + ". The 6U INTC instruction closes V3A's full 6U exposure and is capped to open shorts in each other path (V1 had 2U; V2/V3B had none). The 4U META instruction applies only to V3A: after the earlier 1U cover, it closes the remaining 4U of the modeled 5U short; V3A then has no META short. The separate user-reported META position remains 3U LONG. The approved CAT 2U close clears V1's 1U and V3A's 2U; PLTR's 3U close clears all 3U in V1/V3A and caps at 2U in V2/V3B; TSLA's 1U close clears each variant's open short. The date is inferred as 2026-10-26; 13:00 MST is only a chronology placeholder because no time was supplied. These are hypothetical model exits, not verified brokerage fills; any implied realized PnL is post-cutoff and excluded from the Oct. 23 historical totals."
+            + ". The 6U INTC instruction closes V3A's full 6U exposure and is capped to open shorts in each other path (V1 had 2U; V2/V3B had none). The 4U META instruction applies only to V3A: after the earlier 1U cover, it closes the remaining 4U of the modeled 5U short; V3A then has no META short. The separate user-reported META position remains 3U LONG. The approved CAT 2U close clears V1's 1U and V3A's 2U; PLTR's 3U close clears all 3U in V1/V3A and caps at 2U in V2/V3B; TSLA's 1U close clears each variant's open short. The date is inferred as 2026-10-26; 13:00 MST is only a chronology placeholder because no time was supplied. These are hypothetical model exits, not verified brokerage fills; their modeled realized PnL is included in the current Oct. 26 replay, but not retroactively in the preserved Oct. 23 historical baseline."
         )
         A("")
     if post_cutoff_model_long_additions:
@@ -799,7 +801,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
         A(
             "> **User-directed post-cutoff core-model long addition:** "
             + additions
-            + ". This 6U INTC lot is applied independently to each of the four core variants, not combined into one account position. The $87.55 level is the user's specified open/reference price and is also the price used for the INTC short closures. The date is inferred as 2026-10-26; 13:00 MST is only an ordering placeholder because no time was supplied. This hypothetical position is not a verified fill, is excluded from the Oct. 23 historical results, and has no subsequent EOD mark. It is not a signal for the separate daily sidecar models."
+            + ". This 6U INTC lot is applied independently to each of the four core variants, not combined into one account position. The $87.55 level is the user's specified open/reference price and is also the price used for the INTC short closures. The date is inferred as 2026-10-26; 13:00 MST is only an ordering placeholder because no time was supplied. This hypothetical position is not a verified fill; it remains outside the Oct. 23 historical baseline and is marked at the supplied Oct. 26 INTC close in the current replay. It is not a signal for the separate daily sidecar models."
         )
         A("")
     if post_cutoff_model_short_opens:
@@ -828,8 +830,8 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
             + ". The BRENT sale closes only the 50U manual lot entered at $115.51; the OIL sale closes only its synchronized 50U ATS mirror entered at $101.11, not the older $101.00 ATS lot. The user reports these exits as executed, but they are not independently verified. Date is inferred as 2026-10-26; 13:00 MST is an ordering placeholder because no execution time was supplied. Modeled combined realized PnL is $16,132.24 before costs and remains separate from the Oct. 23 historical totals."
         )
         A("")
-    A("> **Oil target-trim force-multiplier shorts:** separate hypothetical 10U SHORT lots in BRENT at $117 and OIL at $102 are modeled from the Oct. 23 target-trim session, in addition to the partial sales and remaining longs. The target-level EOD trigger is the model entry assumption, not a verified intraday touch or fill. Both shorts remain open at the Oct. 23 cutoff; at that session's EOD marks, they contribute -$294.87 BRENT and -$1,421.57 OIL unrealized PnL (-$1,716.44 per core path). Their user-directed modeled exits are $114.627 BRENT and $100.74 OIL at 2026-10-25 20:35 MST, after the four earlier Oct. 25 10U replenishments and simultaneous with separate 35U BRENT and 34U OIL LONG Weekend Oil buys. Those new LONG lots are distinct from the 10U SHORT closures and count toward buy-side weekly supply; closing the shorts does not count toward that supply. Added to the existing post-close 65U BRENT plus 66U OIL core longs, they bring all-core long exposure to 100U per ticker, 200U total ($2,000,000 fixed-unit notional). The exits override SAR auto-close only for the two tagged target-level shorts; all prices/timing and trades are hypothetical model inputs, not verified brokerage executions. At the fixed $100,000 notional per lot, the exits imply +$2,028.21 BRENT and +$1,235.29 OIL (+$3,263.50 combined short PnL before costs) when replayed, but this post-cutoff result is excluded from current terminal core totals.")
-    A("> **Oil cost-basis savings:** the realized target-trim PnL and the separately modeled post-cutoff SHORT-exit PnL are credited against tagged residual-plus-replenishment long lots as basis reclassifications, not additional profit. The short-exit credit is excluded from current Oct. 23 core PnL. The additional 35U BRENT and 34U OIL LONG buys are separate post-cutoff lots, not part of the existing residual-plus-10U-replenishment basis-credit calculation. See [`Oil Cost Basis Savings Model.md`](Oil%20Cost%20Basis%20Savings%20Model.md) and [`oil_cost_basis_savings_v1.csv`](data/oil_cost_basis_savings_v1.csv).")
+    A("> **Oil target-trim force-multiplier shorts:** separate hypothetical 10U SHORT lots in BRENT at $117 and OIL at $102 use the Oct. 23 target-level EOD marks as modeled entry triggers; intraday touches and fills are unverified. They were closed by modeled exits at $114.627 BRENT and $100.74 OIL on Oct. 25 at 20:35 MST. The exits follow the four earlier 10U replenishments and occur with separate 35U BRENT / 34U OIL approved orders. The buys are distinct LONG supply; covering shorts reduces short exposure and does not count as buy supply. The exits produce modeled realized short PnL of $2,028.21 BRENT + $1,235.29 OIL = $3,263.50 before costs, included once in the Oct. 26 replay and excluded from the preserved Oct. 23 baseline. After the short closures, the existing 65U BRENT + 66U OIL core longs plus the excess approved-order quantities produce 100U LONG per ticker in the core replay ($2,000,000 fixed-unit notional); gross exposure is not netted. All times/prices remain hypothetical model inputs, not verified brokerage executions.")
+    A("> **Oil cost-basis savings:** realized target-trim PnL, modeled SHORT-exit PnL, and paired cash-out PnL are credited against tagged residual/replenishment lots as basis reclassifications—not additional profit. The Oct. 25 short exits and Oct. 26 paired cash-outs are included once in the current replay, while the preserved Oct. 23 baseline remains historical. The separate 35U BRENT and 34U OIL approved-order longs are not folded into the narrower 60U tagged basis-credit basket. See [`Oil Cost Basis Savings Model.md`](Oil%20Cost%20Basis%20Savings%20Model.md) and [`oil_cost_basis_savings_v1.csv`](data/oil_cost_basis_savings_v1.csv).")
     A("> **Core basis after closure credits:** the same economic basis-credit method is applied to current open BRENT, USOIL, META, and INTC model lots, including the user-reported paired 50U oil cash-out PnL credited against remaining oil longs and variant-specific INTC/META short-cover credits. Credits reclassify realized PnL; they do not create additional portfolio PnL. Brokerage basis and execution remain unverified. See [`Core Cost Basis After Closure Credits.md`](Core%20Cost%20Basis%20After%20Closure%20Credits.md), [`Oil Cost Basis Savings Model.md`](Oil%20Cost%20Basis%20Savings%20Model.md), and [`core_cost_basis_closure_credits_v1.csv`](data/core_cost_basis_closure_credits_v1.csv).")
     A("")
     A("> **ATS / manual live-position reconciliation:** a separate ledger uses the tagged 50U-per-ticker Weekend Oil lots as a sizing proxy (ATS ceiling 40U, manual remainder 10U). Because the user-reported Oct. 23 ATS quantity is uncertain, matched ATS sales/shorts at $118 BRENT / $103.50 OIL are shown as 10U / 20U / 30U / 40U scenarios, with the Oct. 25 10U modeled covers attached as partial ATS covers. The earlier Oct. 23 10U trim/short records remain in this historical replay for audit continuity but are superseded—not stacked—in the new reconciliation. The four Oct. 25 10U replenishments are labeled **MANUAL LIVE TEST POSITIONS**; the 35U/34U orders are **MANUALLY APPROVED SHORT CLOSURE**, allocated to remaining ATS shorts first, with only any excess left long and counted as new buy supply in the reconciliation. The historical replay retains the earlier 69U long-buy treatment for audit continuity. The existing Oct. 26 ATS fixed-price LONG entries remain 50U each at $115 BRENT / $101 OIL (time unspecified); the user identifies a separate 50U ATS USOIL mirror LONG @ $101.11 at 07:51 MST, synchronized with the 50U manual BRENT entry and distinct from the earlier OIL @ $101.00 lot. Later user-reported additions are 10U per ticker via a manually approved ATS order ($115.025 BRENT / $100.96 OIL; date inferred from context, time unspecified), plus 16U BRENT @ $114.90 and 17U OIL @ $100.85 (date inferred, category/time unspecified), and a 50U manual BRENT LONG @ $115.51 at 07:51:14 MST from a TradingView screenshot (date inferred; LONG inferred from handwritten “PICK UP OPPORTUNITY”; not a verified fill). Under the maximum ATS short scenario, the tagged campaign totals 161U BRENT / 161U OIL. These scenario records do not modify the Oct. 23 core results or represent verified brokerage fills. See [`ATS and Manual Live Position Reconciliation.md`](ATS%20and%20Manual%20Live%20Position%20Reconciliation.md) and [`ats_manual_live_positions_v1.csv`](data/ats_manual_live_positions_v1.csv).")
@@ -839,8 +841,8 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       f"[`{daily_csv.name}`](data/{daily_csv.name}), "
       f"[`{ticker_csv.name}`](data/{ticker_csv.name}), "
       f"[`{summary_json.name}`](data/{summary_json.name}).")
-    A("> **DXY and historical account views:** the 1U/DAY/DXY index-return sleeve is included in every core variant. THE ONE MODEL's 32-portfolio split aggregate additionally adds the 10U/DAY DXY schedule to each portfolio, for 11U/DAY total; its regenerated totals are shown in the aggregate chart and portfolio audit export. A one-time 40% DXY withdrawal is pending the next supplied EOD close. It is sized from the existing 385U/$3.85M combined allocation (154U/$1.54M basis); the Oct. 23 estimated mark value of $1,550,966.13 is reference only, not withdrawal proceeds. Proceeds will route through cash, fund up to $690,000 of the logged oil buys, and identify any excess as cash support for existing positions, with no incremental portfolio size from this transfer; future DXY sizing remains 11U/DAY. Baseline results through Oct. 23 remain unchanged. See [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md), [`data/dxy_withdrawal_scenario_v1.csv`](data/dxy_withdrawal_scenario_v1.csv), and [`data/dxy_cash_oil_bridge_v1.csv`](data/dxy_cash_oil_bridge_v1.csv). Do not add the 1U sleeve twice. The 0.05U schedule remains an alternative. The separate DXY-numeraire and yield-multiplier views have been rebuilt using the current core paths; they remain sensitivities rather than additional core PnL.")
-    A("> **Small Caps pilot:** **[`Small Caps [Buyout & Reorganization Offering Test Pilot].md`](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md)** tracks the five LCID entries; all five are included in the Oct. 23 four-model comparison.")
+    A("> **DXY and historical account views:** the 1U/DAY/DXY index-return sleeve is included once in every core variant. THE ONE MODEL adds its 10U/DAY DXY schedule to each of 32 portfolios (11U/DAY combined). The supplied 2026-10-26 DXY close is 102.017. The requested 40% withdrawal scenario is valued at $1,555,020.71 using the 385U pre-request allocation (154U / $1.54M basis); the Oct. 26 daily addition is excluded from that withdrawal base. It models up to $690,000 for the logged oil buys and $865,020.71 excess cash support, but no actual withdrawal or transfer is reported executed. Future DXY sizing remains 11U/DAY. Historical results through Oct. 23 remain preserved. See [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md), [`data/dxy_withdrawal_scenario_v1.csv`](data/dxy_withdrawal_scenario_v1.csv), and [`data/dxy_cash_oil_bridge_v1.csv`](data/dxy_cash_oil_bridge_v1.csv). Do not add the 1U sleeve twice. The 0.05U schedule remains an alternative. The DXY-numeraire/yield views are separate sensitivities and may retain older FX/yield input coverage.")
+    A("> **Small Caps pilot:** **[`Small Caps [Buyout & Reorganization Offering Test Pilot].md`](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md)** tracks the five LCID entries; all five are included in the current four-model replay through Oct. 26.")
     A("> **Energy and DXY sizing:** **[`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md)** provides the standard energy sizes and DXY schedule audit. The DXY 1U/DAY series is included in core variants. THE ONE MODEL adds the 10U/DAY DXY schedule to every split portfolio (11U/DAY combined) and uses 11U/DAY energy tranches per active ticker in its 16 energy-inclusive portfolios. The strategy-comparison composites below retain their existing 10U energy schedule; 0.05U DXY remains an alternative. The user-specified 50U-long BRENT plus 50U-long USOIL Manual-Automatic entries and their targeted 10U trims are now included in all four core variants and flow into downstream core-based results. [`Weekend Oil 50U Position Hypothetical.md`](Weekend%20Oil%2050U%20Position%20Hypothetical.md) is a lot-level attribution of those same core lots, not an additional overlay.")
     A("> **Strategy and sidecar comparison:** **[`Strategy and Sidecar Comparison.md`](Strategy%20and%20Sidecar%20Comparison.md)** compares the existing variants, the fixed-$500/EOD and shared/variant-specific 1U/EOD force models, and additive composites using the 10U TradingView energy schedule.")
     A("> **How the models work:** **[`Model Calculation Guide.md`](Model%20Calculation%20Guide.md)** explains unit sizing, day-by-day lot handling, close/reversal behavior, and PnL formulas.")
@@ -869,7 +871,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("")
     A("## TradingView Benchmark and Alignment")
     A("")
-    A("The 31 directly priced core tickers use the normalized user-provided Part A and Part B TradingView lists only, aligned to the 36-session common calendar. A 1U/DAY/DXY index-return sleeve, activated by charted direction, is integrated into each model total and deployed-notional denominator; DXY is not represented as a directly traded security. The session marks and provenance are in [`tradingview_benchmark_session_marks_20261024.csv`](data/tradingview_benchmark_session_marks_20261024.csv); raw imported rows, coverage, and archive hashes are preserved alongside them. BTC and ETH have no marks in this core and remain pending recalibration.")
+    A("The 31 directly priced core tickers use the normalized user-provided Part A and Part B TradingView lists plus the user-provided Oct. 26 EOD update, aligned to the 37-session common calendar. A 1U/DAY/DXY index-return sleeve, activated by charted direction, is integrated into each model total and deployed-notional denominator; DXY is not represented as a directly traded security or counted twice. The session marks and provenance are in [`tradingview_benchmark_session_marks_20261026.csv`](data/tradingview_benchmark_session_marks_20261026.csv), with the Oct. 26 inputs in [`tradingview_eod_marks_20261026.csv`](data/tradingview_eod_marks_20261026.csv); raw imported rows, coverage, and archive hashes are preserved alongside them. BTC and ETH have no marks in this core and remain pending recalibration.")
     A("")
     A("**Provisional XRH0 convention:** five missing source sessions (`2026-09-15`, `2026-10-07`, `2026-10-08`, `2026-10-19`, and `2026-10-22`) carry forward the previous supplied TradingView close. Each row is explicitly flagged. No external or legacy price is inserted; revisit this convention if a different gap treatment is preferred.")
     A("")
@@ -889,7 +891,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
           "fall after a position closes) × ((yield close − 4.865) / 100) × actual calendar days / 365. "
           "Values above baseline add positive adjustment; below baseline subtract. Per your "
           "confirmation, the Oct 9 close (5.24%) is carried across the Oct 12 Treasury holiday; "
-          "the export records the original source date. The Oct 23 close (4.986%) is marked at the latest session; "
+          "the export records the original source date. The Oct 23 close (4.986%) is the latest supplied yield and is transparently carried to the Oct 26 session; "
           "the Oct 22-to-Oct 23 carry interval uses the Oct 22 close (4.96%) under the existing start-of-interval convention.")
         A("")
         A(f"![US10Y yield baseline and cumulative adjustment]({yield_chart.relative_to(ROOT).as_posix()})")
@@ -899,7 +901,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
         A("")
     A("## TradingView Energy Sidecar")
     A("")
-    A("Brent and WTI core positions use the supplied aligned TradingView marks. Energy and DXY sizing alternatives are documented with per-session source flags in [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md). The 1U/DAY/DXY index-return sleeve is already included in each core variant; do not add the 1U DXY schedule twice. Standard strategy composites add the 10U energy schedule. THE ONE MODEL separately uses 11U/DAY per active energy ticker in its 16 energy-inclusive portfolios; its derived machine-readable schedule is [`the_one_model_energy_11u_sidecar_daily_v1.csv`](data/the_one_model_energy_11u_sidecar_daily_v1.csv). Chart-opened core energy positions are shown separately and are not double-counted. Machine-readable standard schedules: [`tradingview_energy_sidecar_daily_20261024.csv`](data/tradingview_energy_sidecar_daily_20261024.csv) and [`dxy_currency_desk_sidecar_daily_20261024.csv`](data/dxy_currency_desk_sidecar_daily_20261024.csv).")
+    A("Brent and WTI core positions use the supplied aligned TradingView marks. Energy and DXY sizing alternatives are documented with per-session source flags in [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md). The 1U/DAY/DXY index-return sleeve is already included in each core variant; do not add the 1U DXY schedule twice. Standard strategy composites add the 10U energy schedule. THE ONE MODEL separately uses 11U/DAY per active energy ticker in its 16 energy-inclusive portfolios; its derived machine-readable schedule is [`the_one_model_energy_11u_sidecar_daily_v1.csv`](data/the_one_model_energy_11u_sidecar_daily_v1.csv). Chart-opened core energy positions are shown separately and are not double-counted. Machine-readable standard schedules: [`tradingview_energy_sidecar_daily_20261026.csv`](data/tradingview_energy_sidecar_daily_20261026.csv) and [`dxy_currency_desk_sidecar_daily_20261026.csv`](data/dxy_currency_desk_sidecar_daily_20261026.csv).")
     dxy_core = contrib["V1"].get("DXY", {"units": 0.0, "total": 0.0})
     A(f"**Integrated 1U/DAY/DXY sleeve (same across all four core variants):** {dxy_core['units']:.0f} daily units, **${dxy_core['units'] * UNIT:,.2f}** gross notional added, terminal proxy PnL **${dxy_core['total']:+,.2f}**. This is already included in the four-model results above.")
     A("")
@@ -914,7 +916,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A(f"![Cumulative base trading PnL by session]({charts[0].relative_to(ROOT).as_posix()})")
     A("")
     A("**Reading it:** the models begin close together, then spread as the reversal-sensitive "
-      "positions develop. At the Oct. 23 close the base and legacy additive US10Y-adjusted rankings are "
+      "positions develop. At the latest supplied Oct. 26 close the base and legacy additive US10Y-adjusted rankings are "
       f"**{' > '.join(sorted(VARIANTS, key=lambda v: term[v], reverse=True))}** and "
       f"**{' > '.join(sorted(VARIANTS, key=lambda v: series[v]['adjusted_total'][last], reverse=True))}**, respectively.")
     A("")
@@ -1121,7 +1123,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
     A("")
     A("### LCID Small-Caps Pilot")
     A("")
-    A("The five-entry LCID pilot is already included in the four-model replay through the corrected Oct. 23 mark; this graph is a focused component view, not another add-on to the core totals. See [`Small Caps [Buyout & Reorganization Offering Test Pilot].md`](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md) for entry and mark details.")
+    A("The five-entry LCID pilot is already included in the four-model replay through the supplied Oct. 26 mark; this graph is a focused component view, not another add-on to the core totals. See [`Small Caps [Buyout & Reorganization Offering Test Pilot].md`](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md) for entry and mark details.")
     A("")
     A("![LCID small-caps pilot daily PnL and marks](Charts/performance/18-lcid-small-caps-pilot-pnl.png)")
     A("")
@@ -1155,11 +1157,10 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
 
     A("## Method & Caveats")
     A("")
-    A(f"- **Model coverage:** the four variants directly price `{symbol_count}` TradingView tickers and include the chart-directed 1U/DAY/DXY index-return sleeve. `{direct_modeled_event_count}` direct-price trade events plus `{dxy_signal_count}` DXY direction signal are in scope through Oct. 23; `{post_terminal_event_count}` direct-price events after the mark are excluded. `{price_unmodeled_event_count}` other BTC, ETH, EURUSD, JPYUSD, US10Y, and US30Y log events are not replayed as direct-price positions. The two US10Y events establish yield-adjustment context; this report's additive carry is retained only as a legacy reference. Whole-account US10Y and compounded US30Y multiplier scenarios remain historical. DXY uses an index-return proxy, not an exchange-traded contract model.")
-    A("- **Price source:** every direct-price core mark comes from the normalized user-provided TradingView Part A/Part B lists, aligned in [`data/tradingview_benchmark_session_marks_20261024.csv`](data/tradingview_benchmark_session_marks_20261024.csv). DXY's 1U/day proxy uses its separate supplied TradingView index marks and the charted direction signal; it is integrated into the core totals but is not a directly traded security. BTC/ETH remain pending and outside the core. Five missing XRH0 sessions use the last prior supplied TradingView close, with each carry-forward row explicitly flagged; this is a provisional mark convention. No Yahoo or historical-series fill is used.")
+    A(f"- **Model coverage:** the four variants directly price `{symbol_count}` TradingView tickers and include the chart-directed 1U/DAY/DXY index-return sleeve. `{direct_modeled_event_count}` direct-price trade events plus `{dxy_signal_count}` DXY direction signal are in scope through `{SESSION_DATES[-1]}`; `{post_terminal_event_count}` direct-price events after the latest mark are excluded. `{price_unmodeled_event_count}` other BTC, ETH, EURUSD, JPYUSD, US10Y, and US30Y log events are not replayed as direct-price positions. The two US10Y events establish yield-adjustment context; this report's additive carry is retained only as a legacy reference. Whole-account US10Y and compounded US30Y multiplier scenarios remain historical. DXY uses an index-return proxy, not an exchange-traded contract model.")
+    A("- **Price source:** direct-price core marks use the normalized user-provided TradingView Part A/Part B lists plus the 2026-10-26 user-provided update in [`data/tradingview_eod_marks_20261026.csv`](data/tradingview_eod_marks_20261026.csv), aligned in [`data/tradingview_benchmark_session_marks_20261026.csv`](data/tradingview_benchmark_session_marks_20261026.csv). DXY's 1U/day proxy uses the supplied TradingView index marks, including the 2026-10-26 close of 102.017, and the charted direction signal; it is integrated into core totals once, not treated as a directly traded security. BTC/ETH remain pending and outside the core. Five historical XRH0 sessions use the last prior supplied TradingView close, with each carry-forward row explicitly flagged; its 2026-10-26 close is supplied at 770.00. No Yahoo or historical-series fill is used.")
     A("- **Benchmark provenance and alignment:** Part A and Part B raw observations, per-ticker coverage, and archive hashes are preserved in the paired CSV/JSON artifacts under `data/`. DXY is marked separately from the 31 direct-price tickers but its chart-directed 1U/day proxy is integrated into this core portfolio. EURUSD, JPYUSD, US10Y, and US30Y remain outside. Do not interpret the historical whole-portfolio DXY/yield pages as recalculated from this benchmark.")
-    A("- **Session calendar:** the `36` U.S. equity regular sessions from "
-      f"`{SESSION_DATES[0]}` to `{SESSION_DATES[-1]}`. DXY index marks align to the same sessions; BTC/ETH remain excluded pending recalibration.")
+    A(f"- **Session calendar:** `{len(SESSION_DATES)}` U.S. equity regular sessions from `{SESSION_DATES[0]}` to `{SESSION_DATES[-1]}`. DXY index marks align to the same sessions; BTC/ETH remain excluded pending recalibration.")
     A("- **XRH0 interim marks:** the source list omits five common sessions (`2026-09-15`, `2026-10-07`, `2026-10-08`, `2026-10-19`, and `2026-10-22`). Those are carried forward from the prior supplied TradingView close and flagged in the session-mark CSV; no external price is inserted. Treat its interim path as provisional.")
     A("- **Performance scope:** logged core trade entries/exits retain their chart-posting prices; the additional DXY sleeve adds 1U at each active EOD in the latest charted direction, marked to the supplied TradingView index close. The integrated core totals therefore include DXY daily-investment PnL and notional. Historical whole-account/yield outputs and the master ledger are not recalculated by this run.")
     A("- **ROI** is cumulative PnL divided by notional deployed *to date* "
@@ -1169,7 +1170,7 @@ def write_markdown(series, contrib, charts, daily_csv, ticker_csv, summary_json,
       "This differs from cumulative units deployed, which continues to include previously closed units.")
     A("- **All-actionable-ticker audit:** an independent replay reconciles all 31 TradingView-priced core tickers, "
       "the integrated 1U/DAY/DXY sleeve, energy/DXY sizing schedules, position exports, and all 32 portfolio aggregates. "
-      "See the current [`data/actionable_ticker_reconciliation_20261023_v1.csv`](data/actionable_ticker_reconciliation_20261023_v1.csv) audit output.")
+      "See the current [`data/actionable_ticker_reconciliation_20261026_v1.csv`](data/actionable_ticker_reconciliation_20261026_v1.csv) audit output.")
     A("- Entry fills use the chart-posting prices recorded in the trade log, not later minute or session closes; "
       "the Sep. 24 INTC short uses the chart-posting price `$115.11`. Exits are realised on their log date.")
     A("- Excludes commissions, borrow fees, and overnight financing.")
@@ -1257,19 +1258,19 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <h1>Model Performance Explorer</h1>
   <p class="sub">*Fall (Arizona) [2026]* paper-trade book &middot; __NSESS__ sessions
      (__START__ &rarr; __END__, MST) &middot; __NSYMS__ direct-price symbols + integrated 1U/DAY/DXY &middot; 1U = $10,000.00
-     &middot; daily marks through the Oct 23, 2026 close; hourly intraday charts through Oct 22</p>
-  <div class="benchmark-notice"><strong>TradingView-only interim core — 2026-10-24.</strong>
-    This explorer reflects the 31 direct-price symbols plus integrated chart-directed 1U/DAY/DXY sleeve using the updated Part B archive. LLY's Oct. 20 close is $1,283.66 (superseding the prior $12,833.66 source row). BTC/ETH remain excluded pending recalibration. XRH0 has five flagged carry-forward marks. Historical whole-book/yield views are not part of these core results. <a href="data/tradingview_benchmark_coverage_20261024.csv">View coverage</a> · <a href="Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md">Crypto status</a>.</div>
+     &middot; daily marks through the Oct 26, 2026 close; hourly intraday charts through Oct 22</p>
+  <div class="benchmark-notice"><strong>TradingView-only core — 2026-10-26.</strong>
+    This explorer reflects the 31 direct-price symbols plus integrated chart-directed 1U/DAY/DXY sleeve using the normalized user-provided TradingView lists and Oct. 26 update. The current marks include user-supplied EOD prices and are not independently verified. BTC/ETH remain excluded pending recalibration. XRH0 has five flagged carry-forward marks. Historical whole-book/yield views are not part of these core results. <a href="data/tradingview_benchmark_coverage_20261026.csv">View coverage</a> · <a href="Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md">Crypto status</a>.</div>
 
   <div class="card">
     <h2>Energy EOD marks used in the core replay and energy sidecar</h2>
-    <p class="hint">Both use the same exact user-provided daily marks from <code>data/energy_provider_eod_marks_v1.csv</code>. BRENT: BlackBull Markets Brent Cash, Sep 23–Oct 23 (23 sessions), terminal $117.345. OIL: TradingView <code>TVC:USOIL</code>, Sep 10–Oct 23 (32 sessions), terminal $103.45. Yahoo <code>BZ=F</code>/<code>CL=F</code> are pre-entry context only; no separate approximate quote series is used in current totals.</p>
+    <p class="hint">Both use the same aligned user-provided TradingView marks from <code>data/tradingview_benchmark_session_marks_20261026.csv</code>. BRENT: Sep 23–Oct 26 (24 sessions), terminal $115.38. OIL: TradingView <code>TVC:USOIL</code>, Sep 10–Oct 26 (33 sessions), terminal $101.30. Yahoo <code>BZ=F</code>/<code>CL=F</code> are pre-entry context only; no separate approximate quote series is used in current totals.</p>
     <p><img src="Charts/performance/14-energy-eod-mark-history.png" alt="Exact user-provided energy EOD mark history by active period" style="max-width:100%;height:auto"></p>
   </div>
 
   <div class="card">
     <h2>Terminal results</h2>
-    <p class="hint">Oct 23, 2026 close. The table includes a separately labeled legacy US10Y carry reference; the DXY-numeraire and whole-account yield views are historical and are not recalculated on this TradingView core. The DXY 1U/DAY index-return sleeve is included in core totals; its sizing alternatives are detailed in the currency-desk sidecar. The hourly intraday archive stops at Oct 22.</p>
+    <p class="hint">Oct 26, 2026 close. The table includes a separately labeled legacy US10Y carry reference, using the latest supplied Oct. 23 yield close carried forward; the DXY-numeraire and whole-account yield views are historical and are not recalculated on this TradingView core. The DXY 1U/DAY index-return sleeve is included in core totals; its sizing alternatives are detailed in the currency-desk sidecar. The hourly intraday archive stops at Oct 22.</p>
     <div class="row" id="terminal"></div>
   </div>
 

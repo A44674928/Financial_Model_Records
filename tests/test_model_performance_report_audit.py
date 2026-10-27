@@ -59,18 +59,18 @@ class ModelPerformanceReportAuditTests(unittest.TestCase):
             for index, line in enumerate(lines)
         )
         self.assertEqual(table_headers, 10)
-        self.assertIn("TradingView-only interim recalculation", self.report)
+        self.assertIn("TradingView-only model update — 2026-10-26", self.report)
         self.assertNotIn("Oct. 23 Endpoint Price Corrections Applied", self.report)
 
     def test_current_lulu_mark_is_tradingview_sourced_and_reconciles(self):
-        marks = read_csv("data/tradingview_benchmark_session_marks_20261024.csv")
-        lulu = next(row for row in marks if row["Ticker"] == "LULU" and row["Date"] == "2026-10-23")
-        self.assertEqual(float(lulu["Close"]), 99.01)
+        marks = read_csv("data/tradingview_benchmark_session_marks_20261026.csv")
+        lulu = next(row for row in marks if row["Ticker"] == "LULU" and row["Date"] == "2026-10-26")
+        self.assertEqual(float(lulu["Close"]), 102.91)
         self.assertEqual(lulu["Mark_Status"], "provided_tradingview_close")
         v3a_lulu = next(row for row in self.tickers if row["variant"] == "V3A" and row["ticker"] == "LULU")
-        self.assertEqual(float(v3a_lulu["unrealized_usd"]), 317.84)
-        self.assertEqual(float(v3a_lulu["total_usd"]), 317.84)
-        self.assertIn("LULU PRICE LIST (TRADINGVIEW).rtf", lulu["Source_File"])
+        self.assertEqual(float(v3a_lulu["unrealized_usd"]), 724.26)
+        self.assertEqual(float(v3a_lulu["total_usd"]), 724.26)
+        self.assertIn("tradingview_eod_marks_20261026.csv", lulu["Source_File"])
         self.assertIn("BTC and ETH remain excluded pending recalibration", self.report)
         self.assertIn("No legacy or substitute prices are used", self.report)
 
@@ -85,7 +85,7 @@ class ModelPerformanceReportAuditTests(unittest.TestCase):
         self.assertEqual(num(v3a[3]) + num(v3a[4]), num(v3a[5]))
 
     def test_tradingview_marks_and_xrh0_gap_flags_are_explicit(self):
-        marks = read_csv("data/tradingview_benchmark_session_marks_20261024.csv")
+        marks = read_csv("data/tradingview_benchmark_session_marks_20261026.csv")
         core = {row["Ticker"] for row in marks if row["Ticker"] != "DXY"}
         self.assertEqual(len(core), 31)
         self.assertNotIn("BTC", core)
@@ -95,9 +95,9 @@ class ModelPerformanceReportAuditTests(unittest.TestCase):
         self.assertIn("five missing source sessions", self.report)
         self.assertIn("Treat its interim path as provisional", self.report)
 
-    def test_daily_moves_table_matches_all_36_exported_sessions(self):
+    def test_daily_moves_table_matches_all_37_exported_sessions(self):
         table = table_after(self.report, "## Day-by-Day Moves")
-        self.assertEqual(len(table) - 1, 36)
+        self.assertEqual(len(table) - 1, 37)
         data = {(row["variant"], row["session_date"]): row for row in self.daily}
         for row in table[1:]:
             date = row[0].strip("`")
@@ -123,11 +123,11 @@ class ModelPerformanceReportAuditTests(unittest.TestCase):
             self.assertEqual(re.search(r"`(2026-\d{2}-\d{2})`", row[8]).group(1), stats["worst_day"][0])
 
         composition = table_after(self.report, "## Terminal Composition")
-        terminal = {(row["variant"], row["session_date"]): row for row in self.daily if row["session_date"] == "2026-10-23"}
+        terminal = {(row["variant"], row["session_date"]): row for row in self.daily if row["session_date"] == "2026-10-26"}
         for row in composition[1:]:
             variant = re.search(r"Variant (1|2|3A|3B)", row[0]).group(1)
             variant = {"1": "V1", "2": "V2"}.get(variant, "V" + variant)
-            data = terminal[(variant, "2026-10-23")]
+            data = terminal[(variant, "2026-10-26")]
             self.assertAlmostEqual(num(row[1]), float(data["realized_cum_usd"]), places=2)
             self.assertAlmostEqual(num(row[2]), float(data["unrealized_usd"]), places=2)
             self.assertAlmostEqual(num(row[1]) + num(row[2]), float(data["total_pnl_usd"]), places=2)
