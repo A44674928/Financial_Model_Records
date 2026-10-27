@@ -50,6 +50,14 @@ The U-sized sleeve exists to seek ROI-based income **over the waiting period**�
 
 The objective is ROI-based income, but **neither income nor profitability is assured**. A series of small trades can lose money, incur costs, or remain unrealized. Strategy performance needs a defined benchmark window, explicit denominators, drawdown reporting, and a separate record of realized versus unrealized results.
 
+### 1% Monero end-of-month conversion overlay
+
+The separate modeled payout assumption is **1% of monthly aggregate net realized profit across the included books**, reserved for a dollars-to-Monero conversion at month-end. Realized losses offset gains across books within that month, as directed; this aggregation affects only the payout base and does not net positions or capital. The current overlay scope follows the independently funded books in the $20B pool bridge and does not count alternate sizing views or randomized demo mixes as extra funded books.
+
+This is a **payout/accounting overlay, not a third investment part**. It does not change the two-part architecture, the oil lock, or the separate capital tracking of the included books.
+
+Only realized PnL enters this calculation. If a month’s net realized PnL is positive, 1% is held out from the remaining modeled profit; a non-positive monthly net creates no reserve, and cross-month loss carryforward is not modeled. At EOM, convert the accumulated USD reserve only using a supplied TradingView Kraken XMR/USD EOD close. If the mark is absent, carry the reserve in USD; do not substitute the attached 15-minute chart values. The screenshots and current Sep/Oct model totals are documented in the [Monero EOM conversion overlay](Monero%20Realized-Profit%20EOM%20Conversion%20Overlay%20%E2%80%94%202026-10-26.md). Using the user-supplied September 30 close of $544.86, the model calculates a **75.58633410 XMR-equivalent** for the $41,183.97 September reserve; this is a modeled quantity equivalent, not a verified purchase. **$61,831.32 for October month-to-date remains pending in USD** because no October EOM mark is available yet. September source history is partial and October is provisional MTD, not a completed month-end payment. The user-stated assumption and mark do not independently verify a payer, actual income, or receipt of Monero.
+
 ## Mechanics still to formalize
 
 Before the full strategy can be reproduced mechanically or evaluated as one combined system, document the following without changing the locked foundation by implication:
@@ -66,5 +74,6 @@ Before the full strategy can be reproduced mechanically or evaluated as one comb
 - [$20B Paper Portfolio — Units Experiment](../Units%20Experiment%20Pool%20Allocation.md) — current pool deductions, entry-basis inputs, lock condition, and hypothetical allocation.
 - [TWM Chart-to-Model Series — Clean-Sheet Specification](../TWM%20Chart-to-Model%20Series%20%E2%80%94%20Clean-Sheet%20Specification.md) — TWM_20B definitions and pool-scale constraints.
 - [Weightless Randomized Demo Portfolios — 2026-10-26](Weightless%20Randomized%20Demo%20Portfolios%20%E2%80%94%202026-10-26.md) — example of composition-agnostic aggregation; not evidence of future profitability.
+- [Monero Realized-Profit EOM Conversion Overlay — 2026-10-26](Monero%20Realized-Profit%20EOM%20Conversion%20Overlay%20%E2%80%94%202026-10-26.md) — 1% monthly realized-profit reserve, supplied EOM XMR/USD mark requirements, and pending USD balance.
 
 > **Scope:** This briefing expresses the portfolio architecture and objective requested by the user. It does not validate the $20B pool, confirm execution, prescribe a broker order, establish a complete trading algorithm, or promise ROI-based income.

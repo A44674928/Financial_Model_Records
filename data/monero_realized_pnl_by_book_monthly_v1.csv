@@ -1,0 +1,77 @@
+month,book_id,book_type,realized_pnl_usd,source_window_start_date,source_window_end_date,source_scope
+2026-09,TOM::core_v1__1u_v1__no_oil,tom_constituent,62831.35,2026-09-03,2026-09-30,V1 core + V1 variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v1__1u_v1__with_oil,tom_constituent,62831.35,2026-09-03,2026-09-30,V1 core + V1 variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v1__1u_v2__no_oil,tom_constituent,71321.93,2026-09-03,2026-09-30,V1 core + V2 variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v1__1u_v2__with_oil,tom_constituent,71321.93,2026-09-03,2026-09-30,V1 core + V2 variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v1__1u_v3a__no_oil,tom_constituent,62831.35,2026-09-03,2026-09-30,V1 core + V3A variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v1__1u_v3a__with_oil,tom_constituent,62831.35,2026-09-03,2026-09-30,V1 core + V3A variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v1__1u_v3b__no_oil,tom_constituent,80453.01,2026-09-03,2026-09-30,V1 core + V3B variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v1__1u_v3b__with_oil,tom_constituent,80453.01,2026-09-03,2026-09-30,V1 core + V3B variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v2__1u_v1__no_oil,tom_constituent,67092.86,2026-09-03,2026-09-30,V2 core + V1 variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v2__1u_v1__with_oil,tom_constituent,67092.86,2026-09-03,2026-09-30,V2 core + V1 variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v2__1u_v2__no_oil,tom_constituent,75583.44,2026-09-03,2026-09-30,V2 core + V2 variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v2__1u_v2__with_oil,tom_constituent,75583.44,2026-09-03,2026-09-30,V2 core + V2 variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v2__1u_v3a__no_oil,tom_constituent,67092.86,2026-09-03,2026-09-30,V2 core + V3A variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v2__1u_v3a__with_oil,tom_constituent,67092.86,2026-09-03,2026-09-30,V2 core + V3A variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v2__1u_v3b__no_oil,tom_constituent,84714.52,2026-09-03,2026-09-30,V2 core + V3B variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v2__1u_v3b__with_oil,tom_constituent,84714.52,2026-09-03,2026-09-30,V2 core + V3B variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v3a__1u_v1__no_oil,tom_constituent,62831.35,2026-09-03,2026-09-30,V3A core + V1 variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v3a__1u_v1__with_oil,tom_constituent,62831.35,2026-09-03,2026-09-30,V3A core + V1 variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v3a__1u_v2__no_oil,tom_constituent,71321.93,2026-09-03,2026-09-30,V3A core + V2 variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v3a__1u_v2__with_oil,tom_constituent,71321.93,2026-09-03,2026-09-30,V3A core + V2 variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v3a__1u_v3a__no_oil,tom_constituent,62831.35,2026-09-03,2026-09-30,V3A core + V3A variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v3a__1u_v3a__with_oil,tom_constituent,62831.35,2026-09-03,2026-09-30,V3A core + V3A variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v3a__1u_v3b__no_oil,tom_constituent,80453.01,2026-09-03,2026-09-30,V3A core + V3B variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v3a__1u_v3b__with_oil,tom_constituent,80453.01,2026-09-03,2026-09-30,V3A core + V3B variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v3b__1u_v1__no_oil,tom_constituent,76696.94,2026-09-03,2026-09-30,V3B core + V1 variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v3b__1u_v1__with_oil,tom_constituent,76696.94,2026-09-03,2026-09-30,V3B core + V1 variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v3b__1u_v2__no_oil,tom_constituent,85187.52,2026-09-03,2026-09-30,V3B core + V2 variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v3b__1u_v2__with_oil,tom_constituent,85187.52,2026-09-03,2026-09-30,V3B core + V2 variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v3b__1u_v3a__no_oil,tom_constituent,76696.94,2026-09-03,2026-09-30,V3B core + V3A variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v3b__1u_v3a__with_oil,tom_constituent,76696.94,2026-09-03,2026-09-30,V3B core + V3A variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v3b__1u_v3b__no_oil,tom_constituent,94318.60,2026-09-03,2026-09-30,V3B core + V3B variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,TOM::core_v3b__1u_v3b__with_oil,tom_constituent,94318.60,2026-09-03,2026-09-30,V3B core + V3B variant-specific 1U/EOD; sidecars excluded until realized
+2026-09,WINNER_EQUAL_GROSS::core_v3a__1u_v3a__with_oil,separately_funded_scaled_winner,1709082.84,2026-09-03,2026-09-30,Selected TOM member scaled by 27.20111601953034178098116717×; same-window winner selection is ex post
+2026-09,FIXED_500_EOD,strategy_alternative,2133.14,2026-09-03,2026-09-30,Standalone fixed-$500/EOD model realized closes
+2026-09,SHARED_FORCE_1U_EOD,strategy_alternative,42662.72,2026-09-03,2026-09-30,Standalone shared-direction 1U/EOD model realized closes
+2026-09,GENERIC_10U_ENERGY_DAILY,energy_sidecar,0.00,2026-09-03,2026-09-30,Daily-buy positions remain unrealized in the supplied window; no realized close source is present.
+2026-09,DXY_0.05U_DAILY,dxy_sidecar,0.00,2026-09-03,2026-09-30,Standalone daily DXY position has no realized close in the supplied window.
+2026-09,CHART_DXY_OPEN_POSITION,dxy_position,0.00,2026-09-03,2026-09-30,One-time chart DXY position remains open in the supplied record.
+2026-10,TOM::core_v1__1u_v1__no_oil,tom_constituent,89797.02,2026-10-01,2026-10-26,V1 core + V1 variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v1__1u_v1__with_oil,tom_constituent,89797.02,2026-10-01,2026-10-26,V1 core + V1 variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v1__1u_v2__no_oil,tom_constituent,96191.93,2026-10-01,2026-10-26,V1 core + V2 variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v1__1u_v2__with_oil,tom_constituent,96191.93,2026-10-01,2026-10-26,V1 core + V2 variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v1__1u_v3a__no_oil,tom_constituent,89797.02,2026-10-01,2026-10-26,V1 core + V3A variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v1__1u_v3a__with_oil,tom_constituent,89797.02,2026-10-01,2026-10-26,V1 core + V3A variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v1__1u_v3b__no_oil,tom_constituent,97742.24,2026-10-01,2026-10-26,V1 core + V3B variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v1__1u_v3b__with_oil,tom_constituent,97742.24,2026-10-01,2026-10-26,V1 core + V3B variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v2__1u_v1__no_oil,tom_constituent,82937.66,2026-10-01,2026-10-26,V2 core + V1 variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v2__1u_v1__with_oil,tom_constituent,82937.66,2026-10-01,2026-10-26,V2 core + V1 variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v2__1u_v2__no_oil,tom_constituent,89332.57,2026-10-01,2026-10-26,V2 core + V2 variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v2__1u_v2__with_oil,tom_constituent,89332.57,2026-10-01,2026-10-26,V2 core + V2 variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v2__1u_v3a__no_oil,tom_constituent,82937.66,2026-10-01,2026-10-26,V2 core + V3A variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v2__1u_v3a__with_oil,tom_constituent,82937.66,2026-10-01,2026-10-26,V2 core + V3A variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v2__1u_v3b__no_oil,tom_constituent,90882.88,2026-10-01,2026-10-26,V2 core + V3B variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v2__1u_v3b__with_oil,tom_constituent,90882.88,2026-10-01,2026-10-26,V2 core + V3B variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v3a__1u_v1__no_oil,tom_constituent,111108.83,2026-10-01,2026-10-26,V3A core + V1 variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v3a__1u_v1__with_oil,tom_constituent,111108.83,2026-10-01,2026-10-26,V3A core + V1 variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v3a__1u_v2__no_oil,tom_constituent,117503.74,2026-10-01,2026-10-26,V3A core + V2 variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v3a__1u_v2__with_oil,tom_constituent,117503.74,2026-10-01,2026-10-26,V3A core + V2 variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v3a__1u_v3a__no_oil,tom_constituent,111108.83,2026-10-01,2026-10-26,V3A core + V3A variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v3a__1u_v3a__with_oil,tom_constituent,111108.83,2026-10-01,2026-10-26,V3A core + V3A variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v3a__1u_v3b__no_oil,tom_constituent,119054.05,2026-10-01,2026-10-26,V3A core + V3B variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v3a__1u_v3b__with_oil,tom_constituent,119054.05,2026-10-01,2026-10-26,V3A core + V3B variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v3b__1u_v1__no_oil,tom_constituent,84500.28,2026-10-01,2026-10-26,V3B core + V1 variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v3b__1u_v1__with_oil,tom_constituent,84500.28,2026-10-01,2026-10-26,V3B core + V1 variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v3b__1u_v2__no_oil,tom_constituent,90895.19,2026-10-01,2026-10-26,V3B core + V2 variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v3b__1u_v2__with_oil,tom_constituent,90895.19,2026-10-01,2026-10-26,V3B core + V2 variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v3b__1u_v3a__no_oil,tom_constituent,84500.28,2026-10-01,2026-10-26,V3B core + V3A variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v3b__1u_v3a__with_oil,tom_constituent,84500.28,2026-10-01,2026-10-26,V3B core + V3A variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v3b__1u_v3b__no_oil,tom_constituent,92445.50,2026-10-01,2026-10-26,V3B core + V3B variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,TOM::core_v3b__1u_v3b__with_oil,tom_constituent,92445.50,2026-10-01,2026-10-26,V3B core + V3B variant-specific 1U/EOD; sidecars excluded until realized
+2026-10,WINNER_EQUAL_GROSS::core_v3a__1u_v3a__with_oil,separately_funded_scaled_winner,3022284.18,2026-10-01,2026-10-26,Selected TOM member scaled by 27.20111601953034178098116717×; same-window winner selection is ex post
+2026-10,FIXED_500_EOD,strategy_alternative,4732.22,2026-10-01,2026-10-26,Standalone fixed-$500/EOD model realized closes
+2026-10,SHARED_FORCE_1U_EOD,strategy_alternative,94644.50,2026-10-01,2026-10-26,Standalone shared-direction 1U/EOD model realized closes
+2026-10,GENERIC_10U_ENERGY_DAILY,energy_sidecar,0.00,2026-10-01,2026-10-26,Daily-buy positions remain unrealized in the supplied window; no realized close source is present.
+2026-10,DXY_0.05U_DAILY,dxy_sidecar,0.00,2026-10-01,2026-10-26,Standalone daily DXY position has no realized close in the supplied window.
+2026-10,CHART_DXY_OPEN_POSITION,dxy_position,0.00,2026-10-01,2026-10-26,One-time chart DXY position remains open in the supplied record.
