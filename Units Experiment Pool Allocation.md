@@ -28,20 +28,20 @@ Minor books are included only when separately maintained outside THE ONE/WINNING
 | User-estimated starting pool | $20,000,000,000.00 |
 | Less: selected model-book active gross notional | ($987,245,895.26) |
 | **Remaining pool for the $200 LONG PORTFOLIO** | **$19,012,754,104.74** |
-| BRENT allocation — 50% | $9,506,377,052.37 |
-| OIL allocation — 50% | $9,506,377,052.37 |
+| BRENT allocation — 50%, using its reported entry basis | $9,506,377,052.37 |
+| OIL allocation — 50%, using its reported entry basis | $9,506,377,052.37 |
 | Residual cash below the $10,000 denomination | $14,104.74 |
 
 ## $200 LONG PORTFOLIO — balanced OIL/BRENT allocation
 
-The remaining pool is split equally by dollar notional and modeled as long at the specified user-provided prices: BRENT **$115.00** and OIL/USOIL **$101.00**. Each ticker allocation is converted into $1,000,000,000 Large Units first, then $10,000 Small Units; sub-$10,000 balances remain cash.
+The $20B pool experiment's residual is split equally by dollar notional. Per your supplied entry data, the modeled BRENT leg uses **Sep. 23 at $102.315** and the OIL/USOIL leg uses **Sep. 22 at $89.89**. The year was not stated in your text; this run maps both dates to **2026** to align with the accompanying September 2026 TradingView/model context. These are user-reported historical entry-basis inputs, not independently verified fills. The Sep. 22 USOIL screenshot supports ticker context; its “Trade active / Target hit” note is not modeled as a fill or close event. The $200 label is the **price lock threshold**, not the funding amount; the experiment continues to use the $20B pool bridge and its hypothetical allocations. Each ticker allocation is converted into $1,000,000,000 Large Units first, then $10,000 Small Units; sub-$10,000 balances remain cash.
 
-| Ticker | Entry-price assumption | Dollar allocation | Large Units | Small Units | Residual cash | Quantity equivalent (not contracts/barrels) |
-|---|---:|---:|---:|---:|---:|---:|
-| BRENT | $115.00 | $9,506,377,052.37 | 9 | 50,637 | $7,052.37 | 82,664,148.28147826 |
-| OIL (USOIL) | $101.00 | $9,506,377,052.37 | 9 | 50,637 | $7,052.37 | 94,122,545.07297030 |
-| **Total** | — | **$19,012,754,104.74** | **18** | **101,274** | **$14,104.74** | — |
+| Ticker | User-stated date / entry basis (2026 model alignment*) | Dollar allocation | Large Units | Small Units | Residual cash | Quantity equivalent (not contracts/barrels) | 2026-10-26 TradingView mark | Modeled unrealized mark change* |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| BRENT | Sep. 23 / $102.315 | $9,506,377,052.37 | 9 | 50,637 | $7,052.37 | 92,912,838.31666911 | $115.38 | $1,213,906,232.61 |
+| OIL (USOIL) | Sep. 22 / $89.89 | $9,506,377,052.37 | 9 | 50,637 | $7,052.37 | 105,755,668.62131494 | $101.30 | $1,206,672,178.97 |
+| **Total** | — | **$19,012,754,104.74** | **18** | **101,274** | **$14,104.74** | — | — | **$2,420,578,411.58** |
 
-**Lock rule:** keep the $200 LONG PORTFOLIO locked until **both** supplied BRENT and OIL EOD marks reach **$200.00**. This is a scenario rule, not an automated order or an independently verified market trigger. The quantity equivalents are dollar allocations divided by the stated prices; they are **not** contract, barrel, share, or broker-order quantities because contract multipliers, execution quality, fees, financing, and market impact are unspecified.
+**Current lock status:** **LOCKED** as of supplied TradingView marks dated **2026-10-26**. Keep the portfolio locked until **both** supplied BRENT and OIL EOD marks reach **$200.00**; the current marks are BRENT $115.38 and OIL $101.30. The *modeled unrealized mark change* is a simple, linear price-equivalent calculation on the hypothetical residual-pool allocations; it is not actual account PnL, a verified fill, liquid/withdrawable cash, or an addition to pool deductions. The quantity equivalents are allocation dollars divided by the reported entry basis; they are **not** contract, barrel, share, or broker-order quantities because contract multipliers, execution quality, fees, financing, and market impact are unspecified.
 
 CSV audits: [model-book deductions](data/units_experiment_model_costs_20261026.csv) and [balanced allocation](data/units_experiment_pool_allocation_20261026.csv). The winner scale factor is 27.201116019530× on cumulative gross additions; the pool deduction uses its scaled current open notional of $497,100,395.26.
