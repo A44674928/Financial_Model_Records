@@ -190,7 +190,7 @@ def force_multiplier_daily_model(events=None):
     return direction_following_daily_model(events, FORCE_MULTIPLIER_TRANCHE_USD, "force_multiplier")
 
 
-def variant_force_multiplier_daily_model(variant, events=None):
+def variant_force_multiplier_daily_model(variant, events=None, return_realized=False):
     """Run a 1U-per-active-EOD model with one core variant's close/size rules.
 
     Daily additions remain one 1U lot. On a V3A/V3B compounded-short event,
@@ -223,13 +223,22 @@ def variant_force_multiplier_daily_model(variant, events=None):
     cumulative_added = 0.0
     daily_rows = []
     position_rows = []
+    realized_trades = []
 
     def close_lots(symbol, side, price, day):
         nonlocal realized_total
         for lot in lots[symbol]:
             if lot["open"] and lot["direction"] == side:
                 sign = 1.0 if side == "long" else -1.0
-                realized_total += lot["notional_usd"] * sign * (price / lot["entry_price"] - 1.0)
+                pnl = lot["notional_usd"] * sign * (price / lot["entry_price"] - 1.0)
+                realized_total += pnl
+                realized_trades.append({
+                    "sym": symbol,
+                    "date": day,
+                    "idx": SESSION_DATES.index(day),
+                    "pnl": pnl,
+                    "source": f"{variant}_force_1u",
+                })
                 lot["open"] = False
                 lot["close_date"] = day
                 lot["close_price"] = price
@@ -321,6 +330,8 @@ def variant_force_multiplier_daily_model(variant, events=None):
             f"{variant}_force_1u_active_symbols": active_symbols,
             f"{variant}_force_1u_daily_adds_usd": f"{daily_adds:.2f}",
         })
+    if return_realized:
+        return daily_rows, position_rows, realized_trades
     return daily_rows, position_rows
 
 
