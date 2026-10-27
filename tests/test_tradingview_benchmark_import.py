@@ -74,10 +74,10 @@ class TradingViewBenchmarkImportTests(unittest.TestCase):
         strategy = (ROOT / "Strategy and Sidecar Comparison.md").read_text(encoding="utf-8")
         explorer = (ROOT / "Model Performance Explorer.html").read_text(encoding="utf-8")
         dxy = (ROOT / "DXY-Equivalent Portfolio Snapshot.md").read_text(encoding="utf-8")
-        self.assertIn("TradingView-only interim recalculation", report)
+        self.assertIn("TradingView-only model update — 2026-10-26", report)
         self.assertIn("No legacy or substitute prices are used", report)
-        self.assertIn("TradingView-only interim refresh", strategy)
-        self.assertIn("TradingView-only interim core", explorer)
+        self.assertIn("TradingView sidecar schedules through 2026-10-26", strategy)
+        self.assertIn("TradingView-only core — 2026-10-26", explorer)
         self.assertIn("integrated chart-directed 1U/DAY/DXY", explorer)
         self.assertIn("Historical view—not recalculated", dxy)
 

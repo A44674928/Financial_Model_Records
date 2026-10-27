@@ -43,6 +43,8 @@ TOTAL_PNL_GRAPH = CHARTS / "17-dxy-close-vs-whole-portfolio-pnl-usd.png"
 DAILY_CSV = DATA / "whole_portfolio_dxy_vs_usd_daily.csv"
 SUMMARY_CSV = DATA / "whole_portfolio_dxy_vs_usd_summary.csv"
 TERMINAL_DATE = "2026-10-23"
+# This historical sensitivity remains scoped to its last complete FX/DXY input date.
+VIEW_SESSION_DATES = tuple(day for day in SESSION_DATES if day <= TERMINAL_DATE)
 CAPITAL_BASIS_USD = {"V1": 830_000.0, "V2": 830_000.0, "V3A": 920_000.0, "V3B": 920_000.0}
 FX_ENTRIES = {
     "EURUSD": {"date": "2026-09-15", "original_chart_entry": 1.15388, "column": "EUR_USD_Close"},
@@ -86,7 +88,7 @@ def read_daily_column(path, date_col, value_col):
             if value <= 0:
                 raise ValueError(f"Nonpositive close for {day} in {path.name}")
             values[day] = value
-    missing = [day for day in SESSION_DATES if day not in values]
+    missing = [day for day in VIEW_SESSION_DATES if day not in values]
     if missing:
         raise ValueError(f"{path.name} lacks model-session observations: {missing}")
     return values
@@ -121,7 +123,7 @@ def read_fx_daily():
                     raise ValueError(f"Nonpositive {symbol} close on {day}")
                 fx[symbol][day] = value
     for symbol, values in fx.items():
-        missing = [day for day in SESSION_DATES if day not in values]
+        missing = [day for day in VIEW_SESSION_DATES if day not in values]
         if missing:
             raise ValueError(f"{FX_FILE.name} lacks {symbol} model-session observations: {missing}")
         entry_date = FX_ENTRIES[symbol]["date"]
@@ -147,7 +149,7 @@ def read_us30y_daily():
                 observed[day] = float(row[value_col].strip())
     ordered_dates = sorted(observed)
     values, source_dates = {}, {}
-    for day in SESSION_DATES:
+    for day in VIEW_SESSION_DATES:
         if day < US30Y_ENTRY_DATE:
             continue
         available = [source for source in ordered_dates if source <= day]
@@ -161,11 +163,11 @@ def read_us30y_daily():
 
 def established_us10y_carry(core_series, yield_rows):
     """Reuse the existing US10Y carry basis; do not extend old assumptions."""
-    daily = {variant: [0.0] * len(SESSION_DATES) for variant in VARIANTS}
-    cumulative = {variant: [0.0] * len(SESSION_DATES) for variant in VARIANTS}
-    for i in range(len(SESSION_DATES) - 1):
-        start = SESSION_DATES[i]
-        end = SESSION_DATES[i + 1]
+    daily = {variant: [0.0] * len(VIEW_SESSION_DATES) for variant in VARIANTS}
+    cumulative = {variant: [0.0] * len(VIEW_SESSION_DATES) for variant in VARIANTS}
+    for i in range(len(VIEW_SESSION_DATES) - 1):
+        start = VIEW_SESSION_DATES[i]
+        end = VIEW_SESSION_DATES[i + 1]
         if start < US10Y_START_DATE or not yield_rows[i]["active"]:
             continue
         days = (date.fromisoformat(end) - date.fromisoformat(start)).days
@@ -203,7 +205,7 @@ def build_daily_series():
     fx = read_fx_daily()
     validate_terminal_marks(dxy, fx)
     us30y, us30y_source_dates = read_us30y_daily()
-    us10y_rows = align_session_yields(SESSION_DATES)
+    us10y_rows = align_session_yields(VIEW_SESSION_DATES)
     core, _ = all_series()
     _daily_carry, legacy_cumulative_carry = established_us10y_carry(core, us10y_rows)
     us10y_values = {
@@ -212,23 +214,23 @@ def build_daily_series():
         if row["yield_pct"] is not None
     }
     us10y_factor = compound_yield_multiplier(
-        SESSION_DATES, us10y_values, BASELINE_PCT, US10Y_START_DATE
+        VIEW_SESSION_DATES, us10y_values, BASELINE_PCT, US10Y_START_DATE
     )
     us30y_factor = compound_yield_multiplier(
-        SESSION_DATES, us30y, US30Y_MULTIPLIER_BASELINE_PCT, US30Y_MULTIPLIER_START
+        VIEW_SESSION_DATES, us30y, US30Y_MULTIPLIER_BASELINE_PCT, US30Y_MULTIPLIER_START
     )
     combined_factor = [a * b for a, b in zip(us10y_factor, us30y_factor)]
 
-    fx_pnl = {symbol: [0.0] * len(SESSION_DATES) for symbol in FX_ENTRIES}
+    fx_pnl = {symbol: [0.0] * len(VIEW_SESSION_DATES) for symbol in FX_ENTRIES}
     for symbol, spec in FX_ENTRIES.items():
         base = fx[symbol][spec["date"]]
-        for i, day in enumerate(SESSION_DATES):
+        for i, day in enumerate(VIEW_SESSION_DATES):
             if day >= spec["date"]:
                 fx_pnl[symbol][i] = UNIT * (fx[symbol][day] / base - 1.0)
 
-    us30y_short_pnl = [0.0] * len(SESSION_DATES)
-    us30y_long_pnl = [0.0] * len(SESSION_DATES)
-    for i, day in enumerate(SESSION_DATES):
+    us30y_short_pnl = [0.0] * len(VIEW_SESSION_DATES)
+    us30y_long_pnl = [0.0] * len(VIEW_SESSION_DATES)
+    for i, day in enumerate(VIEW_SESSION_DATES):
         if day >= US30Y_ENTRY_DATE:
             us30y_short_pnl[i] = -UNIT * (us30y[day] / US30Y_ENTRY_YIELD_PCT - 1.0)
         if day >= US30Y_NEW_LONG_DATE:
@@ -242,16 +244,16 @@ def build_daily_series():
             + fx_pnl["JPYUSD"][i]
             + us30y_short_pnl[i]
             + us30y_long_pnl[i]
-            for i in range(len(SESSION_DATES))
+            for i in range(len(VIEW_SESSION_DATES))
         ]
         realized = list(core[variant]["realized"])
-        total_pnl = [realized[i] + unrealized[i] for i in range(len(SESSION_DATES))]
+        total_pnl = [realized[i] + unrealized[i] for i in range(len(VIEW_SESSION_DATES))]
         capital = CAPITAL_BASIS_USD[variant]
         baseline_pnl = total_pnl[0]
         base_account_value = [capital + value - baseline_pnl for value in total_pnl]
-        dxy_start_value = capital / dxy[SESSION_DATES[0]]
+        dxy_start_value = capital / dxy[VIEW_SESSION_DATES[0]]
         scenario_factors = {
-            "none": [1.0] * len(SESSION_DATES),
+            "none": [1.0] * len(VIEW_SESSION_DATES),
             "us10y": us10y_factor,
             "us10y_us30y": combined_factor,
         }
@@ -259,7 +261,7 @@ def build_daily_series():
         for scenario, factors in scenario_factors.items():
             account_value = [value * factor for value, factor in zip(base_account_value, factors)]
             scenario_pnl = [value - capital for value in account_value]
-            dxy_value = [value / dxy[day] for value, day in zip(account_value, SESSION_DATES)]
+            dxy_value = [value / dxy[day] for value, day in zip(account_value, VIEW_SESSION_DATES)]
             scenarios[scenario] = {
                 "account_value_usd": account_value,
                 "pnl_usd": scenario_pnl,
@@ -314,7 +316,7 @@ def write_daily_csv(dxy, fx, us30y, us30y_source_dates, core, result):
         writer = csv.DictWriter(fh, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         for variant in VARIANTS:
-            for i, day in enumerate(SESSION_DATES):
+            for i, day in enumerate(VIEW_SESSION_DATES):
                 writer.writerow({
                     "variant": variant,
                     "session_date": day,
@@ -367,7 +369,7 @@ def write_yield_scenario_csv(result, dxy):
             row = result[variant]
             for scenario in YIELD_FACTOR_SCENARIOS:
                 scenario_values = row["yield_scenarios"][scenario]
-                for i, day in enumerate(SESSION_DATES):
+                for i, day in enumerate(VIEW_SESSION_DATES):
                     factor = 1.0 if scenario == "none" else (
                         row["yield_factor_us10y"][i] if scenario == "us10y"
                         else row["yield_factor_combined"][i]
@@ -404,7 +406,7 @@ def write_yield_scenario_summary_csv(result):
     with YIELD_SCENARIO_SUMMARY_CSV.open("w", newline="", encoding="utf-8") as fh:
         writer = csv.DictWriter(fh, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
-        last = len(SESSION_DATES) - 1
+        last = len(VIEW_SESSION_DATES) - 1
         for variant in VARIANTS:
             row = result[variant]
             for scenario in YIELD_FACTOR_SCENARIOS:
@@ -437,7 +439,7 @@ def make_total_pnl_graph(dxy, result):
     from matplotlib.ticker import FuncFormatter
 
     CHARTS.mkdir(parents=True, exist_ok=True)
-    dates = [date.fromisoformat(day) for day in SESSION_DATES]
+    dates = [date.fromisoformat(day) for day in VIEW_SESSION_DATES]
     fig, ax = plt.subplots(figsize=(14, 7.5))
     fig.patch.set_facecolor(BG)
     ax.set_facecolor(PANEL)
@@ -462,7 +464,7 @@ def make_total_pnl_graph(dxy, result):
     ax_dxy = ax.twinx()
     ax_dxy.plot(
         dates,
-        [dxy[day] for day in SESSION_DATES],
+        [dxy[day] for day in VIEW_SESSION_DATES],
         color=DXY_COLOR,
         lw=2.4,
         ls=(0, (5, 3)),
@@ -505,7 +507,7 @@ def make_graph(dxy, result):
     from matplotlib.ticker import FuncFormatter
 
     CHARTS.mkdir(parents=True, exist_ok=True)
-    dates = [date.fromisoformat(day) for day in SESSION_DATES]
+    dates = [date.fromisoformat(day) for day in VIEW_SESSION_DATES]
     fig, (ax_top, ax_bottom) = plt.subplots(
         2, 1, figsize=(14, 10), sharex=True,
         gridspec_kw={"height_ratios": [1.15, 1.0]},
@@ -535,7 +537,7 @@ def make_graph(dxy, result):
     ax_top.yaxis.set_major_formatter(FuncFormatter(lambda x, _: f"${x/1000:,.0f}k"))
     ax_top.set_title("DXY Close vs. Whole-Portfolio Unrealized PnL in Dollars", color=FG, fontsize=15, pad=11)
     ax_dxy = ax_top.twinx()
-    ax_dxy.plot(dates, [dxy[day] for day in SESSION_DATES], color=DXY_COLOR, lw=2.3,
+    ax_dxy.plot(dates, [dxy[day] for day in VIEW_SESSION_DATES], color=DXY_COLOR, lw=2.3,
                 ls=(0, (5, 3)), label="DXY daily close (right axis)")
     ax_dxy.set_ylabel("DXY index close", color=DXY_COLOR)
     ax_dxy.tick_params(axis="y", colors=DXY_COLOR, labelsize=9)
@@ -585,7 +587,7 @@ def make_graph(dxy, result):
 def write_yield_multiplier_explorer(result):
     """Write a self-contained toggleable chart for the full-account scenarios."""
     payload = {
-        "dates": SESSION_DATES,
+        "dates": VIEW_SESSION_DATES,
         "scenarios": YIELD_FACTOR_LABELS,
         "variants": {
             variant: {
@@ -644,7 +646,7 @@ def build_report(dxy, fx, us30y, result):
     lines = [
         "# Whole-Portfolio DXY Numeraire — Daily Comparison",
         "",
-        "> **Historical view—not recalculated on the interim TradingView core (2026-10-24).** Values below retain the prior portfolio benchmark and local DXY/FX/yield inputs; do not present them as current TradingView-only model results. The current core includes the chart-directed 1U/DAY/DXY index-return sleeve; sizing alternatives and its audit are in [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md). See the refreshed [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md) and [`data/tradingview_benchmark_coverage_20261024.csv`](data/tradingview_benchmark_coverage_20261024.csv).",
+        "> **Historical view—not recalculated on the interim TradingView core (2026-10-24).** Values below retain the prior portfolio benchmark and local DXY/FX/yield inputs; do not present them as current TradingView-only model results. The current core includes the chart-directed 1U/DAY/DXY index-return sleeve; sizing alternatives and its audit are in [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md). See the refreshed [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md) and [`data/tradingview_benchmark_coverage_20261026.csv`](data/tradingview_benchmark_coverage_20261026.csv).",
         "",
         "The whole-book base PnL includes realized and open unrealized PnL (including FX and the separate US30Y trade marks), but excludes yield multipliers. The US10Y and US30Y blanket factors are applied to full account value only in the explicit scenarios below; neither yield is treated as a new $10,000 lot. DXY remains a separate whole-book numeraire, not a position.",
         "",
@@ -659,7 +661,7 @@ def build_report(dxy, fx, us30y, result):
         "| Variant | Capital basis | Open unrealized PnL (USD) | Realized PnL (USD) | Base PnL (no yield factors) | Base USD return | DXY-equivalent account value | DXY-numeraire return |",
         "|---|---:|---:|---:|---:|---:|---:|---:|",
     ]
-    last = len(SESSION_DATES) - 1
+    last = len(VIEW_SESSION_DATES) - 1
     for variant in VARIANTS:
         row = result[variant]
         lines.append(
@@ -703,7 +705,7 @@ def build_report(dxy, fx, us30y, result):
         "",
         "## DXY and FX Basis",
         "",
-        f"- DXY daily closes run from `{SESSION_DATES[0]}` (`{dxy[SESSION_DATES[0]]:.2f}`) through `{TERMINAL_DATE}` (`{dxy[TERMINAL_DATE]:.2f}`). The Oct. 23 close of 102.10 is used for the new endpoint; the prior Oct. 22 close of 102.22 remains preserved in the daily series and Oct. 22 audit file.",
+        f"- DXY daily closes run from `{VIEW_SESSION_DATES[0]}` (`{dxy[VIEW_SESSION_DATES[0]]:.2f}`) through `{TERMINAL_DATE}` (`{dxy[TERMINAL_DATE]:.2f}`). The Oct. 23 close of 102.10 is used for the new endpoint; the prior Oct. 22 close of 102.22 remains preserved in the daily series and Oct. 22 audit file.",
         "- **Input provenance:** DXY, EUR/USD, JPY/USD, US10Y, and US30Y use the existing local daily input files; their provider and candle/close convention are not independently verified. The source map and proxy limitations are in [`data/active_price_source_registry_v3.csv`](data/active_price_source_registry_v3.csv). These local inputs were retained, not externally refreshed.",
         "- **Energy marks:** this historical view's core logged Brent/USOIL positions and separate daily accumulation retain their prior benchmark and are not current TradingView results. The current standalone 0.05U/1U/10U TradingView energy schedule is in [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md); it is not included in these historical account bases or yield-factor scenarios.",
         "- FX, DXY, and yield series remain local and unverified; the user-provided energy marks are not treated as DXY/FX or yield data.",
@@ -751,12 +753,12 @@ def write_summary_csv(result, fx, dxy):
         writer = csv.DictWriter(fh, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         for variant in VARIANTS:
-            last = len(SESSION_DATES) - 1
+            last = len(VIEW_SESSION_DATES) - 1
             writer.writerow({
                 "variant": variant,
                 "capital_basis_usd": CAPITAL_BASIS_USD[variant],
                 "terminal_dxy_close": dxy[TERMINAL_DATE],
-                "dxy_start_close": dxy[SESSION_DATES[0]],
+                "dxy_start_close": dxy[VIEW_SESSION_DATES[0]],
                 "terminal_total_unrealized_pnl_usd": result[variant]["unrealized_usd"][last],
                 "terminal_realized_pnl_usd": result[variant]["realized_usd"][last],
                 "terminal_us30y_long_unrealized_pnl_usd": result[variant]["us30y_long_unrealized_usd"][last],
@@ -793,7 +795,7 @@ def main():
     make_total_pnl_graph(dxy, result)
     make_graph(dxy, result)
     build_report(dxy, fx, us30y, result)
-    last = len(SESSION_DATES) - 1
+    last = len(VIEW_SESSION_DATES) - 1
     for variant in VARIANTS:
         print(
             f"{variant}: unrealized ${result[variant]['unrealized_usd'][last]:,.2f}; "

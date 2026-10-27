@@ -57,7 +57,7 @@ class AtsManualReconciliationTests(unittest.TestCase):
         self.assertEqual(by_ticker["BRENT"]["date"], "2026-10-26")
         self.assertEqual(by_ticker["BRENT"]["time_mst"], "not supplied")
         self.assertIn("111U BRENT / 111U OIL", self.report)
-        self.assertTrue(all("no execution is verified" in row["status"] for row in added))
+        self.assertTrue(all("execution not verified" in row["status"] for row in added))
         oil_legacy_lot = by_ticker["OIL"]
         self.assertIn("separate from the later $101.11 mirror entry", oil_legacy_lot["scenario"])
         self.assertIn("Earlier separate 50U ATS OIL LONG @ $101.00", oil_legacy_lot["notes"])

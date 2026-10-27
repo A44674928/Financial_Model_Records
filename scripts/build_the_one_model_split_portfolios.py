@@ -20,8 +20,8 @@ from matplotlib.ticker import FuncFormatter
 
 ROOT = Path(__file__).resolve().parents[1]
 INPUT = ROOT / "data" / "strategy_sidecar_comparison_daily_v1.csv"
-DXY_SIDECAR_INPUT = ROOT / "data" / "dxy_currency_desk_sidecar_daily_20261024.csv"
-ENERGY_SIDECAR_INPUT = ROOT / "data" / "tradingview_energy_sidecar_daily_20261024.csv"
+DXY_SIDECAR_INPUT = ROOT / "data" / "dxy_currency_desk_sidecar_daily_20261026.csv"
+ENERGY_SIDECAR_INPUT = ROOT / "data" / "tradingview_energy_sidecar_daily_20261026.csv"
 ENERGY_11U_OUT = ROOT / "data" / "the_one_model_energy_11u_sidecar_daily_v1.csv"
 ENERGY_10U = Decimal("10")
 ENERGY_MODEL_UNITS = Decimal("11")
@@ -59,11 +59,10 @@ def build_energy_11u_rows():
     """Scale the audited 10U energy rows to the 11U minimum used in THE ONE MODEL."""
     with ENERGY_SIDECAR_INPUT.open(newline="", encoding="utf-8") as handle:
         source_rows = [row for row in csv.DictReader(handle) if Decimal(row["unit_size_u"]) == ENERGY_10U]
-    if len(source_rows) != 55:
-        raise ValueError(f"Expected 55 daily rows across BRENT and OIL for 10U energy, found {len(source_rows)}")
     counts = {ticker: sum(row["ticker"] == ticker for row in source_rows) for ticker in ("BRENT", "OIL")}
-    if counts != {"BRENT": 23, "OIL": 32}:
-        raise ValueError(f"Unexpected 10U energy session counts: {counts}")
+    unique_dates = {ticker: {row["date"] for row in source_rows if row["ticker"] == ticker} for ticker in ("BRENT", "OIL")}
+    if any(counts[ticker] != len(unique_dates[ticker]) or not counts[ticker] for ticker in counts):
+        raise ValueError(f"Unexpected or duplicate 10U energy session rows: {counts}")
 
     scale = ENERGY_MODEL_UNITS / ENERGY_10U
     unit_fields = ("daily_buy_units", "cumulative_daily_buy_units")
@@ -131,10 +130,10 @@ def build_rows():
         raise ValueError(f"No source rows in {INPUT}")
     with DXY_SIDECAR_INPUT.open(newline="", encoding="utf-8") as handle:
         dxy_rows = [row for row in csv.DictReader(handle) if float(row["unit_size_u"]) == 10.0]
-    if len(dxy_rows) != 35:
-        raise ValueError(f"Expected 35 daily rows for the 10U DXY sidecar, found {len(dxy_rows)}")
     dxy_by_date = {row["date"]: row for row in dxy_rows}
     source_dates = [row["date"] for row in source_rows]
+    if len(dxy_rows) != len(set(source_dates[1:])):
+        raise ValueError(f"Expected one 10U DXY row per active session, found {len(dxy_rows)}")
     if set(dxy_by_date) != set(source_dates[1:]) or source_dates[0] in dxy_by_date:
         raise ValueError("The 10U DXY schedule must cover every active session after the opening comparison date")
 
@@ -234,8 +233,13 @@ def build_rows():
         row["aggregate_deployed_notional_ratio_pct"] = f"{aggregate_pnl / aggregate_added * Decimal('100'):.6f}" if aggregate_added else "0.000000"
         output_rows.append(row)
 
-    if len(output_rows) != 36 or output_rows[0]["date"] != "2026-09-03" or output_rows[-1]["date"] != "2026-10-23":
-        raise ValueError("Expected the 36-session comparison period 2026-09-03 through 2026-10-23")
+    if (
+        len(output_rows) != len(source_dates)
+        or not output_rows
+        or output_rows[0]["date"] != source_dates[0]
+        or output_rows[-1]["date"] != source_dates[-1]
+    ):
+        raise ValueError("THE ONE MODEL output dates do not match the strategy-comparison session calendar")
     return portfolios, output_rows, energy_11u_rows
 
 
@@ -452,7 +456,7 @@ def write_chart(rows, summary):
     fig.autofmt_xdate(rotation=0, ha="center")
     fig.text(
         0.5, 0.012,
-        "Sep 3–Oct 23, 2026 · 36 sessions · 32 independent portfolios · each adds 10U/DAY DXY to the core's 1U/DAY (11U total) · "
+        f"Sep 3–{dates[-1].strftime('%b %d')}, 2026 · {len(rows)} sessions · 32 independent portfolios · each adds 10U/DAY DXY to the core's 1U/DAY (11U total) · "
         "11U/DAY per active energy ticker in 16 portfolios · no netting · deployed-notional ratio, not account return · costs/execution not fully modeled",
         color=muted, fontsize=7.8, ha="center",
     )

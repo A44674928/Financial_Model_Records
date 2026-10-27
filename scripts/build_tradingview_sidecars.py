@@ -37,8 +37,8 @@ DATA = ROOT / "data"
 UNIT_SIZES = (0.05, 1.0, 10.0)
 ENERGY_TICKERS = ("BRENT", "OIL")
 ENERGY_START = {"BRENT": "2026-09-23", "OIL": "2026-09-10"}
-ENERGY_CSV = DATA / "tradingview_energy_sidecar_daily_20261024.csv"
-DXY_CSV = DATA / "dxy_currency_desk_sidecar_daily_20261024.csv"
+ENERGY_CSV = DATA / "tradingview_energy_sidecar_daily_20261026.csv"
+DXY_CSV = DATA / "dxy_currency_desk_sidecar_daily_20261026.csv"
 DXY_WITHDRAWAL_CSV = DATA / "dxy_withdrawal_scenario_v1.csv"
 DXY_CASH_OIL_CSV = DATA / "dxy_cash_oil_bridge_v1.csv"
 REPORT = ROOT / "TradingView Energy and Currency Desk Sidecars.md"
@@ -201,17 +201,19 @@ def build_dxy_rows(unit_size_u=None):
 
 
 def build_dxy_withdrawal_scenario(dxy_rows, withdrawal_fraction=Decimal("0.40")):
-    """Reference the planned withdrawal size at the latest supplied DXY mark.
+    """Value the requested withdrawal at the latest DXY close, excluding later lots.
 
-    The selected THE ONE DXY allocation is the integrated 1U/DAY core sleeve
-    plus its 10U/DAY add-on. This valuation is informational only; the actual
-    withdrawal awaits the next supplied EOD close and leaves historical baseline
-    PnL and the future daily-addition schedule unchanged.
+    The request predates the Oct. 26 close. Only daily lots accumulated through
+    the 2026-10-25 request date are eligible for the 40% withdrawal; those lots
+    are marked at the latest supplied DXY close. The following daily addition
+    remains outside the withdrawal base. This is a modeled valuation, not proof
+    that any withdrawal or cash transfer occurred.
     """
     fraction = Decimal(str(withdrawal_fraction))
     if not Decimal("0") < fraction <= Decimal("1"):
         raise ValueError("Withdrawal fraction must be greater than 0 and at most 1")
 
+    request_date = "2026-10-25"
     latest_date = max(row["date"] for row in dxy_rows if row["ticker"] == "DXY")
     latest = {
         row["unit_size_label"]: row
@@ -228,10 +230,23 @@ def build_dxy_withdrawal_scenario(dxy_rows, withdrawal_fraction=Decimal("0.40"))
 
     components = []
     for size_label, component in (("1U", "Integrated core sleeve"), ("10U", "THE ONE add-on")):
-        row = latest[size_label]
-        units = Decimal(row["cumulative_investment_units"])
-        basis = Decimal(row["cumulative_notional_added_usd"])
-        pnl = Decimal(row["daily_investment_unrealized_pnl_usd"])
+        entries = [
+            row for row in dxy_rows
+            if row["ticker"] == "DXY" and row["unit_size_label"] == size_label
+            and row["date"] <= request_date
+        ]
+        if not entries:
+            raise ValueError(f"No pre-request daily DXY lots for {size_label}")
+        mark_row = latest[size_label]
+        direction_sign = Decimal("-1") if mark_row["direction"] == "SHORT" else Decimal("1")
+        latest_close = Decimal(mark_row["eod_close"])
+        units = sum(Decimal(row["daily_investment_units"]) for row in entries)
+        basis = sum(Decimal(row["daily_investment_notional_usd"]) for row in entries)
+        pnl = sum(
+            Decimal(row["daily_investment_notional_usd"]) * direction_sign
+            * (latest_close / Decimal(row["eod_close"]) - Decimal("1"))
+            for row in entries
+        )
         market_value = basis + pnl
         withdrawal_units = units * fraction
         withdrawal_basis = basis * fraction
@@ -242,15 +257,16 @@ def build_dxy_withdrawal_scenario(dxy_rows, withdrawal_fraction=Decimal("0.40"))
         remaining_value = money(market_value - withdrawal_value)
         remaining_pnl = money(pnl - withdrawal_pnl)
         components.append({
-            "requested_date": "2026-10-25",
+            "requested_date": request_date,
             "valuation_date": latest_date,
+            "valuation_dxy_close": f"{latest_close:.3f}",
             "portfolio_scope": "Per THE ONE portfolio; 1U core + 10U add-on",
             "component": component,
             "withdrawal_fraction": f"{fraction:.4f}",
-            "sessions": sum(1 for item in dxy_rows if item["unit_size_label"] == size_label and item["ticker"] == "DXY"),
+            "sessions": len(entries),
             "units_before": f"{units:.4f}",
             "notional_basis_before_usd": f"{basis:.2f}",
-            "pnl_before_usd": f"{pnl:.2f}",
+            "pnl_before_usd": f"{money(pnl):.2f}",
             "marked_value_before_usd": f"{money(market_value):.2f}",
             "units_planned_for_withdrawal": f"{withdrawal_units:.4f}",
             "notional_basis_planned_for_withdrawal_usd": f"{withdrawal_basis:.2f}",
@@ -260,10 +276,10 @@ def build_dxy_withdrawal_scenario(dxy_rows, withdrawal_fraction=Decimal("0.40"))
             "notional_basis_remaining_usd": f"{remaining_basis:.2f}",
             "marked_value_remaining_usd": f"{remaining_value:.2f}",
             "pnl_remaining_at_reference_mark_usd": f"{remaining_pnl:.2f}",
-            "status": "reference-only estimate; withdrawal and cash transfer pending next EOD close; not a verified execution",
+            "status": "valued at supplied 2026-10-26 DXY EOD close; withdrawal/cash transfer not reported executed",
         })
 
-    total = {"sessions": sum(1 for row in dxy_rows if row["unit_size_label"] == "1U" and row["ticker"] == "DXY")}
+    total = {"sessions": components[0]["sessions"]}
     for key in (
         "units_before", "notional_basis_before_usd", "pnl_before_usd",
         "marked_value_before_usd", "units_planned_for_withdrawal", "notional_basis_planned_for_withdrawal_usd",
@@ -274,19 +290,20 @@ def build_dxy_withdrawal_scenario(dxy_rows, withdrawal_fraction=Decimal("0.40"))
         value = sum(values)
         total[key] = f"{money(value):.2f}" if key.endswith("_usd") or key in {"notional_basis_before_usd"} else f"{value:.4f}"
     components.append({
-        "requested_date": "2026-10-25",
+        "requested_date": request_date,
         "valuation_date": latest_date,
+        "valuation_dxy_close": f"{Decimal(latest['1U']['eod_close']):.3f}",
         "portfolio_scope": "Per THE ONE portfolio; combined 11U/DAY",
         "component": "Combined DXY allocation",
         "withdrawal_fraction": f"{fraction:.4f}",
         **total,
-        "status": "reference-only estimate; withdrawal and cash transfer pending next EOD close; not a verified execution",
+        "status": "valued at supplied 2026-10-26 DXY EOD close; withdrawal/cash transfer not reported executed",
     })
     return components
 
 
 def build_dxy_cash_oil_bridge(dxy_rows, withdrawal_rows):
-    """Record the pending DXY withdrawal -> cash -> existing oil-buy funding bridge."""
+    """Value the planned DXY withdrawal-to-cash-to-oil scenario without implying execution."""
     combined = next(row for row in withdrawal_rows if row["component"] == "Combined DXY allocation")
     oil_buys = [
         event for event in parse_trades()
@@ -297,35 +314,33 @@ def build_dxy_cash_oil_bridge(dxy_rows, withdrawal_rows):
     if {(event["sym"], event["units"]) for event in oil_buys} != {("BRENT", 35), ("OIL", 34)}:
         raise ValueError("The DXY-to-oil bridge expects the logged 35U BRENT and 34U OIL Weekend Oil buys")
     oil_target = sum(Decimal(str(event["units"])) * Decimal(str(UNIT)) for event in oil_buys)
-    reference_proceeds = Decimal(combined["reference_withdrawal_mark_value_usd"])
-    reference_excess = max(Decimal("0"), reference_proceeds - oil_target)
+    proceeds = Decimal(combined["reference_withdrawal_mark_value_usd"])
+    oil_allocation = min(proceeds, oil_target)
+    excess = max(Decimal("0"), proceeds - oil_target)
+    shortfall = max(Decimal("0"), oil_target - proceeds)
     return [{
-        "request_date": "2026-10-25",
-        "status": "pending next available DXY EOD close; no withdrawal/cash transfer is recorded as executed",
+        "request_date": combined["requested_date"],
+        "status": "valued at supplied 2026-10-26 DXY EOD close; no withdrawal/cash transfer is reported executed",
         "portfolio_scope": "Per THE ONE portfolio; combined integrated 1U/DAY core + 10U/DAY add-on",
         "current_reference_mark_date": combined["valuation_date"],
-        "current_reference_dxy_close": next(
-            row["eod_close"] for row in dxy_rows
-            if row["ticker"] == "DXY" and row["date"] == combined["valuation_date"]
-            and row["unit_size_label"] == "1U"
-        ),
+        "current_reference_dxy_close": combined["valuation_dxy_close"],
         "existing_combined_dxy_units_before_withdrawal": combined["units_before"],
         "one_time_withdrawal_fraction": combined["withdrawal_fraction"],
         "dxy_units_to_withdraw": combined["units_planned_for_withdrawal"],
         "dxy_notional_basis_to_withdraw_usd": combined["notional_basis_planned_for_withdrawal_usd"],
-        "dxy_withdrawal_proceeds_at_next_eod_usd": "",
-        "reference_withdrawal_mark_value_at_current_mark_usd": combined["reference_withdrawal_mark_value_usd"],
+        "dxy_withdrawal_proceeds_at_next_eod_usd": f"{proceeds:.2f}",
+        "reference_withdrawal_mark_value_at_current_mark_usd": f"{proceeds:.2f}",
         "oil_buys_to_fund": "BRENT 35U at 114.627; OIL 34U at 100.74",
         "oil_cash_allocation_target_usd": f"{oil_target:.2f}",
-        "oil_cash_allocation_at_next_eod_usd": "",
-        "excess_cash_support_for_existing_positions_at_next_eod_usd": "",
-        "reference_excess_cash_support_at_current_mark_usd": f"{reference_excess:.2f}",
-        "oil_cash_shortfall_at_next_eod_usd": "",
+        "oil_cash_allocation_at_next_eod_usd": f"{oil_allocation:.2f}",
+        "excess_cash_support_for_existing_positions_at_next_eod_usd": f"{excess:.2f}",
+        "reference_excess_cash_support_at_current_mark_usd": f"{excess:.2f}",
+        "oil_cash_shortfall_at_next_eod_usd": f"{shortfall:.2f}",
         "remaining_dxy_units_before_future_daily_lots": combined["units_remaining"],
         "future_combined_dxy_schedule_u_per_eod": "11",
         "incremental_portfolio_size_from_internal_transfer_usd": "0.00",
-        "cash_method": "DXY withdrawal proceeds -> cash -> fund up to the logged $690,000 oil-buy notional; any excess is a separate cash-support line item for existing positions, not new position size",
-        "valuation_note": "Oct. 23 mark is a reference only; next available user-supplied EOD DXY close is required to finalize proceeds, oil funding, excess cash, and any shortfall",
+        "cash_method": "Scenario: DXY withdrawal proceeds -> cash -> fund up to the logged $690,000 oil-buy notional; any excess is separate cash support for existing positions, not new position size",
+        "valuation_note": "Valued at the user-provided 2026-10-26 DXY close of 102.017; withdrawal, cash balance, and oil funding remain modeled only and are not reported as executed",
     }]
 
 
@@ -431,10 +446,13 @@ def _terminal_rows(rows, pnl_field, added_field, key_fields):
 def write_report(oil_rows, dxy_rows, withdrawal_rows, cash_bridge_rows):
     oil_summary = _terminal_rows(oil_rows, "daily_buys_unrealized_pnl_usd", "cumulative_daily_buy_notional_usd", ("unit_size_label", "ticker"))
     dxy_summary = _terminal_rows(dxy_rows, "daily_investment_unrealized_pnl_usd", "cumulative_notional_added_usd", ("unit_size_label", "ticker"))
+    combined_withdrawal = next(row for row in withdrawal_rows if row["component"] == "Combined DXY allocation")
+    bridge = cash_bridge_rows[0]
+    valuation_date = combined_withdrawal["valuation_date"]
     lines = [
         "# TradingView Energy and Currency Desk Sidecars",
         "",
-        "> **TradingView sidecar schedules — 2026-10-24 benchmark.** Prices use only the user-provided Part A/Part B TradingView lists. 1U = $10,000 notional; displayed standard daily allocations are 0.05U ($500), 1U ($10,000), and 10U ($100,000). The 1U/DAY/DXY schedule is integrated into every core variant. THE ONE MODEL adds 10U/DAY DXY to all 32 portfolios (11U/DAY combined), and uses a derived 11U/DAY energy tranche per active BRENT and OIL ticker in its 16 energy-inclusive portfolios. 0.05U DXY remains an alternative. These are hypothetical dollar-notional/index-return exposures, not broker fills or account returns.",
+        "> **TradingView sidecar schedules through 2026-10-26.** Historical prices use the user-provided Part A/Part B TradingView lists; the Oct. 26 direct-price update and DXY close are user-supplied. 1U = $10,000 notional; displayed standard daily allocations are 0.05U ($500), 1U ($10,000), and 10U ($100,000). The 1U/DAY/DXY schedule is integrated into every core variant. THE ONE MODEL adds 10U/DAY DXY to all 32 portfolios (11U/DAY combined), and uses a derived 11U/DAY energy tranche per active BRENT and OIL ticker in its 16 energy-inclusive portfolios. 0.05U DXY remains an alternative. These are hypothetical dollar-notional/index-return exposures, not an actual DXY security trade, broker fills, or account returns.",
 
         "",
         "## Energy desk: separate Brent and WTI daily-buy schedules",
@@ -458,7 +476,7 @@ def write_report(oil_rows, dxy_rows, withdrawal_rows, cash_bridge_rows):
         "",
         "## One-time Weekend Oil position overlay",
         "",
-        "The user-specified 50U LONG BRENT and 50U LONG USOIL Manual-Automatic lots opened at the supplied TradingView marks on 2026-10-19, with 10U target trims at $117 and $102 respectively, are integrated in all four core variants and therefore flow into core-based strategy composites and THE ONE MODEL. Their first recorded EOD marks at/above target are on 2026-10-23; intraday touch and execution are unverified. Separate user-directed hypothetical 10U SHORT lots at those same target levels are recorded as a force-multiplier sentiment overlay. Their explicit modeled exits are $114.627 BRENT and $100.74 OIL on 2026-10-25 at 20:35 MST, after the four earlier Oct. 25 LONG replenishments and simultaneous with distinct 35U BRENT and 34U OIL LONG Weekend Oil buys. The buys count toward weekly buy supply; the 10U short closures do not. After the modeled exits, the all-core oil long exposure reaches 100U BRENT + 100U OIL = 200U combined ($2,000,000 fixed-unit notional). Those lot-specific exits override SAR auto-close only for these shorts and all prices/timing remain hypothetical, not verified executions. [`Weekend Oil 50U Position Hypothetical.md`](Weekend%20Oil%2050U%20Position%20Hypothetical.md) attributes only the tagged long lots, not these separate shorts or the daily-buy schedule. Four separate manual LONG 10U replenishment entries are logged after the Oct. 23 mark cutoff, all on Oct. 25: BRENT at $115.792 and OIL at $101.74 use the user-recalled 17:20–17:25 MST window, modeled at a 17:22 midpoint, while BRENT at $114.80 and OIL at $101.00 use an approximate 20:00 MST timestamp per the user's recollection. Both times are modeling assumptions, not verified transaction times; the supplied prices remain the modeled replenishment prices. The four replenishments, 35U BRENT and 34U OIL additional buys, and explicit Oct. 25 20:35 MST SHORT exits are post-cutoff and excluded from current totals pending later EOD marks. The additional buys are distinct LONG lots; their simultaneous short closures do not count toward weekly buy supply. Together with existing post-close all-core exposure of 65U BRENT + 66U OIL, the buys bring the all-core long total to 100U per ticker, 200U combined. The user-specified short-exit prices override SAR only for these two tagged shorts.",
+        "The user-specified 50U LONG BRENT and 50U LONG USOIL Manual-Automatic lots opened at the supplied TradingView marks on 2026-10-19, with 10U target trims at $117 and $102 respectively, are integrated in all four core variants and therefore flow into core-based strategy composites and THE ONE MODEL. Their first recorded EOD marks at/above target are on 2026-10-23; intraday touch and execution are unverified. Separate user-directed hypothetical 10U SHORT lots at those same target levels are recorded as a force-multiplier sentiment overlay. Their explicit modeled exits are $114.627 BRENT and $100.74 OIL on 2026-10-25 at 20:35 MST, after the four earlier Oct. 25 LONG replenishments and simultaneous with distinct 35U BRENT and 34U OIL LONG Weekend Oil buys. The buys count toward weekly buy supply; the 10U short closures do not. After the modeled exits, the all-core oil long exposure reaches 100U BRENT + 100U OIL = 200U combined ($2,000,000 fixed-unit notional). Those lot-specific exits override SAR auto-close only for these shorts and all prices/timing remain hypothetical, not verified executions. [`Weekend Oil 50U Position Hypothetical.md`](Weekend%20Oil%2050U%20Position%20Hypothetical.md) attributes only the tagged long lots, not these separate shorts or the daily-buy schedule. Four separate manual LONG 10U replenishment entries are logged after the preserved Oct. 23 baseline and before the current Oct. 26 EOD mark, all on Oct. 25: BRENT at $115.792 and OIL at $101.74 use the user-recalled 17:20–17:25 MST window, modeled at a 17:22 midpoint, while BRENT at $114.80 and OIL at $101.00 use an approximate 20:00 MST timestamp per the user's recollection. Both times are modeling assumptions, not verified transaction times; the supplied prices remain the modeled replenishment prices. All current BRENT/OIL long lots are marked at the user-supplied Oct. 26 EOD closes ($115.38/$101.30), without claiming verified brokerage positions or execution. The four replenishments, 35U BRENT and 34U OIL approved orders, and explicit Oct. 25 20:35 MST SHORT exits were entered after the preserved Oct. 23 baseline; they are included in the current Oct. 26 replay at supplied marks. The additional buys are distinct LONG lots; their simultaneous short closures do not count toward weekly buy supply. Together with existing post-close all-core exposure of 65U BRENT + 66U OIL, the buys bring the all-core long total to 100U per ticker, 200U combined. The user-specified short-exit prices override SAR only for these two tagged shorts.",
 
 
         "",
@@ -484,9 +502,9 @@ def write_report(oil_rows, dxy_rows, withdrawal_rows, cash_bridge_rows):
         "",
         "## One-time 40% DXY withdrawal sizing reference",
         "",
-        "This reference calculation sizes the user-requested one-time 40% withdrawal from the selected combined DXY allocation: the integrated 1U/DAY core sleeve plus THE ONE MODEL's 10U/DAY add-on. Per THE ONE portfolio, 35 active sessions created 385U of cumulative DXY allocation; 40% is 154U, or $1,540,000 in initial-notional basis, which would leave 231U/$2,310,000 basis if executed at that size. At the last available supplied close (2026-10-23), the 40% portion had an estimated mark value of $1,550,966.13. This Oct. 23 amount is a reference only—the user requested a withdrawal valued at the next EOD close, which remains pending. Future daily sizing stays at 11U/DAY. The one-time chart-position 1U and unselected 0.05U alternative are excluded. This proxy adjustment is hypothetical, not an actual DXY security trade. The baseline historical results through Oct. 23 remain unchanged; THE ONE's 32 portfolios are alternative modeled books, not one account position.",
+        f"This scenario values the user-requested one-time 40% withdrawal from the selected combined DXY allocation: the integrated 1U/DAY core sleeve plus THE ONE MODEL's 10U/DAY add-on. The request predates the Oct. 26 mark, so its 35 active sessions (385U; 154U planned for withdrawal, $1,540,000 initial-notional basis) are valued at the supplied {valuation_date} DXY close of {Decimal(combined_withdrawal['valuation_dxy_close']):.3f}; Oct. 26 daily additions are excluded from the withdrawal base. The modeled withdrawal value is ${Decimal(combined_withdrawal['reference_withdrawal_mark_value_usd']):,.2f}, leaving {Decimal(combined_withdrawal['units_remaining']):g}U / ${Decimal(combined_withdrawal['notional_basis_remaining_usd']):,.2f} basis before later daily additions. This is a valuation scenario only; no withdrawal, cash transfer, or brokerage execution is reported as completed. Future daily sizing stays at 11U/DAY. The one-time chart-position 1U and unselected 0.05U alternative are excluded. The baseline historical results through Oct. 23 remain unchanged; THE ONE's 32 portfolios are alternative modeled books, not one account position.",
         "",
-        "| Component | Units before | Notional basis before | Marked value before | Units planned to withdraw | Notional basis planned for withdrawal | Estimated value at Oct. 23 mark | 40% PnL share at Oct. 23 mark | Units remaining | Remaining marked value | Remaining PnL |",
+        f"| Component | Units before | Notional basis before | Marked value at {valuation_date} | Units planned to withdraw | Notional basis planned for withdrawal | Estimated value at {valuation_date} mark | 40% PnL share at {valuation_date} mark | Units remaining | Remaining marked value | Remaining PnL |",
         "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ])
     def fmt_units(value):
@@ -507,17 +525,18 @@ def write_report(oil_rows, dxy_rows, withdrawal_rows, cash_bridge_rows):
         )
     lines.extend([
         "",
-        f"Reference export: [`{DXY_WITHDRAWAL_CSV.name}`](data/{DXY_WITHDRAWAL_CSV.name}). The Oct. 23 figures are not the pending EOD withdrawal proceeds and are not a verified fill or cash amount.",
+        f"Reference export: [`{DXY_WITHDRAWAL_CSV.name}`](data/{DXY_WITHDRAWAL_CSV.name}). The {valuation_date} amount is a modeled valuation—not a verified fill, withdrawal, or cash balance.",
         "",
-        "## Pending DXY → cash → oil bridge",
+        "## DXY → cash → oil bridge (modeled valuation; not reported executed)",
         "",
-        "The withdrawal is recorded as pending until a later user-supplied DXY EOD close is available. At that close, the model will value and withdraw 40% of the pre-existing 385U reference position (154U), excluding future daily additions, and route proceeds through a cash line item, then allocate up to $690,000 to the already logged 35U BRENT and 34U OIL Weekend Oil buys. Any proceeds above the oil allocation will be shown as a separate cash-support line item for existing positions; it creates no new units and does not increase portfolio size. If proceeds are below $690,000, only available proceeds are allocated and the shortfall is disclosed, with no additional portfolio funding assumed. Future DXY daily additions remain at 11U/DAY.",
+        f"The supplied {valuation_date} DXY close now allows the requested 40% withdrawal scenario to be valued. It uses only the pre-request 385U combined allocation (154U withdrawal; the Oct. 26 daily addition is excluded), then models routing proceeds through cash to fund up to $690,000 of the logged 35U BRENT and 34U OIL buys. Excess is a separate cash-support scenario for existing positions; any shortfall is disclosed without assuming new funding. No actual withdrawal, transfer, or brokerage execution was reported. Future DXY daily additions remain at 11U/DAY.",
         "",
-        "| Bridge item | Pending treatment | Oct. 23 reference only |",
+        f"| Bridge item | Modeled treatment at {valuation_date} | Scenario value |",
         "|---|---:|---:|",
-        f"| DXY withdrawal value | Pending next EOD close | ${Decimal(cash_bridge_rows[0]['reference_withdrawal_mark_value_at_current_mark_usd']):,.2f} |",
-        f"| Oil purchases funded from withdrawal cash | Up to $690,000.00 | ${Decimal(cash_bridge_rows[0]['oil_cash_allocation_target_usd']):,.2f} |",
-        f"| Excess cash support for existing positions | Pending next EOD close; cash only, no new units | ${Decimal(cash_bridge_rows[0]['reference_excess_cash_support_at_current_mark_usd']):,.2f} |",
+        f"| DXY withdrawal value | 40% of pre-request 385U; 154U | ${Decimal(bridge['dxy_withdrawal_proceeds_at_next_eod_usd']):,.2f} |",
+        f"| Oil purchases funded from withdrawal cash | Up to $690,000.00 | ${Decimal(bridge['oil_cash_allocation_at_next_eod_usd']):,.2f} |",
+        f"| Excess cash support for existing positions | Cash only; no new units | ${Decimal(bridge['excess_cash_support_for_existing_positions_at_next_eod_usd']):,.2f} |",
+        f"| Oil-buy funding shortfall | No extra funding assumed | ${Decimal(bridge['oil_cash_shortfall_at_next_eod_usd']):,.2f} |",
         "| New portfolio size from this internal transfer | $0.00 | $0.00 |",
         "",
         f"Bridge ledger: [`{DXY_CASH_OIL_CSV.name}`](data/{DXY_CASH_OIL_CSV.name}). The reference column is not an actual withdrawal or cash balance.",
@@ -530,7 +549,7 @@ def write_report(oil_rows, dxy_rows, withdrawal_rows, cash_bridge_rows):
         "",
         "The crypto positions have been removed from the core comparison pending source calibration. See [`Crypto Sidecar — Pending TradingView Recalibration.md`](Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md); no BTC/ETH marks or PnL are used here.",
         "",
-        "Machine-readable daily schedules: [`tradingview_energy_sidecar_daily_20261024.csv`](data/tradingview_energy_sidecar_daily_20261024.csv), [`dxy_currency_desk_sidecar_daily_20261024.csv`](data/dxy_currency_desk_sidecar_daily_20261024.csv). Price source/mark flags: [`tradingview_benchmark_session_marks_20261024.csv`](data/tradingview_benchmark_session_marks_20261024.csv).",
+        "Machine-readable daily schedules: [`tradingview_energy_sidecar_daily_20261026.csv`](data/tradingview_energy_sidecar_daily_20261026.csv), [`dxy_currency_desk_sidecar_daily_20261026.csv`](data/dxy_currency_desk_sidecar_daily_20261026.csv). Price source/mark flags: [`tradingview_benchmark_session_marks_20261026.csv`](data/tradingview_benchmark_session_marks_20261026.csv).",
         "",
     ])
     REPORT.write_text("\n".join(lines), encoding="utf-8")

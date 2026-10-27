@@ -22,8 +22,8 @@ class WeekendOil50UPositionTests(unittest.TestCase):
         cls.index = weekend_oil.INDEX.read_text(encoding="utf-8")
 
     def test_open_assumptions_trim_levels_and_terminal_pnl_reconcile(self):
-        self.assertEqual(len(self.rows), 10)
-        terminal = {row["repository_ticker"]: row for row in self.rows if row["date"] == "2026-10-23"}
+        self.assertEqual(len(self.rows), 12)
+        terminal = {row["repository_ticker"]: row for row in self.rows if row["date"] == "2026-10-26"}
         self.assertEqual(terminal["BRENT"]["entry_price"], "111.412")
         self.assertEqual(terminal["OIL"]["entry_price"], "99.04")
         self.assertEqual(terminal["BRENT"]["opened_gross_notional_usd"], "500000.00")
@@ -36,28 +36,28 @@ class WeekendOil50UPositionTests(unittest.TestCase):
         self.assertEqual(terminal["OIL"]["open_units_u"], "40")
         self.assertEqual(terminal["BRENT"]["realized_pnl_usd"], "5015.62")
         self.assertEqual(terminal["OIL"]["realized_pnl_usd"], "2988.69")
-        self.assertEqual(terminal["BRENT"]["remaining_unrealized_pnl_usd"], "21301.12")
-        self.assertEqual(terminal["OIL"]["remaining_unrealized_pnl_usd"], "17810.99")
-        self.assertEqual(terminal["BRENT"]["total_realized_plus_unrealized_pnl_usd"], "26316.74")
-        self.assertEqual(terminal["OIL"]["total_realized_plus_unrealized_pnl_usd"], "20799.68")
+        self.assertEqual(terminal["BRENT"]["remaining_unrealized_pnl_usd"], "14246.22")
+        self.assertEqual(terminal["OIL"]["remaining_unrealized_pnl_usd"], "9127.63")
+        self.assertEqual(terminal["BRENT"]["total_realized_plus_unrealized_pnl_usd"], "19261.84")
+        self.assertEqual(terminal["OIL"]["total_realized_plus_unrealized_pnl_usd"], "12116.32")
         total = sum(Decimal(row["total_realized_plus_unrealized_pnl_usd"]) for row in terminal.values())
         realized = sum(Decimal(row["realized_pnl_usd"]) for row in terminal.values())
         unrealized = sum(Decimal(row["remaining_unrealized_pnl_usd"]) for row in terminal.values())
-        self.assertEqual(total, Decimal("47116.42"))
+        self.assertEqual(total, Decimal("31378.16"))
         self.assertEqual(realized, Decimal("8004.31"))
-        self.assertEqual(unrealized, Decimal("39112.11"))
+        self.assertEqual(unrealized, Decimal("23373.85"))
         self.assertTrue(all(row["side"] == "LONG" for row in self.rows))
 
-    def test_daily_marks_cover_five_sessions_and_keep_sources_distinct(self):
-        expected_dates = ["2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23"]
+    def test_daily_marks_cover_through_oct26_using_tradingview_sources(self):
+        expected_dates = ["2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23", "2026-10-26"]
         for ticker in ("BRENT", "OIL"):
             rows = [row for row in self.rows if row["repository_ticker"] == ticker]
             self.assertEqual([row["date"] for row in rows], expected_dates)
-            self.assertEqual([row["sessions_marked"] for row in rows], ["1", "2", "3", "4", "5"])
+            self.assertEqual([row["sessions_marked"] for row in rows], ["1", "2", "3", "4", "5", "6"])
             self.assertEqual([row["units_sold_cumulative_u"] for row in rows[:4]], ["0"] * 4)
             self.assertEqual(rows[-1]["assumed_trim_date"], "2026-10-23")
-        self.assertIn("BlackBull Markets Brent Cash", self.report)
-        self.assertIn("TradingView TVC:USOIL", self.report)
+        self.assertIn("user-provided TradingView benchmark marks", self.report)
+        self.assertIn("TVC:USOIL", self.report)
         self.assertIn("not a complete OHLC history", self.report)
         self.assertIn("does **not** verify the intraday touch", self.report)
 
@@ -71,7 +71,7 @@ class WeekendOil50UPositionTests(unittest.TestCase):
         self.assertIn("Subsequent manual replenishment entries", self.report)
         self.assertIn("10U USOIL at $101.74 and 10U BRENT at $115.792 use the user-recalled 17:20–17:25 MST window, modeled at a 17:22 midpoint", self.report)
         self.assertIn("additional 10U USOIL at $101.00 and 10U BRENT at $114.80 use an approximate 20:00 MST time", self.report)
-        self.assertIn("not included in this attribution CSV or chart", self.report)
+        self.assertIn("outside this original-50U attribution CSV/chart", self.report)
         self.assertIn("35U BRENT at $114.627 and 34U USOIL", self.report)
         self.assertIn("count toward weekly buy supply", self.report)
         self.assertIn("95U BRENT", self.report)
@@ -112,8 +112,8 @@ class WeekendOil50UPositionTests(unittest.TestCase):
         with weekend_oil.OUTPUT_CSV.open(newline="", encoding="utf-8") as handle:
             rows = list(csv.DictReader(handle))
         self.assertEqual(rows, self.rows)
-        self.assertEqual(len(rows), 10)
-        self.assertEqual(rows[-1]["total_realized_plus_unrealized_pnl_usd"], "20799.68")
+        self.assertEqual(len(rows), 12)
+        self.assertEqual(rows[-1]["total_realized_plus_unrealized_pnl_usd"], "12116.32")
 
 
 if __name__ == "__main__":

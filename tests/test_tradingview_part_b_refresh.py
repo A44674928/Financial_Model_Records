@@ -20,7 +20,7 @@ class TradingViewPartBRefreshTests(unittest.TestCase):
             newline="", encoding="utf-8"
         ) as handle:
             cls.raw_rows = list(csv.DictReader(handle))
-        with (ROOT / "data/tradingview_benchmark_session_marks_20261024.csv").open(
+        with (ROOT / "data/tradingview_benchmark_session_marks_20261026.csv").open(
             newline="", encoding="utf-8"
         ) as handle:
             cls.session_rows = list(csv.DictReader(handle))

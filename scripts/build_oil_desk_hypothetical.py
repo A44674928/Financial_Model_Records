@@ -1,11 +1,11 @@
 """Build a separate daily EOD accumulation hypothetical for Brent and USOIL.
 
-For each exact user-supplied energy EOD in `data/energy_provider_eod_marks_v1.csv`
-(the same source consumed by the core replay), the hypothetical buys 10 units at
-that close (one 1U lot) and holds all daily lots through Oct. 23. Logged chart
-positions, including the core-integrated Manual-Automatic weekend-oil lots, are
-shown separately for attribution. This historical sidecar is not an additional
-allocation to core or the downstream core-based portfolios.
+For each supplied TradingView energy EOD in the aligned benchmark session file,
+the hypothetical buys 10 units at that close (one 1U lot) and holds all daily
+lots through the model's current EOD session. Logged chart positions, including
+the core-integrated Manual-Automatic weekend-oil lots, are shown separately for
+attribution. This sidecar is not an additional allocation to core or downstream
+core-based portfolios.
 """
 
 import csv
@@ -17,12 +17,12 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from model_perf_core import UNIT, SESSION_DATES, build_lots, parse_trades
+from model_perf_core import BENCHMARK_SESSION_FILE, UNIT, SESSION_DATES, build_lots, parse_trades
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 CHARTS = ROOT / "Charts" / "performance"
-INPUT = DATA / "energy_provider_eod_marks_v1.csv"
+INPUT = BENCHMARK_SESSION_FILE
 OUTPUT = DATA / "oil_desk_eod_accumulation_v1.csv"
 REPORT = ROOT / "Oil Desk EOD Accumulation Hypothetical.md"
 GRAPH = CHARTS / "19-oil-desk-daily-accumulation.png"
@@ -33,21 +33,32 @@ COLORS = {"BRENT": "#38bdf8", "OIL": "#fbbf24"}
 
 def load_energy_marks():
     marks = defaultdict(dict)
+    starts = {"BRENT": "2026-09-23", "OIL": "2026-09-10"}
     with INPUT.open(newline="", encoding="utf-8") as fh:
         reader = csv.DictReader(fh)
-        required = {"Date", "Ticker", "EOD_Close", "Source", "Instrument"}
+        required = {"Date", "Ticker", "Close", "Mark_Status", "Source_File"}
         if not reader.fieldnames or not required.issubset(reader.fieldnames):
             raise ValueError(f"{INPUT.name} must contain {sorted(required)}")
         for row in reader:
             ticker = row["Ticker"].strip().upper()
+            if ticker not in TICKERS:
+                continue
             day = row["Date"].strip()
-            close = float(row["EOD_Close"])
-            if ticker not in TICKERS or day not in SESSION_DATES or close <= 0:
+            if day < starts[ticker]:
+                continue
+            close = float(row["Close"])
+
+            if day not in SESSION_DATES or close <= 0:
                 raise ValueError(f"Invalid energy benchmark row: {row}")
             if day in marks[ticker]:
                 raise ValueError(f"Duplicate {ticker} mark on {day}")
-            marks[ticker][day] = {"close": close, "source": row["Source"].strip(), "instrument": row["Instrument"].strip()}
-    starts = {"BRENT": "2026-09-23", "OIL": "2026-09-10"}
+            marks[ticker][day] = {
+                "close": close,
+                "source": row["Source_File"].strip(),
+                "instrument": "TVC:USOIL" if ticker == "OIL" else "BRENT",
+                "mark_status": row["Mark_Status"].strip(),
+            }
+
     for ticker, start in starts.items():
         expected = [day for day in SESSION_DATES if day >= start]
         if sorted(marks[ticker]) != expected:
@@ -93,7 +104,7 @@ def build_rows(marks=None):
                 "date": day,
                 "ticker": ticker,
                 "instrument": marks[ticker][day]["instrument"],
-                "eod_close": f"{mark:.3f}".rstrip("0").rstrip("."),
+                "eod_close": f"{mark:.2f}",
                 "daily_buy_units": DAILY_UNITS,
                 "cumulative_daily_buy_units": cumulative_units,
                 "cumulative_daily_buy_notional_usd": f"{cumulative_notional:.2f}",
@@ -158,37 +169,37 @@ def write_report(rows=None):
     lines = [
         "# Oil Desk EOD Accumulation Hypothetical",
         "",
-        "> **Historical sidecar—superseded for current comparisons (2026-10-24).** This legacy v1 schedule uses the prior energy marks and is not the current TradingView-only calculation. The active TradingView energy schedule and DXY sizing/audit table are in [`TradingView Energy and Currency Desk Sidecars.md`](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md). The 1U/DAY/DXY sleeve is already integrated into core variants; 0.05U remains an alternative, while THE ONE MODEL separately adds 10U/DAY DXY to each of its 32 portfolios. Current strategy composites consume the 10U energy rows. Do not use this page's prior numbers as current results.",
+        f"> **Current hypothetical sidecar through {SESSION_DATES[-1]}.** Daily energy marks use the same aligned user-provided TradingView EOD benchmark session file as the core replay, including the supplied Oct. 26 update. The 1U/DAY/DXY sleeve is already integrated into core variants; 0.05U remains an alternative, while THE ONE MODEL separately adds 10U/DAY DXY to each of its 32 portfolios. This 10U energy schedule is a separate scenario, not an additional allocation to the core or downstream core-based portfolios.",
         "",
-        "This archived daily-buy sidecar is separate from the core. Its chart-position series is an attribution of logged chart/core lots, including the 50U Manual-Automatic Weekend Oil entries; those same tagged lots are already included in each core variant and must not be added to core-based composites a second time. The chart-position column shows open-lot unrealized PnL only; the realized trim PnL is recorded in the core replay.",
+        "This daily-buy sidecar is separate from the core. Its chart-position series is an attribution of logged chart/core lots, including the 50U Manual-Automatic Weekend Oil entries; those same tagged lots are already included in each core variant and must not be added to core-based composites a second time. The chart-position column shows open-lot unrealized PnL only; the realized trim PnL is recorded in the core replay.",
         "",
         "For the daily position and PnL methodology across all variants and sidecars, see [`Model Calculation Guide.md`](Model%20Calculation%20Guide.md).",
         "",
         "## Assumptions",
         "",
         f"- Buy **{DAILY_UNITS} units ({DAILY_UNITS}U; $100,000 notional)** in each instrument at every supplied EOD session.",
-        "- One new long lot is opened at each session's EOD close and remains open through Oct. 23; no exits, fees, financing, or scaling from PnL.",
+        f"- One new long lot is opened at each active session's EOD close and remains open through {SESSION_DATES[-1]}; no exits, fees, financing, or scaling from PnL.",
         "- The daily buy at a given close starts accruing PnL after that close; therefore it has zero mark-to-market PnL at its purchase EOD.",
         "- Chart-opened positions are shown separately and then added to the daily-buy hypothetical for a combined energy subtotal.",
-        "- Both the core replay and this sidecar use the same exact daily energy marks from `data/energy_provider_eod_marks_v1.csv`; the sidecar buys each tranche at that instrument's supplied EOD close.",
+        "- Both the core replay and this sidecar use the same aligned marks in `data/tradingview_benchmark_session_marks_20261026.csv`; the sidecar buys each tranche at that instrument's supplied EOD close.",
         "- Yahoo `BZ=F` / `CL=F` values are pre-entry context proxies only; they are not used to mark active energy positions or sidecar purchases.",
         "",
         "## Exact EOD mark coverage",
         "",
-        "| Ticker | Instrument / source | Active-period coverage | Sessions | Oct. 23 EOD mark |",
+        f"| Ticker | Instrument / source | Active-period coverage | Sessions | {SESSION_DATES[-1]} EOD mark |",
         "|---|---|---|---:|---:|",
     ]
     for ticker in TICKERS:
         days = sorted(marks[ticker])
         end_mark = marks[ticker][days[-1]]["close"]
-        end_mark_text = f"${end_mark:,.3f}".rstrip("0").rstrip(".")
+        end_mark_text = f"${end_mark:,.2f}"
         lines.append(
             f"| `{ticker}` | {marks[ticker][days[-1]]['source']} (`{marks[ticker][days[-1]]['instrument']}`) | "
             f"{days[0]}–{days[-1]} | {len(days)} | {end_mark_text} |"
         )
     lines.extend([
         "",
-        "## Terminal summary — Oct. 23, 2026",
+        f"## Terminal summary — {SESSION_DATES[-1]}",
         "",
         "| Instrument | EOD sessions | Daily-buy units | Daily-buy notional | Daily-buy PnL | Chart-open units | Chart-open unrealized PnL | Combined energy PnL |",
         "|---|---:|---:|---:|---:|---:|---:|---:|",

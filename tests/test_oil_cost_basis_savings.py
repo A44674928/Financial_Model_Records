@@ -67,7 +67,7 @@ class OilCostBasisSavingsTests(unittest.TestCase):
         self.assertEqual(oil["basis_reduction_per_exposure_unit"].quantize(Decimal("0.000001")), Decimal("2.018734"))
         self.assertEqual(oil["unit_weighted_average_price"].quantize(Decimal("0.001")), Decimal("99.817"))
         self.assertEqual(oil["target_to_rebuy_price_gaps"], [Decimal("0.260"), Decimal("1.000")])
-        self.assertTrue(all(position["replenishment_after_cutoff"] for position in self.positions.values()))
+        self.assertTrue(all(not position["replenishment_after_cutoff"] for position in self.positions.values()))
         events = parse_trades()
         for variant in VARIANTS:
             _, realized = build_lots(variant, events)
@@ -137,7 +137,7 @@ class OilCostBasisSavingsTests(unittest.TestCase):
         self.assertEqual(cost_basis._money(exact_total), Decimal("22100.56"))
         self.assertIn("**$38,232.81 total basis credits**", self.report)
         self.assertIn("rather than stacks with, the legacy 10U-short credit", self.report)
-        self.assertIn("No post-Oct. 23 TradingView EOD mark is supplied", self.report)
+        self.assertIn("maximum ATS scenario is marked to the user-provided 2026-10-26 EOD closes", self.report)
         self.assertIn("reduce the tagged-campaign open basket from 161U to **111U BRENT / 111U OIL**", self.report)
         self.assertIn("$16,132.24 before costs", self.report)
         self.assertIn("50U BRENT from $115.51 at $117.409", self.report)
@@ -146,7 +146,7 @@ class OilCostBasisSavingsTests(unittest.TestCase):
         with cost_basis.ATS_OUTPUT_CSV.open(newline="", encoding="utf-8") as handle:
             self.assertEqual(list(csv.DictReader(handle)), self.ats_basis_rows)
 
-    def test_report_documents_reclassification_and_missing_post_entry_marks(self):
+    def test_report_documents_reclassification_and_current_mark_coverage(self):
         self.assertIn("not additional gains", self.report)
         self.assertIn("separate realized 10U SHORT PnL", self.report)
         self.assertIn("$114.627 BRENT and $100.74 OIL on 2026-10-25 at 20:35 MST", self.report)
@@ -163,7 +163,7 @@ class OilCostBasisSavingsTests(unittest.TestCase):
         self.assertIn("does not fold the separate 35U/34U post-cutoff buys", self.report)
         self.assertIn("not additional portfolio PnL", self.report)
         self.assertIn("2026-10-25", self.report)
-        self.assertIn("there are no post-entry marks", self.report)
+        self.assertIn("includes post-replenishment marks through **2026-10-26**", self.report)
         self.assertIn("32 independent core-based portfolios", self.report)
         self.assertIn("not both added together", self.report)
 

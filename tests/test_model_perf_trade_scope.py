@@ -23,7 +23,8 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertEqual(sum(event["date"] <= "2026-10-22" for event in events), 85)
         self.assertEqual(sum(event["date"] <= "2026-10-23" for event in events), 91)
         self.assertTrue({"BTC", "ETH"}.isdisjoint(modeled))
-        self.assertEqual(SESSION_DATES[-1], "2026-10-23")
+        self.assertEqual(SESSION_DATES[-1], "2026-10-26")
+        self.assertEqual(sum(event["date"] <= "2026-10-26" for event in events), 116)
 
     def test_reported_ats_core_entries_and_meta_short_close_are_separate_lots(self):
         # Isolate the earlier Oct. 26 ATS action before the later user-directed
@@ -39,7 +40,7 @@ class ModelTradeScopeTests(unittest.TestCase):
             for filename in ("GEV.txt", "RIVN.txt", "INTC.txt", "META.txt", "index.txt"):
                 self.assertEqual(archive.read(f"trades/{filename}"), (root / "trades" / filename).read_bytes())
         self.assertIn("126 standardized log events currently recorded", (root / "trades/index.txt").read_text())
-        extended_dates = SESSION_DATES + [date]
+        extended_dates = list(SESSION_DATES)
         with patch.object(model_perf_core, "SESSION_DATES", extended_dates), patch.object(
             model_perf_core, "N_SESS", len(extended_dates)
         ):
@@ -69,7 +70,7 @@ class ModelTradeScopeTests(unittest.TestCase):
     def test_user_directed_short_closures_cover_remaining_exposure_at_supplied_prices(self):
         events = parse_trades()
         date = "2026-10-26"
-        extended_dates = SESSION_DATES + [date]
+        extended_dates = list(SESSION_DATES)
         with patch.object(model_perf_core, "SESSION_DATES", extended_dates), patch.object(
             model_perf_core, "N_SESS", len(extended_dates)
         ):
@@ -112,7 +113,7 @@ class ModelTradeScopeTests(unittest.TestCase):
     def test_manually_approved_short_closes_and_new_short_opens_reconcile(self):
         events = parse_trades()
         date = "2026-10-26"
-        extended_dates = SESSION_DATES + [date]
+        extended_dates = list(SESSION_DATES)
         with patch.object(model_perf_core, "SESSION_DATES", extended_dates), patch.object(
             model_perf_core, "N_SESS", len(extended_dates)
         ):
@@ -156,7 +157,7 @@ class ModelTradeScopeTests(unittest.TestCase):
         ]
         self.assertEqual({(e["sym"], e["units"], e["px"]) for e in closures},
                          {("BRENT", 50, 117.409), ("OIL", 50, 102.71)})
-        extended_dates = SESSION_DATES + [date]
+        extended_dates = list(SESSION_DATES)
         expected_pnl = {"BRENT": 8220.067526621078, "OIL": 7912.174859064369}
         with patch.object(model_perf_core, "SESSION_DATES", extended_dates), patch.object(
             model_perf_core, "N_SESS", len(extended_dates)
@@ -191,7 +192,7 @@ class ModelTradeScopeTests(unittest.TestCase):
 
     def test_manual_short_exits_override_sar_only_for_tagged_oil_target_shorts(self):
         events = parse_trades()
-        extended_dates = SESSION_DATES + ["2026-10-26"]
+        extended_dates = list(SESSION_DATES)
         expected = {"BRENT": (114.627, 2028.2051282051275), "OIL": (100.74, 1235.294117647059)}
         with patch.object(model_perf_core, "SESSION_DATES", extended_dates), patch.object(
             model_perf_core, "N_SESS", len(extended_dates)
@@ -239,14 +240,14 @@ class ModelTradeScopeTests(unittest.TestCase):
 
     def test_chart_directed_dxy_daily_sleeve_is_integrated_in_each_core_variant(self):
         dxy_lots, dxy_realized = build_dxy_daily_lots()
-        self.assertEqual(len(dxy_lots), 35)
-        self.assertEqual(sum(lot["qty"] for lot in dxy_lots), 35.0)
+        self.assertEqual(len(dxy_lots), 36)
+        self.assertEqual(sum(lot["qty"] for lot in dxy_lots), 36.0)
         self.assertEqual(dxy_lots[0]["entry_date"], "2026-09-04")
-        self.assertEqual(dxy_lots[-1]["entry_date"], "2026-10-23")
+        self.assertEqual(dxy_lots[-1]["entry_date"], "2026-10-26")
         self.assertTrue(all(lot["side"] == "long" for lot in dxy_lots))
         self.assertEqual(dxy_realized, [])
         expected_pnl = sum(10_000 * (DXY_PRICES[-1] / lot["entry_px"] - 1) for lot in dxy_lots)
-        self.assertAlmostEqual(expected_pnl, 2492.3028113951395, places=8)
+        self.assertAlmostEqual(expected_pnl, 3413.80, places=2)
         series, events = all_series()
         for variant in VARIANTS:
             self.assertIn("DXY", {lot["sym"] for lot in series[variant]["lots"]})
@@ -259,7 +260,7 @@ class ModelTradeScopeTests(unittest.TestCase):
             self.assertAlmostEqual(series[variant]["total"][-1] - core_terminal, expected_pnl, places=2)
             self.assertAlmostEqual(series[variant]["deployed"][-1] - sum(
                 lot["qty"] * 10_000 for lot in core_lots
-            ), 350_000.0, places=2)
+            ), 360_000.0, places=2)
 
     def test_open_units_are_current_exposure_not_cumulative_units_added(self):
         series, _ = all_series()
@@ -280,27 +281,26 @@ class ModelTradeScopeTests(unittest.TestCase):
         import csv
 
         root = Path(__file__).resolve().parents[1]
-        with (root / "data/tradingview_benchmark_session_marks_20261024.csv").open(newline="", encoding="utf-8") as fh:
+        with (root / "data/tradingview_benchmark_session_marks_20261026.csv").open(newline="", encoding="utf-8") as fh:
             rows = list(csv.DictReader(fh))
         by_key = {(row["Ticker"], row["Date"]): row for row in rows}
         self.assertEqual(set(PRICES), {ticker for ticker, _ in by_key} - {"DXY"})
         self.assertEqual(len(PRICES), 31)
         self.assertNotIn("BTC", {ticker for ticker, _ in by_key})
         self.assertNotIn("ETH", {ticker for ticker, _ in by_key})
-        self.assertEqual(len([row for row in rows if row["Ticker"] == "DXY"]), 36)
+        self.assertEqual(len([row for row in rows if row["Ticker"] == "DXY"]), 37)
         for ticker, series in PRICES.items():
-            self.assertEqual(len(series), 36)
-            self.assertEqual(series[-1], float(by_key[(ticker, "2026-10-23")]["Close"]))
-            self.assertEqual(series[-1], float(by_key[(ticker, "2026-10-23")]["Close"]))
+            self.assertEqual(len(series), 37)
+            self.assertEqual(series[-1], float(by_key[(ticker, "2026-10-26")]["Close"]))
         xrh0_carries = [row for row in rows if row["Ticker"] == "XRH0" and row["Mark_Status"].startswith("carry_forward_")]
         self.assertEqual(len(xrh0_carries), 5)
         self.assertEqual({row["Date"] for row in xrh0_carries}, {
             "2026-09-15", "2026-10-07", "2026-10-08", "2026-10-19", "2026-10-22",
         })
-        self.assertEqual(float(PRICES["ORCL"][-1]), 126.16)
-        self.assertEqual(float(PRICES["BRENT"][-1]), 117.345)
-        self.assertEqual(float(PRICES["OIL"][-1]), 103.45)
-        self.assertEqual(float(PRICES["LULU"][-1]), 99.01)
+        self.assertEqual(float(PRICES["ORCL"][-1]), 126.06)
+        self.assertEqual(float(PRICES["BRENT"][-1]), 115.38)
+        self.assertEqual(float(PRICES["OIL"][-1]), 101.30)
+        self.assertEqual(float(PRICES["LULU"][-1]), 102.91)
 
     def test_chart_reconciled_positions_are_in_model_replay(self):
         events = parse_trades()
@@ -394,8 +394,7 @@ class ModelTradeScopeTests(unittest.TestCase):
             self.assertEqual(archive.read("trades/ORCL.txt"), log)
             self.assertEqual(archive.read("trades/index.txt"), (root / "trades/index.txt").read_bytes())
 
-    def test_post_cutoff_manual_replenishments_are_logged_but_outside_terminal_mark_window(self):
-        root = Path(__file__).resolve().parents[1]
+    def test_oct25_manual_replenishments_are_in_current_oct26_marked_replay(self):
         events = parse_trades()
         expected = [
             ("BRENT", "2026-10-25", 115.792, 10, "17:22", "17:20–17:25"),
@@ -403,6 +402,7 @@ class ModelTradeScopeTests(unittest.TestCase):
             ("BRENT", "2026-10-25", 114.8, 10, "20:00", "approximate time per user"),
             ("OIL", "2026-10-25", 101.0, 10, "20:00", "approximate time per user"),
         ]
+        self.assertEqual(SESSION_DATES[-1], "2026-10-26")
         for ticker, date, price, units, time, note_fragment in expected:
             event = next(
                 event for event in events
@@ -414,20 +414,25 @@ class ModelTradeScopeTests(unittest.TestCase):
             self.assertEqual(event["time"], time)
             self.assertIn("Manual replenishment entry", event["note"])
             self.assertIn(note_fragment, event["note"])
-            self.assertGreater(event["date"], SESSION_DATES[-1])
+            self.assertLessEqual(event["date"], SESSION_DATES[-1])
             for variant in VARIANTS:
                 lots, _ = build_lots(variant, events)
-                self.assertFalse(any(
-                    lot["sym"] == ticker and lot["entry_px"] == price for lot in lots
-                ))
+                matches = [lot for lot in lots if lot["sym"] == ticker and lot["entry_date"] == date
+                           and lot["entry_px"] == price]
+                self.assertEqual(sum(lot["qty"] for lot in matches), units)
+                self.assertTrue(all(lot["open"] for lot in matches))
 
+        report = Path(__file__).resolve().parents[1] / "TradingView Energy and Currency Desk Sidecars.md"
+        text = report.read_text(encoding="utf-8")
+        self.assertIn("included in the current Oct. 26 replay at supplied marks", text)
+        self.assertIn("$115.38/$101.30", text)
+
+        root = Path(__file__).resolve().parents[1]
         with ZipFile(root / "trades.zip") as archive:
             for ticker in {item[0] for item in expected}:
                 log_name = "OIL.txt" if ticker == "OIL" else f"{ticker}.txt"
-                self.assertEqual(
-                    archive.read(f"trades/{log_name}"),
-                    (root / "trades" / log_name).read_bytes(),
-                )
+                self.assertEqual(archive.read(f"trades/{log_name}"),
+                                 (root / "trades" / log_name).read_bytes())
 
     def test_oil_trim_shorts_use_explicit_exit_prices_after_replenishment_override_sar(self):
         events = parse_trades()
@@ -462,7 +467,7 @@ class ModelTradeScopeTests(unittest.TestCase):
         # At the Oct. 23 cutoff, both short lots remain open. On an extended
         # replay, their 20:35 Oct. 25 explicit closes supersede SAR only for
         # these tagged lots; all four variants use the user-specified prices.
-        extended_dates = SESSION_DATES + ["2026-10-26"]
+        extended_dates = list(SESSION_DATES)
         with patch.object(model_perf_core, "SESSION_DATES", extended_dates), patch.object(
             model_perf_core, "N_SESS", len(extended_dates)
         ):
@@ -515,110 +520,39 @@ class ModelTradeScopeTests(unittest.TestCase):
             self.assertEqual(archive.read("trades/LCID.txt"), (root / "trades/LCID.txt").read_bytes())
             self.assertEqual(archive.read("trades/index.txt"), (root / "trades/index.txt").read_bytes())
 
-    def test_comparison_report_states_model_coverage_and_unreconciled_master(self):
+    def test_current_report_and_graphs_cover_the_oct26_refresh(self):
         root = Path(__file__).resolve().parents[1]
-        report = root / "Model Performance Comparison.md"
-        text = report.read_text(encoding="utf-8")
-        self.assertTrue(text.startswith(
-            "# THE ONE MODEL\n\n![THE ONE MODEL vs THE WINNING MODEL — equal terminal gross additions]"
-        ))
-        self.assertIn("> **TradingView-only interim recalculation — 2026-10-24.**", text)
-        self.assertIn("the-one-model-split-portfolio.png", text)
-        comparison_chart = "Charts/superstructure/the-one-model-vs-winning-model.png"
-        self.assertIn(comparison_chart, text)
-        self.assertLess(text.index(comparison_chart), text.index("Charts/superstructure/the-one-model.png"))
-        generator = (root / "scripts/build_model_performance.py").read_text(encoding="utf-8")
-        self.assertIn('A("# THE ONE MODEL")', generator)
-        self.assertIn("the-one-model-vs-winning-model.png", generator)
-        self.assertIn("the-one-model.png", generator)
-        self.assertIn("the-one-model-split-portfolio.png", generator)
+        report = (root / "Model Performance Comparison.md").read_text(encoding="utf-8")
+        self.assertTrue(report.startswith("# THE ONE MODEL\n"))
+        self.assertIn("TradingView-only model update — 2026-10-26", report)
+        self.assertIn("37 common sessions", report)
+        self.assertIn("116` direct-price events", report)
+        self.assertIn("marked against the **Monday, October 26, 2026** EOD close", report)
+        self.assertIn("102.017", report)
+        self.assertIn("No legacy or substitute prices are used", report)
+        self.assertIn("preserved Oct. 23 baseline", report)
+        self.assertIn("TradingView Energy and Currency Desk Sidecars.md", report)
+        self.assertIn("Oil Cost Basis Savings Model.md", report)
+        self.assertIn("ATS and Manual Live Position Reconciliation.md", report)
+        self.assertIn("actionable_ticker_reconciliation_20261026_v1.csv", report)
         for relpath in (
-            "Charts/superstructure/the-one-model.png",
+            "Charts/performance/01-cumulative-pnl-by-session.png",
+            "Charts/performance/14-energy-eod-mark-history.png",
+            "Charts/performance/19-oil-desk-daily-accumulation.png",
+            "Charts/performance/20-strategy-sidecar-comparison.png",
+            "Charts/performance/23-dxy-daily-sizing-alternatives.png",
             "Charts/superstructure/the-one-model-split-portfolio.png",
+            "Charts/CLN25/Weekend Oil/24-weekend-oil-50u-positions.png",
         ):
             graph = root / relpath
-            self.assertTrue(graph.is_file())
+            self.assertTrue(graph.is_file(), relpath)
             self.assertEqual(graph.read_bytes()[:8], b"\x89PNG\r\n\x1a\n")
-        self.assertIn("`91` direct-price events plus `1` DXY direction signals out of `126` total 2026 log events", text)
-        self.assertIn("`25` direct events after cutoff", text)
-        self.assertIn("2026-10-26 06:30 MST GEV LONG 1U at $823.81", text)
-        self.assertIn("close 1U META SHORT at $637.20", text)
-        self.assertIn("existing 2U META LONG plus this new 1U LONG leaves 3U LONG", text)
-        self.assertIn("compounded V3A began with a modeled 5U SHORT", text)
-        self.assertIn("the separately disclosed user-directed V3A close subsequently closes that remainder", text)
-        self.assertIn("User-directed post-cutoff short closures", text)
-        self.assertIn("6U INTC instruction closes V3A's full 6U exposure", text)
-        self.assertIn("4U META instruction applies only to V3A", text)
-        self.assertIn("The separate user-reported META position remains 3U LONG", text)
-        self.assertIn("User-directed post-cutoff core-model long addition", text)
-        self.assertIn("6U INTC lot is applied independently to each of the four core variants", text)
-        self.assertIn("User-directed post-cutoff core-model short opens", text)
-        self.assertIn("DIS 1U SHORT at $110.27", text)
-        self.assertIn("Quantities were not supplied", text)
-        self.assertIn("UPS 1U SHORT at $100.08", text)
-        self.assertIn("SPCX 1U SHORT at $148.46", text)
-        self.assertIn("CAT 2U close clears V1's 1U and V3A's 2U", text)
-        self.assertIn("PLTR's 3U close clears all 3U in V1/V3A", text)
-        self.assertIn("2026-10-25 BRENT LONG 10U at $115.792", text)
-        self.assertIn("2026-10-25 USOIL (internal ticker OIL) LONG 10U at $101.74", text)
-        self.assertIn("2026-10-25 BRENT LONG 10U at $114.8", text)
-        self.assertIn("2026-10-25 USOIL (internal ticker OIL) LONG 10U at $101", text)
-        self.assertIn("excluded from current core PnL and composites pending a later benchmark refresh", text)
-        self.assertIn("Oil Cost Basis Savings Model.md", text)
-        self.assertIn("basis reclassifications, not additional profit", text)
-        self.assertIn("100U per ticker, 200U total", text)
-        self.assertIn("`31` direct-price core tickers plus the integrated 1U/DAY/DXY sleeve", text)
-        self.assertIn("EURUSD, JPYUSD, US10Y, and US30Y", text)
-        self.assertIn("Legacy Model-Level US10Y Additive Carry (Reference Only)", text)
-        self.assertIn("remain sensitivities rather than additional core PnL", text)
-        self.assertIn("tradingview_benchmark_session_marks_20261024.csv", text)
-        self.assertIn("BTC and ETH remain excluded pending recalibration", text)
-        self.assertIn("five missing source sessions", text)
-        self.assertIn("No Yahoo or historical-series fill is used", text)
-        self.assertIn("1U/DAY/DXY index-return sleeve is included in every core variant", text)
-        self.assertIn("Crypto Sidecar — Pending TradingView Recalibration", text)
-        self.assertIn("TradingView Energy and Currency Desk Sidecars.md", text)
-        self.assertIn("shared/variant-specific 1U/EOD force models", text)
-        self.assertIn("Model Calculation Guide.md", text)
-        self.assertIn("91` direct-price events plus `1` DXY direction signals", text)
-        self.assertIn("master ledger are not recalculated by this run", text)
-        self.assertIn("TradingView Energy Sidecar", text)
-        self.assertIn("tradingview_energy_sidecar_daily_20261024.csv", text)
-        self.assertIn("0.05U, 1U, and 10U", text)
-        self.assertIn("10U TradingView energy schedule", text)
-        self.assertIn("14-energy-eod-mark-history.png", text)
-        self.assertNotIn("14-energy-live-mark-overlay.png", text)
-        self.assertNotIn("Separate Approximate Quotes", text)
-        self.assertNotIn("$115.72", text)
         explorer = (root / "Model Performance Explorer.html").read_text(encoding="utf-8")
-        self.assertIn("TradingView-only interim core", explorer)
-        self.assertIn("tradingview_benchmark_coverage_20261024.csv", explorer)
-        self.assertIn("14-energy-eod-mark-history.png", explorer)
-        chart = root / "Charts/performance/14-energy-eod-mark-history.png"
-        self.assertTrue(chart.is_file())
-        self.assertEqual(chart.read_bytes()[:8], b"\x89PNG\r\n\x1a\n")
-        self.assertFalse((root / "Charts/performance/14-energy-live-mark-overlay.png").exists())
-        for chart in sorted((root / "Charts/performance").glob("*.png")):
-            chart_path = chart.relative_to(root).as_posix()
-            if chart.name == "19-oil-desk-daily-accumulation.png":
-                continue  # retained legacy chart; current energy schedules use the TV sidecar CSV
-            self.assertIn(chart_path, text, f"comparison report is missing {chart_path}")
-        self.assertIn("Charts/CLN25/Weekend%20Oil/24-weekend-oil-50u-positions.png", text)
-        self.assertIn("all **16 Core × variant-specific 1U/EOD pairings**", text)
-        self.assertIn("all **32 series**", text)
-        self.assertIn("deployed-notional ratio, **not an account return**", text)
-        self.assertIn("fixed-$500/EOD model and 1U/EOD alternatives are separate", text)
-        self.assertIn("chart-posting prices recorded in the trade log", text)
-        self.assertIn("`$115.11`", text)
-        self.assertNotIn("1-Minute Close-Up", text)
-        self.assertNotIn("13-minute-intc-hazard-flip.png", text)
-        self.assertFalse((root / "Charts/performance/13-minute-intc-hazard-flip.png").exists())
-        self.assertTrue((root / "data/model_performance_minute_intc.csv").is_file())
-        self.assertNotIn("minute-closeup", explorer)
-        self.assertNotIn("13-minute-intc-hazard-flip.png", explorer)
-        self.assertNotIn("$125.59", explorer)
-        self.assertNotIn("$115.72", explorer)
-        self.assertNotIn("100.94", explorer)
+        self.assertIn("TradingView-only core — 2026-10-26", explorer)
+        self.assertIn("Oct 26, 2026 close", explorer)
+        self.assertIn("$115.38", explorer)
+        self.assertIn("$101.30", explorer)
+        self.assertIn("hourly intraday charts through Oct 22", explorer)
 
 
 if __name__ == "__main__":

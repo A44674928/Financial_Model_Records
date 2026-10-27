@@ -18,7 +18,7 @@ from model_perf_core import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT_CSV = ROOT / "data" / "core_portfolio_asset_breakdown_20261023.csv"
+OUTPUT_CSV = ROOT / "data" / "core_portfolio_asset_breakdown_20261026.csv"
 REPORT = ROOT / "Core Portfolio Asset Breakdown.md"
 UNIT_NOTIONAL = Decimal("10000")
 CENT = Decimal("0.01")
@@ -191,7 +191,7 @@ def write_report(rows, summaries):
         "",
         f"## Portfolio-level exposure through {cutoff_date}",
         "",
-        "The core contains **31 direct-price TradingView tickers** plus the integrated **1U/DAY/DXY index-return sleeve** (35 active daily lots, $350,000 gross notional). DXY is shown as a separate index proxy, not as a directly traded security. BTC and ETH are excluded pending TradingView recalibration.",
+        f"The core contains **31 direct-price TradingView tickers** plus the integrated **1U/DAY/DXY index-return sleeve** ({int(summaries['V1']['dxy_gross'] / UNIT_NOTIONAL)} active daily lots, {_fmt_money(summaries['V1']['dxy_gross'])} gross notional). DXY is shown as a separate index proxy, not as a directly traded security or a second allocation. BTC and ETH are excluded pending TradingView recalibration.",
         "",
         "| Core variant | Direct long gross | Direct short gross | Direct gross (not netted) | Integrated DXY | Total core gross open | Open lots incl. DXY | Terminal PnL at cutoff |",
         "|---|---:|---:|---:|---:|---:|---:|---:|",
@@ -213,7 +213,7 @@ def write_report(rows, summaries):
         f"{_fmt_money(summaries['V1']['oil_gross'])} gross open notional is "
         f"{min(direct_oil_shares):.1f}%–{max(direct_oil_shares):.1f}% of direct-price gross exposure "
         f"(depending on variant), or {min(core_oil_shares):.1f}%–{max(core_oil_shares):.1f}% of total core gross including DXY. "
-        "Each ticker also has a separate modeled 10U SHORT opened at its Oct. 23 target level ($117 BRENT; $102 OIL), in addition to the remaining and trimmed long lots; gross exposure shown here is not netted. The four later 10U LONG replenishments (two per ticker) add $200,000 per ticker, $400,000 combined, after the cutoff and remain excluded pending later EOD marks. The $115.792 BRENT/$101.74 OIL entries use the user-recalled 17:20–17:25 MST window, represented by a 17:22 MST midpoint; the $114.80 BRENT/$101.00 OIL entries use an approximate 20:00 MST timestamp. The two tagged shorts are explicitly modeled to exit at $114.627 BRENT and $100.74 OIL on Oct. 25 at 20:35 MST, after the four earlier LONG replenishments and simultaneously with separate 35U BRENT and 34U OIL LONG Weekend Oil buys. The new buy lots are distinct and count toward buy-side weekly supply, while the short closures do not. After the modeled short closures, the existing 65U BRENT + 66U OIL all-core long exposure plus these 35U/34U buys totals 100U per ticker, 200U combined ($2,000,000 fixed-unit notional); all such post-cutoff activity is excluded from this Oct. 23 snapshot. These hypothetical price/time assumptions override SAR only for those tagged shorts.",
+        f"Gross exposure is not netted. The Oct. 25 manual replenishments, short closures, and closure-first 35U BRENT / 34U OIL approved orders, plus the Oct. 26 logged additions and lot-specific paired cash-outs, are included in this replay and marked at the supplied {cutoff_date} closes. The short closures reduce short exposure; only the unallocated excess of the approved orders remains long and counts as new buy supply. Entry/exit prices, times, and quantities remain hypothetical or user-reported as documented in the ledger, not independently verified brokerage executions. BRENT and OIL current marks are user-supplied TradingView EOD values; intraday screenshots are not used as EOD marks.",
         "",
         "| Asset | V1 gross open | V2 gross open | V3A gross open | V3B gross open |",
         "|---|---:|---:|---:|---:|",

@@ -1,6 +1,6 @@
 # TradingView Energy and Currency Desk Sidecars
 
-> **TradingView sidecar schedules — 2026-10-24 benchmark.** Prices use only the user-provided Part A/Part B TradingView lists. 1U = $10,000 notional; displayed standard daily allocations are 0.05U ($500), 1U ($10,000), and 10U ($100,000). The 1U/DAY/DXY schedule is integrated into every core variant. THE ONE MODEL adds 10U/DAY DXY to all 32 portfolios (11U/DAY combined), and uses a derived 11U/DAY energy tranche per active BRENT and OIL ticker in its 16 energy-inclusive portfolios. 0.05U DXY remains an alternative. These are hypothetical dollar-notional/index-return exposures, not broker fills or account returns.
+> **TradingView sidecar schedules through 2026-10-26.** Historical prices use the user-provided Part A/Part B TradingView lists; the Oct. 26 direct-price update and DXY close are user-supplied. 1U = $10,000 notional; displayed standard daily allocations are 0.05U ($500), 1U ($10,000), and 10U ($100,000). The 1U/DAY/DXY schedule is integrated into every core variant. THE ONE MODEL adds 10U/DAY DXY to all 32 portfolios (11U/DAY combined), and uses a derived 11U/DAY energy tranche per active BRENT and OIL ticker in its 16 energy-inclusive portfolios. 0.05U DXY remains an alternative. These are hypothetical dollar-notional/index-return exposures, not an actual DXY security trade, broker fills, or account returns.
 
 ## Energy desk: separate Brent and WTI daily-buy schedules
 
@@ -10,16 +10,16 @@ For THE ONE MODEL only, the 11U/DAY schedule per active ticker is derived from t
 
 | Daily size | Ticker | Daily notional | Sessions | Cumulative notional added | Daily-buy terminal PnL | Chart-position PnL (separate) |
 |---|---|---:|---:|---:|---:|---:|
-| 0.05U | BRENT | $500.00 | 23 | $11,500.00 | $+1,127.31 | $+26,032.81 |
-| 0.05U | OIL | $500.00 | 32 | $16,000.00 | $+1,376.74 | $+23,003.98 |
-| 1U | BRENT | $10,000.00 | 23 | $230,000.00 | $+22,546.12 | $+26,032.81 |
-| 1U | OIL | $10,000.00 | 32 | $320,000.00 | $+27,534.71 | $+23,003.98 |
-| 10U | BRENT | $100,000.00 | 23 | $2,300,000.00 | $+225,461.20 | $+26,032.81 |
-| 10U | OIL | $100,000.00 | 32 | $3,200,000.00 | $+275,347.06 | $+23,003.98 |
+| 0.05U | BRENT | $500.00 | 24 | $12,000.00 | $+915.86 | $+20,799.95 |
+| 0.05U | OIL | $500.00 | 33 | $16,500.00 | $+1,015.59 | $+16,112.31 |
+| 1U | BRENT | $10,000.00 | 24 | $240,000.00 | $+18,317.11 | $+20,799.95 |
+| 1U | OIL | $10,000.00 | 33 | $330,000.00 | $+20,311.90 | $+16,112.31 |
+| 10U | BRENT | $100,000.00 | 24 | $2,400,000.00 | $+183,171.11 | $+20,799.95 |
+| 10U | OIL | $100,000.00 | 33 | $3,300,000.00 | $+203,118.97 | $+16,112.31 |
 
 ## One-time Weekend Oil position overlay
 
-The user-specified 50U LONG BRENT and 50U LONG USOIL Manual-Automatic lots opened at the supplied TradingView marks on 2026-10-19, with 10U target trims at $117 and $102 respectively, are integrated in all four core variants and therefore flow into core-based strategy composites and THE ONE MODEL. Their first recorded EOD marks at/above target are on 2026-10-23; intraday touch and execution are unverified. Separate user-directed hypothetical 10U SHORT lots at those same target levels are recorded as a force-multiplier sentiment overlay. Their explicit modeled exits are $114.627 BRENT and $100.74 OIL on 2026-10-25 at 20:35 MST, after the four earlier Oct. 25 LONG replenishments and simultaneous with distinct 35U BRENT and 34U OIL LONG Weekend Oil buys. The buys count toward weekly buy supply; the 10U short closures do not. After the modeled exits, the all-core oil long exposure reaches 100U BRENT + 100U OIL = 200U combined ($2,000,000 fixed-unit notional). Those lot-specific exits override SAR auto-close only for these shorts and all prices/timing remain hypothetical, not verified executions. [`Weekend Oil 50U Position Hypothetical.md`](Weekend%20Oil%2050U%20Position%20Hypothetical.md) attributes only the tagged long lots, not these separate shorts or the daily-buy schedule. Four separate manual LONG 10U replenishment entries are logged after the Oct. 23 mark cutoff, all on Oct. 25: BRENT at $115.792 and OIL at $101.74 use the user-recalled 17:20–17:25 MST window, modeled at a 17:22 midpoint, while BRENT at $114.80 and OIL at $101.00 use an approximate 20:00 MST timestamp per the user's recollection. Both times are modeling assumptions, not verified transaction times; the supplied prices remain the modeled replenishment prices. The four replenishments, 35U BRENT and 34U OIL additional buys, and explicit Oct. 25 20:35 MST SHORT exits are post-cutoff and excluded from current totals pending later EOD marks. The additional buys are distinct LONG lots; their simultaneous short closures do not count toward weekly buy supply. Together with existing post-close all-core exposure of 65U BRENT + 66U OIL, the buys bring the all-core long total to 100U per ticker, 200U combined. The user-specified short-exit prices override SAR only for these two tagged shorts.
+The user-specified 50U LONG BRENT and 50U LONG USOIL Manual-Automatic lots opened at the supplied TradingView marks on 2026-10-19, with 10U target trims at $117 and $102 respectively, are integrated in all four core variants and therefore flow into core-based strategy composites and THE ONE MODEL. Their first recorded EOD marks at/above target are on 2026-10-23; intraday touch and execution are unverified. Separate user-directed hypothetical 10U SHORT lots at those same target levels are recorded as a force-multiplier sentiment overlay. Their explicit modeled exits are $114.627 BRENT and $100.74 OIL on 2026-10-25 at 20:35 MST, after the four earlier Oct. 25 LONG replenishments and simultaneous with distinct 35U BRENT and 34U OIL LONG Weekend Oil buys. The buys count toward weekly buy supply; the 10U short closures do not. After the modeled exits, the all-core oil long exposure reaches 100U BRENT + 100U OIL = 200U combined ($2,000,000 fixed-unit notional). Those lot-specific exits override SAR auto-close only for these shorts and all prices/timing remain hypothetical, not verified executions. [`Weekend Oil 50U Position Hypothetical.md`](Weekend%20Oil%2050U%20Position%20Hypothetical.md) attributes only the tagged long lots, not these separate shorts or the daily-buy schedule. Four separate manual LONG 10U replenishment entries are logged after the preserved Oct. 23 baseline and before the current Oct. 26 EOD mark, all on Oct. 25: BRENT at $115.792 and OIL at $101.74 use the user-recalled 17:20–17:25 MST window, modeled at a 17:22 midpoint, while BRENT at $114.80 and OIL at $101.00 use an approximate 20:00 MST timestamp per the user's recollection. Both times are modeling assumptions, not verified transaction times; the supplied prices remain the modeled replenishment prices. All current BRENT/OIL long lots are marked at the user-supplied Oct. 26 EOD closes ($115.38/$101.30), without claiming verified brokerage positions or execution. The four replenishments, 35U BRENT and 34U OIL approved orders, and explicit Oct. 25 20:35 MST SHORT exits were entered after the preserved Oct. 23 baseline; they are included in the current Oct. 26 replay at supplied marks. The additional buys are distinct LONG lots; their simultaneous short closures do not count toward weekly buy supply. Together with existing post-close all-core exposure of 65U BRENT + 66U OIL, the buys bring the all-core long total to 100U per ticker, 200U combined. The user-specified short-exit prices override SAR only for these two tagged shorts.
 
 ## ATS / manual live-position reconciliation
 
@@ -31,31 +31,32 @@ The DXY log has one LONG badge on Sep. 4 at 99.087 (the original post's caption 
 
 | Daily size | Daily notional | Sessions | Cumulative notional added | Daily-investment terminal PnL | Logged 1U chart-position PnL (separate) |
 |---|---:|---:|---:|---:|---:|
-| 0.05U | $500.00 | 35 | $17,500.00 | $+124.62 | $+268.85 |
-| 1U | $10,000.00 | 35 | $350,000.00 | $+2,492.30 | $+268.85 |
-| 10U | $100,000.00 | 35 | $3,500,000.00 | $+24,923.03 | $+268.85 |
+| 0.05U | $500.00 | 36 | $18,000.00 | $+170.69 | $+295.70 |
+| 1U | $10,000.00 | 36 | $360,000.00 | $+3,413.80 | $+295.70 |
+| 10U | $100,000.00 | 36 | $3,600,000.00 | $+34,137.97 | $+295.70 |
 
 ## One-time 40% DXY withdrawal sizing reference
 
-This reference calculation sizes the user-requested one-time 40% withdrawal from the selected combined DXY allocation: the integrated 1U/DAY core sleeve plus THE ONE MODEL's 10U/DAY add-on. Per THE ONE portfolio, 35 active sessions created 385U of cumulative DXY allocation; 40% is 154U, or $1,540,000 in initial-notional basis, which would leave 231U/$2,310,000 basis if executed at that size. At the last available supplied close (2026-10-23), the 40% portion had an estimated mark value of $1,550,966.13. This Oct. 23 amount is a reference only—the user requested a withdrawal valued at the next EOD close, which remains pending. Future daily sizing stays at 11U/DAY. The one-time chart-position 1U and unselected 0.05U alternative are excluded. This proxy adjustment is hypothetical, not an actual DXY security trade. The baseline historical results through Oct. 23 remain unchanged; THE ONE's 32 portfolios are alternative modeled books, not one account position.
+This scenario values the user-requested one-time 40% withdrawal from the selected combined DXY allocation: the integrated 1U/DAY core sleeve plus THE ONE MODEL's 10U/DAY add-on. The request predates the Oct. 26 mark, so its 35 active sessions (385U; 154U planned for withdrawal, $1,540,000 initial-notional basis) are valued at the supplied 2026-10-26 DXY close of 102.017; Oct. 26 daily additions are excluded from the withdrawal base. The modeled withdrawal value is $1,555,020.71, leaving 231.0000U / $2,310,000.00 basis before later daily additions. This is a valuation scenario only; no withdrawal, cash transfer, or brokerage execution is reported as completed. Future daily sizing stays at 11U/DAY. The one-time chart-position 1U and unselected 0.05U alternative are excluded. The baseline historical results through Oct. 23 remain unchanged; THE ONE's 32 portfolios are alternative modeled books, not one account position.
 
-| Component | Units before | Notional basis before | Marked value before | Units planned to withdraw | Notional basis planned for withdrawal | Estimated value at Oct. 23 mark | 40% PnL share at Oct. 23 mark | Units remaining | Remaining marked value | Remaining PnL |
+| Component | Units before | Notional basis before | Marked value at 2026-10-26 | Units planned to withdraw | Notional basis planned for withdrawal | Estimated value at 2026-10-26 mark | 40% PnL share at 2026-10-26 mark | Units remaining | Remaining marked value | Remaining PnL |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Integrated core sleeve | 35U | $350,000.00 | $352,492.30 | 14U | $140,000.00 | $140,996.92 | $+996.92 | 21U | $211,495.38 | $+1,495.38 |
-| THE ONE add-on | 350U | $3,500,000.00 | $3,524,923.03 | 140U | $1,400,000.00 | $1,409,969.21 | $+9,969.21 | 210U | $2,114,953.82 | $+14,953.82 |
-| Combined DXY allocation | 385U | $3,850,000.00 | $3,877,415.33 | 154U | $1,540,000.00 | $1,550,966.13 | $+10,966.13 | 231U | $2,326,449.20 | $+16,449.20 |
+| Integrated core sleeve | 35U | $350,000.00 | $353,413.80 | 14U | $140,000.00 | $141,365.52 | $+1,365.52 | 21U | $212,048.28 | $+2,048.28 |
+| THE ONE add-on | 350U | $3,500,000.00 | $3,534,137.97 | 140U | $1,400,000.00 | $1,413,655.19 | $+13,655.19 | 210U | $2,120,482.78 | $+20,482.78 |
+| Combined DXY allocation | 385U | $3,850,000.00 | $3,887,551.77 | 154U | $1,540,000.00 | $1,555,020.71 | $+15,020.71 | 231U | $2,332,531.06 | $+22,531.06 |
 
-Reference export: [`dxy_withdrawal_scenario_v1.csv`](data/dxy_withdrawal_scenario_v1.csv). The Oct. 23 figures are not the pending EOD withdrawal proceeds and are not a verified fill or cash amount.
+Reference export: [`dxy_withdrawal_scenario_v1.csv`](data/dxy_withdrawal_scenario_v1.csv). The 2026-10-26 amount is a modeled valuation—not a verified fill, withdrawal, or cash balance.
 
-## Pending DXY → cash → oil bridge
+## DXY → cash → oil bridge (modeled valuation; not reported executed)
 
-The withdrawal is recorded as pending until a later user-supplied DXY EOD close is available. At that close, the model will value and withdraw 40% of the pre-existing 385U reference position (154U), excluding future daily additions, and route proceeds through a cash line item, then allocate up to $690,000 to the already logged 35U BRENT and 34U OIL Weekend Oil buys. Any proceeds above the oil allocation will be shown as a separate cash-support line item for existing positions; it creates no new units and does not increase portfolio size. If proceeds are below $690,000, only available proceeds are allocated and the shortfall is disclosed, with no additional portfolio funding assumed. Future DXY daily additions remain at 11U/DAY.
+The supplied 2026-10-26 DXY close now allows the requested 40% withdrawal scenario to be valued. It uses only the pre-request 385U combined allocation (154U withdrawal; the Oct. 26 daily addition is excluded), then models routing proceeds through cash to fund up to $690,000 of the logged 35U BRENT and 34U OIL buys. Excess is a separate cash-support scenario for existing positions; any shortfall is disclosed without assuming new funding. No actual withdrawal, transfer, or brokerage execution was reported. Future DXY daily additions remain at 11U/DAY.
 
-| Bridge item | Pending treatment | Oct. 23 reference only |
+| Bridge item | Modeled treatment at 2026-10-26 | Scenario value |
 |---|---:|---:|
-| DXY withdrawal value | Pending next EOD close | $1,550,966.13 |
+| DXY withdrawal value | 40% of pre-request 385U; 154U | $1,555,020.71 |
 | Oil purchases funded from withdrawal cash | Up to $690,000.00 | $690,000.00 |
-| Excess cash support for existing positions | Pending next EOD close; cash only, no new units | $860,966.13 |
+| Excess cash support for existing positions | Cash only; no new units | $865,020.71 |
+| Oil-buy funding shortfall | No extra funding assumed | $0.00 |
 | New portfolio size from this internal transfer | $0.00 | $0.00 |
 
 Bridge ledger: [`dxy_cash_oil_bridge_v1.csv`](data/dxy_cash_oil_bridge_v1.csv). The reference column is not an actual withdrawal or cash balance.
@@ -68,4 +69,4 @@ The 0.05U, 1U, and 10U rows show sizing scenarios. The 1U/DAY/DXY PnL and notion
 
 The crypto positions have been removed from the core comparison pending source calibration. See [`Crypto Sidecar — Pending TradingView Recalibration.md`](Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md); no BTC/ETH marks or PnL are used here.
 
-Machine-readable daily schedules: [`tradingview_energy_sidecar_daily_20261024.csv`](data/tradingview_energy_sidecar_daily_20261024.csv), [`dxy_currency_desk_sidecar_daily_20261024.csv`](data/dxy_currency_desk_sidecar_daily_20261024.csv). Price source/mark flags: [`tradingview_benchmark_session_marks_20261024.csv`](data/tradingview_benchmark_session_marks_20261024.csv).
+Machine-readable daily schedules: [`tradingview_energy_sidecar_daily_20261026.csv`](data/tradingview_energy_sidecar_daily_20261026.csv), [`dxy_currency_desk_sidecar_daily_20261026.csv`](data/dxy_currency_desk_sidecar_daily_20261026.csv). Price source/mark flags: [`tradingview_benchmark_session_marks_20261026.csv`](data/tradingview_benchmark_session_marks_20261026.csv).

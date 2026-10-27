@@ -13,7 +13,7 @@ from html import escape
 from pathlib import Path
 
 from daily_closes import OCT23_EOD_SOURCES
-from model_perf_core import PRICES, UNIT, build_lots, parse_trades
+from model_perf_core import PRICES, SESSION_DATES, UNIT, build_lots, parse_trades
 
 ROOT = Path(__file__).resolve().parents[1]
 EOD_MARK_DATE = "2026-10-23"
@@ -39,13 +39,16 @@ def _money(value):
 
 def overlay_rows():
     """Calculate marked open PnL for the two energy books at both mark sets."""
-    events = parse_trades()
+    # Preserve this separately labeled legacy comparison at its declared Oct. 23
+    # historical cutoff; do not let the current core calendar extend it silently.
+    events = [event for event in parse_trades() if event["date"] <= EOD_MARK_DATE]
     lots, realized = build_lots("V1", events)
     out = []
     for sym in ("BRENT", "OIL"):
         open_lots = [lot for lot in lots if lot["sym"] == sym and lot["open"]]
         realized_pnl = sum((r["pnl"] for r in realized if r["sym"] == sym), 0.0)
-        eod_mark = Decimal(str(PRICES[sym][-1]))
+        eod_index = SESSION_DATES.index(EOD_MARK_DATE)
+        eod_mark = Decimal(str(PRICES[sym][eod_index]))
         live_mark = LIVE_MARKS[sym]
 
         def mark_unrealized(mark):
