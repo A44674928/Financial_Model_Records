@@ -29,6 +29,20 @@ The current pool-allocation report carries these user-reported entry bases into 
 | BRENT LONG | Sep. 23 | $102.315 | $115.38 on 2026-10-26 | Below $200; remains locked |
 | OIL/USOIL LONG | Sep. 22 | $89.89 | $101.30 on 2026-10-26 | Below $200; remains locked |
 
+### Restored supplemental full-size order and combined foundation
+
+The restored order is a full **additional $20B hypothetical order**, split evenly at **$10B per ticker**: BRENT @ $115.00 and OIL/USOIL @ $101.00. Per the user's latest direction, the existing 50U BRENT / 50U OIL source lots ($500,000 each; $1,000,000 total) are reallocated from that supplemental foundation allocation to **THE WINNING MODEL**. This leaves $9,999,500,000 per ticker in the new oil-foundation tranche and increases the scenario allocation assigned to THE WINNING MODEL from $497,100,395.26 to $498,100,395.26. The transfer does not alter the Winner's historical model PnL or selection result.
+
+The restored $20B remains additive to the original $19,012,754,104.74 residual-pool foundation and is separately fully funded in this hypothetical; total scenario capitalization remains **$40B**. The combined locked-oil foundation is now **$39,011,754,104.74**. The full-order date/time was not supplied. Oct. 26 marks below support only conditional price-equivalent illustrations if the positions were open at that mark; no new order or execution is represented.
+
+| Ticker | Earlier allocation / basis | Oil-foundation remainder / basis | 50U moved to Winner | Combined oil funding | Combined quantity equivalent | Blended basis | Oct. 26 EOD mark | Conditional oil-foundation price change |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| BRENT | $9,506,377,052.37 @ $102.315 | $9,999,500,000.00 @ $115.00 | $500,000.00 | $19,505,877,052.37 | 179,865,012.22971259 | $108.44731174 | $115.38 | $1,246,948,058.69 |
+| OIL/USOIL | $9,506,377,052.37 @ $89.89 | $9,999,500,000.00 @ $101.00 | $500,000.00 | $19,505,877,052.37 | 204,760,619.11636445 | $95.26185815 | $101.30 | $1,236,373,664.12 |
+| **Combined** | — | — | **$1,000,000.00** | **$39,011,754,104.74** | — | — | — | **$2,483,321,722.81** |
+
+All quantity figures are price-divided model equivalents, **not contracts, barrels, or verified holdings**. The existing 50U ATS source rows retain their ATS provenance; the Winner designation is a single funding-allocation reclassification, not a duplicate position or verified fill. Their conditional Oct. 26 mark change totals $3,137.32. The detailed lot ledger is in [`data/units_experiment_oil_foundation_lots_20261027.csv`](../data/units_experiment_oil_foundation_lots_20261027.csv).
+
 The year was not included in the user's text; the pool model aligns both dates to **2026** to match the surrounding September 2026 records. These are user-reported model inputs, not independently verified brokerage fills. The Sep. 22 USOIL chart note about a trade being active/target hit is not treated as an entry, exit, or verified fill. Source screenshots are retained in [`Archive/200_OIL_LONG_foundation/`](../Archive/200_OIL_LONG_foundation/README.md): the BRENT LONG post, the Sep. 22 activity note, and the USOIL chart post.
 
 The $200 label is treated here as the **price lock threshold**, not as the amount invested. The $20B pool remains a user-estimated hypothetical scenario, not verified capital, profit, account equity, or executable capacity. The detailed allocation report contains the pool bridge, hypothetical quantity-equivalent arithmetic, and its explicit limits: [Units Experiment Pool Allocation](../Units%20Experiment%20Pool%20Allocation.md).

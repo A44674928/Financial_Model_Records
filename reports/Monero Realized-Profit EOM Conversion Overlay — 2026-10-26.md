@@ -17,7 +17,7 @@ The source strategy/model PnL series remain **gross of this overlay**. The conve
 The first implementation follows the independent books explicitly listed in the current $20B pool bridge:
 
 - Each of the **32 TOM member books**, with its own core and variant-specific 1U/EOD realized trade events. Their monthly totals are added once as the 32-book portfolio set; the TOM aggregate is not added a second time.
-- The separately funded, equal-gross scaled WINNING MODEL as one additional book (the selected winner is ex post from the same period; this is still subject to same-period selection bias).
+- The separately funded, equal-gross scaled WINNING MODEL as one additional book (the selected winner is ex post from the same period; this is still subject to same-period selection bias). The supplemental oil scenario reclassifies the existing 50U BRENT / 50U OIL source lots to this Winner allocation; because no realized close for those lots appears in this window, the transfer adds no historical realized PnL, and their unrealized mark change is excluded.
 - The separate fixed-$500/EOD and shared-direction 1U/EOD force alternatives.
 - Generic energy, 0.05U/DAY DXY, and one-time chart-opened DXY books. They contribute zero realized PnL in this supplied window because no realized close is present for those positions; their unrealized mark PnL is excluded.
 
