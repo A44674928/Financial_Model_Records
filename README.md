@@ -24,6 +24,7 @@ This repository contains the Fall (Arizona) 2026 paper-trading ledger, model ana
 - [Crypto Sidecar — Pending TradingView Recalibration](Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md) — BTC/ETH excluded until source calibration.
 - [Small Caps pilot](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md) — LCID Buyout & Reorganization Offering test basket.
 - [Strategy and Sidecar Comparison](Strategy%20and%20Sidecar%20Comparison.md) — standard variants, $500 and shared/variant-specific 1U/EOD models, 10U TradingView energy sidecar, and composites.
+- [Oil Chart Set — 2026-10-28](reports/Oil%20Chart%20Set%20%E2%80%94%202026-10-28.md) — four archived TradingView daily charts, grouped into a USOIL recent view and BRENT recent, close, and broader-2026 views; screenshots are not treated as fills or EOD marks.
 - [Chart Archive Review](Chart%20Archive%20Review.md), [Triangle Signals](Triangle%20Signals.md), and [Unrealized PnL](Unrealized%20PnL.md) — source reconciliation and focused trade views.
 
 ## Repository layout
