@@ -1,0 +1,8 @@
+# Standalone user-directed position record; position/order date and time were not supplied.
+# Direction: LONG. CSV quantity: 15,546,506. User-corrected modeled entry price: $2,999.99.
+# CSV quantity is authoritative; this supersedes the earlier $20B notional sizing for the same position.
+# Recomputed all-cash entry gross notional: $46,639,362,534.94. CSV 50x leverage and $954,742,026.47 margin fields are bookkeeping only; no leverage, borrowing, or financing is modeled.
+# CSV last-price snapshot: $3,070.60; conditional price-only change at corrected entry: +$1,097,738,788.66. Not verified account PnL or EOD.
+# Export filename timestamp 2026-10-28T17:41:25.410Z is source provenance, not an entry/order time.
+# Contract multiplier/quantity convention unspecified. No ALIUSD EOD series or position trade date is supplied, so this entry is excluded from the historical core replay.
+# See reports/ALIUSD User-Directed LONG Position.md and data/aliusd_user_directed_position_v1.csv.

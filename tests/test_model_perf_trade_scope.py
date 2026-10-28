@@ -16,7 +16,7 @@ class ModelTradeScopeTests(unittest.TestCase):
     def test_model_parser_excludes_unpriced_index_fx_and_yield_books(self):
         events = parse_trades()
         modeled = {event["sym"] for event in events}
-        self.assertEqual(UNMODELED_SYMBOLS, {"BTC", "ETH", "DXY", "EURUSD", "JPYUSD", "US10Y", "US30Y"})
+        self.assertEqual(UNMODELED_SYMBOLS, {"BTC", "ETH", "ALIUSD", "DXY", "EURUSD", "JPYUSD", "US10Y", "US30Y"})
         self.assertTrue(modeled.isdisjoint(UNMODELED_SYMBOLS))
         self.assertTrue(modeled.issubset(PRICES))
         self.assertEqual(len(events), 116)
