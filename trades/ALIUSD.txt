@@ -1,0 +1,5 @@
+# Standalone user-directed position record; position/order date and time were not supplied.
+# Direction: LONG. Notional: $20,000,000,000.00. User-specified entry price: $3,000.00.
+# Attached TradingView 1D chart is Aluminum (ALIUSD), Capital.com; chart-creation timestamp 2026-10-28 10:20 UTC-7 is source context only, not an entry/order time.
+# Displayed $3,066.10 is screenshot context only, not an EOD valuation or PnL mark. Contract multiplier/quantity convention is unspecified.
+# Not included in the dated 31-symbol core replay; no ALIUSD EOD series or trade date is supplied. See reports/ALIUSD User-Directed LONG Position.md and data/aliusd_user_directed_position_v1.csv.

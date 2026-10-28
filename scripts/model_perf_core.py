@@ -36,10 +36,12 @@ VARIANT_LABEL = {
 }
 VARIANT_COLOR = {"V1": "#38bdf8", "V2": "#f472b6", "V3A": "#34d399", "V3B": "#fbbf24"}
 
-# BTC/ETH await TradingView recalibration. DXY is not a direct-price ticker:
-# its logged direction drives a separate 1U/day index-return sleeve that is
-# integrated into each core portfolio. FX and yield records remain outside.
-UNMODELED_SYMBOLS = frozenset({"BTC", "ETH", "DXY", "EURUSD", "JPYUSD", "US10Y", "US30Y"})
+# BTC/ETH await TradingView recalibration. ALIUSD is recorded as a separate
+# user-directed position, but has no active EOD history/position date yet.
+# DXY is not a direct-price ticker: its logged direction drives a separate
+# 1U/day index-return sleeve integrated into each core portfolio. FX/yields
+# remain outside the direct-price core model.
+UNMODELED_SYMBOLS = frozenset({"BTC", "ETH", "ALIUSD", "DXY", "EURUSD", "JPYUSD", "US10Y", "US30Y"})
 
 # --------------------------------------------------------------------------
 # Session calendar and exclusive TradingView benchmark

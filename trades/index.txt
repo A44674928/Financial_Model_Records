@@ -3,6 +3,7 @@
 # 1 unit = $10,000.00 initial notional (fractional shares/contracts Q = $10,000.00 / entry_price; e.g., 2 units = $20,000.00, 2.5 units = $25,000.00, 5 units = $50,000.00).
 # Full exits are compounded with shorts. Same-day multi-post entries represent distinct 1-unit ($10,000.00) trades.
 # Cohort split: trades/*.txt contains *Fall (Arizona) [2026]* entries exclusively; pre-2026 entries are separated into trades/2024/ (trades/2024/PLTR.txt).
+# The standalone ALIUSD user-directed LONG scenario is recorded in trades/ALIUSD.txt and its separate report; its date/time were not supplied, so it is not counted among the dated standardized events or included in the historical core replay.
 
 # Disc1 · The 52 Cards — reviewed stock watchlist
 NVDA | STOCK · Nvidia Corp — Technology
@@ -82,6 +83,7 @@ UPS | STOCK · United Parcel Service, Inc. — Industrials
 LMT | STOCK · Lockheed Martin Corporation — Aerospace & Defense
 XLE | ETF · State Street Energy Select Sector SPDR ETF — Energy
 ORCL | STOCK · Oracle Corporation — Technology
+ALIUSD | CFD · Aluminum / U.S. Dollar (Capital.com); user-directed LONG scenario, $20B notional @ $3,000; position date/time unspecified
 BRENT | CFD / FUTURES · Crude Oil Brent (Cash / ICE Brent)
 OIL | CFD / FUTURES · WTI Crude Oil (TVC:USOIL; corresponds to WTI in Disc4)
 DXY | INDEX · U.S. Dollar Index (TVC)
