@@ -31,7 +31,7 @@ month,book_id,book_type,realized_pnl_usd,source_window_start_date,source_window_
 2026-09,TOM::core_v3b__1u_v3a__with_oil,tom_constituent,76696.94,2026-09-03,2026-09-30,V3B core + V3A variant-specific 1U/EOD; sidecars excluded until realized
 2026-09,TOM::core_v3b__1u_v3b__no_oil,tom_constituent,94318.60,2026-09-03,2026-09-30,V3B core + V3B variant-specific 1U/EOD; sidecars excluded until realized
 2026-09,TOM::core_v3b__1u_v3b__with_oil,tom_constituent,94318.60,2026-09-03,2026-09-30,V3B core + V3B variant-specific 1U/EOD; sidecars excluded until realized
-2026-09,WINNER_EQUAL_GROSS::core_v3a__1u_v3a__with_oil,separately_funded_scaled_winner,1709082.84,2026-09-03,2026-09-30,Selected TOM member scaled by 27.20111601953034178098116717×; same-window winner selection is ex post
+2026-09,WINNER_EQUAL_GROSS::core_v3a__1u_v3a__with_oil,separately_funded_scaled_winner,1709082.84,2026-09-03,2026-09-30,"Selected TOM member scaled by 27.20111601953034178098116717×; same-window winner selection is ex post. The supplemental scenario also assigns the existing 50U BRENT / 50U OIL source lots to this Winner allocation; they remain open with no realized close in this window, so their unrealized change is excluded and no historical realized PnL or duplicate source-lot entry is added"
 2026-09,FIXED_500_EOD,strategy_alternative,2133.14,2026-09-03,2026-09-30,Standalone fixed-$500/EOD model realized closes
 2026-09,SHARED_FORCE_1U_EOD,strategy_alternative,42662.72,2026-09-03,2026-09-30,Standalone shared-direction 1U/EOD model realized closes
 2026-09,GENERIC_10U_ENERGY_DAILY,energy_sidecar,0.00,2026-09-03,2026-09-30,Daily-buy positions remain unrealized in the supplied window; no realized close source is present.
@@ -69,7 +69,7 @@ month,book_id,book_type,realized_pnl_usd,source_window_start_date,source_window_
 2026-10,TOM::core_v3b__1u_v3a__with_oil,tom_constituent,84500.28,2026-10-01,2026-10-26,V3B core + V3A variant-specific 1U/EOD; sidecars excluded until realized
 2026-10,TOM::core_v3b__1u_v3b__no_oil,tom_constituent,92445.50,2026-10-01,2026-10-26,V3B core + V3B variant-specific 1U/EOD; sidecars excluded until realized
 2026-10,TOM::core_v3b__1u_v3b__with_oil,tom_constituent,92445.50,2026-10-01,2026-10-26,V3B core + V3B variant-specific 1U/EOD; sidecars excluded until realized
-2026-10,WINNER_EQUAL_GROSS::core_v3a__1u_v3a__with_oil,separately_funded_scaled_winner,3022284.18,2026-10-01,2026-10-26,Selected TOM member scaled by 27.20111601953034178098116717×; same-window winner selection is ex post
+2026-10,WINNER_EQUAL_GROSS::core_v3a__1u_v3a__with_oil,separately_funded_scaled_winner,3022284.18,2026-10-01,2026-10-26,"Selected TOM member scaled by 27.20111601953034178098116717×; same-window winner selection is ex post. The supplemental scenario also assigns the existing 50U BRENT / 50U OIL source lots to this Winner allocation; they remain open with no realized close in this window, so their unrealized change is excluded and no historical realized PnL or duplicate source-lot entry is added"
 2026-10,FIXED_500_EOD,strategy_alternative,4732.22,2026-10-01,2026-10-26,Standalone fixed-$500/EOD model realized closes
 2026-10,SHARED_FORCE_1U_EOD,strategy_alternative,94644.50,2026-10-01,2026-10-26,Standalone shared-direction 1U/EOD model realized closes
 2026-10,GENERIC_10U_ENERGY_DAILY,energy_sidecar,0.00,2026-10-01,2026-10-26,Daily-buy positions remain unrealized in the supplied window; no realized close source is present.

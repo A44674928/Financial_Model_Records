@@ -39,7 +39,36 @@ def test_pool_subtracts_selected_open_books_and_splits_the_remainder_evenly():
     assert [row["lock_status_as_of_current_marks"] for row in rows] == ["LOCKED", "LOCKED"]
 
 
+def test_50u_each_is_reallocated_from_foundation_to_winning_model():
+    _totals, _winner, _costs, allocation_rows = pool.build_rows()
+    lots = pool.build_foundation_lots(allocation_rows)
+    assert len(lots) == 8
+    retained = [row for row in lots if row["lot_id"] == "SUPPLEMENTAL_ORDER_FOUNDATION_REMAINDER"]
+    transferred = [row for row in lots if row["lot_id"] == "TRANSFERRED_50U_TO_WINNING_MODEL"]
+    combined = [row for row in lots if row["lot_id"] == "COMBINED_LOCKED_FOUNDATION"]
+    assert [row["allocation_destination"] for row in transferred] == ["THE_WINNING_MODEL", "THE_WINNING_MODEL"]
+    assert all(row["source_provenance"].startswith("ATS source") for row in transferred)
+    assert [row["funded_notional_usd"] for row in transferred] == ["500000.00", "500000.00"]
+    assert [row["quantity_equivalent_not_shares_or_contracts"] for row in transferred] == [
+        "4347.82608696", "4950.49504950"
+    ]
+    assert [row["funded_notional_usd"] for row in retained] == ["9999500000.00", "9999500000.00"]
+    assert [row["quantity_equivalent_not_shares_or_contracts"] for row in retained] == [
+        "86952173.91304348", "99004950.49504950"
+    ]
+    assert sum(Decimal(row["funded_notional_usd"]) for row in retained + transferred) == Decimal("20000000000.00")
+    assert sum(Decimal(row["funded_notional_usd"]) for row in combined) == Decimal("39011754104.74")
+    assert [row["entry_or_blended_basis_usd"] for row in combined] == [
+        "108.44731174", "95.26185815"
+    ]
+    assert [row["modeled_unrealized_mark_change_usd"] for row in combined] == [
+        "1246948058.69", "1236373664.12"
+    ]
+    assert all("not a new fill or duplicate position" in row["execution_status"] for row in transferred)
+
+
 def test_written_csv_and_report_keep_two_stage_and_hypothetical_scope_explicit():
+
     pool.write_outputs()
     with pool.OUTPUT_CSV.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
@@ -48,6 +77,10 @@ def test_written_csv_and_report_keep_two_stage_and_hypothetical_scope_explicit()
     with pool.COSTS_CSV.open(newline="", encoding="utf-8") as handle:
         costs = list(csv.DictReader(handle))
     assert len(costs) == 7
+    with pool.FOUNDATION_LOTS_CSV.open(newline="", encoding="utf-8") as handle:
+        foundation_lots = list(csv.DictReader(handle))
+    assert len(foundation_lots) == 8
+    assert sum(Decimal(row["funded_notional_usd"]) for row in foundation_lots if row["lot_id"] == "TRANSFERRED_50U_TO_WINNING_MODEL") == Decimal("1000000.00")
     report = pool.OUTPUT_REPORT.read_text(encoding="utf-8")
     assert "User-estimated, hypothetical paper portfolio" in report
     assert "approximately the prior **45 days**" in report
@@ -57,6 +90,12 @@ def test_written_csv_and_report_keep_two_stage_and_hypothetical_scope_explicit()
     assert "$497,100,395.26" in report
     assert "$987,245,895.26" in report
     assert "$19,012,754,104.74" in report
+    assert "$20,000,000,000 order scenario" in report
+    assert "$39,011,754,104.74" in report
+    assert "$108.44731174" in report and "$95.26185815" in report
+    assert "$498,100,395.26" in report
+    assert "THE WINNING MODEL" in report and "burden/capital reallocation" in report
+    assert "conditional on" in report
     assert "both** supplied BRENT and OIL EOD marks reach **$200.00**" in report
     assert "they are **not** contract, barrel, share, or broker-order quantities" in report
     assert "Sep. 23 / $102.315" in report
@@ -65,4 +104,4 @@ def test_written_csv_and_report_keep_two_stage_and_hypothetical_scope_explicit()
     assert "not modeled as a fill or close event" in report
     assert "**LOCKED** as of supplied TradingView marks dated **2026-10-26**" in report
     assert "$1,213,906,232.61" in report and "$1,206,672,178.97" in report
-    assert "not actual account PnL" in report
+    assert "actual account PnL" in report

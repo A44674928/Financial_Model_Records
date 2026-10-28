@@ -13,6 +13,7 @@ This repository contains the Fall (Arizona) 2026 paper-trading ledger, model ana
 - [TOM / TWM 1K–10K ROI Design Sheet — 2026-10-26](reports/TOM-TWM%201K-10K%20ROI%20Design%20Sheet%20%E2%80%94%202026-10-26.md) — $1K/$10K projections for V3A core-only, DXY-free, LMT-only, BRENT-only, TWM, and TOM aggregate/per-member designs.
 - [Weightless Randomized Demo Portfolios — 2026-10-26](reports/Weightless%20Randomized%20Demo%20Portfolios%20%E2%80%94%202026-10-26.md) — fixed-seed equal-dollar mixed compositions, daily aggregate paths, and a composition-agnostic accounting demonstration (not a profitability forecast).
 - [$200 Oil Foundation & U-Sized Opportunity Capitalization Strategy — Briefing](reports/%24200%20Oil%20Foundation%20%26%20U-Sized%20Opportunity%20Capitalization%20Strategy%20%E2%80%94%20Briefing.md) — two-part architecture: locked BRENT/OIL keystone plus separate U-sized ROI-income opportunity sleeve.
+- [$20B Paper Portfolio — Units Experiment](Units%20Experiment%20Pool%20Allocation.md) — original pool bridge, restored supplemental $20B BRENT/OIL order, 50U/50U transfer to THE WINNING MODEL, and combined lot sizing.
 - [Monero Realized-Profit EOM Conversion Overlay — 2026-10-26](reports/Monero%20Realized-Profit%20EOM%20Conversion%20Overlay%20%E2%80%94%202026-10-26.md) — 1% of monthly aggregate net realized PnL is reserved for Kraken XMR/USD conversion only when a supplied TradingView EOM mark exists.
 - [Model Performance Explorer](Model%20Performance%20Explorer.html) — interactive view of model results.
 - [Model Calculation Guide](Model%20Calculation%20Guide.md) — plain-language unit sizing, daily position handling, reversal logic, and PnL formulas.
@@ -50,6 +51,7 @@ PYTHONPATH=scripts python3 scripts/build_core_asset_breakdown.py
 PYTHONPATH=scripts python3 scripts/build_strategy_sidecar_comparison.py
 PYTHONPATH=scripts python3 scripts/build_the_one_model_split_portfolios.py
 python3 scripts/build_weightless_randomized_demo_portfolios.py
+python3 scripts/build_units_experiment_pool.py
 python3 scripts/build_monero_eom_conversion_overlay.py
 PYTHONPATH=scripts python3 scripts/build_weekend_oil_50u_positions.py
 PYTHONPATH=scripts python3 scripts/build_oil_cost_basis_savings.py
