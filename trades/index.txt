@@ -83,7 +83,7 @@ UPS | STOCK · United Parcel Service, Inc. — Industrials
 LMT | STOCK · Lockheed Martin Corporation — Aerospace & Defense
 XLE | ETF · State Street Energy Select Sector SPDR ETF — Energy
 ORCL | STOCK · Oracle Corporation — Technology
-ALIUSD | CFD · Aluminum / U.S. Dollar (Capital.com); user-directed LONG scenario, $20B notional @ $3,000; position date/time unspecified
+ALIUSD | CFD · Aluminum / U.S. Dollar (Capital.com); CSV-sized user-directed LONG, 15,546,506 @ corrected $2,999.99; leverage is bookkeeping only
 BRENT | CFD / FUTURES · Crude Oil Brent (Cash / ICE Brent)
 OIL | CFD / FUTURES · WTI Crude Oil (TVC:USOIL; corresponds to WTI in Disc4)
 DXY | INDEX · U.S. Dollar Index (TVC)
