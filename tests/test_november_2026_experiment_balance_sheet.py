@@ -19,7 +19,9 @@ def test_profit_only_balance_adds_screenshot_reported_close_pnl():
     usoil = by_line["USOIL realized PnL added"]
     additions = by_line["Total new realized-PnL additions"]
     principal = by_line["Principal carried into experiment"]
-    ending = by_line["Ending profit-only experiment balance"]
+    ending = by_line["Profit-only cash carry-forward subtotal"]
+    lcid = by_line["LCID open position — market value snapshot"]
+    ref_sum = by_line["Unreconciled simple sum: profit-only subtotal plus LCID market value"]
 
     assert opening["balance_sheet_name"] == "Harshal's Private Fund"
     assert opening["experiment"] == "November 2026++ Experiment"
@@ -30,6 +32,18 @@ def test_profit_only_balance_adds_screenshot_reported_close_pnl():
     assert Decimal(additions["amount_usd"]) == Decimal("2713480646.02")
     assert Decimal(principal["amount_usd"]) == Decimal("0.00")
     assert Decimal(ending["amount_usd"]) == Decimal("5110050333.97")
+    assert lcid["ticker"] == "LCID"
+    assert lcid["action"] == "Open LONG per screenshot"
+    assert lcid["quantity"] == "299401198.6"
+    assert Decimal(lcid["cost_basis_usd"]) == Decimal("1000000003.32")
+    assert Decimal(lcid["snapshot_price_usd"]) == Decimal("3.33")
+    assert Decimal(lcid["market_value_usd"]) == Decimal("997005991.34")
+    assert Decimal(lcid["unrealized_pnl_usd"]) == Decimal("-2994011.99")
+    assert lcid["unrealized_pnl_pct"] == "-0.30%"
+    assert Decimal(ref_sum["amount_usd"]) == Decimal("6107056325.31")
+    assert ref_sum["classification"] == "Not a reconciled fund total"
+    assert (ROOT / lcid["source_artifact"]).is_file()
+    assert "not added to the profit-only cash subtotal" in text
     assert (Decimal(brent["quantity"]) * (Decimal(brent["close_price_usd"]) - Decimal(brent["average_entry_price_usd"]))).quantize(Decimal("0.01")) == Decimal(brent["amount_usd"])
     assert Decimal(usoil["quantity"]) * (Decimal(usoil["close_price_usd"]) - Decimal(usoil["average_entry_price_usd"])) == Decimal(usoil["amount_usd"])
     assert "mapping to the separate earlier locked-foundation estimate is unspecified" in text
@@ -43,7 +57,7 @@ def test_profit_only_balance_adds_screenshot_reported_close_pnl():
     assert usoil["as_of_date"] == "2026-10-29 10:41:38; timezone not shown"
     assert "not independently audited brokerage executions" in text
     assert "$5,110,050,333.97" in text
-    assert "ending figure combines that selected prior estimate" in text
+    assert "the **$5,110,050,333.97** profit-only subtotal combines that selected prior estimate" in text
     assert "does **not** carry forward principal" in text
     assert (ARCHIVE / "IMG_1218.png").is_file()
     assert (ARCHIVE / "IMG_1217.png").is_file()
