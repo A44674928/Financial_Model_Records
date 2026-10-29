@@ -138,15 +138,25 @@ class AtsManualReconciliationTests(unittest.TestCase):
         self.assertEqual((brent_high["ticker"], brent_high["marked_price_group"], brent_high["sale_price_min_usd"], brent_high["sale_price_max_usd"]), ("BRENT", "marked above $115", "116.480", "117.345"))
         self.assertEqual((brent_low["ticker"], brent_low["marked_price_group"], brent_low["sale_price_min_usd"], brent_low["sale_price_max_usd"]), ("BRENT", "marked below $115", "114.670", "116.480"))
         self.assertEqual((oil["ticker"], oil["sale_price_points_as_stated"]), ("OIL (USOIL)", "103.4 / 101.5"))
-        for row in self.liquidation_rows:
-            self.assertEqual(row["quantity_sold"], "not supplied")
+        expected_quantities = [
+            "ALL UNITS IN THIS MARKED-PRICE GROUP; exact count not supplied",
+            "ALL UNITS IN THIS MARKED-PRICE GROUP; exact count not supplied",
+            "ALL OIL UNITS; exact count not supplied",
+        ]
+        for row, expected_quantity in zip(self.liquidation_rows, expected_quantities):
+            self.assertEqual(row["quantity_sold"], expected_quantity)
+            self.assertEqual(row["reported_remaining_units"], "0 per user report")
+            self.assertEqual(row["reason_for_exit"], "Repeated and continued harassment while working the desk.")
             self.assertEqual(row["execution_date"], "not supplied")
             self.assertEqual(row["execution_time_timezone"], "not supplied")
             self.assertIn("not independently verified", row["status"])
             self.assertIn("No realized PnL computed", row["notes"])
-        self.assertIn("all ATS-held oil positions", self.report)
-        self.assertIn("pre-liquidation records", self.report)
-        self.assertIn("does not rewrite historical core-model results", self.report)
+        self.assertIn("all units of BRENT and USOIL were converted to cash", self.report)
+        self.assertIn("Repeated and continued harassment while working the desk.", self.report)
+        self.assertIn("pre-liquidation references", self.report)
+        self.assertIn("zero units of both BRENT and USOIL remain", self.report)
+        self.assertIn("No dated trade-log entries", self.report)
+        self.assertIn("have been altered", self.report)
         self.assertIn("ats_oil_liquidation_reported_v1.csv", self.report)
 
 

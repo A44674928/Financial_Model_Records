@@ -4,17 +4,17 @@
 
 ## Later user-reported ATS oil liquidation
 
-The user reports that the ATS sold **all ATS-held oil positions** as part of an exit from the oil industry, with the intention of selling for profit. This is user-reported and not independently verified. Exact units, execution date/time/timezone, and per-lot fills were not supplied, so no realized PnL, exact closed quantity, or residual ATS balance is calculated.
+The user reports that **all units of BRENT and USOIL were converted to cash** at the sale prices below, with no units remaining per the user's statement, and describes the liquidation as for profit. The user identifies this as an ATS liquidation and states the reason for exit as: “Repeated and continued harassment while working the desk.” This is user-reported and not independently verified. Exact unit counts, per-lot fills, execution date/time/timezone, and mapping to the separate manual or hypothetical model records were not supplied, so no realized PnL or lot-level close is calculated.
 
-| Ticker | Marked-price group / user-supplied sale prices | Quantity | Execution date/time |
-|---|---|---:|---|
-| BRENT | Marked above $115: $117.345 to $116.48 | Not supplied | Not supplied |
-| BRENT | Marked below $115: $114.67 to $116.48 | Not supplied | Not supplied |
-| OIL (USOIL) | $103.40 / $101.50 as stated; cohort mapping not specified | Not supplied | Not supplied |
+| Ticker | Marked-price group / user-supplied sale prices | Quantity | Remaining units | Execution date/time |
+|---|---|---:|---:|---|
+| BRENT | Marked above $115: $117.345 to $116.48 | All units in group; exact count not supplied | 0 per user report | Not supplied |
+| BRENT | Marked below $115: $114.67 to $116.48 | All units in group; exact count not supplied | 0 per user report | Not supplied |
+| OIL (USOIL) | $103.40 / $101.50 as stated; cohort mapping not specified | All OIL units; exact count not supplied | 0 per user report | Not supplied |
 
 Detailed machine-readable sale bands: [`ats_oil_liquidation_reported_v1.csv`](data/ats_oil_liquidation_reported_v1.csv). The interval endpoints are preserved as ranges, not exact fill prices. The OIL price pair is preserved in the order supplied without assigning it to lots or mark cohorts. No PnL or per-lot exit is inferred.
 
-The open-lot and ATS size-sensitivity tables below are pre-liquidation records; they do not establish current residual ATS units after this report. This update records the ATS scope only, does not reconcile manual or separately hypothetical pool positions, and does not rewrite historical core-model results. The exact quantity and trade chronology are still needed before any lot-level close or realized-PnL calculation can be posted.
+The open-lot and ATS size-sensitivity tables below are pre-liquidation references. The user now reports that zero units of both BRENT and USOIL remain, but the exact count and source-book/lot mapping are unspecified; the older tables therefore do not establish actual residual balances. No dated trade-log entries, separate manual/hypothetical allocation ledgers, historical core-model results, or lot-level realized-PnL calculations have been altered because exact fills, timing, and book mapping were not supplied.
 
 ## AUTOMATED TRADING SYSTEM LIVE POSITIONS
 
