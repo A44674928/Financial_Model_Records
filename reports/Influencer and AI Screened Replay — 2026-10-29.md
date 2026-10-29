@@ -30,6 +30,7 @@ These are simulated paper-model results under the screened inputs, not brokerage
 - [Blocked-input audit CSV](../data/influencer_ai_blocked_inputs_v1.csv) records each source line, reason, and preservation status.
 - [Daily replay CSV](../data/model_performance_influencer_ai_screened_daily_v1.csv) and [summary JSON](../data/model_performance_influencer_ai_screened_summary_v1.json) are separate versioned outputs.
 - [Replay manifest](../data/influencer_ai_screened_replay_manifest_v1.json) includes SHA-256 hashes for the consumed benchmark and trade logs.
+- The excluded ticker/commentary/DXY records have now been allocated to the separate [HARSHAL_PRIYAVADAN_PATEL_AI_FUND](HARSHAL_PRIYAVADAN_PATEL_AI_FUND.md); they are not blended back into this screened replay.
 - The previous [Model Performance Comparison](../Model%20Performance%20Comparison.md) remains unchanged as a historical record.
 
 ## Provenance limits

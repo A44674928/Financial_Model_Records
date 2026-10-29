@@ -39,4 +39,8 @@ Historical ledger notes do not consistently identify the author or origin of eac
 
 A permitted market-data source may supply raw observations, but its opinions, forecasts, recommendations, or signals are still third-party commentary and are blocked. Official filings may be used as issuer disclosures; third-party summaries of filings are not official filings. Neither this policy nor the screened replay establishes brokerage executions, realized cash balances, or financing. The all-cash/debit convention remains in force; no leverage or financing is inferred.
 
+## Segregated portfolio allocation
+
+Per the user's subsequent instruction, the records excluded from the screened replay for the seven approved tickers, explicitly evidenced third-party commentary, and the DXY directional sleeve are allocated to the separate [`HARSHAL_PRIYAVADAN_PATEL_AI_FUND`](HARSHAL_PRIYAVADAN_PATEL_AI_FUND.md). The fund has its own event ledger, mark window, and replay outputs; it does not blend those records into the screened main portfolio or relax the source/security screen for other portfolios. It remains capped at October 19 under the standing TradingView rule. Yield-only commentary events are preserved in the fund ledger but not PnL-modeled as if yields were tradable bond prices.
+
 This is a repository-level control. It does not assert that any outside account, vendor, broker, or AI service has disabled or removed content.

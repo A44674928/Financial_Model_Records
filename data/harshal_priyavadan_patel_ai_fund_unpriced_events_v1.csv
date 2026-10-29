@@ -1,0 +1,4 @@
+Record_ID,Source_File,Line,Date,Ticker,Event,Tag,Logged_Price,Units,Transfer_Basis,Marking_Status,Source_Record_Preserved,Original_Note
+6bb7f3c234403b44,trades/US10Y.txt,1,2026-09-10,US10Y,ENTRY,LONG,4.865%,1,explicit third-party/community commentary allocation,RETAINED_IN_FUND_LEDGER; NOT_PNL-MODELED_FROM_YIELD_ONLY_QUOTES,YES,"U.S. Government Bonds 10 YR Yield, LONG badge, 1M TVC, chart quote 4.865%"
+1e8e557cb0b7022f,trades/US10Y.txt,2,2026-09-24,US10Y,ENTRY,LONG,5.208%,1,explicit third-party/community commentary allocation,RETAINED_IN_FUND_LEDGER; NOT_PNL-MODELED_FROM_YIELD_ONLY_QUOTES,YES,"U.S. Government Bonds 10 YR Yield, LONG badge, 1D TVC, chart quote 5.208%; distinct second post/position"
+9d301d291da72bbb,trades/US30Y.txt,1,2026-09-15,US30Y,ENTRY,SHORT,5.35%,1,explicit third-party/community commentary allocation,RETAINED_IN_FUND_LEDGER; NOT_PNL-MODELED_FROM_YIELD_ONLY_QUOTES,YES,"U.S. 30Y Yield, SHORT badge, 1W TVC, chart quote 5.35000000%"

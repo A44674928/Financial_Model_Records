@@ -24,8 +24,12 @@ from influencer_ai_policy import BLOCKED_TICKERS, MAX_TRADINGVIEW_INPUT_DATE, is
 
 ROOT = Path(__file__).resolve().parents[1]
 SCREENED_REPLAY = os.environ.get("PAPER_TRADES_INFLUENCER_AI_SCREEN", "0") == "1"
+AI_FUND_REPLAY = os.environ.get("PAPER_TRADES_AI_FUND_REPLAY", "0") == "1"
+if SCREENED_REPLAY and AI_FUND_REPLAY:
+    raise ValueError("Choose either the screened portfolio replay or the segregated AI fund replay")
 SCREENED_EXCLUDED_TICKERS = BLOCKED_TICKERS if SCREENED_REPLAY else frozenset()
-SCREENED_MAX_DATE = MAX_TRADINGVIEW_INPUT_DATE.isoformat() if SCREENED_REPLAY else None
+SCREENED_MAX_DATE = MAX_TRADINGVIEW_INPUT_DATE.isoformat() if (SCREENED_REPLAY or AI_FUND_REPLAY) else None
+AI_FUND_DIRECT_TICKERS = frozenset(BLOCKED_TICKERS | {"CAT", "CVX", "DIS", "OIL"})
 TRADES_DIR = ROOT / "trades"
 DATA_DIR = ROOT / "data"
 CHARTS_DIR = ROOT / "Charts" / "performance"
@@ -55,16 +59,19 @@ BENCHMARK_SESSION_FILE = DATA_DIR / "tradingview_benchmark_session_marks_2026102
 with BENCHMARK_SESSION_FILE.open(newline="", encoding="utf-8") as _handle:
     _session_rows = []
     for _row in csv.DictReader(_handle):
-        if SCREENED_REPLAY and (
-            _row["Date"].strip() > SCREENED_MAX_DATE
-            or _row["Ticker"].strip().upper() in SCREENED_EXCLUDED_TICKERS
-        ):
+        _ticker_name = _row["Ticker"].strip().upper()
+        _mark_date = _row["Date"].strip()
+        if (SCREENED_REPLAY or AI_FUND_REPLAY) and _mark_date > SCREENED_MAX_DATE:
+            continue
+        if SCREENED_REPLAY and _ticker_name in SCREENED_EXCLUDED_TICKERS:
+            continue
+        if AI_FUND_REPLAY and _ticker_name not in AI_FUND_DIRECT_TICKERS | {"DXY"}:
             continue
         _session_rows.append(_row)
 BASE_SESSION_DATES = [
     datetime.fromtimestamp(t, MST).strftime("%Y-%m-%d")
     for t in EQUITY_TS
-    if not SCREENED_REPLAY or datetime.fromtimestamp(t, MST).strftime("%Y-%m-%d") <= SCREENED_MAX_DATE
+    if not (SCREENED_REPLAY or AI_FUND_REPLAY) or datetime.fromtimestamp(t, MST).strftime("%Y-%m-%d") <= SCREENED_MAX_DATE
 ]
 SESSION_DATES = sorted(set(BASE_SESSION_DATES) | {row["Date"].strip() for row in _session_rows})
 N_SESS = len(SESSION_DATES)
@@ -89,11 +96,18 @@ for _row in _session_rows:
 
 if {ticker for ticker in _benchmark} & {"BTC", "ETH"}:
     raise ValueError("BTC and ETH must remain outside the core TradingView benchmark")
-_expected_benchmark_symbols = 31 - len(SCREENED_EXCLUDED_TICKERS & {"NVDA", "PLTR", "META", "AMZN", "TSLA", "AAPL", "INTC"})
-if len(_benchmark) != _expected_benchmark_symbols:
-    raise ValueError(
-        f"Expected {_expected_benchmark_symbols} direct-price core symbols, found {len(_benchmark)}"
-    )
+if AI_FUND_REPLAY:
+    if set(_benchmark) != AI_FUND_DIRECT_TICKERS:
+        raise ValueError(
+            "AI fund benchmark symbols do not match the user-approved ticker and commentary universe: "
+            f"{sorted(set(_benchmark) ^ AI_FUND_DIRECT_TICKERS)}"
+        )
+else:
+    _expected_benchmark_symbols = 31 - len(SCREENED_EXCLUDED_TICKERS & {"NVDA", "PLTR", "META", "AMZN", "TSLA", "AAPL", "INTC"})
+    if len(_benchmark) != _expected_benchmark_symbols:
+        raise ValueError(
+            f"Expected {_expected_benchmark_symbols} direct-price core symbols, found {len(_benchmark)}"
+        )
 PRICES = {}
 for _ticker, _marks in _benchmark.items():
     _missing = [day for day in SESSION_DATES if day not in _marks]
@@ -130,6 +144,8 @@ def parse_trades():
         if path.name == "index.txt":
             continue
         sym = path.stem
+        if AI_FUND_REPLAY and sym not in AI_FUND_DIRECT_TICKERS:
+            continue
         if sym in UNMODELED_SYMBOLS:
             continue
         if sym not in PRICES:
@@ -142,6 +158,12 @@ def parse_trades():
             if not m:
                 raise ValueError(f"Unparsed line {path.name}:{lineno + 1}: {line}")
             if SCREENED_REPLAY and is_explicit_third_party_commentary(m.group("note")):
+                continue
+            if (
+                AI_FUND_REPLAY
+                and sym not in BLOCKED_TICKERS
+                and not is_explicit_third_party_commentary(m.group("note"))
+            ):
                 continue
             parsed_units = float(m.group("units"))
             units = int(parsed_units) if parsed_units.is_integer() else parsed_units
