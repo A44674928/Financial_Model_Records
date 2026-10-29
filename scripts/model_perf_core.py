@@ -25,11 +25,16 @@ from influencer_ai_policy import BLOCKED_TICKERS, MAX_TRADINGVIEW_INPUT_DATE, is
 ROOT = Path(__file__).resolve().parents[1]
 SCREENED_REPLAY = os.environ.get("PAPER_TRADES_INFLUENCER_AI_SCREEN", "0") == "1"
 AI_FUND_REPLAY = os.environ.get("PAPER_TRADES_AI_FUND_REPLAY", "0") == "1"
-if SCREENED_REPLAY and AI_FUND_REPLAY:
-    raise ValueError("Choose either the screened portfolio replay or the segregated AI fund replay")
+OIL_PORTFOLIO_REPLAY = os.environ.get("PAPER_TRADES_OIL_PORTFOLIO_REPLAY", "0") == "1"
+if sum((SCREENED_REPLAY, AI_FUND_REPLAY, OIL_PORTFOLIO_REPLAY)) > 1:
+    raise ValueError("Choose exactly one of the screened, AI fund, or Oil portfolio replay modes")
 SCREENED_EXCLUDED_TICKERS = BLOCKED_TICKERS if SCREENED_REPLAY else frozenset()
-SCREENED_MAX_DATE = MAX_TRADINGVIEW_INPUT_DATE.isoformat() if (SCREENED_REPLAY or AI_FUND_REPLAY) else None
-AI_FUND_DIRECT_TICKERS = frozenset(BLOCKED_TICKERS | {"CAT", "CVX", "DIS", "OIL"})
+SCREENED_MAX_DATE = MAX_TRADINGVIEW_INPUT_DATE.isoformat() if (SCREENED_REPLAY or AI_FUND_REPLAY or OIL_PORTFOLIO_REPLAY) else None
+AI_FUND_VERSION = os.environ.get("PAPER_TRADES_AI_FUND_REPLAY_VERSION", "1")
+AI_FUND_DIRECT_TICKERS = frozenset(
+    BLOCKED_TICKERS | ({"CAT", "CVX", "DIS", "OIL"} if AI_FUND_VERSION == "1" else {"CAT", "DIS"})
+)
+OIL_PORTFOLIO_DIRECT_TICKERS = frozenset({"BRENT", "OIL", "CVX", "VLO", "XLE"})
 TRADES_DIR = ROOT / "trades"
 DATA_DIR = ROOT / "data"
 CHARTS_DIR = ROOT / "Charts" / "performance"
@@ -61,17 +66,19 @@ with BENCHMARK_SESSION_FILE.open(newline="", encoding="utf-8") as _handle:
     for _row in csv.DictReader(_handle):
         _ticker_name = _row["Ticker"].strip().upper()
         _mark_date = _row["Date"].strip()
-        if (SCREENED_REPLAY or AI_FUND_REPLAY) and _mark_date > SCREENED_MAX_DATE:
+        if (SCREENED_REPLAY or AI_FUND_REPLAY or OIL_PORTFOLIO_REPLAY) and _mark_date > SCREENED_MAX_DATE:
             continue
         if SCREENED_REPLAY and _ticker_name in SCREENED_EXCLUDED_TICKERS:
             continue
         if AI_FUND_REPLAY and _ticker_name not in AI_FUND_DIRECT_TICKERS | {"DXY"}:
             continue
+        if OIL_PORTFOLIO_REPLAY and _ticker_name not in OIL_PORTFOLIO_DIRECT_TICKERS | {"DXY"}:
+            continue
         _session_rows.append(_row)
 BASE_SESSION_DATES = [
     datetime.fromtimestamp(t, MST).strftime("%Y-%m-%d")
     for t in EQUITY_TS
-    if not (SCREENED_REPLAY or AI_FUND_REPLAY) or datetime.fromtimestamp(t, MST).strftime("%Y-%m-%d") <= SCREENED_MAX_DATE
+    if not (SCREENED_REPLAY or AI_FUND_REPLAY or OIL_PORTFOLIO_REPLAY) or datetime.fromtimestamp(t, MST).strftime("%Y-%m-%d") <= SCREENED_MAX_DATE
 ]
 SESSION_DATES = sorted(set(BASE_SESSION_DATES) | {row["Date"].strip() for row in _session_rows})
 N_SESS = len(SESSION_DATES)
@@ -101,6 +108,12 @@ if AI_FUND_REPLAY:
         raise ValueError(
             "AI fund benchmark symbols do not match the user-approved ticker and commentary universe: "
             f"{sorted(set(_benchmark) ^ AI_FUND_DIRECT_TICKERS)}"
+        )
+elif OIL_PORTFOLIO_REPLAY:
+    if set(_benchmark) != OIL_PORTFOLIO_DIRECT_TICKERS:
+        raise ValueError(
+            "Oil portfolio benchmark symbols do not match its configured trade universe: "
+            f"{sorted(set(_benchmark) ^ OIL_PORTFOLIO_DIRECT_TICKERS)}"
         )
 else:
     _expected_benchmark_symbols = 31 - len(SCREENED_EXCLUDED_TICKERS & {"NVDA", "PLTR", "META", "AMZN", "TSLA", "AAPL", "INTC"})
@@ -145,6 +158,8 @@ def parse_trades():
             continue
         sym = path.stem
         if AI_FUND_REPLAY and sym not in AI_FUND_DIRECT_TICKERS:
+            continue
+        if OIL_PORTFOLIO_REPLAY and sym not in OIL_PORTFOLIO_DIRECT_TICKERS:
             continue
         if sym in UNMODELED_SYMBOLS:
             continue
@@ -510,9 +525,9 @@ def build_dxy_daily_lots():
 # --------------------------------------------------------------------------
 def daily_series(variant, events):
     lots, realized = build_lots(variant, events)
-    if SCREENED_REPLAY:
-        # The DXY daily sleeve is driven by charted directional commentary,
-        # not just raw marks, so it is excluded from this source-screened run.
+    if SCREENED_REPLAY or OIL_PORTFOLIO_REPLAY:
+        # The screened model blocks commentary; the separate Oil portfolio
+        # excludes the unrelated DXY directional sleeve.
         dxy_lots, dxy_realized = [], []
     else:
         dxy_lots, dxy_realized = build_dxy_daily_lots()

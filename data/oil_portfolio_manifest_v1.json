@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "portfolio_name": "Oil",
+  "builder": "scripts/build_oil_portfolio.py",
+  "cutoff": "2026-10-19",
+  "source_hashes_sha256": {
+    "data/tradingview_benchmark_session_marks_20261026.csv": "13780554622d099c8a1b774c15e8468e480902795d6dd2382f4634b384fad111",
+    "data/ats_oil_liquidation_reported_v1.csv": "2f92e08b93c4f4fad96c560f1c618c408adfd0c08daa0bd33cf9668748d190bc",
+    "reports/Harshal's Private Fund \u2014 November 2026++ Experiment.md": "a44c4bc67619b96558056519c37e71b7427e5d758000e3294bc3e484ebdb6fc2",
+    "trades/BRENT.txt": "e88475ae94517e3db43ec0c448f92acdacc2253730b340a9e2710025859b5b8a",
+    "trades/CVX.txt": "e9d15d794272e69c3f7ee511a85a60a64df2eba04994aa0cf35134118aa165bd",
+    "trades/OIL.txt": "a467df2c3137fb3d90ba18ba3fcc17a4cd02708581f5c46d0ca9d35d72a4c0ef",
+    "trades/VLO.txt": "3e01d9a7b51a38a74e2acaa776960d3e5422fc3e5b15157ecdb45cae60dffb15",
+    "trades/XLE.txt": "bd623704e2fd7c8e011c8f6aa461d67938228fc1c8578f4abc67178ddae14f12"
+  },
+  "outputs": [
+    "data/oil_portfolio_daily_v1.csv",
+    "data/oil_portfolio_trade_ledger_v1.csv",
+    "data/oil_portfolio_related_book_records_v1.csv",
+    "data/oil_portfolio_summary_v1.json",
+    "reports/Oil Portfolio.md",
+    "data/oil_portfolio_manifest_v1.json"
+  ],
+  "private_paper_account_records_kept_separate": true,
+  "oil_foundation_liquidation_records_kept_separate": true
+}

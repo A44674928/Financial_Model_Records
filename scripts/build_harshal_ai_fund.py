@@ -29,18 +29,19 @@ from influencer_ai_policy import (  # noqa: E402
     is_explicit_third_party_commentary,
 )
 
+VERSION = os.environ.get("PAPER_TRADES_AI_FUND_REPLAY_VERSION", "1")
 os.environ["PAPER_TRADES_AI_FUND_REPLAY"] = "1"
 import model_perf_core as core  # noqa: E402
 
 FUND_NAME = "HARSHAL_PRIYAVADAN_PATEL_AI_FUND"
 CUTOFF = MAX_TRADINGVIEW_INPUT_DATE.isoformat()
 DATA = ROOT / "data"
-REPORT = ROOT / "reports" / f"{FUND_NAME}.md"
-DAILY_OUT = DATA / "harshal_priyavadan_patel_ai_fund_daily_v1.csv"
-SUMMARY_OUT = DATA / "harshal_priyavadan_patel_ai_fund_summary_v1.json"
-LEDGER_OUT = DATA / "harshal_priyavadan_patel_ai_fund_event_ledger_v1.csv"
-UNPRICED_OUT = DATA / "harshal_priyavadan_patel_ai_fund_unpriced_events_v1.csv"
-MANIFEST_OUT = DATA / "harshal_priyavadan_patel_ai_fund_manifest_v1.json"
+REPORT = ROOT / "reports" / (f"{FUND_NAME}.md" if VERSION == "2" else f"{FUND_NAME}_v1.md")
+DAILY_OUT = DATA / f"harshal_priyavadan_patel_ai_fund_daily_v{VERSION}.csv"
+SUMMARY_OUT = DATA / f"harshal_priyavadan_patel_ai_fund_summary_v{VERSION}.json"
+LEDGER_OUT = DATA / f"harshal_priyavadan_patel_ai_fund_event_ledger_v{VERSION}.csv"
+UNPRICED_OUT = DATA / f"harshal_priyavadan_patel_ai_fund_unpriced_events_v{VERSION}.csv"
+MANIFEST_OUT = DATA / f"harshal_priyavadan_patel_ai_fund_manifest_v{VERSION}.json"
 FX_MARKS = DATA / "eur_jpy_usd_september_october_2026.csv"
 EURUSD_ENTRY = ("2026-09-15", 1.15388)
 UNIT = core.UNIT
@@ -63,6 +64,8 @@ def sha256(path: Path) -> str:
 
 
 def _transfer_reasons(ticker: str, note: str) -> list[str]:
+    if VERSION == "2" and ticker in {"BRENT", "OIL", "CVX", "VLO", "XLE"}:
+        return []
     reasons = []
     if ticker in BLOCKED_TICKERS:
         reasons.append("user-approved AI-exposure ticker allocation")
@@ -169,7 +172,7 @@ def main():
     daily_fields = ["Date", "Variant", "Realized_PnL_USD", "Unrealized_PnL_USD", "Total_PnL_USD",
                     "ROI_Pct", "Deployed_Notional_USD", "Open_Units"]
     with DAILY_OUT.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=daily_fields)
+        writer = csv.DictWriter(handle, fieldnames=daily_fields, lineterminator="\n")
         writer.writeheader()
         for variant in core.VARIANTS:
             model = series[variant]
@@ -189,15 +192,16 @@ def main():
                      "Logged_Price", "Units", "Transfer_Basis", "Marking_Status",
                      "Source_Record_Preserved", "Original_Note"]
     with LEDGER_OUT.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=ledger_fields)
+        writer = csv.DictWriter(handle, fieldnames=ledger_fields, lineterminator="\n")
         writer.writeheader()
         writer.writerows(ledger)
     with UNPRICED_OUT.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=ledger_fields)
+        writer = csv.DictWriter(handle, fieldnames=ledger_fields, lineterminator="\n")
         writer.writeheader()
         writer.writerows(unpriced)
 
     summary = {
+        "version": int(VERSION),
         "portfolio_name": FUND_NAME,
         "portfolio_type": "segregated simulated paper-model portfolio",
         "replay_start_date": core.SESSION_DATES[0],
@@ -245,7 +249,7 @@ def main():
     source_paths = [core.BENCHMARK_SESSION_FILE, FX_MARKS]
     source_paths += [path for path in sorted((ROOT / "trades").glob("*.txt")) if path.name != "index.txt"]
     manifest = {
-        "version": 1,
+        "version": int(VERSION),
         "portfolio_name": FUND_NAME,
         "builder": "scripts/build_harshal_ai_fund.py",
         "cutoff": CUTOFF,
@@ -264,6 +268,7 @@ def main():
         "",
         "- Receives all pre-cutoff ledger events for the seven user-approved tickers: " + ", ".join(f"`{ticker}`" for ticker in sorted(BLOCKED_TICKERS)) + ".",
         "- Receives explicitly evidenced third-party/community commentary events on other modeled instruments. Where a record also belongs to one of the seven tickers, it is transferred once and carries both reasons in the event ledger.",
+        ("- Version 2 transfers all oil and oil-linked trade records to the separate [Oil portfolio](Oil%20Portfolio.md); OIL and CVX records from the prior fund version are no longer in this active fund replay. Version 1 remains preserved as a historical snapshot." if VERSION == "2" else ""),
         "- Receives the DXY directional sleeve as a single segregated component. Its source signal is retained in the transfer ledger; the sleeve is not duplicated as a separate DXY entry lot.",
         f"- Uses sessions through **{CUTOFF}** only, preserving the standing TradingView cutoff. No October 20-or-later TradingView inputs were used.",
         "- The screened main replay remains separate and unchanged. The policy block remains in force for other portfolios; this is the user-requested segregated portfolio for the excluded records.",
@@ -286,9 +291,9 @@ def main():
         "## Transfer and valuation ledger",
         "",
         f"- Unique pre-cutoff event records transferred: **{len(ledger)}**; ticker event rows: **{summary['ticker_event_rows_transferred']}**; explicit commentary rows: **{summary['commentary_event_rows_transferred']}**; DXY signal rows: **{summary['dxy_signal_rows_transferred']}**. Category counts overlap.",
-        f"- US10Y/US30Y yield-only event rows retained but not included in PnL: **{len(unpriced)}**. A yield quote is not a bond price; no duration, futures contract, or yield-to-price conversion is inferred. See [unpriced event register](../data/harshal_priyavadan_patel_ai_fund_unpriced_events_v1.csv).",
+        f"- US10Y/US30Y yield-only event rows retained but not included in PnL: **{len(unpriced)}**. A yield quote is not a bond price; no duration, futures contract, or yield-to-price conversion is inferred. See [unpriced event register](../data/{UNPRICED_OUT.name}).",
         "- EURUSD is modeled as a 1U LONG from the logged 2026-09-15 entry using the user-provided daily close series through October 19. The provider/feed and close convention are not independently verified; this leg is identified separately in the builder and manifest.",
-        "- [Transferred event ledger](../data/harshal_priyavadan_patel_ai_fund_event_ledger_v1.csv), [daily replay](../data/harshal_priyavadan_patel_ai_fund_daily_v1.csv), [summary JSON](../data/harshal_priyavadan_patel_ai_fund_summary_v1.json), and [SHA-256 manifest](../data/harshal_priyavadan_patel_ai_fund_manifest_v1.json) preserve lineage.",
+        f"- [Transferred event ledger](../data/{LEDGER_OUT.name}), [daily replay](../data/{DAILY_OUT.name}), [summary JSON](../data/{SUMMARY_OUT.name}), and [SHA-256 manifest](../data/{MANIFEST_OUT.name}) preserve lineage.",
         "",
         "The user trade logs and prior screened outputs remain unchanged. These portfolio results do not reverse or reinterpret any actual transaction, funding source, or source record; they only segregate and replay the specified historical records.",
         "",
