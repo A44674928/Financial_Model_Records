@@ -27,6 +27,16 @@ The screenshot also displays **1× leverage** and **$997,005,991.34 margin**; th
 
 The LCID market value is **not added to the profit-only cash subtotal** because the source of its funding was not specified. For reference only, a simple addition of $5,110,050,333.97 and $997,005,991.34 is **$6,107,056,325.31**; this is not a reconciled fund total. If LCID was bought with cash already included in the fund balance, the cash balance must be reduced by the funded amount; if separately funded, that contribution needs to be identified. The unrealized loss is already reflected in the market value versus trade value and must not be deducted twice.
 
+### Additional LCID buy order added to the fund
+
+Per the user's instruction, the following filled LCID order is included as a separate purchase lot. The order-history screenshot shows the account selector truncated as `SWITCH_TO_LCI...`; it does not establish that this is the same account as the prior LCID position snapshot. No aggregate quantity or combined market value is inferred.
+
+| Instrument | Order | Quantity | Fill price | Fill value / cost basis | Status | Displayed fill time | Order ID |
+|---|---|---:|---:|---:|---|---|---|
+| LCID (NASDAQ:LCID) | Buy market | 301,204,819.27 | $3.32 | $999,999,999.98 | Filled | 2026-10-29 11:05:57; timezone not shown | 3736492349 |
+
+The order is recorded as a separate LCID lot at fill value. The screenshot does not supply a later mark for this lot, its funded-cash source, or a matching close; it is not added as realized PnL or to the profit-only cash subtotal. See [`Archive/Private_Fund_LCID_Position/README.md`](../Archive/Private_Fund_LCID_Position/README.md) for screenshot provenance.
+
 ## Close records
 
 | Instrument | Action | Quantity | Average entry | Close price | Displayed realized PnL | Screenshot timestamp |

@@ -33,4 +33,19 @@ Daily export: [`lcid_small_caps_pilot_daily_pnl.csv`](data/lcid_small_caps_pilot
 
 Ledger: [`trades/LCID.txt`](trades/LCID.txt).
 
+## Current-date hypothetical buyout offer — 2026-10-29
+
+At the user's direction, record a **market-cap-level hypothetical offer** without deriving a per-share price or exchange ratio:
+
+| Term | User-directed amount |
+|---|---:|
+| User-supplied LCID current market-cap reference (2026-10-29) | $1,310,000,000 |
+| Share/equity consideration, stated as aggregate value | $2,000,000,000 |
+| Cash consideration | $2,200,000,000 |
+| **Total hypothetical consideration** | **$4,200,000,000** |
+
+The $2.0B share/equity component is $690M, or **52.67%**, above the stated $1.31B current market-cap reference. Total consideration is $2.89B above that reference, equal to **3.21×** the current market cap (**220.61% above**). Since the total includes $2.2B cash, that total-to-market-cap comparison is not a per-share premium calculation.
+
+No share count, diluted share count, exchange ratio, per-share offer price, debt/cash adjustment, or financing source was supplied or inferred. The $1.31B market-cap reference is user-provided for 2026-10-29; its source/time was not supplied. This is a hypothetical planning scenario only—not a submitted, authorized, or public buyout offer, and not a statement that the proposed consideration is funded or available.
+
 Main comparison: [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md).

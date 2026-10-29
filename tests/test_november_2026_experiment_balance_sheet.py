@@ -21,6 +21,7 @@ def test_profit_only_balance_adds_screenshot_reported_close_pnl():
     principal = by_line["Principal carried into experiment"]
     ending = by_line["Profit-only cash carry-forward subtotal"]
     lcid = by_line["LCID open position — market value snapshot"]
+    lcid_buy = by_line["LCID filled buy order — unmarked lot"]
     ref_sum = by_line["Unreconciled simple sum: profit-only subtotal plus LCID market value"]
 
     assert opening["balance_sheet_name"] == "Harshal's Private Fund"
@@ -40,8 +41,15 @@ def test_profit_only_balance_adds_screenshot_reported_close_pnl():
     assert Decimal(lcid["market_value_usd"]) == Decimal("997005991.34")
     assert Decimal(lcid["unrealized_pnl_usd"]) == Decimal("-2994011.99")
     assert lcid["unrealized_pnl_pct"] == "-0.30%"
+    assert Decimal(lcid_buy["amount_usd"]) == Decimal("999999999.98")
+    assert lcid_buy["quantity"] == "301204819.27"
+    assert lcid_buy["average_entry_price_usd"] == "3.32"
+    assert lcid_buy["order_id"] == "3736492349"
+    assert lcid_buy["as_of_date"] == "2026-10-29 11:05:57; timezone not shown"
+    assert (ROOT / lcid_buy["source_artifact"]).is_file()
     assert Decimal(ref_sum["amount_usd"]) == Decimal("6107056325.31")
     assert ref_sum["classification"] == "Not a reconciled fund total"
+    assert "No aggregate quantity or combined market value is inferred" in text
     assert (ROOT / lcid["source_artifact"]).is_file()
     assert "not added to the profit-only cash subtotal" in text
     assert (Decimal(brent["quantity"]) * (Decimal(brent["close_price_usd"]) - Decimal(brent["average_entry_price_usd"]))).quantize(Decimal("0.01")) == Decimal(brent["amount_usd"])

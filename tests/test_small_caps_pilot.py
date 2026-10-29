@@ -27,3 +27,17 @@ def test_pilot_daily_marks_and_open_lot_pnl():
     oct23 = rows[3]
     expected_oct23 = sum(10_000 * (3.52 / entry["px"] - 1) for entry in entries)
     assert abs(oct23["unrealized_pnl_usd"] - expected_oct23) < 1e-8
+
+
+def test_current_date_hypothetical_offer_uses_market_cap_terms_not_per_share():
+    root = Path(__file__).resolve().parents[1]
+    offer = (root / "Small Caps [Buyout & Reorganization Offering Test Pilot].md").read_text(encoding="utf-8")
+    assert "Current-date hypothetical buyout offer — 2026-10-29" in offer
+    assert "$1,310,000,000" in offer
+    assert "$2,000,000,000" in offer
+    assert "$2,200,000,000" in offer
+    assert "$4,200,000,000" in offer
+    assert "52.67%" in offer
+    assert "220.61% above" in offer
+    assert "No share count" in offer
+    assert "not a per-share premium calculation" in offer
