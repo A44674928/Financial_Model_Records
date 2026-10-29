@@ -1,0 +1,102 @@
+{
+  "policy_name": "Influencer and AI source / ticker block",
+  "policy_effective_date": "2026-10-29",
+  "replay_start_date": "2026-09-03",
+  "replay_end_date": "2026-10-19",
+  "standing_tradingview_last_allowed_date": "2026-10-19",
+  "blocked_tickers": [
+    "AAPL",
+    "AMZN",
+    "INTC",
+    "META",
+    "NVDA",
+    "PLTR",
+    "TSLA"
+  ],
+  "direct_price_tickers_remaining": [
+    "BRENT",
+    "CAT",
+    "CVX",
+    "DIS",
+    "GEV",
+    "HD",
+    "LCID",
+    "LLY",
+    "LMT",
+    "LULU",
+    "NET",
+    "NFLX",
+    "OIL",
+    "ORCL",
+    "PEP",
+    "RIVN",
+    "SPCX",
+    "TMO",
+    "UPS",
+    "V",
+    "VLO",
+    "WMT",
+    "XLE",
+    "XRH0"
+  ],
+  "third_party_commentary_events_excluded": 15,
+  "blocked_ticker_event_records": 40,
+  "dxy_directional_events_excluded": 1,
+  "all_excluded_record_count_with_overlap": 80,
+  "excluded_record_count_note": "Record counts overlap where multiple rules apply.",
+  "source_scope": {
+    "allowed": [
+      "official issuer filings",
+      "raw market data",
+      "user trade ledger records"
+    ],
+    "blocked": [
+      "all third-party commentary, regardless of influencer labeling",
+      "AI-generated or AI-company commentary"
+    ]
+  },
+  "tradingview_post_cutoff_rows_used": 0,
+  "dxy_directional_sleeve_included": false,
+  "variants": {
+    "V1": {
+      "label": "Variant 1 \u2014 1U Open",
+      "realized_pnl_usd": 0.0,
+      "unrealized_pnl_usd": 6139.94,
+      "total_pnl_usd": 6139.94,
+      "roi_pct": 0.444923,
+      "deployed_notional_usd": 1380000.0,
+      "open_units": 138.0,
+      "retained_lot_count": 40
+    },
+    "V2": {
+      "label": "Variant 2 \u2014 1U SAR",
+      "realized_pnl_usd": 1562.62,
+      "unrealized_pnl_usd": 4533.48,
+      "total_pnl_usd": 6096.11,
+      "roi_pct": 0.441747,
+      "deployed_notional_usd": 1380000.0,
+      "open_units": 137.0,
+      "retained_lot_count": 40
+    },
+    "V3A": {
+      "label": "Variant 3A \u2014 Nu Open",
+      "realized_pnl_usd": 0.0,
+      "unrealized_pnl_usd": 7746.39,
+      "total_pnl_usd": 7746.39,
+      "roi_pct": 0.557294,
+      "deployed_notional_usd": 1390000.0,
+      "open_units": 139.0,
+      "retained_lot_count": 40
+    },
+    "V3B": {
+      "label": "Variant 3B \u2014 Nu SAR",
+      "realized_pnl_usd": 3125.25,
+      "unrealized_pnl_usd": 4533.48,
+      "total_pnl_usd": 7658.73,
+      "roi_pct": 0.550988,
+      "deployed_notional_usd": 1390000.0,
+      "open_units": 137.0,
+      "retained_lot_count": 40
+    }
+  }
+}
