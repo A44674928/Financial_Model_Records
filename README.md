@@ -21,6 +21,7 @@ This repository contains the Fall (Arizona) 2026 paper-trading ledger, model ana
 - [Model Calculation Guide](Model%20Calculation%20Guide.md) — plain-language unit sizing, daily position handling, reversal logic, and PnL formulas.
 - [ATS and Manual Live Position Reconciliation](ATS%20and%20Manual%20Live%20Position%20Reconciliation.md) — preserved user-reported ATS liquidation and prior zero-position report.
 - [Under-Duress Oil Sale Void Replay](reports/Under-Duress%20Oil%20Sale%20Void%20Replay.md) — separate, non-destructive scenario overlay that voids listed oil closes, restores documented/model-equivalent positions, and tags hypothetical LCID consideration as unallocated scenario funding.
+- [Under-Duress Audit / Rollback Log](reports/Under-Duress%20Audit%20Rollback%20Log.md) — user-reported public-portfolio ATS manual-review rationale and public/private scope boundary.
 - [Oil Cost Basis Savings Model](Oil%20Cost%20Basis%20Savings%20Model.md) — realized target-trim and modeled SHORT-exit PnL credited once to the effective basis of the residual and replenishment lots, mapped across all 32 portfolios.
 - [Trades Zip PnL](Trades%20Zip%20PnL.md) — master historical PnL report; see its scope note for reconciliation status.
 - [TradingView Energy and Currency Desk Sidecars](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md) — standard 10U energy and DXY sizing schedules; the THE ONE MODEL uses a derived 11U/DAY energy tranche per active ticker, while its 1U/DAY core DXY sleeve plus 10U/DAY add-on gives 11U/day combined currency exposure.

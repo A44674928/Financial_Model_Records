@@ -62,3 +62,8 @@ def test_ats_sensitivities_nullify_shorts_and_funding_is_hypothetical_unallocate
     assert "not a change to source history" in report
     assert "not included in a cash balance or reconciled NAV" in report
     assert "not additive positions" in report or "not additive" in report
+    assert "buy a few more barrels every couple dollars" in report
+    assert "private portfolio" in report
+    audit_log = (ROOT / "reports/Under-Duress Audit Rollback Log.md").read_text(encoding="utf-8")
+    assert "ATS flagged sell orders for manual review" in audit_log
+    assert "was supplied in the repository" in audit_log
