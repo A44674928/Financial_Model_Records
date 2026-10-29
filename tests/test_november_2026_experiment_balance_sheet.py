@@ -3,7 +3,7 @@ from decimal import Decimal
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-REPORT = ROOT / "reports" / "November 2026++ Experiment — Profit-Only Balance Sheet.md"
+REPORT = ROOT / "reports" / "Harshal's Private Fund — November 2026++ Experiment.md"
 CSV_PATH = ROOT / "data" / "november_2026_plus_plus_experiment_balance_sheet_v1.csv"
 
 
@@ -16,7 +16,9 @@ def test_profit_only_opening_balance_excludes_principal_and_preserves_provenance
     principal = next(row for row in rows if row["balance_sheet_line"] == "Principal carried into experiment")
     net_assets = next(row for row in rows if row["balance_sheet_line"] == "Net assets / opening balance")
 
+    assert opening["balance_sheet_name"] == "Harshal's Private Fund"
     assert opening["experiment"] == "November 2026++ Experiment"
+    assert text.startswith("# Harshal's Private Fund")
     assert Decimal(opening["amount_usd"]) == Decimal("2396569687.95")
     assert Decimal(principal["amount_usd"]) == Decimal("0.00")
     assert Decimal(net_assets["amount_usd"]) == Decimal("2396569687.95")

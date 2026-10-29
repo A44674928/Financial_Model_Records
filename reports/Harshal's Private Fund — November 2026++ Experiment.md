@@ -1,4 +1,6 @@
-# November 2026++ Experiment — Profit-Only Balance Sheet
+# Harshal's Private Fund
+
+**Statement:** Profit-only opening balance  ·  **Experiment:** November 2026++ Experiment
 
 ## Opening balance
 
