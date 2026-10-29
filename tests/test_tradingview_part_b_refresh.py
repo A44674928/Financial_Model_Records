@@ -15,7 +15,7 @@ from model_perf_core import SESSION_DATES, all_series  # noqa: E402
 class TradingViewPartBRefreshTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.manifest = import_part_b()
+        cls.manifest = import_part_b(allow_flagged_legacy=True)
         with (ROOT / "data/tradingview_benchmark_price_lists_part_b_20261024.csv").open(
             newline="", encoding="utf-8"
         ) as handle:
@@ -24,6 +24,16 @@ class TradingViewPartBRefreshTests(unittest.TestCase):
             newline="", encoding="utf-8"
         ) as handle:
             cls.session_rows = list(csv.DictReader(handle))
+
+    def test_default_import_rejects_post_cutoff_tradingview_data(self):
+        with self.assertRaisesRegex(ValueError, "blocked by the post-2026-10-19 policy"):
+            import_part_b()
+
+    def test_legacy_rows_are_flagged_only_under_explicit_preservation_override(self):
+        post_cutoff = [row for row in self.raw_rows if row["Date"] >= "2026-10-20"]
+        self.assertTrue(post_cutoff)
+        self.assertTrue(all(row["Policy_Status"] == "FLAGGED_LEGACY_EXCEPTION_NOT_FOR_ACTIVE_USE" for row in post_cutoff))
+        self.assertTrue(self.manifest["legacy_exception_preservation_override"])
 
     def test_updated_archive_provenance_and_lly_row(self):
         self.assertEqual(self.manifest["source_repository_commit"], "d5228326d034c8d515f1a8ca1c484c70c738904f")

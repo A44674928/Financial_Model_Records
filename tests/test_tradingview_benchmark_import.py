@@ -14,11 +14,22 @@ from import_tradingview_price_lists import COVERAGE_CSV, PRICE_CSV, import_archi
 class TradingViewBenchmarkImportTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.manifest = import_archive()
+        cls.manifest = import_archive(allow_flagged_legacy=True)
         with PRICE_CSV.open(newline="", encoding="utf-8") as handle:
             cls.prices = list(csv.DictReader(handle))
         with COVERAGE_CSV.open(newline="", encoding="utf-8") as handle:
             cls.coverage = {row["Ticker"]: row for row in csv.DictReader(handle)}
+
+    def test_default_import_rejects_post_cutoff_tradingview_data(self):
+        with self.assertRaisesRegex(ValueError, "blocked by the post-2026-10-19 policy"):
+            import_archive()
+
+    def test_legacy_rows_are_flagged_only_under_explicit_preservation_override(self):
+        post_cutoff = [row for row in self.prices if row["Date"] >= "2026-10-20"]
+        self.assertTrue(post_cutoff)
+        self.assertTrue(all(row["Policy_Status"] == "FLAGGED_LEGACY_EXCEPTION_NOT_FOR_ACTIVE_USE" for row in post_cutoff))
+        self.assertTrue(self.manifest["legacy_exception_preservation_override"])
+        self.assertEqual(self.manifest["tradingview_policy_cutoff_date"], "2026-10-20")
 
     def test_only_ticker_specific_files_are_imported(self):
         expected = {

@@ -1,10 +1,15 @@
 # Paper Trades — Repository Guide
 
-This repository contains the Fall (Arizona) 2026 paper-trading ledger, model analysis, source records, and supporting research. The refreshed model comparison uses the supplied TradingView benchmark through the **October 26, 2026** EOD close: 31 direct-price core symbols plus an integrated 1U/DAY/DXY index-return sleeve; BTC/ETH remain pending recalibration. Four separate manual 10U LONG oil replenishment entries (two per ticker) are logged on Oct. 25: the $115.792 BRENT/$101.74 OIL lots use the user-recalled 17:20–17:25 MST window, modeled at a 17:22 MST midpoint, and the $114.80 BRENT/$101.00 OIL lots use an approximate 20:00 MST timestamp per the user's recollection. At 20:35 MST, additional Weekend Oil buys of 35U BRENT at $114.627 and 34U OIL at $100.74 are modeled simultaneously with closing the separate 10U SHORT lots. The 35U/34U LONG lots count toward weekly buy supply; the short closures do not. Against the 65U BRENT + 66U OIL existing all-core long exposure after the modeled short closes, they bring the total to 100U per ticker, 200U combined ($2,000,000 fixed-unit notional). These post-cutoff events are excluded from current PnL pending later EOD marks. The short exits override SAR only for the tagged shorts; prices/timing are hypothetical model assumptions, not verified executions. THE ONE MODEL adds the 10U/DAY DXY schedule to each of its 32 independent portfolios, for 11U/DAY combined DXY exposure; its 16 energy-inclusive portfolios use 11U/DAY per active BRENT and OIL ticker, matching that combined currency size. The 16 no-energy variants remain in the split. The 0.05U DXY schedule remains an alternative. Other strategy-comparison scopes are unchanged. Legacy whole-portfolio DXY/yield views are explicitly historical and retain their previous benchmark.
+This repository contains the Fall (Arizona) 2026 paper-trading ledger, model analysis, source records, and supporting research.
+
+> **STRICT TRADINGVIEW BLOCK — effective October 20, 2026.** No TradingView-sourced orders, charts, screenshots, prices, marks, or other inputs dated October 20 or later may be newly added or used in active calculations. Existing post-cutoff data and dependent reports are flagged, preserved, and not automatically recomputed pending review. See [TradingView PaperTrading Block Policy](reports/TradingView%20Post-October%2019%20Block%20Policy.md) and the [exception index](data/tradingview_post_cutoff_exceptions_v1.csv).
+
+The historical model comparison was built from the supplied TradingView benchmark through the **October 26, 2026** EOD close: 31 direct-price core symbols plus an integrated 1U/DAY/DXY index-return sleeve; BTC/ETH remain pending recalibration. Those post-cutoff inputs and dependent outputs are now policy exceptions, not current approved inputs. Four separate manual 10U LONG oil replenishment entries (two per ticker) are logged on Oct. 25: the $115.792 BRENT/$101.74 OIL lots use the user-recalled 17:20–17:25 MST window, modeled at a 17:22 MST midpoint, and the $114.80 BRENT/$101.00 OIL lots use an approximate 20:00 MST timestamp per the user's recollection. At 20:35 MST, additional Weekend Oil buys of 35U BRENT at $114.627 and 34U OIL at $100.74 are modeled simultaneously with closing the separate 10U SHORT lots. The 35U/34U LONG lots count toward weekly buy supply; the short closures do not. Against the 65U BRENT + 66U OIL existing all-core long exposure after the modeled short closes, they bring the total to 100U per ticker, 200U combined ($2,000,000 fixed-unit notional). These post-cutoff events are excluded from current PnL pending later EOD marks. The short exits override SAR only for the tagged shorts; prices/timing are hypothetical model assumptions, not verified executions. THE ONE MODEL adds the 10U/DAY DXY schedule to each of its 32 independent portfolios, for 11U/DAY combined DXY exposure; its 16 energy-inclusive portfolios use 11U/DAY per active BRENT and OIL ticker, matching that combined currency size. The 16 no-energy variants remain in the split. The 0.05U DXY schedule remains an alternative. Other strategy-comparison scopes are unchanged. Legacy whole-portfolio DXY/yield views are explicitly historical and retain their previous benchmark.
 
 ## Start here
 
-- [Model Performance Comparison](Model%20Performance%20Comparison.md) — four-model daily and intraday comparison.
+- [TradingView PaperTrading Block Policy](reports/TradingView%20Post-October%2019%20Block%20Policy.md) — strict all-source cutoff from 2026-10-20, legacy exception index, and no-recompute rule.
+- [Model Performance Comparison](Model%20Performance%20Comparison.md) — historical four-model daily and intraday comparison; its post-cutoff TradingView-derived inputs are flagged pending review.
 - [Core Portfolio Asset Breakdown](Core%20Portfolio%20Asset%20Breakdown.md) — open long/short exposures, asset concentration, and PnL by ticker across the four core variants.
 - [THE ONE MODEL vs THE WINNING MODEL](THE%20ONE%20MODEL%20vs%20THE%20WINNING%20MODEL.md) — equal-gross comparison of the 32-portfolio aggregate and its ex-post top terminal-PnL constituent.
 - [TWM Chart-to-Model Series — Clean-Sheet Specification](TWM%20Chart-to-Model%20Series%20%E2%80%94%20Clean-Sheet%20Specification.md) — private-chart intake, TWM_1M/TWM_20B boundaries, and optional accumulator rules.
@@ -39,33 +44,22 @@ This repository contains the Fall (Arizona) 2026 paper-trading ledger, model ana
 - `Charts/` — original and labeled chart images, plus generated performance charts.
 - `Archive/` — source screenshot archives and duplicate captures.
 - `reports/` — historical standalone reports, including the 2024 trade report.
-- `data/` — user-provided input series, audit tables, and generated model exports. The active core benchmark is [`tradingview_benchmark_session_marks_20261024.csv`](data/tradingview_benchmark_session_marks_20261024.csv), with raw lists, source manifests, and coverage tables beside it. Five provisional XRH0 carry-forwards are flagged; BTC/ETH are omitted from the core, while a chart-directed 1U/DAY/DXY index-return sleeve is integrated into core PnL without treating DXY as a direct-price ticker. Legacy close sets are preserved for historical audits only.
-- `scripts/` — TradingView import/alignment tools, the core replay, energy/DXY sidecar builders, composite builders, and audit tooling. `build_oil_desk_hypothetical.py` is retained for the historical superseded schedule only.
+- `data/` — user-provided input series, audit tables, and generated model exports. Historical TradingView benchmark files and post-cutoff exceptions are preserved beside the [exception index](data/tradingview_post_cutoff_exceptions_v1.csv); they are not approved for active use pending review. Five provisional XRH0 carry-forwards remain separately flagged; BTC/ETH remain outside the core. Legacy close sets are preserved for historical audits only.
+- `scripts/` — TradingView import/alignment tools, source-date policy gate, exception indexer, historical core replay, and model builders. Post-cutoff TradingView import and benchmark rebuilds are blocked by default; other TV-dependent rebuilds are paused by policy until review. `build_oil_desk_hypothetical.py` is retained for the historical superseded schedule only.
 - `tests/` — regression tests for the ledgers, marks, model calculations, and generated outputs.
 - `research/` — topical research reports and working notes, grouped by subject.
 - `references/` — standalone reference documents, including the supplied ledger PDF.
 
 ## Rebuilds
 
-Run the relevant builder from the repository root:
+**TradingView-dependent imports and model/report rebuilds are paused** under the October 20 cutoff. Existing post-cutoff source rows and dependent outputs are flagged and preserved, not automatically recomputed. Do not run a TradingView import, benchmark, sidecar, portfolio, oil, or PnL builder until the flagged inputs have been reviewed and the policy is explicitly amended.
+
+The exception inventory can be refreshed without changing trade/PnL values:
 
 ```bash
-# Benchmark source files are already imported and preserved in data/.
-PYTHONPATH=scripts python3 scripts/build_tradingview_benchmark.py
-PYTHONPATH=scripts python3 scripts/build_tradingview_sidecars.py
-PYTHONPATH=scripts python3 scripts/build_model_performance.py
-PYTHONPATH=scripts python3 scripts/build_core_asset_breakdown.py
-PYTHONPATH=scripts python3 scripts/build_strategy_sidecar_comparison.py
-PYTHONPATH=scripts python3 scripts/build_the_one_model_split_portfolios.py
-python3 scripts/build_weightless_randomized_demo_portfolios.py
-python3 scripts/build_units_experiment_pool.py
-python3 scripts/build_under_duress_oil_replay.py
-python3 scripts/build_monero_eom_conversion_overlay.py
-PYTHONPATH=scripts python3 scripts/build_weekend_oil_50u_positions.py
-PYTHONPATH=scripts python3 scripts/build_oil_cost_basis_savings.py
-PYTHONPATH=scripts python3 scripts/audit_actionable_tickers.py
+python3 scripts/build_tradingview_post_cutoff_exceptions.py
 ```
 
-Do not rebuild the historical whole-portfolio DXY/yield pages as if they were current TradingView results; their local FX/yield inputs and portfolio basis remain historical.
+The pinned historical importers and benchmark builder reject post-cutoff TradingView inputs by default. The `--preserve-flagged-legacy` override is for archival/test reproduction only; it marks those rows as exceptions and does not make them eligible for active use. See [TradingView PaperTrading Block Policy](reports/TradingView%20Post-October%2019%20Block%20Policy.md).
 
 Some chart-generation and test dependencies (for example, Matplotlib and Pillow) may need to be installed in the local environment first.

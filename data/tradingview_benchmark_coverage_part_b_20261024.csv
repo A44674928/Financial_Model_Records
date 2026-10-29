@@ -1,18 +1,18 @@
-Ticker,Coverage_Status,Source_File,Source_Row_Count,Comparison_Session_Rows,Missing_Comparison_Sessions,First_Provided_Date,Last_Provided_Date,2026-10-23_Close,Source
-AAPL,complete_for_comparison_sessions,AAPL PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,348.72500000,User-provided TradingView price list
-AMZN,complete_for_comparison_sessions,AMZN PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,248.00000000,User-provided TradingView price list
-CVX,complete_for_comparison_sessions,CVX PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,233.21000000,User-provided TradingView price list
-DIS,complete_for_comparison_sessions,DIS PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,112.52000000,User-provided TradingView price list
-DXY,complete_for_comparison_sessions,DXY PRICE LIST (TRADINGVIEW).rtf,39,36,,2026-09-01,2026-10-23,101.75100000,User-provided TradingView price list
-LLY,complete_for_comparison_sessions,LLY PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,1273.46000000,User-provided TradingView price list
-NET,complete_for_comparison_sessions,NET PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,325.73000000,User-provided TradingView price list
-NFLX,complete_for_comparison_sessions,NFLX PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,65.85000000,User-provided TradingView price list
-NVDA,complete_for_comparison_sessions,NVDA PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,210.96000000,User-provided TradingView price list
-PEP,complete_for_comparison_sessions,PEP PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,135.77000000,User-provided TradingView price list
-RIVN,complete_for_comparison_sessions,RIVN PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,11.83000000,User-provided TradingView price list
-TMO,complete_for_comparison_sessions,TMO PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,673.82000000,User-provided TradingView price list
-UPS,complete_for_comparison_sessions,UPS PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,101.06000000,User-provided TradingView price list
-V,complete_for_comparison_sessions,V PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,407.92000000,User-provided TradingView price list
-WMT,complete_for_comparison_sessions,WMT PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,119.89000000,User-provided TradingView price list
-XLE,complete_for_comparison_sessions,XLE PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,69.33000000,User-provided TradingView price list
-XRH0,source_has_session_gaps,XRH0 PRICE LIST (TRADINGVIEW).rtf,34,31,2026-09-15;2026-10-07;2026-10-08;2026-10-19;2026-10-22,2026-09-01,2026-10-23,785.00000000,User-provided TradingView price list
+Ticker,Coverage_Status,Source_File,Source_Row_Count,Comparison_Session_Rows,Missing_Comparison_Sessions,First_Provided_Date,Last_Provided_Date,2026-10-23_Close,Source,Policy_Status
+AAPL,complete_for_comparison_sessions,AAPL PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,348.72500000,User-provided TradingView price list,FLAGGED_LEGACY_EXCEPTION_NOT_FOR_ACTIVE_USE
+AMZN,complete_for_comparison_sessions,AMZN PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,248.00000000,User-provided TradingView price list,FLAGGED_LEGACY_EXCEPTION_NOT_FOR_ACTIVE_USE
+CVX,complete_for_comparison_sessions,CVX PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,233.21000000,User-provided TradingView price list,FLAGGED_LEGACY_EXCEPTION_NOT_FOR_ACTIVE_USE
+DIS,complete_for_comparison_sessions,DIS PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,112.52000000,User-provided TradingView price list,FLAGGED_LEGACY_EXCEPTION_NOT_FOR_ACTIVE_USE
+DXY,complete_for_comparison_sessions,DXY PRICE LIST (TRADINGVIEW).rtf,39,36,,2026-09-01,2026-10-23,101.75100000,User-provided TradingView price list,FLAGGED_LEGACY_EXCEPTION_NOT_FOR_ACTIVE_USE
+LLY,complete_for_comparison_sessions,LLY PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,1273.46000000,User-provided TradingView price list,FLAGGED_LEGACY_EXCEPTION_NOT_FOR_ACTIVE_USE
+NET,complete_for_comparison_sessions,NET PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,325.73000000,User-provided TradingView price list,FLAGGED_LEGACY_EXCEPTION_NOT_FOR_ACTIVE_USE
+NFLX,complete_for_comparison_sessions,NFLX PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,65.85000000,User-provided TradingView price list,FLAGGED_LEGACY_EXCEPTION_NOT_FOR_ACTIVE_USE
+NVDA,complete_for_comparison_sessions,NVDA PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,210.96000000,User-provided TradingView price list,FLAGGED_LEGACY_EXCEPTION_NOT_FOR_ACTIVE_USE
+PEP,complete_for_comparison_sessions,PEP PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,135.77000000,User-provided TradingView price list,FLAGGED_LEGACY_EXCEPTION_NOT_FOR_ACTIVE_USE
+RIVN,complete_for_comparison_sessions,RIVN PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,11.83000000,User-provided TradingView price list,FLAGGED_LEGACY_EXCEPTION_NOT_FOR_ACTIVE_USE
+TMO,complete_for_comparison_sessions,TMO PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,673.82000000,User-provided TradingView price list,FLAGGED_LEGACY_EXCEPTION_NOT_FOR_ACTIVE_USE
+UPS,complete_for_comparison_sessions,UPS PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,101.06000000,User-provided TradingView price list,FLAGGED_LEGACY_EXCEPTION_NOT_FOR_ACTIVE_USE
+V,complete_for_comparison_sessions,V PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,407.92000000,User-provided TradingView price list,FLAGGED_LEGACY_EXCEPTION_NOT_FOR_ACTIVE_USE
+WMT,complete_for_comparison_sessions,WMT PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,119.89000000,User-provided TradingView price list,FLAGGED_LEGACY_EXCEPTION_NOT_FOR_ACTIVE_USE
+XLE,complete_for_comparison_sessions,XLE PRICE LIST (TRADINGVIEW).rtf,38,36,,2026-09-01,2026-10-23,69.33000000,User-provided TradingView price list,FLAGGED_LEGACY_EXCEPTION_NOT_FOR_ACTIVE_USE
+XRH0,source_has_session_gaps,XRH0 PRICE LIST (TRADINGVIEW).rtf,34,31,2026-09-15;2026-10-07;2026-10-08;2026-10-19;2026-10-22,2026-09-01,2026-10-23,785.00000000,User-provided TradingView price list,FLAGGED_LEGACY_EXCEPTION_NOT_FOR_ACTIVE_USE

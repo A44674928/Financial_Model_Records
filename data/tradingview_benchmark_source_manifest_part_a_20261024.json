@@ -11,6 +11,9 @@
     "2026-10-23"
   ],
   "model_comparison_session_count": 36,
+  "tradingview_policy_cutoff_date": "2026-10-20",
+  "flagged_post_cutoff_rows": 60,
+  "legacy_exception_preservation_override": true,
   "provided_symbols": [
     "BRENT",
     "CAT",
@@ -53,6 +56,7 @@
     "__MACOSX/ metadata entries"
   ],
   "notes": [
+    "Post-2026-10-19 TradingView rows are blocked by default; when preserved through the explicit legacy override they are flagged and are not approved for active use.",
     "No missing ticker prices are filled from Yahoo Finance or earlier project data.",
     "The September 7 Brent observation is preserved in the normalized source CSV but is outside the 36-session U.S. equity comparison calendar.",
     "The GEV source filename is ticker-specific; its RTF body heading reads TICKER and the filename is used as the symbol key.",
