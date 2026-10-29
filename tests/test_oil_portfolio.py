@@ -73,3 +73,24 @@ def test_oil_portfolio_keeps_separate_book_sources_out_of_model_total():
     report = (ROOT / "reports" / "Oil Portfolio.md").read_text()
     assert "Weekend Oil" in report
     assert "not used in the active replay" in report
+
+
+def test_oil_pnl_reconciliation_attributes_gap_without_shorting():
+    summary = json.loads((ROOT / "data" / "oil_portfolio_summary_v1.json").read_text())
+    reconciliation = summary["pnl_reconciliation"]
+    assert reconciliation["ai_fund_v1_to_v2_removed_pnl_usd_by_variant"] == {
+        "V1": 1214.71, "V2": 1214.71, "V3A": 1214.72, "V3B": 1214.71,
+    }
+    assert reconciliation["transferred_ai_fund_v1_oil_cvx_trade_pnl_usd"] == 1214.71
+    assert reconciliation["oil_portfolio_total_pnl_usd"] == 1723.09
+    assert reconciliation["other_oil_records_net_pnl_usd"] == 508.38
+    assert reconciliation["private_fund_screenshot_reported_close_pnl_usd_separate"] == 2713480646.02
+    assert reconciliation["active_oil_short_entries_used"] == 0
+    assert reconciliation["later_short_entries_not_used"] == 2
+    rows = list(__import__("csv").DictReader((ROOT / "data" / "oil_pnl_reconciliation_v1.csv").open()))
+    moved = [row for row in rows if row["reconciliation_type"] == "TRANSFERRED_AI_FUND_V1_TRADE"]
+    assert len(moved) == 3
+    assert sum(float(row["amount_usd"]) for row in moved) == 1214.71
+    report = (ROOT / "reports" / "Oil Portfolio.md").read_text()
+    assert "not oil shorts" in report
+    assert "$2,713,480,646.02" in report

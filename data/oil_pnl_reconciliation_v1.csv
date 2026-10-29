@@ -1,0 +1,20 @@
+reconciliation_type,variant,ticker,date,source_record_id,amount_usd,status,calculation
+AI_FUND_V1_MINUS_V2,V1,,,,1214.71,Removed from current AI Fund v2 and transferred to Oil; version 1 is historical,28886.28 - 27671.57
+AI_FUND_V1_MINUS_V2,V2,,,,1214.71,Removed from current AI Fund v2 and transferred to Oil; version 1 is historical,28052.06 - 26837.35
+AI_FUND_V1_MINUS_V2,V3A,,,,1214.72,Removed from current AI Fund v2 and transferred to Oil; version 1 is historical,43247.87 - 42033.15
+AI_FUND_V1_MINUS_V2,V3B,,,,1214.71,Removed from current AI Fund v2 and transferred to Oil; version 1 is historical,37656.14 - 36441.43
+TRANSFERRED_AI_FUND_V1_TRADE,all,CVX,2026-09-17,fae365e9f0ec9fe1,642.22,Now held in Oil portfolio; single 1U LONG mark contribution,"1 × $10,000 × (224.37 / 210.83 - 1)"
+TRANSFERRED_AI_FUND_V1_TRADE,all,OIL,2026-09-10,f7d3b984f093d5bd,93.51,Now held in Oil portfolio; single 1U LONG mark contribution,"1 × $10,000 × (98.23 / 97.32 - 1)"
+TRANSFERRED_AI_FUND_V1_TRADE,all,OIL,2026-09-24,0ed52869b27e4387,478.98,Now held in Oil portfolio; single 1U LONG mark contribution,"1 × $10,000 × (98.23 / 93.74 - 1)"
+OIL_PORTFOLIO_BY_TICKER,V1,BRENT,2026-10-19,,-590.87,Current Oil portfolio mark-to-model contribution through cutoff,Realized plus unrealized ticker PnL
+OTHER_OIL_RECORDS_NET_OF_AI_FUND_TRANSFER,V1,BRENT,2026-10-19,,-590.87,Oil/energy records newly included in Oil; no AI Fund v1 overlap,-590.87
+OIL_PORTFOLIO_BY_TICKER,V1,CVX,2026-10-19,,2140.06,Current Oil portfolio mark-to-model contribution through cutoff,Realized plus unrealized ticker PnL
+OTHER_OIL_RECORDS_NET_OF_AI_FUND_TRANSFER,V1,CVX,2026-10-19,,1497.84,Other oil/linked-equity records newly included in Oil; net of moved AI Fund v1 entries,2140.06 - 642.22
+OIL_PORTFOLIO_BY_TICKER,V1,OIL,2026-10-19,,-836.01,Current Oil portfolio mark-to-model contribution through cutoff,Realized plus unrealized ticker PnL
+OTHER_OIL_RECORDS_NET_OF_AI_FUND_TRANSFER,V1,OIL,2026-10-19,,-1408.50,Other oil/linked-equity records newly included in Oil; net of moved AI Fund v1 entries,-836.01 - 572.49
+OIL_PORTFOLIO_BY_TICKER,V1,VLO,2026-10-19,,217.17,Current Oil portfolio mark-to-model contribution through cutoff,Realized plus unrealized ticker PnL
+OTHER_OIL_RECORDS_NET_OF_AI_FUND_TRANSFER,V1,VLO,2026-10-19,,217.17,Oil/energy records newly included in Oil; no AI Fund v1 overlap,217.17
+OIL_PORTFOLIO_BY_TICKER,V1,XLE,2026-10-19,,792.74,Current Oil portfolio mark-to-model contribution through cutoff,Realized plus unrealized ticker PnL
+OTHER_OIL_RECORDS_NET_OF_AI_FUND_TRANSFER,V1,XLE,2026-10-19,,792.74,Oil/energy records newly included in Oil; no AI Fund v1 overlap,792.74
+PRIVATE_FUND_SCREENSHOT_REPORTED_CLOSES,separate book; excluded from active totals,BRENT + OIL,2026-10-29,PRIVATE_TV_BRENT_CLOSE_20261029; PRIVATE_TV_USOIL_CLOSE_20261029,2713480646.02,"Two screenshot-reported LONG close transaction PnLs; post-cutoff and separate-book records, not active Oil model PnL",933875016.74 + 1779605629.28
+SHORTING_CHECK,all,BRENT + OIL,2026-10-19,,,Active short entries used: 0; later short entries preserved but not used: 2,Only active replay records through 2026-10-19 count; post-cutoff short scenarios contribute zero to active PnL

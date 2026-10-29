@@ -331,5 +331,31 @@
         }
       }
     }
+  },
+  "pnl_reconciliation": {
+    "ai_fund_v1_total_pnl_usd_by_variant": {
+      "V1": 28886.28,
+      "V2": 28052.06,
+      "V3A": 43247.87,
+      "V3B": 37656.14
+    },
+    "ai_fund_v2_total_pnl_usd_by_variant": {
+      "V1": 27671.57,
+      "V2": 26837.35,
+      "V3A": 42033.15,
+      "V3B": 36441.43
+    },
+    "ai_fund_v1_to_v2_removed_pnl_usd_by_variant": {
+      "V1": 1214.71,
+      "V2": 1214.71,
+      "V3A": 1214.72,
+      "V3B": 1214.71
+    },
+    "transferred_ai_fund_v1_oil_cvx_trade_pnl_usd": 1214.71,
+    "oil_portfolio_total_pnl_usd": 1723.09,
+    "other_oil_records_net_pnl_usd": 508.38,
+    "private_fund_screenshot_reported_close_pnl_usd_separate": 2713480646.02,
+    "active_oil_short_entries_used": 0,
+    "later_short_entries_not_used": 2
   }
 }
