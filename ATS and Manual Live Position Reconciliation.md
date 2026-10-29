@@ -2,6 +2,20 @@
 
 > **Status and disclosure:** This is a user-directed hypothetical reconciliation, not a verified brokerage ledger, audited account statement, or investment recommendation. The user reports visual oversight/confirmation of ATS activity, but the exact ATS execution quantity is unknown. The requested category names are preserved while every ATS quantity remains explicitly scenario-based.
 
+## Later user-reported ATS oil liquidation
+
+The user reports that the ATS sold **all ATS-held oil positions** as part of an exit from the oil industry, with the intention of selling for profit. This is user-reported and not independently verified. Exact units, execution date/time/timezone, and per-lot fills were not supplied, so no realized PnL, exact closed quantity, or residual ATS balance is calculated.
+
+| Ticker | Marked-price group / user-supplied sale prices | Quantity | Execution date/time |
+|---|---|---:|---|
+| BRENT | Marked above $115: $117.345 to $116.48 | Not supplied | Not supplied |
+| BRENT | Marked below $115: $114.67 to $116.48 | Not supplied | Not supplied |
+| OIL (USOIL) | $103.40 / $101.50 as stated; cohort mapping not specified | Not supplied | Not supplied |
+
+Detailed machine-readable sale bands: [`ats_oil_liquidation_reported_v1.csv`](data/ats_oil_liquidation_reported_v1.csv). The interval endpoints are preserved as ranges, not exact fill prices. The OIL price pair is preserved in the order supplied without assigning it to lots or mark cohorts. No PnL or per-lot exit is inferred.
+
+The open-lot and ATS size-sensitivity tables below are pre-liquidation records; they do not establish current residual ATS units after this report. This update records the ATS scope only, does not reconcile manual or separately hypothetical pool positions, and does not rewrite historical core-model results. The exact quantity and trade chronology are still needed before any lot-level close or realized-PnL calculation can be posted.
+
 ## AUTOMATED TRADING SYSTEM LIVE POSITIONS
 
 For this reconciliation only, the user selected each tagged Oct. 19 Weekend Oil 50U lot as a sizing proxy for a whole-portfolio 80% ATS / 20% manual framework. That proxy yields a maximum ATS allocation of 40U and a separate 10U manual remainder per ticker. It is **not** evidence that either those exact unit sizes or the broader account allocation were actually held.
@@ -71,4 +85,4 @@ The user reported opening these LONG additions but did not specify whether they 
 - The Oct. 25 replenishments and Oct. 26 user-reported additions now have supplied 2026-10-26 TradingView EOD marks (BRENT $115.38; OIL/USOIL $101.30). This reconciliation does not promote those scenario holdings to verified brokerage positions or actual account PnL. Dates/times or categories not supplied by the user remain explicitly marked as assumed or unspecified.
 - Fixed model convention: 1U = $10,000 original notional. Oil unit sizing is not a count of barrels or an account equity percentage.
 
-Machine-readable reconciliation: [`ats_manual_live_positions_v1.csv`](data/ats_manual_live_positions_v1.csv).
+Machine-readable reconciliation: [`ats_manual_live_positions_v1.csv`](data/ats_manual_live_positions_v1.csv); user-reported ATS oil-sale bands: [`ats_oil_liquidation_reported_v1.csv`](data/ats_oil_liquidation_reported_v1.csv).

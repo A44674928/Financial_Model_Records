@@ -18,6 +18,8 @@ class AtsManualReconciliationTests(unittest.TestCase):
         cls.report = module.REPORT_PATH.read_text(encoding="utf-8")
         with module.CSV_PATH.open(newline="", encoding="utf-8") as f:
             cls.rows = list(csv.DictReader(f))
+        with module.LIQUIDATION_CSV_PATH.open(newline="", encoding="utf-8") as f:
+            cls.liquidation_rows = list(csv.DictReader(f))
 
     def test_ats_scenarios_and_closure_first_allocations_reconcile(self):
         ats = [row for row in self.rows if row["record_type"] == "AUTOMATED TRADING SYSTEM LIVE POSITIONS — scenario"]
@@ -127,6 +129,25 @@ class AtsManualReconciliationTests(unittest.TestCase):
         self.assertIn("data/ats_manual_live_positions_v1.csv", self.report)
         self.assertIn("LEGACY BASELINE ONLY", (ROOT / "trades/BRENT.txt").read_text())
         self.assertIn("MANUALLY APPROVED SHORT CLOSURE", (ROOT / "trades/OIL.txt").read_text())
+
+    def test_reported_ats_liquidation_bands_keep_unknowns_and_do_not_claim_pnl(self):
+        self.assertEqual(len(self.liquidation_rows), 3)
+        brent_high = self.liquidation_rows[0]
+        brent_low = self.liquidation_rows[1]
+        oil = self.liquidation_rows[2]
+        self.assertEqual((brent_high["ticker"], brent_high["marked_price_group"], brent_high["sale_price_min_usd"], brent_high["sale_price_max_usd"]), ("BRENT", "marked above $115", "116.480", "117.345"))
+        self.assertEqual((brent_low["ticker"], brent_low["marked_price_group"], brent_low["sale_price_min_usd"], brent_low["sale_price_max_usd"]), ("BRENT", "marked below $115", "114.670", "116.480"))
+        self.assertEqual((oil["ticker"], oil["sale_price_points_as_stated"]), ("OIL (USOIL)", "103.4 / 101.5"))
+        for row in self.liquidation_rows:
+            self.assertEqual(row["quantity_sold"], "not supplied")
+            self.assertEqual(row["execution_date"], "not supplied")
+            self.assertEqual(row["execution_time_timezone"], "not supplied")
+            self.assertIn("not independently verified", row["status"])
+            self.assertIn("No realized PnL computed", row["notes"])
+        self.assertIn("all ATS-held oil positions", self.report)
+        self.assertIn("pre-liquidation records", self.report)
+        self.assertIn("does not rewrite historical core-model results", self.report)
+        self.assertIn("ats_oil_liquidation_reported_v1.csv", self.report)
 
 
 if __name__ == "__main__":

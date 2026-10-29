@@ -13,6 +13,57 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CSV_PATH = ROOT / "data" / "ats_manual_live_positions_v1.csv"
 REPORT_PATH = ROOT / "ATS and Manual Live Position Reconciliation.md"
+LIQUIDATION_CSV_PATH = ROOT / "data" / "ats_oil_liquidation_reported_v1.csv"
+
+LIQUIDATION_FIELDS = [
+    "record_id", "ticker", "liquidation_scope", "marked_price_group",
+    "sale_price_min_usd", "sale_price_max_usd", "sale_price_points_as_stated",
+    "quantity_sold", "execution_date", "execution_time_timezone", "status", "notes",
+]
+LIQUIDATION_ROWS = [
+    {
+        "record_id": "ATS_OIL_LIQUIDATION_BRENT_MARKED_ABOVE_115",
+        "ticker": "BRENT",
+        "liquidation_scope": "All ATS oil holdings per user report; exact units not supplied",
+        "marked_price_group": "marked above $115",
+        "sale_price_min_usd": "116.480",
+        "sale_price_max_usd": "117.345",
+        "sale_price_points_as_stated": "",
+        "quantity_sold": "not supplied",
+        "execution_date": "not supplied",
+        "execution_time_timezone": "not supplied",
+        "status": "User-reported ATS sale; not independently verified",
+        "notes": "User stated sale price was between $117.345 and $116.48 for items marked above $115. Interval endpoints normalized low-to-high for the min/max columns; exact per-lot fills, quantities, and timing not provided. No realized PnL computed.",
+    },
+    {
+        "record_id": "ATS_OIL_LIQUIDATION_BRENT_MARKED_BELOW_115",
+        "ticker": "BRENT",
+        "liquidation_scope": "All ATS oil holdings per user report; exact units not supplied",
+        "marked_price_group": "marked below $115",
+        "sale_price_min_usd": "114.670",
+        "sale_price_max_usd": "116.480",
+        "sale_price_points_as_stated": "",
+        "quantity_sold": "not supplied",
+        "execution_date": "not supplied",
+        "execution_time_timezone": "not supplied",
+        "status": "User-reported ATS sale; not independently verified",
+        "notes": "User stated sale price was between $114.67 and $116.48 for items marked below $115. Exact per-lot fills, quantities, and timing not provided. No realized PnL computed.",
+    },
+    {
+        "record_id": "ATS_OIL_LIQUIDATION_USOIL_PRICE_PAIR",
+        "ticker": "OIL (USOIL)",
+        "liquidation_scope": "All ATS oil holdings per user report; exact units not supplied",
+        "marked_price_group": "not specified for the two OIL prices",
+        "sale_price_min_usd": "",
+        "sale_price_max_usd": "",
+        "sale_price_points_as_stated": "103.4 / 101.5",
+        "quantity_sold": "not supplied",
+        "execution_date": "not supplied",
+        "execution_time_timezone": "not supplied",
+        "status": "User-reported ATS sale; not independently verified",
+        "notes": "User supplied OIL (USOIL) prices as $103.4/$101.5; exact per-lot assignment, fill prices, quantities, and timing not provided. No realized PnL computed.",
+    },
+]
 
 # The user selected the tagged 50U Weekend Oil lots as a proxy denominator.
 # ATS execution sizes below are sensitivities, not probabilities or known fills.
@@ -234,11 +285,33 @@ def build_csv(rows: list[dict[str, str]]) -> None:
         writer.writerows(rows)
 
 
+def build_liquidation_csv() -> None:
+    LIQUIDATION_CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with LIQUIDATION_CSV_PATH.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=LIQUIDATION_FIELDS, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(LIQUIDATION_ROWS)
+
+
 def build_report() -> None:
     lines = [
         "# ATS and Manual Live Position Reconciliation",
         "",
         "> **Status and disclosure:** This is a user-directed hypothetical reconciliation, not a verified brokerage ledger, audited account statement, or investment recommendation. The user reports visual oversight/confirmation of ATS activity, but the exact ATS execution quantity is unknown. The requested category names are preserved while every ATS quantity remains explicitly scenario-based.",
+        "",
+        "## Later user-reported ATS oil liquidation",
+        "",
+        "The user reports that the ATS sold **all ATS-held oil positions** as part of an exit from the oil industry, with the intention of selling for profit. This is user-reported and not independently verified. Exact units, execution date/time/timezone, and per-lot fills were not supplied, so no realized PnL, exact closed quantity, or residual ATS balance is calculated.",
+        "",
+        "| Ticker | Marked-price group / user-supplied sale prices | Quantity | Execution date/time |",
+        "|---|---|---:|---|",
+        "| BRENT | Marked above $115: $117.345 to $116.48 | Not supplied | Not supplied |",
+        "| BRENT | Marked below $115: $114.67 to $116.48 | Not supplied | Not supplied |",
+        "| OIL (USOIL) | $103.40 / $101.50 as stated; cohort mapping not specified | Not supplied | Not supplied |",
+        "",
+        f"Detailed machine-readable sale bands: [`{LIQUIDATION_CSV_PATH.name}`](data/{LIQUIDATION_CSV_PATH.name}). The interval endpoints are preserved as ranges, not exact fill prices. The OIL price pair is preserved in the order supplied without assigning it to lots or mark cohorts. No PnL or per-lot exit is inferred.",
+        "",
+        "The open-lot and ATS size-sensitivity tables below are pre-liquidation records; they do not establish current residual ATS units after this report. This update records the ATS scope only, does not reconcile manual or separately hypothetical pool positions, and does not rewrite historical core-model results. The exact quantity and trade chronology are still needed before any lot-level close or realized-PnL calculation can be posted.",
         "",
         "## AUTOMATED TRADING SYSTEM LIVE POSITIONS",
         "",
@@ -309,7 +382,7 @@ def build_report() -> None:
         "- The Oct. 25 replenishments and Oct. 26 user-reported additions now have supplied 2026-10-26 TradingView EOD marks (BRENT $115.38; OIL/USOIL $101.30). This reconciliation does not promote those scenario holdings to verified brokerage positions or actual account PnL. Dates/times or categories not supplied by the user remain explicitly marked as assumed or unspecified.",
         "- Fixed model convention: 1U = $10,000 original notional. Oil unit sizing is not a count of barrels or an account equity percentage.",
         "",
-        f"Machine-readable reconciliation: [`{CSV_PATH.name}`](data/{CSV_PATH.name}).",
+        f"Machine-readable reconciliation: [`{CSV_PATH.name}`](data/{CSV_PATH.name}); user-reported ATS oil-sale bands: [`{LIQUIDATION_CSV_PATH.name}`](data/{LIQUIDATION_CSV_PATH.name}).",
         "",
     ]
     REPORT_PATH.write_text("\n".join(lines), encoding="utf-8")
@@ -318,8 +391,10 @@ def build_report() -> None:
 def main() -> None:
     rows = records()
     build_csv(rows)
+    build_liquidation_csv()
     build_report()
     print(f"Wrote {CSV_PATH.relative_to(ROOT)} ({len(rows)} rows)")
+    print(f"Wrote {LIQUIDATION_CSV_PATH.relative_to(ROOT)} ({len(LIQUIDATION_ROWS)} rows)")
     print(f"Wrote {REPORT_PATH.name}")
 
 
