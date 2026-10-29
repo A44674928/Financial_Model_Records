@@ -44,7 +44,7 @@ The order is recorded as a separate LCID lot at fill value. The screenshot does 
 | BRENT (`BLACKBULL:BRENT`) | Close long | 538,566,907 | $114.043000 | $115.777 | +$933,875,016.74 | 2026-10-29 10:41:44; timezone not shown |
 | USOIL (`TVC:USOIL`) | Close long | 601,218,118 | $99.180000 | $102.14 | +$1,779,605,629.28 | 2026-10-29 10:41:38; timezone not shown |
 
-Screenshots and provenance: [`Archive/November_2026_Experiment_Oil_Closes_2026-10-29/README.md`](../Archive/November_2026_Experiment_Oil_Closes_2026-10-29/README.md). The account-level before/after balances and cumulative account PnL displayed in those screenshots are not added here; only the two transaction-level realized-PnL figures are included.
+Screenshots and provenance: [`Archive/November_2026_Experiment_Oil_Closes_2026-10-29/README.md`](../Archive/November_2026_Experiment_Oil_Closes_2026-10-29/README.md). The account-level before/after balances and cumulative account PnL displayed in those screenshots are not added here; only the two transaction-level realized-PnL figures are included. In the separate under-duress scenario, these two closes are marked voided and the lots are restored as open at the screenshot close-price marks; the historical source ledger above is not overwritten. See [`Under-Duress Oil Sale Void Replay.md`](Under-Duress%20Oil%20Sale%20Void%20Replay.md).
 
 ## Provenance and limitations
 

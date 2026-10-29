@@ -48,4 +48,8 @@ The $2.0B share/equity component is $690M, or **52.67%**, above the stated $1.31
 
 No share count, diluted share count, exchange ratio, per-share offer price, debt/cash adjustment, or financing source was supplied or inferred. The $1.31B market-cap reference is user-provided for 2026-10-29; its source/time was not supplied. This is a hypothetical planning scenario only—not a submitted, authorized, or public buyout offer, and not a statement that the proposed consideration is funded or available.
 
+### Separate under-duress oil replay funding treatment
+
+For the under-duress oil-sale replay only, the full **$4.2B** hypothetical consideration is tagged as a new scenario restoration-funding pool, separated into **$2.2B cash** and **$2.0B non-cash share/equity value**. The pool is unallocated and unreceived; it does not convert the offer into a real acquisition or make the share component spendable cash. See [`Under-Duress Oil Sale Void Replay.md`](reports/Under-Duress%20Oil%20Sale%20Void%20Replay.md).
+
 Main comparison: [`Model Performance Comparison.md`](Model%20Performance%20Comparison.md).
