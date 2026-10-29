@@ -65,6 +65,9 @@ def test_50u_each_is_reallocated_from_foundation_to_winning_model():
         "1246948058.69", "1236373664.12"
     ]
     assert all("not a new fill or duplicate position" in row["execution_status"] for row in transferred)
+    envelope = pool.modeled_exit_price_envelope(lots)
+    assert envelope["COMBINED"]["low_pnl"].quantize(Decimal("0.01")) == Decimal("2396569687.95")
+    assert envelope["COMBINED"]["high_pnl"].quantize(Decimal("0.01")) == Decimal("3266753771.99")
 
 
 def test_written_csv_and_report_keep_two_stage_and_hypothetical_scope_explicit():
@@ -82,7 +85,12 @@ def test_written_csv_and_report_keep_two_stage_and_hypothetical_scope_explicit()
     assert len(foundation_lots) == 8
     assert sum(Decimal(row["funded_notional_usd"]) for row in foundation_lots if row["lot_id"] == "TRANSFERRED_50U_TO_WINNING_MODEL") == Decimal("1000000.00")
     report = pool.OUTPUT_REPORT.read_text(encoding="utf-8")
-    assert "User-estimated, hypothetical paper portfolio" in report
+    assert "Historical allocation model and later user-reported exit" in report
+    assert "underlying money was verified in an account" in report
+    assert "Latest user-reported ATS liquidation and organization dissolution" in report
+    assert "organization dissolved at a profit" in report
+    assert "$2,396,569,687.95" in report and "$3,266,753,771.99" in report
+    assert "$870,184,084.04" in report
     assert "approximately the prior **45 days**" in report
     assert "manual transcription/normalization" in report
     assert "TradingView account resets do not erase records already archived here" in report
@@ -96,12 +104,12 @@ def test_written_csv_and_report_keep_two_stage_and_hypothetical_scope_explicit()
     assert "$498,100,395.26" in report
     assert "THE WINNING MODEL" in report and "burden/capital reallocation" in report
     assert "conditional on" in report
-    assert "both** supplied BRENT and OIL EOD marks reach **$200.00**" in report
+    assert "both BRENT and OIL EOD marks to reach **$200.00**" in report
     assert "they are **not** contract, barrel, share, or broker-order quantities" in report
     assert "Sep. 23 / $102.315" in report
     assert "Sep. 22 / $89.89" in report
     assert "The year was not stated in your text" in report
     assert "not modeled as a fill or close event" in report
-    assert "**LOCKED** as of supplied TradingView marks dated **2026-10-26**" in report
+    assert "**Historical lock status at the last supplied TradingView close:** **LOCKED** as of **2026-10-26**" in report
     assert "$1,213,906,232.61" in report and "$1,206,672,178.97" in report
     assert "actual account PnL" in report

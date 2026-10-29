@@ -18,6 +18,8 @@ class AtsManualReconciliationTests(unittest.TestCase):
         cls.report = module.REPORT_PATH.read_text(encoding="utf-8")
         with module.CSV_PATH.open(newline="", encoding="utf-8") as f:
             cls.rows = list(csv.DictReader(f))
+        with module.LIQUIDATION_CSV_PATH.open(newline="", encoding="utf-8") as f:
+            cls.liquidation_rows = list(csv.DictReader(f))
 
     def test_ats_scenarios_and_closure_first_allocations_reconcile(self):
         ats = [row for row in self.rows if row["record_type"] == "AUTOMATED TRADING SYSTEM LIVE POSITIONS — scenario"]
@@ -127,6 +129,38 @@ class AtsManualReconciliationTests(unittest.TestCase):
         self.assertIn("data/ats_manual_live_positions_v1.csv", self.report)
         self.assertIn("LEGACY BASELINE ONLY", (ROOT / "trades/BRENT.txt").read_text())
         self.assertIn("MANUALLY APPROVED SHORT CLOSURE", (ROOT / "trades/OIL.txt").read_text())
+
+    def test_reported_ats_liquidation_bands_preserve_uncertainty_and_profit_claim(self):
+        self.assertEqual(len(self.liquidation_rows), 3)
+        brent_high = self.liquidation_rows[0]
+        brent_low = self.liquidation_rows[1]
+        oil = self.liquidation_rows[2]
+        self.assertEqual((brent_high["ticker"], brent_high["marked_price_group"], brent_high["sale_price_min_usd"], brent_high["sale_price_max_usd"]), ("BRENT", "marked above $115", "116.480", "117.345"))
+        self.assertEqual((brent_low["ticker"], brent_low["marked_price_group"], brent_low["sale_price_min_usd"], brent_low["sale_price_max_usd"]), ("BRENT", "marked below $115", "114.670", "116.480"))
+        self.assertEqual((oil["ticker"], oil["sale_price_points_as_stated"]), ("OIL (USOIL)", "103.4 / 101.5"))
+        expected_quantities = [
+            "ALL UNITS IN THIS MARKED-PRICE GROUP; exact count not supplied",
+            "ALL UNITS IN THIS MARKED-PRICE GROUP; exact count not supplied",
+            "ALL OIL UNITS; exact count not supplied",
+        ]
+        for row, expected_quantity in zip(self.liquidation_rows, expected_quantities):
+            self.assertEqual(row["quantity_sold"], expected_quantity)
+            self.assertEqual(row["reported_remaining_units"], "0 per user report")
+            self.assertEqual(row["reason_for_exit"], "Repeated and continued harassment while working the desk.")
+            self.assertEqual(row["execution_date"], "not supplied")
+            self.assertEqual(row["execution_time_timezone"], "not supplied")
+            self.assertIn("not independently verified", row["status"])
+            self.assertIn("exact realized PnL is not independently verified", row["notes"])
+            self.assertIn("Automatically executed via ATS per user report", row["execution_method"])
+            self.assertEqual(row["organization_status"], "Dissolved at a profit per user report")
+            self.assertIn("approximately $2.4B", row["user_reported_profit_claim"])
+        self.assertIn("all units in the locked $200 LONG foundation were automatically liquidated", self.report)
+        self.assertIn("Repeated and continued harassment while working the desk", self.report)
+        self.assertIn("organization has dissolved at a profit", self.report)
+        self.assertIn("pre-liquidation references", self.report)
+        self.assertIn("zero BRENT/USOIL units remain", self.report)
+        self.assertIn("not rewritten as verified fills", self.report)
+        self.assertIn("ats_oil_liquidation_reported_v1.csv", self.report)
 
 
 if __name__ == "__main__":

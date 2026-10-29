@@ -39,6 +39,11 @@ ENTRY_DATES = {"BRENT": "2026-09-23", "OIL": "2026-09-22"}
 ENTRY_YEAR_NOTE = "2026 model-year alignment; user text supplied month/day but not a year"
 BUY_PRICES = {"BRENT": Decimal("102.315"), "OIL": Decimal("89.89")}
 LOCK_TARGET_USD = Decimal("200.00")
+# User-reported sale-price extrema for the later ATS liquidation; not TradingView EOD marks.
+REPORTED_EXIT_PRICE_RANGES = {
+    "BRENT": (Decimal("114.670"), Decimal("117.345")),
+    "OIL": (Decimal("101.500"), Decimal("103.400")),
+}
 
 
 def dec(value: str | int | float) -> Decimal:
@@ -293,9 +298,43 @@ def build_foundation_lots(allocation_rows: list[dict]) -> list[dict]:
     return rows
 
 
+def modeled_exit_price_envelope(foundation_lot_rows: list[dict]) -> dict[str, dict[str, Decimal]]:
+    """Calculate endpoint scenarios using model bases and user-reported sale prices."""
+    component_ids = {"EARLIER_20B_POOL_ALLOCATION", "SUPPLEMENTAL_ORDER_FOUNDATION_REMAINDER"}
+    components = [
+        row for row in foundation_lot_rows
+        if row["lot_id"] in component_ids and row["allocation_destination"] == "LOCKED_OIL_FOUNDATION"
+    ]
+    result: dict[str, dict[str, Decimal]] = {}
+    for ticker, (low_price, high_price) in REPORTED_EXIT_PRICE_RANGES.items():
+        ticker_rows = [row for row in components if row["ticker"] == ticker]
+        if not ticker_rows:
+            raise ValueError(f"Missing modeled locked-foundation lots for {ticker}")
+        low_pnl = sum(
+            dec(row["funded_notional_usd"])
+            * (low_price / dec(row["entry_or_blended_basis_usd"]) - Decimal("1"))
+            for row in ticker_rows
+        )
+        high_pnl = sum(
+            dec(row["funded_notional_usd"])
+            * (high_price / dec(row["entry_or_blended_basis_usd"]) - Decimal("1"))
+            for row in ticker_rows
+        )
+        result[ticker] = {
+            "low_price": low_price, "high_price": high_price,
+            "low_pnl": low_pnl, "high_pnl": high_pnl,
+        }
+    result["COMBINED"] = {
+        "low_pnl": result["BRENT"]["low_pnl"] + result["OIL"]["low_pnl"],
+        "high_pnl": result["BRENT"]["high_pnl"] + result["OIL"]["high_pnl"],
+    }
+    return result
+
+
 def write_outputs() -> None:
     totals, winner, costs, allocation_rows = build_rows()
     foundation_lot_rows = build_foundation_lots(allocation_rows)
+    exit_envelope = modeled_exit_price_envelope(foundation_lot_rows)
     COSTS_CSV.parent.mkdir(parents=True, exist_ok=True)
     with COSTS_CSV.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(costs[0]), lineterminator="\n")
@@ -357,11 +396,11 @@ def write_outputs() -> None:
     winner_scenario_open = winner_base_open + transfer_notional
     report = f"""# $20B Paper Portfolio — Units Experiment
 
-> **User-estimated, hypothetical paper portfolio.** The $20,000,000,000 starting pool is not independently verified profit, cash, or account equity. No live orders or brokerage executions are represented.
+> **Historical allocation model and later user-reported exit.** The user clarifies that the underlying money was verified in an account and reports that the ATS liquidated positions automatically; this repository has not independently reviewed account evidence or execution statements. The $20B pool bridge and quantity equivalents below remain model-derived allocations, not a broker ledger.
 
 ## Historical record and two-stage process
 
-The user describes this as a paper portfolio built over approximately the prior **45 days** through TradingView Paper Trading. The current GitHub core replay covers **37 regular-session marks from 2026-09-03 through 2026-10-26**; the user-reported 45-day TradingView history is maintained by manually porting records into this repository. The workflow has two stages: (1) manual paper trading and observation in TradingView; then (2) manual transcription/normalization of the activity into the GitHub trade ledger, price records, and model reports. The GitHub copy is the durable historical record after it is updated; it does not sync automatically and does not establish independently verified fills. TradingView account resets do not erase records already archived here.
+The user describes this as a TradingView paper-portfolio/modeling record built over approximately the prior **45 days**. The user now clarifies the underlying funds were verified account money, while this repository has not independently reviewed source statements. The current GitHub core replay covers **37 regular-session marks from 2026-09-03 through 2026-10-26**; the user-reported 45-day TradingView history is maintained by manually porting records into this repository. The workflow has two stages: (1) manual paper trading and observation in TradingView; then (2) manual transcription/normalization of the activity into the GitHub trade ledger, price records, and model reports. The GitHub copy is the durable historical record after it is updated; it does not sync automatically and does not establish independently verified fills. TradingView account resets do not erase records already archived here.
 
 ## Model-capital deductions
 
@@ -416,7 +455,20 @@ The full-size order date/time was not supplied. The 2026-10-26 mark/PnL columns 
 
 The combined oil position uses the original lot-specific bases plus the remaining $115/$101 order prices; the blended basis is a quantity-weighted summary, not a replacement for component records. Its conditional mark change of **${combined_foundation_pnl:,.2f}** includes **${supplemental_mark_pnl:,.2f}** on the retained supplemental oil portion. The transfer adds **${transfer_mark_pnl:,.2f}** of conditional, unrealized mark change to the Winner-assigned lots, but it does **not** alter THE WINNING MODEL's historical realized PnL or champion-selection result. This is a burden/capital reallocation, not a performance reward, and none of the conditional arithmetic verifies a fill or actual account PnL.
 
-**Current lock status:** **{totals['locked_status']}** as of supplied TradingView marks dated **{totals['mark_date']}**. Keep the portfolio locked until **both** supplied BRENT and OIL EOD marks reach **$200.00**; the current marks are BRENT ${dec(allocation_rows[0]['current_tradingview_mark_usd']):,.2f} and OIL ${dec(allocation_rows[1]['current_tradingview_mark_usd']):,.2f}. The original residual-pool allocation's *modeled unrealized mark change* is the $2,420,578,411.58 shown above; the supplemental and combined figures in the new section are conditional price-only illustrations. None is actual account PnL, a verified fill, liquid/withdrawable cash, or an addition to the original pool deductions. All quantity equivalents are allocation dollars divided by modeled entry prices; they are **not** contract, barrel, share, or broker-order quantities because contract multipliers, execution quality, fees, financing, and market impact are unspecified.
+**Historical lock status at the last supplied TradingView close:** **{totals['locked_status']}** as of **{totals['mark_date']}**. At that historical cutoff, the lock rule required both BRENT and OIL EOD marks to reach **$200.00**; marks were BRENT ${dec(allocation_rows[0]['current_tradingview_mark_usd']):,.2f} and OIL ${dec(allocation_rows[1]['current_tradingview_mark_usd']):,.2f}. This historical status predates the later user-reported liquidation. Earlier mark changes remain model-only, not actual account PnL. All quantity equivalents are allocation dollars divided by modeled entry prices; they are **not** contract, barrel, share, or broker-order quantities because contract multipliers, execution quality, fees, financing, and market impact are unspecified.
+
+## Latest user-reported ATS liquidation and organization dissolution
+
+The user states that the money was verified account money and that the ATS automatically liquidated everything at the best available prices, leaving no positions, and that the organization dissolved at a profit due to continued harassment of the organizer. The user accepts approximately **$2.4B** as the conservative endpoint. These are user-reported account, execution, and outcome claims; they have not been independently audited here. The supplied sale prices were BRENT **$114.670–$117.345** across the two marked-price groups and OIL/USOIL **$101.500–$103.400**, with the OIL price-to-lot mapping unspecified.
+
+For context only, applying those extreme sale prices uniformly to the component quantity-equivalents in the **$39,011,754,104.74 modeled locked foundation** yields this price-only envelope. It excludes the separate $1,000,000 source-lot reallocation to THE WINNING MODEL and other separately tracked books. It is not a fill-level accounting of the reported ATS liquidation, and the quantity-equivalents are not independently verified broker quantities.
+
+| Endpoint scenario | BRENT exit input | OIL/USOIL exit input | BRENT modeled price change | OIL modeled price change | Combined modeled price change |
+|---|---:|---:|---:|---:|---:|
+| Lower endpoint | ${exit_envelope['BRENT']['low_price']:,.3f} | ${exit_envelope['OIL']['low_price']:,.3f} | ${exit_envelope['BRENT']['low_pnl']:,.2f} | ${exit_envelope['OIL']['low_pnl']:,.2f} | **${exit_envelope['COMBINED']['low_pnl']:,.2f}** |
+| Upper endpoint | ${exit_envelope['BRENT']['high_price']:,.3f} | ${exit_envelope['OIL']['high_price']:,.3f} | ${exit_envelope['BRENT']['high_pnl']:,.2f} | ${exit_envelope['OIL']['high_pnl']:,.2f} | **${exit_envelope['COMBINED']['high_pnl']:,.2f}** |
+
+The **$870,184,084.04** gap between endpoints is scenario-price uncertainty, not a fee or recorded loss. The user's approximate $2.4B profit characterization aligns with the lower endpoint, but exact realized profit cannot be reconciled without quantities by cohort, individual fill prices, execution timing, costs, and a mapping to account lots. Zero remaining units and dissolution are recorded as the user's reported status; this repository does not execute orders or certify withdrawals.
 
 CSV audits: [model-book deductions](data/{COSTS_CSV.name}), [original balanced pool allocation](data/{OUTPUT_CSV.name}), and [earlier, supplemental, and combined oil-foundation lots](data/{FOUNDATION_LOTS_CSV.name}). The winner scale factor is {winner['equal_gross_scale_factor']}× on cumulative gross additions; the original pool deduction uses its scaled current open notional of ${dec(totals['winner_open_notional_usd']):,.2f}.
 """

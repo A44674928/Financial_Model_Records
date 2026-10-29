@@ -1,0 +1,6 @@
+balance_sheet_name,experiment,as_of_date,balance_sheet_line,amount_usd,classification,notes
+Harshal's Private Fund,November 2026++ Experiment,November 2026,Profit-only opening cash balance,2396569687.95,User-selected model estimate,"Lower endpoint of prior model-based oil liquidation estimate; approximately $2.4B; exact realized PnL is not fill-reconciled or independently verified"
+Harshal's Private Fund,November 2026++ Experiment,November 2026,Principal carried into experiment,0.00,Excluded by user instruction,"Original principal is excluded from this experiment; zero here does not mean original principal was zero or lost"
+Harshal's Private Fund,November 2026++ Experiment,November 2026,Other assets carried in,0.00,Excluded from scope,"No other assets included"
+Harshal's Private Fund,November 2026++ Experiment,November 2026,Liabilities carried in,0.00,Not supplied,"No liabilities supplied or modeled"
+Harshal's Private Fund,November 2026++ Experiment,November 2026,Net assets / opening balance,2396569687.95,User-selected model estimate,"Profit-only opening balance; does not include principal or the high-end estimate"

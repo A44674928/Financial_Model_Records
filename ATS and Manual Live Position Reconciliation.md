@@ -1,6 +1,20 @@
 # ATS and Manual Live Position Reconciliation
 
-> **Status and disclosure:** This is a user-directed hypothetical reconciliation, not a verified brokerage ledger, audited account statement, or investment recommendation. The user reports visual oversight/confirmation of ATS activity, but the exact ATS execution quantity is unknown. The requested category names are preserved while every ATS quantity remains explicitly scenario-based.
+> **Status and disclosure:** This is a user-directed reconciliation, not an audited brokerage ledger or investment recommendation. The user clarifies that the underlying funds were verified account money, that ATS automatically liquidated all positions at the best available prices, and that the organization dissolved at a profit because of harassment of the organizer. Those account and execution claims are user-reported and have not been independently reviewed here. Historical ATS quantities and fill-level allocations remain uncertain; scenario tables below remain scenario-based.
+
+## Later user-reported ATS oil liquidation
+
+The user clarifies that the funds were verified money in an account and reports that **all units in the locked $200 LONG foundation were automatically liquidated through the ATS** at the best prices available, converting the positions to cash; the user says the organization has dissolved at a profit and no oil units remain. The user attributes the exit to “Repeated and continued harassment while working the desk” and harassment of the organizer. The user accepts approximately **$2.4B** as the conservative endpoint of the earlier model-based exit estimate. This is a user-reported account/execution/profit claim, not independently audited here. Exact unit counts, individual fills, execution date/time/timezone, and mapping to separate manual, hypothetical, or other market books remain unspecified; the approximate PnL cannot be reconciled to fills from the available data.
+
+| Ticker | Marked-price group / user-supplied sale prices | Quantity | Remaining units | Execution date/time |
+|---|---|---:|---:|---|
+| BRENT | Marked above $115: $117.345 to $116.48 | All units in group; exact count not supplied | 0 per user report | Not supplied |
+| BRENT | Marked below $115: $114.67 to $116.48 | All units in group; exact count not supplied | 0 per user report | Not supplied |
+| OIL (USOIL) | $103.40 / $101.50 as stated; cohort mapping not specified | All OIL units; exact count not supplied | 0 per user report | Not supplied |
+
+Detailed machine-readable sale bands: [`ats_oil_liquidation_reported_v1.csv`](data/ats_oil_liquidation_reported_v1.csv). The interval endpoints are preserved as user-reported sale-price ranges, not independently verified individual fills. The OIL price pair is preserved in the order supplied without assigning it to lots or mark cohorts. The earlier $2.397B–$3.267B range is a model-based price-envelope estimate for the locked foundation, not a fill-level realized-PnL calculation; the user accepts its conservative endpoint as approximately $2.4B. No precise per-lot PnL is inferred.
+
+The open-lot and ATS size-sensitivity tables below are pre-liquidation references. The user reports zero BRENT/USOIL units remain after the ATS liquidation and that the organization is dissolved. Exact count and source-book/lot mapping are unspecified, so older tables do not establish post-exit balances. Historical trade-log entries and separate manual/model books are not rewritten as verified fills without exact trade mapping; the user-reported organization-wide profit claim is retained separately from those historical records.
 
 ## AUTOMATED TRADING SYSTEM LIVE POSITIONS
 
@@ -71,4 +85,4 @@ The user reported opening these LONG additions but did not specify whether they 
 - The Oct. 25 replenishments and Oct. 26 user-reported additions now have supplied 2026-10-26 TradingView EOD marks (BRENT $115.38; OIL/USOIL $101.30). This reconciliation does not promote those scenario holdings to verified brokerage positions or actual account PnL. Dates/times or categories not supplied by the user remain explicitly marked as assumed or unspecified.
 - Fixed model convention: 1U = $10,000 original notional. Oil unit sizing is not a count of barrels or an account equity percentage.
 
-Machine-readable reconciliation: [`ats_manual_live_positions_v1.csv`](data/ats_manual_live_positions_v1.csv).
+Machine-readable reconciliation: [`ats_manual_live_positions_v1.csv`](data/ats_manual_live_positions_v1.csv); user-reported ATS oil-sale bands: [`ats_oil_liquidation_reported_v1.csv`](data/ats_oil_liquidation_reported_v1.csv).
