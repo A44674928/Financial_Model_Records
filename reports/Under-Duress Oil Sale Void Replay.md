@@ -4,7 +4,7 @@
 
 ## Replay policy
 
-- A voided close is skipped by the replay; its original event remains in the audit trail. A long sale restores the linked long lot; a short-cover close restores that short lot. No cross-book netting or silent deletion is performed.
+- A voided close is skipped by the replay; its original event remains in the audit trail. Long sales restore their linked long lots. The ATS sensitivity short openings and their linked covers are explicitly nullified per the user's latest direction, so they create no open short positions. No cross-book netting or silent deletion is performed.
 - This replay covers the ATS locked $200 LONG foundation liquidation; the documented legacy oil trims; the named October 26 50U cash-outs; the October 29 TradingView Paper Trading closes; and the ATS 10U/20U/30U/40U close sensitivities. ATS scenario rows are alternatives, not additive positions.
 - The ATS foundation is restored from the last pre-liquidation modeled allocation snapshot dated October 26, 2026. Its quantity equivalents and values are model outputs, not verified contracts or broker fills; exact liquidation quantities, fills, and timing remain unknown.
 - Per-book marks are the event price or last documented pre-liquidation mark. They are not all a single simultaneous portfolio valuation. Contract multipliers, fees, taxes, funding sources, and leverage are not inferred.
@@ -24,21 +24,13 @@ The following table is an event-level restoration overlay: it adds back lots aff
 | Core / manual live test lot / paired 50U lot cash-out | BRENT | LONG | 50 U ($10,000 notional each) | $115.510000 | $117.409000 (2026-10-26) | $8,220.07 |
 | Core / ATS mirror live test lot / paired 50U lot cash-out | OIL (USOIL) | LONG | 50 U ($10,000 notional each) | $101.110000 | $102.710000 (2026-10-26) | $7,912.17 |
 | ATS 50U campaign sensitivity / 10U ATS exit sensitivity | BRENT | LONG | 10 U ($10,000 notional each) | $111.412000 | $118.000000 (2026-10-23) | $5,913.19 |
-| ATS 50U campaign sensitivity / 10U ATS exit sensitivity | BRENT | SHORT | 10 U ($10,000 notional each) | $118.000000 | $114.627000 (2026-10-25) | $2,858.47 |
 | ATS 50U campaign sensitivity / 20U ATS exit sensitivity | BRENT | LONG | 20 U ($10,000 notional each) | $111.412000 | $118.000000 (2026-10-23) | $11,826.37 |
-| ATS 50U campaign sensitivity / 20U ATS exit sensitivity | BRENT | SHORT | 20 U ($10,000 notional each) | $118.000000 | $114.627000 (2026-10-25) | $5,716.95 |
 | ATS 50U campaign sensitivity / 30U ATS exit sensitivity | BRENT | LONG | 30 U ($10,000 notional each) | $111.412000 | $118.000000 (2026-10-23) | $17,739.56 |
-| ATS 50U campaign sensitivity / 30U ATS exit sensitivity | BRENT | SHORT | 30 U ($10,000 notional each) | $118.000000 | $114.627000 (2026-10-25) | $8,575.42 |
 | ATS 50U campaign sensitivity / 40U ATS exit sensitivity | BRENT | LONG | 40 U ($10,000 notional each) | $111.412000 | $118.000000 (2026-10-23) | $23,652.75 |
-| ATS 50U campaign sensitivity / 40U ATS exit sensitivity | BRENT | SHORT | 40 U ($10,000 notional each) | $118.000000 | $114.627000 (2026-10-25) | $11,433.90 |
 | ATS 50U campaign sensitivity / 10U ATS exit sensitivity | OIL (USOIL) | LONG | 10 U ($10,000 notional each) | $99.040000 | $103.500000 (2026-10-23) | $4,503.23 |
-| ATS 50U campaign sensitivity / 10U ATS exit sensitivity | OIL (USOIL) | SHORT | 10 U ($10,000 notional each) | $103.500000 | $100.740000 (2026-10-25) | $2,666.67 |
 | ATS 50U campaign sensitivity / 20U ATS exit sensitivity | OIL (USOIL) | LONG | 20 U ($10,000 notional each) | $99.040000 | $103.500000 (2026-10-23) | $9,006.46 |
-| ATS 50U campaign sensitivity / 20U ATS exit sensitivity | OIL (USOIL) | SHORT | 20 U ($10,000 notional each) | $103.500000 | $100.740000 (2026-10-25) | $5,333.33 |
 | ATS 50U campaign sensitivity / 30U ATS exit sensitivity | OIL (USOIL) | LONG | 30 U ($10,000 notional each) | $99.040000 | $103.500000 (2026-10-23) | $13,509.69 |
-| ATS 50U campaign sensitivity / 30U ATS exit sensitivity | OIL (USOIL) | SHORT | 30 U ($10,000 notional each) | $103.500000 | $100.740000 (2026-10-25) | $8,000.00 |
 | ATS 50U campaign sensitivity / 40U ATS exit sensitivity | OIL (USOIL) | LONG | 40 U ($10,000 notional each) | $99.040000 | $103.500000 (2026-10-23) | $18,012.92 |
-| ATS 50U campaign sensitivity / 40U ATS exit sensitivity | OIL (USOIL) | SHORT | 40 U ($10,000 notional each) | $103.500000 | $100.740000 (2026-10-25) | $10,666.67 |
 
 ### Screenshot PnL treatment
 
@@ -46,7 +38,9 @@ For the October 29 private-fund TradingView Paper Trading closes, the reported t
 
 ### ATS campaign sensitivities
 
-The modeled ATS long exits restore the corresponding 10U, 20U, 30U, or 40U of the tagged 50U campaign lot. Voiding the later cover/short-closure legs leaves the originally modeled 10U–40U shorts open in the matching scenario. The quantities are user-reported/model sensitivities, not a verified ATS fill history. Each scenario remains separate.
+The modeled ATS long exits restore the corresponding 10U, 20U, 30U, or 40U of the tagged 50U campaign lot. Per the user's latest direction, the matching short-opening and subsequent cover/closure lifecycle is nullified in every sensitivity: **the replay has no open ATS shorts**. The eight nullification decisions remain in the event register but do not appear as restored positions. Quantities are user-reported/model sensitivities, not a verified ATS fill history; each scenario remains separate.
+
+Nullified short-lifecycle records: **8** (BRENT and OIL/USOIL at the 10U, 20U, 30U, and 40U sensitivities). These are audit actions, not positions.
 
 ## LCID buyout consideration as scenario funding
 
@@ -60,6 +54,6 @@ The LCID terms remain hypothetical, not an actual bid or completed transaction. 
 
 ## Source event register and audit limits
 
-The versioned event register contains **24** voided scenario events: [`under_duress_oil_void_events_v1.csv`](../data/under_duress_oil_void_events_v1.csv). Rebuilt event-level positions are [`under_duress_oil_restored_positions_v1.csv`](../data/under_duress_oil_restored_positions_v1.csv); scenario funding terms are [`under_duress_lcid_scenario_funding_v1.csv`](../data/under_duress_lcid_scenario_funding_v1.csv).
+The versioned event register contains **24** scenario actions, including **8** short-lifecycle nullifications. The restored-position file contains **16** position rows: [`under_duress_oil_restored_positions_v1.csv`](../data/under_duress_oil_restored_positions_v1.csv). The full event register is [`under_duress_oil_void_events_v1.csv`](../data/under_duress_oil_void_events_v1.csv); scenario funding terms are [`under_duress_lcid_scenario_funding_v1.csv`](../data/under_duress_lcid_scenario_funding_v1.csv).
 
 The user's prior report of zero oil units after the ATS liquidation and the earlier realized-PnL records remain part of the preserved historical source record. This replay is a parallel what-if view that marks selected close events voidable; it does not establish that any broker or ATS reversed an execution. Unknown ATS quantities are not turned into actual holdings; only the last documented modeled allocation is restored as quantity equivalents.

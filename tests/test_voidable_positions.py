@@ -27,6 +27,14 @@ def test_voided_close_preserves_original_lot_and_audit_event():
     assert rebuild_open_lots(events) == {("ATS", "BRENT", "lot-1"): Decimal("50")}
 
 
+def test_nullifying_short_open_suppresses_its_linked_close_lifecycle():
+    events = [
+        event("short-open", "OPEN", "20", side="SHORT", voided=True, void_reason="under duress"),
+        event("short-cover", "CLOSE", "20", side="SHORT", voided=True, void_reason="under duress"),
+    ]
+    assert rebuild_open_lots(events) == {}
+
+
 def test_nonvoided_close_reduces_only_its_book_and_lot():
     events = [
         event("open", "OPEN", "50"),

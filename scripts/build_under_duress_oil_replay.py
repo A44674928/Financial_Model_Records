@@ -38,6 +38,12 @@ def build_positions(events):
     output = []
     for event in events:
         qty = Decimal(event["restored_quantity"])
+        if event["position_effect"] == "NULLIFY_SHORT_NO_POSITION":
+            if qty != 0 or event["restored_side"] != "NONE":
+                raise ValueError(f"nullified event must produce no position: {event['event_id']}")
+            continue
+        if event["position_effect"] != "RESTORE_POSITION":
+            raise ValueError(f"unsupported position effect in {event['event_id']}")
         entry = Decimal(event["entry_price_usd"])
         mark = Decimal(event["mark_price_usd"])
         notional = Decimal(event["notional_basis_usd"])
@@ -95,7 +101,7 @@ def write_report(events, positions):
         "",
         "## Replay policy",
         "",
-        "- A voided close is skipped by the replay; its original event remains in the audit trail. A long sale restores the linked long lot; a short-cover close restores that short lot. No cross-book netting or silent deletion is performed.",
+        "- A voided close is skipped by the replay; its original event remains in the audit trail. Long sales restore their linked long lots. The ATS sensitivity short openings and their linked covers are explicitly nullified per the user's latest direction, so they create no open short positions. No cross-book netting or silent deletion is performed.",
         "- This replay covers the ATS locked $200 LONG foundation liquidation; the documented legacy oil trims; the named October 26 50U cash-outs; the October 29 TradingView Paper Trading closes; and the ATS 10U/20U/30U/40U close sensitivities. ATS scenario rows are alternatives, not additive positions.",
         "- The ATS foundation is restored from the last pre-liquidation modeled allocation snapshot dated October 26, 2026. Its quantity equivalents and values are model outputs, not verified contracts or broker fills; exact liquidation quantities, fills, and timing remain unknown.",
         "- Per-book marks are the event price or last documented pre-liquidation mark. They are not all a single simultaneous portfolio valuation. Contract multipliers, fees, taxes, funding sources, and leverage are not inferred.",
@@ -122,7 +128,9 @@ def write_report(events, positions):
         "",
         "### ATS campaign sensitivities",
         "",
-        "The modeled ATS long exits restore the corresponding 10U, 20U, 30U, or 40U of the tagged 50U campaign lot. Voiding the later cover/short-closure legs leaves the originally modeled 10U–40U shorts open in the matching scenario. The quantities are user-reported/model sensitivities, not a verified ATS fill history. Each scenario remains separate.",
+        "The modeled ATS long exits restore the corresponding 10U, 20U, 30U, or 40U of the tagged 50U campaign lot. Per the user's latest direction, the matching short-opening and subsequent cover/closure lifecycle is nullified in every sensitivity: **the replay has no open ATS shorts**. The eight nullification decisions remain in the event register but do not appear as restored positions. Quantities are user-reported/model sensitivities, not a verified ATS fill history; each scenario remains separate.",
+        "",
+        "Nullified short-lifecycle records: **8** (BRENT and OIL/USOIL at the 10U, 20U, 30U, and 40U sensitivities). These are audit actions, not positions.",
         "",
         "## LCID buyout consideration as scenario funding",
         "",
@@ -136,7 +144,7 @@ def write_report(events, positions):
         "",
         "## Source event register and audit limits",
         "",
-        f"The versioned event register contains **{len(events)}** voided scenario events: [`under_duress_oil_void_events_v1.csv`](../data/under_duress_oil_void_events_v1.csv). Rebuilt event-level positions are [`under_duress_oil_restored_positions_v1.csv`](../data/under_duress_oil_restored_positions_v1.csv); scenario funding terms are [`under_duress_lcid_scenario_funding_v1.csv`](../data/under_duress_lcid_scenario_funding_v1.csv).",
+        f"The versioned event register contains **{len(events)}** scenario actions, including **{sum(row['position_effect'] == 'NULLIFY_SHORT_NO_POSITION' for row in events)}** short-lifecycle nullifications. The restored-position file contains **{len(positions)}** position rows: [`under_duress_oil_restored_positions_v1.csv`](../data/under_duress_oil_restored_positions_v1.csv). The full event register is [`under_duress_oil_void_events_v1.csv`](../data/under_duress_oil_void_events_v1.csv); scenario funding terms are [`under_duress_lcid_scenario_funding_v1.csv`](../data/under_duress_lcid_scenario_funding_v1.csv).",
         "",
         "The user's prior report of zero oil units after the ATS liquidation and the earlier realized-PnL records remain part of the preserved historical source record. This replay is a parallel what-if view that marks selected close events voidable; it does not establish that any broker or ATS reversed an execution. Unknown ATS quantities are not turned into actual holdings; only the last documented modeled allocation is restored as quantity equivalents.",
         "",

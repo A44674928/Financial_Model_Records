@@ -14,9 +14,14 @@ def test_void_replay_restores_separate_oil_books_and_keeps_source_events():
     events = rows("data/under_duress_oil_void_events_v1.csv")
     positions = rows("data/under_duress_oil_restored_positions_v1.csv")
     by_id = {row["event_id"]: row for row in positions}
-    assert len(events) == len(positions) == 24
+    assert len(events) == 24
+    assert len(positions) == 16
     assert len({row["event_id"] for row in events}) == 24
     assert all(row["void_status"].startswith("VOIDED_IN_UNDER_DURESS_SCENARIO") for row in positions)
+    nullified = [row for row in events if row["position_effect"] == "NULLIFY_SHORT_NO_POSITION"]
+    assert len(nullified) == 8
+    assert all(row["restored_quantity"] == "0" and row["restored_side"] == "NONE" for row in nullified)
+    assert not [row for row in positions if row["restored_side"] == "SHORT"]
 
     brent_foundation = by_id["ATS-FOUNDATION-BRENT-LIQ"]
     oil_foundation = by_id["ATS-FOUNDATION-OIL-LIQ"]
@@ -35,12 +40,14 @@ def test_void_replay_restores_separate_oil_books_and_keeps_source_events():
     assert "not realized" in (ROOT / "reports/Under-Duress Oil Sale Void Replay.md").read_text(encoding="utf-8")
 
 
-def test_ats_sensitivities_are_separate_and_funding_is_hypothetical_unallocated():
+def test_ats_sensitivities_nullify_shorts_and_funding_is_hypothetical_unallocated():
+    events = rows("data/under_duress_oil_void_events_v1.csv")
+    short_events = [row for row in events if row["position_effect"] == "NULLIFY_SHORT_NO_POSITION"]
+    assert len(short_events) == 8
+    assert sorted({int(row["scenario"].split("U")[0]) for row in short_events}) == [10, 20, 30, 40]
+    assert all("no open short" in row["action_voided"] for row in short_events)
     positions = rows("data/under_duress_oil_restored_positions_v1.csv")
-    short_rows = [row for row in positions if row["restored_side"] == "SHORT" and row["book"] == "ATS 50U campaign sensitivity"]
-    assert len(short_rows) == 8
-    assert sorted({int(Decimal(row["restored_quantity"])) for row in short_rows}) == [10, 20, 30, 40]
-    assert len({row["scenario"] for row in short_rows}) == 4
+    assert not [row for row in positions if row["restored_side"] == "SHORT"]
 
     funding = rows("data/under_duress_lcid_scenario_funding_v1.csv")
     assert len(funding) == 1

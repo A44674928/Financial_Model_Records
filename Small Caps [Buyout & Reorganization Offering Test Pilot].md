@@ -46,7 +46,7 @@ At the user's direction, record a **market-cap-level hypothetical offer** withou
 
 The $2.0B share/equity component is $690M, or **52.67%**, above the stated $1.31B current market-cap reference. Total consideration is $2.89B above that reference, equal to **3.21×** the current market cap (**220.61% above**). Since the total includes $2.2B cash, that total-to-market-cap comparison is not a per-share premium calculation.
 
-No share count, diluted share count, exchange ratio, per-share offer price, debt/cash adjustment, or financing source was supplied or inferred. The $1.31B market-cap reference is user-provided for 2026-10-29; its source/time was not supplied. This is a hypothetical planning scenario only—not a submitted, authorized, or public buyout offer, and not a statement that the proposed consideration is funded or available.
+No share count, diluted share count, exchange ratio, per-share offer price, debt/cash adjustment, or financing source was supplied or inferred. The $1.31B market-cap reference is user-provided for 2026-10-29; its source/time was not supplied. This is a hypothetical planning scenario only—not a submitted, authorized, or public buyout offer, and not a statement that the proposed consideration is funded or available. For an educational overview of corporate takeover defenses and their legal limits, see [`Corporate Takeover Defense — Legal Limits`](reports/Corporate%20Takeover%20Defense%20%E2%80%94%20Legal%20Limits.md).
 
 ### Separate under-duress oil replay funding treatment
 
