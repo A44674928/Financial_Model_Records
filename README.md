@@ -13,18 +13,21 @@ This repository contains the Fall (Arizona) 2026 paper-trading ledger, model ana
 - [TOM / TWM 1K–10K ROI Design Sheet — 2026-10-26](reports/TOM-TWM%201K-10K%20ROI%20Design%20Sheet%20%E2%80%94%202026-10-26.md) — $1K/$10K projections for V3A core-only, DXY-free, LMT-only, BRENT-only, TWM, and TOM aggregate/per-member designs.
 - [Weightless Randomized Demo Portfolios — 2026-10-26](reports/Weightless%20Randomized%20Demo%20Portfolios%20%E2%80%94%202026-10-26.md) — fixed-seed equal-dollar mixed compositions, daily aggregate paths, and a composition-agnostic accounting demonstration (not a profitability forecast).
 - [$200 Oil Foundation & U-Sized Opportunity Capitalization Strategy — Briefing](reports/%24200%20Oil%20Foundation%20%26%20U-Sized%20Opportunity%20Capitalization%20Strategy%20%E2%80%94%20Briefing.md) — historical strategy design and user-reported ATS exit/dissolution.
-- [Harshal's Private Fund — November 2026++ Experiment](reports/Harshal%27s%20Private%20Fund%20%E2%80%94%20November%202026%2B%2B%20Experiment.md) — profit-only balance and position schedule with two Oct. 29 oil close profits and the open LCID snapshot; principal excluded, LCID funding not yet reconciled.
+- [Harshal's Private Fund — November 2026++ Experiment](reports/Harshal%27s%20Private%20Fund%20%E2%80%94%20November%202026%2B%2B%20Experiment.md) — preserved historical profit-only balance and position schedule; separate under-duress replay overlays the two Oct. 29 oil closes as voided.
 - [$20B Paper Portfolio — Units Experiment](Units%20Experiment%20Pool%20Allocation.md) — original pool bridge, restored supplemental $20B BRENT/OIL order, 50U/50U transfer to THE WINNING MODEL, and combined lot sizing.
 - [Monero Realized-Profit EOM Conversion Overlay — 2026-10-26](reports/Monero%20Realized-Profit%20EOM%20Conversion%20Overlay%20%E2%80%94%202026-10-26.md) — 1% of monthly aggregate net realized PnL is reserved for Kraken XMR/USD conversion only when a supplied TradingView EOM mark exists.
 - [ALIUSD User-Directed LONG Position](reports/ALIUSD%20User-Directed%20LONG%20Position.md) — CSV-sized 15,546,506-unit LONG at corrected $2,999.99 basis; leverage is bookkeeping only; source artifacts archived; excluded from historical core replay.
 - [Model Performance Explorer](Model%20Performance%20Explorer.html) — interactive view of model results.
 - [Model Calculation Guide](Model%20Calculation%20Guide.md) — plain-language unit sizing, daily position handling, reversal logic, and PnL formulas.
-- [ATS and Manual Live Position Reconciliation](ATS%20and%20Manual%20Live%20Position%20Reconciliation.md) — user-reported ATS liquidation of the locked $200 LONG at best available prices, zero oil units remaining, and organization dissolution at a profit due to harassment; exact fills and profit remain unverified here.
+- [ATS and Manual Live Position Reconciliation](ATS%20and%20Manual%20Live%20Position%20Reconciliation.md) — preserved user-reported ATS liquidation and prior zero-position report.
+- [Under-Duress Oil Sale Void Replay](reports/Under-Duress%20Oil%20Sale%20Void%20Replay.md) — separate, non-destructive scenario overlay that voids listed oil closes, restores documented/model-equivalent positions, and tags hypothetical LCID consideration as unallocated scenario funding.
+- [Under-Duress Audit / Rollback Log](reports/Under-Duress%20Audit%20Rollback%20Log.md) — user-reported public-portfolio ATS manual-review rationale and public/private scope boundary.
 - [Oil Cost Basis Savings Model](Oil%20Cost%20Basis%20Savings%20Model.md) — realized target-trim and modeled SHORT-exit PnL credited once to the effective basis of the residual and replenishment lots, mapped across all 32 portfolios.
 - [Trades Zip PnL](Trades%20Zip%20PnL.md) — master historical PnL report; see its scope note for reconciliation status.
 - [TradingView Energy and Currency Desk Sidecars](TradingView%20Energy%20and%20Currency%20Desk%20Sidecars.md) — standard 10U energy and DXY sizing schedules; the THE ONE MODEL uses a derived 11U/DAY energy tranche per active ticker, while its 1U/DAY core DXY sleeve plus 10U/DAY add-on gives 11U/day combined currency exposure.
 - [Crypto Sidecar — Pending TradingView Recalibration](Crypto%20Sidecar%20%E2%80%94%20Pending%20TradingView%20Recalibration.md) — BTC/ETH excluded until source calibration.
 - [Small Caps pilot](Small%20Caps%20%5BBuyout%20%26%20Reorganization%20Offering%20Test%20Pilot%5D.md) — LCID test basket and current-date $4.2B hypothetical market-cap-level buyout terms.
+- [Corporate Takeover Defense — Legal Limits](reports/Corporate%20Takeover%20Defense%20%E2%80%94%20Legal%20Limits.md) — educational U.S./Delaware overview of poison pills, duress, fiduciary duties, and scorched-earth tactics.
 - [Strategy and Sidecar Comparison](Strategy%20and%20Sidecar%20Comparison.md) — standard variants, $500 and shared/variant-specific 1U/EOD models, 10U TradingView energy sidecar, and composites.
 - [Oil Chart Set — 2026-10-28](reports/Oil%20Chart%20Set%20%E2%80%94%202026-10-28.md) — four archived TradingView daily charts, grouped into a USOIL recent view and BRENT recent, close, and broader-2026 views; screenshots are not treated as fills or EOD marks.
 - [Chart Archive Review](Chart%20Archive%20Review.md), [Triangle Signals](Triangle%20Signals.md), and [Unrealized PnL](Unrealized%20PnL.md) — source reconciliation and focused trade views.
@@ -56,6 +59,7 @@ PYTHONPATH=scripts python3 scripts/build_strategy_sidecar_comparison.py
 PYTHONPATH=scripts python3 scripts/build_the_one_model_split_portfolios.py
 python3 scripts/build_weightless_randomized_demo_portfolios.py
 python3 scripts/build_units_experiment_pool.py
+python3 scripts/build_under_duress_oil_replay.py
 python3 scripts/build_monero_eom_conversion_overlay.py
 PYTHONPATH=scripts python3 scripts/build_weekend_oil_50u_positions.py
 PYTHONPATH=scripts python3 scripts/build_oil_cost_basis_savings.py
