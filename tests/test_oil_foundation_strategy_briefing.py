@@ -21,7 +21,9 @@ class OilFoundationStrategyBriefingTests(unittest.TestCase):
         self.assertIn("$102.315", self.text)
         self.assertIn("Sep. 22", self.text)
         self.assertIn("$89.89", self.text)
-        self.assertIn("until **both** supplied BRENT and OIL EOD marks reach **$200.00**", self.text)
+        self.assertIn("The historical rule was to remain locked until **both** supplied BRENT and OIL EOD marks reached **$200.00**", self.text)
+        self.assertIn("Latest user-reported outcome: ATS liquidation and dissolution", self.text)
+        self.assertIn("organization dissolved at a profit", self.text)
         self.assertIn("The year was not included in the user's text", self.text)
         self.assertIn("not treated as an entry, exit, or verified fill", self.text)
 

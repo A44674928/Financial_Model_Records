@@ -130,7 +130,7 @@ class AtsManualReconciliationTests(unittest.TestCase):
         self.assertIn("LEGACY BASELINE ONLY", (ROOT / "trades/BRENT.txt").read_text())
         self.assertIn("MANUALLY APPROVED SHORT CLOSURE", (ROOT / "trades/OIL.txt").read_text())
 
-    def test_reported_ats_liquidation_bands_keep_unknowns_and_do_not_claim_pnl(self):
+    def test_reported_ats_liquidation_bands_preserve_uncertainty_and_profit_claim(self):
         self.assertEqual(len(self.liquidation_rows), 3)
         brent_high = self.liquidation_rows[0]
         brent_low = self.liquidation_rows[1]
@@ -150,13 +150,16 @@ class AtsManualReconciliationTests(unittest.TestCase):
             self.assertEqual(row["execution_date"], "not supplied")
             self.assertEqual(row["execution_time_timezone"], "not supplied")
             self.assertIn("not independently verified", row["status"])
-            self.assertIn("No realized PnL computed", row["notes"])
-        self.assertIn("all units of BRENT and USOIL were converted to cash", self.report)
-        self.assertIn("Repeated and continued harassment while working the desk.", self.report)
+            self.assertIn("exact realized PnL is not independently verified", row["notes"])
+            self.assertIn("Automatically executed via ATS per user report", row["execution_method"])
+            self.assertEqual(row["organization_status"], "Dissolved at a profit per user report")
+            self.assertIn("approximately $2.4B", row["user_reported_profit_claim"])
+        self.assertIn("all units in the locked $200 LONG foundation were automatically liquidated", self.report)
+        self.assertIn("Repeated and continued harassment while working the desk", self.report)
+        self.assertIn("organization has dissolved at a profit", self.report)
         self.assertIn("pre-liquidation references", self.report)
-        self.assertIn("zero units of both BRENT and USOIL remain", self.report)
-        self.assertIn("No dated trade-log entries", self.report)
-        self.assertIn("have been altered", self.report)
+        self.assertIn("zero BRENT/USOIL units remain", self.report)
+        self.assertIn("not rewritten as verified fills", self.report)
         self.assertIn("ats_oil_liquidation_reported_v1.csv", self.report)
 
 

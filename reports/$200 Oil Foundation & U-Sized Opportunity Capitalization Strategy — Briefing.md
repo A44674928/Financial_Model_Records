@@ -1,8 +1,14 @@
 # $200 Oil Foundation & U-Sized Opportunity Capitalization Strategy — Briefing
 
-## Executive framing
+## Latest user-reported outcome: ATS liquidation and dissolution
 
-This portfolio is built around the **$200 OIL LONG**: the foundational BRENT/OIL position is the keystone, intended to remain locked while the market approaches the portfolio's $200 oil-price release condition. Around that immobile foundation, **U-sized trades** are the smaller, separate activity sleeve. Their strategic purpose is to pursue ROI-based, realized income during the period the oil foundation remains locked.
+The user clarifies that the funds were verified money held in an account and reports that the ATS automatically liquidated all positions at the best available prices, leaving no positions. The user says the organization dissolved at a profit due to continued harassment of the organizer, describing the reason as “Repeated and continued harassment while working the desk.” The user accepts approximately **$2.4B** as the conservative endpoint of the earlier model-based price range. These account, execution, and profit statements are user-reported and have not been independently audited here. Exact counts by sale-price band, individual fills, execution date/time, transaction costs, and mapping to separate books remain unspecified; the $2.4B figure is not a fill-reconciled realized-PnL amount.
+
+The earlier model envelope of **$2,396,569,687.95–$3,266,753,771.99** applies user-reported price extrema uniformly to price-divided equivalents in the modeled $39,011,754,104.74 foundation. It is a scenario calculation, not proof of account holdings or exact cash proceeds. The $870,184,084.04 endpoint spread is model uncertainty, not a fee or independently verified loss. The user reports the positions and organization are now closed; no live order was placed by this repository.
+
+## Historical executive framing
+
+The pre-exit portfolio was built around the **$200 OIL LONG**: the foundational BRENT/OIL position was the keystone, intended to remain locked while the market approached the portfolio's $200 oil-price release condition. The design description below is historical; the user now reports that the positions were liquidated and the organization dissolved. Around that immobile foundation, **U-sized trades** are the smaller, separate activity sleeve. Their strategic purpose is to pursue ROI-based, realized income during the period the oil foundation remains locked.
 
 Together, these are the two parts of the **Fibonacci Volatility Cypher Shark Opportunity Capitalization Strategy**:
 
@@ -15,12 +21,12 @@ The strategy name describes the intended framework; it does **not** by itself de
 
 | Part | Role | Capital treatment | Portfolio rule |
 |---|---|---|---|
-| **$200 OIL LONG foundation** | Long-horizon keystone in BRENT and OIL/USOIL | Separate, fully funded paper-book allocation; held static while locked | Remains locked until **both** supplied BRENT and OIL EOD marks reach **$200.00**, consistent with the current pool model. No sale, trim, or rotation is inferred before then. |
+| **$200 OIL LONG foundation** | Historical long-horizon keystone in BRENT and OIL/USOIL | Separate modeled allocation; user now reports verified account funds and completed ATS liquidation | The historical rule was to remain locked until **both** supplied BRENT and OIL EOD marks reached **$200.00**. The user now reports the foundation was liquidated before that trigger and the organization dissolved; execution remains user-reported. |
 | **U-sized opportunity sleeve** | Smaller trades intended to produce ROI-based income while the foundation waits | Separate books/sleeves with their own explicit dollar-per-U definition, gross exposure, additions, and PnL | Evaluate each model and strategy on its own rules and marks. Do not borrow against, net with, or silently reduce the oil foundation. |
 
 “Small” is relative to the locked foundation and the stated pool scenario; it does not imply that every U has the same dollar value. **U is context-dependent.** In the existing $20B pool bridge, a Large Unit is $1 billion and a Small Unit is $10,000; those pool denominations are not universal U values, nor are they oil contracts, barrels, or broker quantities.
 
-## Current oil-foundation record
+## Oil-foundation record at the last supplied EOD snapshot (pre-liquidation)
 
 The current pool-allocation report carries these user-reported entry bases into the 50/50 hypothetical BRENT/OIL allocation:
 
@@ -45,7 +51,7 @@ All quantity figures are price-divided model equivalents, **not contracts, barre
 
 The year was not included in the user's text; the pool model aligns both dates to **2026** to match the surrounding September 2026 records. These are user-reported model inputs, not independently verified brokerage fills. The Sep. 22 USOIL chart note about a trade being active/target hit is not treated as an entry, exit, or verified fill. Source screenshots are retained in [`Archive/200_OIL_LONG_foundation/`](../Archive/200_OIL_LONG_foundation/README.md): the BRENT LONG post, the Sep. 22 activity note, and the USOIL chart post.
 
-The $200 label is treated here as the **price lock threshold**, not as the amount invested. The $20B pool remains a user-estimated hypothetical scenario, not verified capital, profit, account equity, or executable capacity. The detailed allocation report contains the pool bridge, hypothetical quantity-equivalent arithmetic, and its explicit limits: [Units Experiment Pool Allocation](../Units%20Experiment%20Pool%20Allocation.md).
+The $200 label is treated here as the **price lock threshold**, not as the amount invested. The user now clarifies that verified money was held in an account, but this repository has not reviewed account statements. The $20B pool bridge, allocations, and quantity equivalents remain a model representation; they do not independently establish broker quantities, account equity, or executable capacity. See [Units Experiment Pool Allocation](../Units%20Experiment%20Pool%20Allocation.md) for the modeled arithmetic and limits.
 
 **Mark cutoff:** 2026-10-26 is the latest supplied TradingView EOD mark in this record. No Oct. 27 mark is assumed. The lock condition is a modeled rule, not an automated order or a forecast of when either instrument will reach $200.
 
@@ -74,14 +80,14 @@ Only realized PnL enters this calculation. If a month’s net realized PnL is po
 
 ## Mechanics still to formalize
 
-Before the full strategy can be reproduced mechanically or evaluated as one combined system, document the following without changing the locked foundation by implication:
+Before the historical strategy can be reproduced mechanically or evaluated as one combined system, document the following without rewriting the reported liquidation or historical model records:
 
 1. The dollar amount and instrument exposure represented by one U in each opportunity sleeve; distinguish native U sizing from any pool-level $10K/$1B unit denominations.
 2. The eligible strategy/model list, selection method, and whether any selection is random, signal-based, or discretionary.
 3. The precise Fibonacci levels, volatility measure/window, Cypher/Shark pattern definitions, confirmation rules, entry/exit criteria, and invalidation conditions—if those are intended to be operative rules.
 4. Sleeve-level and aggregate funded-capital limits, maximum gross open exposure, drawdown controls, and whether realized PnL may be reused.
 5. The reporting cutoff and mark source for each instrument, plus a reconciliation process for user-reported paper actions versus modeled events and any separately verified executions.
-6. The release procedure once both oil marks reach $200: which EOD marks qualify, how a crossing is timestamped, whether the foundation is sold or simply becomes eligible for review, and who authorizes any change. Until specified, the current rule is only “remain locked until both marks reach $200.”
+6. The release procedure once both oil marks reach $200: which EOD marks qualify, how a crossing is timestamped, whether the foundation is sold or simply becomes eligible for review, and who authorizes any change. Until the user-directed exit, the recorded rule was only “remain locked until both marks reach $200”; the later user-reported liquidation supersedes that hold instruction for the closed foundation.
 
 ## Related records
 
