@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Normalize the user-provided Part B TradingView price-list archive."""
 
+import argparse
 import csv
 import hashlib
 import json
@@ -11,6 +12,13 @@ from urllib.parse import quote
 
 from import_tradingview_price_lists import _parse_price_file, _ticker_from_filename
 from model_perf_core import BASE_SESSION_DATES as SESSION_DATES, PRICES
+from tradingview_policy import (
+    POLICY_EFFECTIVE_DATE,
+    STATUS_BLOCKED,
+    STATUS_LEGACY_EXCEPTION,
+    classify_existing_record,
+    classify_source_date,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
@@ -27,7 +35,8 @@ MANIFEST_JSON = DATA / "tradingview_benchmark_source_manifest_part_b_20261024.js
 EXPECTED_PART_B = (set(PRICES) - {"BTC", "ETH", "BRENT", "OIL", "CAT", "GEV", "HD", "INTC", "LCID", "LMT", "LULU", "META", "ORCL", "PLTR", "SPCX", "TSLA", "VLO"}) | {"DXY"}
 
 
-def import_part_b():
+def import_part_b(*, allow_flagged_legacy=False):
+    """Import the pinned archive; post-cutoff records need an explicit audit override."""
     if not ARCHIVE.is_file():
         raise FileNotFoundError(ARCHIVE)
     archive_sha = hashlib.sha256(ARCHIVE.read_bytes()).hexdigest()
@@ -52,6 +61,14 @@ def import_part_b():
             file_url = f"https://github.com/{REPO}/blob/{COMMIT}/" + quote(member.filename)
             label = "TVC:DXY" if ticker == "DXY" else ("TVC:USOIL" if ticker == "OIL" else ticker)
             for day, close in parsed:
+                status = classify_source_date("TradingView", day)
+                if status == STATUS_BLOCKED:
+                    if not allow_flagged_legacy:
+                        raise ValueError(
+                            f"TradingView input dated {day} is blocked by the post-2026-10-19 policy; "
+                            "use the existing-exception audit path only when preserving the pinned archive."
+                        )
+                    status = classify_existing_record("TradingView", day)
                 all_rows.append({
                     "Ticker": ticker,
                     "Date": day,
@@ -60,6 +77,7 @@ def import_part_b():
                     "Source_File": name,
                     "Source_File_URL": file_url,
                     "Archive_SHA256": archive_sha,
+                    "Policy_Status": status,
                 })
 
     if set(file_rows) != EXPECTED_PART_B:
@@ -82,6 +100,11 @@ def import_part_b():
             "Last_Provided_Date": values[-1][0],
             "2026-10-23_Close": f"{by_date['2026-10-23']:.8f}" if "2026-10-23" in by_date else "",
             "Source": "User-provided TradingView price list",
+            "Policy_Status": (
+                STATUS_LEGACY_EXCEPTION
+                if any(day >= POLICY_EFFECTIVE_DATE.isoformat() for day, _ in values)
+                else "ALLOWED_PRE_CUTOFF"
+            ),
         })
 
     PRICE_CSV.parent.mkdir(parents=True, exist_ok=True)
@@ -103,10 +126,14 @@ def import_part_b():
         "price_data_path": str(PRICE_CSV.relative_to(ROOT)),
         "coverage_path": str(COVERAGE_CSV.relative_to(ROOT)),
         "comparison_session_count": len(SESSION_DATES),
+        "tradingview_policy_cutoff_date": POLICY_EFFECTIVE_DATE.isoformat(),
+        "flagged_post_cutoff_rows": sum(row["Policy_Status"] == STATUS_LEGACY_EXCEPTION for row in all_rows),
+        "legacy_exception_preservation_override": bool(allow_flagged_legacy),
         "provided_symbols": sorted(file_rows),
         "provided_symbol_count": len(file_rows),
         "missing_comparison_sessions": {row["Ticker"]: row["Missing_Comparison_Sessions"].split(";") for row in coverage if row["Missing_Comparison_Sessions"]},
         "notes": [
+            "Post-2026-10-19 TradingView rows are blocked by default; the explicit legacy override only preserves and flags existing rows for audit.",
             "Updated Part B archive is pinned to the recorded repository commit; it corrects the LLY 2026-10-20 source close to 1283.66 (superseding the prior archive's 12833.66).",
             "DXY is a separate non-equity index mark; its chart-directed 1U/DAY sleeve is integrated into core portfolio PnL rather than treated as a direct-price ticker.",
             "The XRH0 list has five missing dates on the common session calendar; no external prices are inserted. The interim model carries forward the previous supplied TradingView mark on those dates and flags each carry-forward.",
@@ -118,7 +145,13 @@ def import_part_b():
 
 
 def main():
-    result = import_part_b()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--preserve-flagged-legacy", action="store_true",
+        help="Preserve pinned post-cutoff rows for audit only; flags them as ineligible for active use.",
+    )
+    args = parser.parse_args()
+    result = import_part_b(allow_flagged_legacy=args.preserve_flagged_legacy)
     print(f"Imported {result['provided_symbol_count']} Part B lists: {len(_read(PRICE_CSV))} raw price rows.")
     for ticker, dates in result["missing_comparison_sessions"].items():
         print(f"{ticker}: {len(dates)} missing comparison-session marks ({', '.join(dates)})")

@@ -1,0 +1,15 @@
+Policy_ID,Policy_Type,Identifier,Scope,Decision,Effective_Date,Origin,Notes
+INFLAI-001,security_ticker,AAPL,security,block,2026-10-29,user-approved broad AI-exposure screen,Explicit user-selected candidate list
+INFLAI-002,security_ticker,AMZN,security,block,2026-10-29,user-approved broad AI-exposure screen,Explicit user-selected candidate list
+INFLAI-003,security_ticker,INTC,security,block,2026-10-29,user-approved broad AI-exposure screen,Explicit user-selected candidate list
+INFLAI-004,security_ticker,META,security,block,2026-10-29,user-approved broad AI-exposure screen,Explicit user-selected candidate list
+INFLAI-005,security_ticker,NVDA,security,block,2026-10-29,user-approved broad AI-exposure screen,Explicit user-selected candidate list
+INFLAI-006,security_ticker,PLTR,security,block,2026-10-29,user-approved broad AI-exposure screen,Explicit user-selected candidate list
+INFLAI-007,security_ticker,TSLA,security,block,2026-10-29,user-approved broad AI-exposure screen,Explicit user-selected candidate list
+INFLAI-008,source_class,third_party_commentary,all sources,block,2026-10-29,user-approved source policy,All commentary is blocked regardless of influencer label or named source
+INFLAI-009,source_class,influencer_commentary,all sources,block,2026-10-29,user-approved source policy,Influencer content is blocked
+INFLAI-010,source_class,ai_generated_commentary,all sources,block,2026-10-29,user-approved source policy,AI-generated commentary is blocked
+INFLAI-011,source_class,ai_company_commentary,all sources,block,2026-10-29,user-approved source policy,Commentary from AI companies including Arena.ai is blocked
+INFLAI-012,source_class,official_issuer_filing,all sources,allow,2026-10-29,user-approved source policy,Official issuer filings remain allowed
+INFLAI-013,source_class,raw_market_data,all sources,allow,2026-10-29,user-approved source policy,Raw market data remain allowed; commentary derived from them remains blocked
+INFLAI-014,source_class,user_trade_ledger,all sources,allow,2026-10-29,user-approved source policy,Ledger records are preserved as records of user-simulated actions; external commentary rationale remains screened

@@ -7,6 +7,7 @@ and macOS metadata files are intentionally not treated as price data.
 Run with: PYTHONPATH=scripts python3 scripts/import_tradingview_price_lists.py
 """
 
+import argparse
 import csv
 import hashlib
 import json
@@ -17,6 +18,13 @@ from pathlib import Path
 from urllib.parse import quote
 
 from model_perf_core import BASE_SESSION_DATES as SESSION_DATES, PRICES
+from tradingview_policy import (
+    POLICY_EFFECTIVE_DATE,
+    STATUS_BLOCKED,
+    STATUS_LEGACY_EXCEPTION,
+    classify_existing_record,
+    classify_source_date,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
@@ -76,7 +84,12 @@ def _parse_price_file(filename, data):
     return rows
 
 
-def import_archive():
+def import_archive(*, allow_flagged_legacy=False):
+    """Import the pinned archive; post-cutoff records require an explicit archival override.
+
+    The override preserves and flags existing rows for audit/tests. It does not
+    certify them as eligible for active portfolio calculations.
+    """
     if not ARCHIVE.is_file():
         raise FileNotFoundError(ARCHIVE)
     archive_bytes = ARCHIVE.read_bytes()
@@ -103,6 +116,14 @@ def import_archive():
             )
             tradingview_symbol = "TVC:USOIL" if ticker == "OIL" else ticker
             for day, close in parsed:
+                status = classify_source_date("TradingView", day)
+                if status == STATUS_BLOCKED:
+                    if not allow_flagged_legacy:
+                        raise ValueError(
+                            f"TradingView input dated {day} is blocked by the post-2026-10-19 policy; "
+                            "use the existing-exception audit path only when preserving the pinned archive."
+                        )
+                    status = classify_existing_record("TradingView", day)
                 source_rows.append({
                     "Ticker": ticker,
                     "Date": day,
@@ -111,6 +132,7 @@ def import_archive():
                     "Source_File": name,
                     "Source_File_URL": source_file_url,
                     "Archive_SHA256": archive_sha256,
+                    "Policy_Status": status,
                 })
 
     ticker_coverage = []
@@ -130,6 +152,11 @@ def import_archive():
             "Last_Provided_Date": values[-1][0] if values else "",
             "2026-10-23_Close": f"{by_date['2026-10-23']:.8f}" if "2026-10-23" in by_date else "",
             "Source": "User-provided TradingView price list" if values else "Awaiting user-provided ticker data; not to be substituted",
+            "Policy_Status": (
+                STATUS_LEGACY_EXCEPTION
+                if any(day >= POLICY_EFFECTIVE_DATE.isoformat() for day, _ in values)
+                else ("ALLOWED_PRE_CUTOFF" if values else "NO_SUPPLIED_SOURCE_ROWS")
+            ),
         })
 
     missing = [row["Ticker"] for row in ticker_coverage if row["Coverage_Status"] != "complete_for_comparison_sessions"]
@@ -163,6 +190,9 @@ def import_archive():
         "coverage_path": str(COVERAGE_CSV.relative_to(ROOT)),
         "model_comparison_sessions": [SESSION_DATES[0], SESSION_DATES[-1]],
         "model_comparison_session_count": len(SESSION_DATES),
+        "tradingview_policy_cutoff_date": POLICY_EFFECTIVE_DATE.isoformat(),
+        "flagged_post_cutoff_rows": sum(row["Policy_Status"] == STATUS_LEGACY_EXCEPTION for row in source_rows),
+        "legacy_exception_preservation_override": bool(allow_flagged_legacy),
         "provided_symbols": sorted(file_coverage),
         "provided_symbol_count": len(file_coverage),
         "missing_symbols": missing,
@@ -172,6 +202,7 @@ def import_archive():
             "__MACOSX/ metadata entries",
         ],
         "notes": [
+            "Post-2026-10-19 TradingView rows are blocked by default; when preserved through the explicit legacy override they are flagged and are not approved for active use.",
             "No missing ticker prices are filled from Yahoo Finance or earlier project data.",
             "The September 7 Brent observation is preserved in the normalized source CSV but is outside the 36-session U.S. equity comparison calendar.",
             "The GEV source filename is ticker-specific; its RTF body heading reads TICKER and the filename is used as the symbol key.",
@@ -183,7 +214,13 @@ def import_archive():
 
 
 def main():
-    manifest = import_archive()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--preserve-flagged-legacy", action="store_true",
+        help="Preserve pinned post-cutoff rows for audit only; flags them as ineligible for active use.",
+    )
+    args = parser.parse_args()
+    manifest = import_archive(allow_flagged_legacy=args.preserve_flagged_legacy)
     print(f"Imported {manifest['provided_symbol_count']} ticker-specific TradingView lists and {len(_read_rows(PRICE_CSV))} daily price rows.")
     print(f"Part A coverage: {manifest['provided_symbol_count']}/31 core symbols; {manifest['missing_symbol_count']} core lists are supplied in Part B. BTC/ETH remain pending separately.")
     print(f"Wrote {PRICE_CSV.relative_to(ROOT)}")

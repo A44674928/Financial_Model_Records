@@ -7,6 +7,9 @@
   "price_data_path": "data/tradingview_benchmark_price_lists_part_b_20261024.csv",
   "coverage_path": "data/tradingview_benchmark_coverage_part_b_20261024.csv",
   "comparison_session_count": 36,
+  "tradingview_policy_cutoff_date": "2026-10-20",
+  "flagged_post_cutoff_rows": 67,
+  "legacy_exception_preservation_override": true,
   "provided_symbols": [
     "AAPL",
     "AMZN",
@@ -37,6 +40,7 @@
     ]
   },
   "notes": [
+    "Post-2026-10-19 TradingView rows are blocked by default; the explicit legacy override only preserves and flags existing rows for audit.",
     "Updated Part B archive is pinned to the recorded repository commit; it corrects the LLY 2026-10-20 source close to 1283.66 (superseding the prior archive's 12833.66).",
     "DXY is a separate non-equity index mark; its chart-directed 1U/DAY sleeve is integrated into core portfolio PnL rather than treated as a direct-price ticker.",
     "The XRH0 list has five missing dates on the common session calendar; no external prices are inserted. The interim model carries forward the previous supplied TradingView mark on those dates and flags each carry-forward.",

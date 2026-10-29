@@ -14,13 +14,22 @@ Four model variants are compared over the *Fall (Arizona) [2026]* book:
 
 import bisect
 import csv
+import os
 import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from daily_closes import EQUITY_TS
+from influencer_ai_policy import BLOCKED_TICKERS, MAX_TRADINGVIEW_INPUT_DATE, is_explicit_third_party_commentary
 
 ROOT = Path(__file__).resolve().parents[1]
+SCREENED_REPLAY = os.environ.get("PAPER_TRADES_INFLUENCER_AI_SCREEN", "0") == "1"
+AI_FUND_REPLAY = os.environ.get("PAPER_TRADES_AI_FUND_REPLAY", "0") == "1"
+if SCREENED_REPLAY and AI_FUND_REPLAY:
+    raise ValueError("Choose either the screened portfolio replay or the segregated AI fund replay")
+SCREENED_EXCLUDED_TICKERS = BLOCKED_TICKERS if SCREENED_REPLAY else frozenset()
+SCREENED_MAX_DATE = MAX_TRADINGVIEW_INPUT_DATE.isoformat() if (SCREENED_REPLAY or AI_FUND_REPLAY) else None
+AI_FUND_DIRECT_TICKERS = frozenset(BLOCKED_TICKERS | {"CAT", "CVX", "DIS", "OIL"})
 TRADES_DIR = ROOT / "trades"
 DATA_DIR = ROOT / "data"
 CHARTS_DIR = ROOT / "Charts" / "performance"
@@ -41,15 +50,29 @@ VARIANT_COLOR = {"V1": "#38bdf8", "V2": "#f472b6", "V3A": "#34d399", "V3B": "#fb
 # DXY is not a direct-price ticker: its logged direction drives a separate
 # 1U/day index-return sleeve integrated into each core portfolio. FX/yields
 # remain outside the direct-price core model.
-UNMODELED_SYMBOLS = frozenset({"BTC", "ETH", "ALIUSD", "DXY", "EURUSD", "JPYUSD", "US10Y", "US30Y"})
+UNMODELED_SYMBOLS = frozenset({"BTC", "ETH", "ALIUSD", "DXY", "EURUSD", "JPYUSD", "US10Y", "US30Y"}) | SCREENED_EXCLUDED_TICKERS
 
 # --------------------------------------------------------------------------
 # Session calendar and exclusive TradingView benchmark
 # --------------------------------------------------------------------------
 BENCHMARK_SESSION_FILE = DATA_DIR / "tradingview_benchmark_session_marks_20261026.csv"
 with BENCHMARK_SESSION_FILE.open(newline="", encoding="utf-8") as _handle:
-    _session_rows = list(csv.DictReader(_handle))
-BASE_SESSION_DATES = [datetime.fromtimestamp(t, MST).strftime("%Y-%m-%d") for t in EQUITY_TS]
+    _session_rows = []
+    for _row in csv.DictReader(_handle):
+        _ticker_name = _row["Ticker"].strip().upper()
+        _mark_date = _row["Date"].strip()
+        if (SCREENED_REPLAY or AI_FUND_REPLAY) and _mark_date > SCREENED_MAX_DATE:
+            continue
+        if SCREENED_REPLAY and _ticker_name in SCREENED_EXCLUDED_TICKERS:
+            continue
+        if AI_FUND_REPLAY and _ticker_name not in AI_FUND_DIRECT_TICKERS | {"DXY"}:
+            continue
+        _session_rows.append(_row)
+BASE_SESSION_DATES = [
+    datetime.fromtimestamp(t, MST).strftime("%Y-%m-%d")
+    for t in EQUITY_TS
+    if not (SCREENED_REPLAY or AI_FUND_REPLAY) or datetime.fromtimestamp(t, MST).strftime("%Y-%m-%d") <= SCREENED_MAX_DATE
+]
 SESSION_DATES = sorted(set(BASE_SESSION_DATES) | {row["Date"].strip() for row in _session_rows})
 N_SESS = len(SESSION_DATES)
 if not set(BASE_SESSION_DATES).issubset(SESSION_DATES):
@@ -73,8 +96,18 @@ for _row in _session_rows:
 
 if {ticker for ticker in _benchmark} & {"BTC", "ETH"}:
     raise ValueError("BTC and ETH must remain outside the core TradingView benchmark")
-if len(_benchmark) != 31:
-    raise ValueError(f"Expected 31 direct-price core symbols, found {len(_benchmark)}")
+if AI_FUND_REPLAY:
+    if set(_benchmark) != AI_FUND_DIRECT_TICKERS:
+        raise ValueError(
+            "AI fund benchmark symbols do not match the user-approved ticker and commentary universe: "
+            f"{sorted(set(_benchmark) ^ AI_FUND_DIRECT_TICKERS)}"
+        )
+else:
+    _expected_benchmark_symbols = 31 - len(SCREENED_EXCLUDED_TICKERS & {"NVDA", "PLTR", "META", "AMZN", "TSLA", "AAPL", "INTC"})
+    if len(_benchmark) != _expected_benchmark_symbols:
+        raise ValueError(
+            f"Expected {_expected_benchmark_symbols} direct-price core symbols, found {len(_benchmark)}"
+        )
 PRICES = {}
 for _ticker, _marks in _benchmark.items():
     _missing = [day for day in SESSION_DATES if day not in _marks]
@@ -111,6 +144,8 @@ def parse_trades():
         if path.name == "index.txt":
             continue
         sym = path.stem
+        if AI_FUND_REPLAY and sym not in AI_FUND_DIRECT_TICKERS:
+            continue
         if sym in UNMODELED_SYMBOLS:
             continue
         if sym not in PRICES:
@@ -122,6 +157,14 @@ def parse_trades():
             m = LINE_RE.match(line)
             if not m:
                 raise ValueError(f"Unparsed line {path.name}:{lineno + 1}: {line}")
+            if SCREENED_REPLAY and is_explicit_third_party_commentary(m.group("note")):
+                continue
+            if (
+                AI_FUND_REPLAY
+                and sym not in BLOCKED_TICKERS
+                and not is_explicit_third_party_commentary(m.group("note"))
+            ):
+                continue
             parsed_units = float(m.group("units"))
             units = int(parsed_units) if parsed_units.is_integer() else parsed_units
             events.append(
@@ -467,7 +510,12 @@ def build_dxy_daily_lots():
 # --------------------------------------------------------------------------
 def daily_series(variant, events):
     lots, realized = build_lots(variant, events)
-    dxy_lots, dxy_realized = build_dxy_daily_lots()
+    if SCREENED_REPLAY:
+        # The DXY daily sleeve is driven by charted directional commentary,
+        # not just raw marks, so it is excluded from this source-screened run.
+        dxy_lots, dxy_realized = [], []
+    else:
+        dxy_lots, dxy_realized = build_dxy_daily_lots()
     lots.extend(dxy_lots)
     realized.extend(dxy_realized)
 

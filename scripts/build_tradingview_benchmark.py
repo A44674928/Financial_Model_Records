@@ -6,6 +6,7 @@ from the previous user-supplied TradingView close and are flagged in the
 session-mark table. BTC/ETH remain pending and outside the core universe.
 """
 
+import argparse
 import csv
 import hashlib
 import json
@@ -13,6 +14,13 @@ from collections import defaultdict
 from pathlib import Path
 
 from model_perf_core import PRICES, SESSION_DATES
+from tradingview_policy import (
+    POLICY_EFFECTIVE_DATE,
+    STATUS_BLOCKED,
+    STATUS_LEGACY_EXCEPTION,
+    classify_existing_record,
+    classify_source_date,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
@@ -32,20 +40,42 @@ def _read(path):
         return list(csv.DictReader(handle))
 
 
-def build():
+def build(*, allow_flagged_legacy=False):
+    """Build the historical benchmark; post-cutoff TradingView inputs are blocked by default.
+
+    ``allow_flagged_legacy`` is an archival-reproduction switch only. It does not
+    clear exception flags or make the resulting data eligible for active use.
+    """
     part_a = _read(PART_A)
     part_b = _read(PART_B)
     raw_rows = part_a + part_b
+    update_rows = _read(EOD_UPDATE)
+    post_cutoff = [
+        (row.get("Source_File", "TradingView"), row["Date"])
+        for row in raw_rows + update_rows
+        if classify_source_date(row.get("Source_File", "TradingView"), row["Date"]) == STATUS_BLOCKED
+    ]
+    if post_cutoff and not allow_flagged_legacy:
+        source, day = post_cutoff[0]
+        raise ValueError(
+            f"Refusing to rebuild active TradingView benchmark from post-cutoff input {source} dated {day}; "
+            "historical exceptions must be reviewed before any recalculation."
+        )
     raw_by_key = {}
     by_ticker = defaultdict(dict)
     for row in raw_rows:
+        status = classify_source_date(row.get("Source_File", "TradingView"), row["Date"])
+        row["Policy_Status"] = (
+            classify_existing_record(row.get("Source_File", "TradingView"), row["Date"])
+            if status == STATUS_BLOCKED
+            else status
+        )
         key = (row["Ticker"], row["Date"])
         if key in raw_by_key:
             raise AssertionError(f"Duplicate TradingView price-list observation: {key}")
         raw_by_key[key] = row
         by_ticker[row["Ticker"]][row["Date"]] = row
 
-    update_rows = _read(EOD_UPDATE)
     supplied_updates = [row for row in update_rows if row["Status"] == "supplied"]
     expected_update_symbols = set(PRICES) | {DXY}
     if (
@@ -68,6 +98,7 @@ def build():
             "Source_File": EOD_UPDATE.name,
             "Source_File_URL": "",
             "Archive_SHA256": "",
+            "Policy_Status": classify_existing_record("TradingView", day),
         }
 
     core_symbols = set(PRICES) - PENDING_CRYPTO
@@ -126,6 +157,11 @@ def build():
                 "Source_File": source_file,
                 "Source_File_URL": source_url,
                 "Archive_SHA256": archive_sha,
+                "Policy_Status": (
+                    classify_existing_record("TradingView", day)
+                    if day >= POLICY_EFFECTIVE_DATE.isoformat()
+                    else "ALLOWED_PRE_CUTOFF"
+                ),
             })
 
         role = "currency_desk_sidecar" if ticker == DXY else "core_price_symbol"
@@ -144,6 +180,11 @@ def build():
             "Last_Provided_Date": source_dates[-1],
             "2026-10-23_Close": f"{float(supplied['2026-10-23']['Close']):.8f}" if "2026-10-23" in supplied else "",
             "Source_Files": ";".join(sorted({r["Source_File"] for r in supplied.values()})),
+            "Policy_Status": (
+                STATUS_LEGACY_EXCEPTION
+                if any(day >= POLICY_EFFECTIVE_DATE.isoformat() for day in source_dates)
+                else "ALLOWED_PRE_CUTOFF"
+            ),
         })
 
     for ticker in sorted(PENDING_CRYPTO):
@@ -158,6 +199,7 @@ def build():
             "Last_Provided_Date": "",
             "2026-10-23_Close": "",
             "Source_Files": "",
+            "Policy_Status": "NO_SOURCE_ROWS",
         })
 
     with SESSION_MARKS.open("w", newline="", encoding="utf-8") as handle:
@@ -192,6 +234,9 @@ def build():
         "aligned_session_marks_path": str(SESSION_MARKS.relative_to(ROOT)),
         "coverage_path": str(COVERAGE.relative_to(ROOT)),
         "latest_direct_price_date": SESSION_DATES[-1],
+        "tradingview_policy_cutoff_date": POLICY_EFFECTIVE_DATE.isoformat(),
+        "flagged_post_cutoff_marks": sum(row["Policy_Status"] == STATUS_LEGACY_EXCEPTION for row in session_rows),
+        "legacy_exception_preservation_override": bool(allow_flagged_legacy),
         "source_reconciliation": {
             "LLY": "The updated Part B archive supplies a 2026-10-20 close of 1283.66, replacing the prior archive's 12833.66 mark; all downstream outputs use the updated row.",
             "XRH0": "Five missing common-session marks are carried forward from the previous supplied TradingView close; each row is explicitly flagged.",
@@ -204,7 +249,13 @@ def build():
 
 
 def main():
-    result = build()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--preserve-flagged-legacy", action="store_true",
+        help="Rebuild pinned historical outputs with explicit legacy-exception flags; not for active use.",
+    )
+    args = parser.parse_args()
+    result = build(allow_flagged_legacy=args.preserve_flagged_legacy)
     print(f"Combined {result['raw_price_rows']} user-provided price observations for {result['core_symbol_count']} core symbols and DXY.")
     print(f"Aligned {result['aligned_session_mark_rows']} session marks across {result['comparison_session_count']} sessions.")
     print("BTC and ETH remain outside the core benchmark, pending TradingView recalibration.")

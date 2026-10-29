@@ -1,0 +1,83 @@
+{
+  "portfolio_name": "HARSHAL_PRIYAVADAN_PATEL_AI_FUND",
+  "portfolio_type": "segregated simulated paper-model portfolio",
+  "replay_start_date": "2026-09-03",
+  "replay_end_date": "2026-10-19",
+  "standing_tradingview_last_allowed_date": "2026-10-19",
+  "ticker_screen": [
+    "AAPL",
+    "AMZN",
+    "INTC",
+    "META",
+    "NVDA",
+    "PLTR",
+    "TSLA"
+  ],
+  "commentary_event_rows_transferred": 15,
+  "ticker_event_rows_transferred": 33,
+  "dxy_signal_rows_transferred": 1,
+  "unique_transfer_rows": 44,
+  "unique_transfer_rows_note": "A record can have multiple transfer bases but is counted once in the event ledger.",
+  "direct_price_tickers_modeled": [
+    "AAPL",
+    "AMZN",
+    "CAT",
+    "CVX",
+    "DIS",
+    "INTC",
+    "META",
+    "NVDA",
+    "OIL",
+    "PLTR",
+    "TSLA"
+  ],
+  "eurusd_modeled": true,
+  "eurusd_mark_source": "User-provided raw close series; provider/feed and close convention not independently verified.",
+  "dxy_directional_sleeve_modeled": true,
+  "dxy_sleeve_method": "One 1U ($10,000 notional) lot per active session under the carried logged direction; included once, not again as a separate DXY entry lot.",
+  "yield_events_retained_but_not_pnl_modeled": 3,
+  "post_cutoff_tradingview_inputs_used": 0,
+  "cash_and_leverage_convention": "All-cash/debit simulation; no funding source, leverage, financing, or actual brokerage execution inferred.",
+  "variants": {
+    "V1": {
+      "label": "Variant 1 \u2014 1U Open",
+      "realized_pnl_usd": 23887.09,
+      "unrealized_pnl_usd": 4999.19,
+      "total_pnl_usd": 28886.28,
+      "roi_pct": 4.247982,
+      "deployed_notional_usd": 680000.0,
+      "open_units": 56.0,
+      "modeled_lot_count": 68
+    },
+    "V2": {
+      "label": "Variant 2 \u2014 1U SAR",
+      "realized_pnl_usd": 28148.61,
+      "unrealized_pnl_usd": -96.55,
+      "total_pnl_usd": 28052.06,
+      "roi_pct": 4.125303,
+      "deployed_notional_usd": 680000.0,
+      "open_units": 52.0,
+      "modeled_lot_count": 68
+    },
+    "V3A": {
+      "label": "Variant 3A \u2014 Nu Open",
+      "realized_pnl_usd": 23887.09,
+      "unrealized_pnl_usd": 19360.77,
+      "total_pnl_usd": 43247.87,
+      "roi_pct": 5.690509,
+      "deployed_notional_usd": 760000.0,
+      "open_units": 64.0,
+      "modeled_lot_count": 68
+    },
+    "V3B": {
+      "label": "Variant 3B \u2014 Nu SAR",
+      "realized_pnl_usd": 37752.69,
+      "unrealized_pnl_usd": -96.55,
+      "total_pnl_usd": 37656.14,
+      "roi_pct": 4.954755,
+      "deployed_notional_usd": 760000.0,
+      "open_units": 52.0,
+      "modeled_lot_count": 68
+    }
+  }
+}
