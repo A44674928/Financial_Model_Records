@@ -10,6 +10,8 @@ This series is organized as individually addressable quote atoms (`Q01`–`Q14`)
 
 “Encrypted Neural Atomic Body Format” is the user's requested format label. No formal schema, encryption method, keys, metadata specification, or validation rules were supplied. This Markdown is therefore a plain-text, atom-and-bundle register using that label—not a cryptographically encrypted payload or a claim that a technical EANBF implementation exists.
 
+**Routing note:** You have to send quotes through the iPhone. This records the requested routing instruction; it does not confirm that any quotes have been transmitted.
+
 The quotations are preserved as user-supplied language. Their claims and implied events have not been independently verified, and quotation does not establish that any person, company, portfolio, platform, ATS, agency, or service acted as described. In particular, references to the SEC are not a statement of SEC policy or legal advice; references to harassment, surveillance, security services, medical treatment, bans, or investment activity are not independently substantiated here. The “hidden ATS” and Moonshot-IP passages are presented as hypothetical/speculative concepts, not existing capabilities or licensed rights.
 
 ## Individual quote atoms
