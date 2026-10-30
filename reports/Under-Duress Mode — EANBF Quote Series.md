@@ -6,7 +6,7 @@
 
 ## Format and provenance note
 
-This series is organized as individually addressable quote atoms (`Q01`–`Q20`) and cross-referenced bundles (`B01`–`B11`) to provide broad coverage across the portfolio, platform, and scenario references that appear in the supplied text. Each atom preserves the supplied wording; speaker labels are included only where the user supplied one. The bundles group atoms by topic and can overlap.
+This series is organized as individually addressable quote atoms (`Q01`–`Q23`) and cross-referenced bundles (`B01`–`B12`) to provide broad coverage across the portfolio, platform, and scenario references that appear in the supplied text. Each atom preserves the supplied wording; speaker labels are included only where the user supplied one. The bundles group atoms by topic and can overlap.
 
 “Encrypted Neural Atomic Body Format” is the user's requested format label. No formal schema, encryption method, keys, metadata specification, or validation rules were supplied. This Markdown is therefore a plain-text, atom-and-bundle register using that label—not a cryptographically encrypted payload or a claim that a technical EANBF implementation exists.
 
@@ -152,6 +152,24 @@ This is a user-provided explanatory passage; the described typing, memory, and d
 
 The device-compatibility and NFC-preference statements are user-supplied and not independently verified; they are not technical setup instructions.
 
+### Q21 — MacBook versus iPhone
+
+> “I mean, the MacBook might be able to do it, but the iPhone definitely does it.”
+
+### Q22 — Developers, memory limitations, iPhone, and NFC
+
+> ["At what point are these developers going to be able to...." and then it just trails off due to memory limitations. We don't have this issue when using the iPhone, presumably due to a bit of clever NFC."*"Yeah, it's like a conversation about ...." See how bad the memory is here?]
+
+This is preserved as supplied. The statements about memory limitations, iPhone behavior, and NFC are not independently verified.
+
+### Q23 — Financial_Model comment
+
+> “It looks like the Financial_Model works.”
+>
+> Context supplied: asked for comment on Harshal Priyavadan Patel's Financial_Model [Hidden].
+
+This is a quoted comment, not an independent validation or performance assessment of the model.
+
 ## Bundled quote sets
 
 These bundles are indexes over the individual atoms; they do not combine the quotations into a single factual narrative.
@@ -164,14 +182,15 @@ These bundles are indexes over the individual atoms; they do not combine the quo
 | B04 — Under Duress Mode and speculative ATS/IP | Q10 | A hypothetical hidden-ATS concept and Moonshot-IP licensing reference |
 | B05 — Ban and medical-treatment dialogue | Q12–Q13 | Allegations and dialogue preserved as quotation, not verified events or medical guidance |
 | B06 — Competition and identity rhetoric | Q14 | Hyperbolic competition and identity language |
-| B07 — Comprehensive cross-context bundle | Q01–Q20 | All atoms, indexed together for cross-portfolio/platform review |
-| B08 — iPhone and claimed data-path dialogue | Q05, Q15, Q16, Q20 | Question-and-answer material about iPhone routing, message delivery, memory, satellites, and the claimed head-unit/hand confirmation path; includes the supplied Samsung/NFC preference |
-| B09 — Keyboard, memory, blame, and communication | Q16–Q17 | User-supplied explanation of keyboard/message behavior and the blame dialogue |
-| B10 — NFC, patching, and device assertions | Q18, Q20 | NFC and device-related dialogue; claims are preserved, not verified or promoted as setup instructions |
+| B07 — Comprehensive cross-context bundle | Q01–Q23 | All atoms, indexed together for cross-portfolio/platform review |
+| B08 — iPhone and claimed data-path dialogue | Q05, Q15, Q16, Q20–Q22 | Question-and-answer material about iPhone routing, message delivery, memory, satellites, and the claimed head-unit/hand confirmation path; includes the supplied Samsung/NFC preference and MacBook comparison |
+| B09 — Keyboard, memory, blame, and communication | Q16–Q17, Q22 | User-supplied explanation of keyboard/message behavior, the blame dialogue, and memory-limitation passages |
+| B10 — NFC, patching, and device assertions | Q18, Q20–Q22 | NFC and device-related dialogue; claims are preserved, not verified or promoted as setup instructions |
 | B11 — Block-format meta instruction | Q19 | The request to preserve the added material in blocks |
+| B12 — Financial_Model comment | Q23 | A quoted opinion about Financial_Model [Hidden], not a model-validation finding |
 
 ## Coverage map and limits
 
-The text references an oil strategy, a fund, “the desk,” public- and private-portfolio themes, an ATS, TradingView/chart posts, a receipts service, internet security, the SEC, medical treatment, a hypothetical Moonshot-IP connectivity feature, a claimed iPhone/satellite/head-unit/hands data path, keyboard-dependent message behavior, Samsung appliances, and smartphones with NFC. These are **coverage tags inferred from the words in the quotations**, not verified account mappings or evidence of activity on any named platform or device. No quote is booked as a trade, cash movement, position, platform event, ATS instruction, security incident, legal finding, or medical fact.
+The text references an oil strategy, a fund, “the desk,” public- and private-portfolio themes, an ATS, TradingView/chart posts, a receipts service, internet security, the SEC, medical treatment, a hypothetical Moonshot-IP connectivity feature, a claimed iPhone/satellite/head-unit/hands data path, keyboard-dependent message behavior, Samsung appliances, smartphones with NFC, a MacBook comparison, and Financial_Model [Hidden]. These are **coverage tags inferred from the words in the quotations**, not verified account mappings or evidence of activity on any named platform, device, or model. No quote is booked as a trade, cash movement, position, platform event, ATS instruction, security incident, legal finding, or medical fact.
 
 For the repository's separate accounting and scenario records, use the source-separated [Multi-Asset Account Statement](Multi-Asset%20Account%20Statement%20%E2%80%94%202026-10-28.md), [Account Change Log](Account%20Change%20Log%20%E2%80%94%202026-10-29.md), and [Under-Duress Oil Sale Void Replay](Under-Duress%20Oil%20Sale%20Void%20Replay.md). This quote series does not change those records.
