@@ -1,19 +1,19 @@
 # Under-Duress Oil Sale Void Replay
 
-> **Scenario overlay, not a change to source history.** At the user's direction, oil sales and closes identified below are treated as voidable under duress in this replay. Original screenshots, trade logs, ATS reports, and historical realized-PnL records remain preserved and unchanged. This is a hypothetical portfolio reconstruction, not audited brokerage accounting or legal advice.
+> **Scenario overlay, not a change to source history.** The user directed that the October 29 Private Fund oil close records be nullified and voided; the earlier BRENT and USOIL longs remain open at their reported entry prices. Other listed oil sales/closes are treated as voidable in this separate under-duress scenario. The private portfolio rows remain separate from public ATS books. Original screenshots, trade logs, ATS reports, and historical records remain preserved. This is not audited brokerage accounting or legal advice.
 
 ## ATS manual-review rationale and scope
 
 Per the user's report, in the public portfolio the ATS flagged sell orders for manual review under the standing order to ‘buy a few more barrels every couple dollars’. The user says required risk protocols were not satisfied and directs that the affected public-portfolio oil sales be undone in this scenario. This explanation is user-reported; no ATS alert, review ticket, or order-to-book mapping was supplied. See the [Under-Duress Audit / Rollback Log](Under-Duress%20Audit%20Rollback%20Log.md).
 
-This rationale is scoped to the public portfolio and must not be generalized to the private portfolio. The user says the private portfolio is ATS-managed, with no human interaction beyond chart posting, and that personalized ATS configurations can produce different sell/buy requests. Unlogged or differently personalized ATS events are outside this replay. The October 29 rows labeled ‘Private fund / TradingView Paper Trading’ remain in the replay due to the earlier broad user selection; their inclusion is a separate scenario treatment, not evidence that the public manual-review rationale applied to private ATS decisions.
+This rationale is scoped to the public portfolio and must not be generalized to private ATS decisions. For the two October 29 Private Fund screenshot close records, the user separately directed that the closes be nullified and voided and that the earlier longs remain open. This status is user-directed; no platform order-status artifact independently confirms the void. Other unlogged or differently personalized ATS events remain outside this replay.
 
 ## Replay policy
 
 - A voided close is skipped by the replay; its original event remains in the audit trail. Long sales restore their linked long lots. The ATS sensitivity short openings and their linked covers are explicitly nullified per the user's latest direction, so they create no open short positions. No cross-book netting or silent deletion is performed.
 - This replay covers the ATS locked $200 LONG foundation liquidation; the documented legacy oil trims; the named October 26 50U cash-outs; the October 29 TradingView Paper Trading closes; and the ATS 10U/20U/30U/40U close sensitivities. ATS scenario rows are alternatives, not additive positions.
 - The ATS foundation is restored from the last pre-liquidation modeled allocation snapshot dated October 26, 2026. Its quantity equivalents and values are model outputs, not verified contracts or broker fills; exact liquidation quantities, fills, and timing remain unknown.
-- Per-book marks are the event price or last documented pre-liquidation mark. They are not all a single simultaneous portfolio valuation. Contract multipliers, fees, taxes, funding sources, and leverage are not inferred.
+- Per-book marks are the event price or last documented pre-liquidation mark where valid. For the two nullified October 29 close records, the displayed close prices are preserved only as source evidence and are not used as marks; no replacement current mark is supplied. Rows do not form one simultaneous portfolio valuation. Contract multipliers, fees, taxes, funding sources, and leverage are not inferred.
 
 ## Restored positions
 
@@ -23,8 +23,8 @@ The following table is an event-level restoration overlay: it adds back lots aff
 |---|---|---:|---:|---:|---:|---:|
 | ATS locked $200 LONG foundation / all-units reported liquidation | BRENT | LONG | 179865012.22971259 modeled quantity equivalent | $108.447312 | $115.380000 (2026-10-26) | $1,246,948,058.69 |
 | ATS locked $200 LONG foundation / all-units reported liquidation | OIL (USOIL) | LONG | 204760619.11636445 modeled quantity equivalent | $95.261858 | $101.300000 (2026-10-26) | $1,236,373,664.12 |
-| Private fund / TradingView Paper Trading / screenshot close | BRENT | LONG | 538566907 screenshot quantity | $114.043000 | $115.777000 (2026-10-29) | $933,875,016.74 |
-| Private fund / TradingView Paper Trading / screenshot close | USOIL | LONG | 601218118 screenshot quantity | $99.180000 | $102.140000 (2026-10-29) | $1,779,605,629.28 |
+| Private fund / TradingView Paper Trading / screenshot close | BRENT | LONG | 538566907 screenshot quantity | $114.043000 | Not supplied | Not calculated |
+| Private fund / TradingView Paper Trading / screenshot close | USOIL | LONG | 601218118 screenshot quantity | $99.180000 | Not supplied | Not calculated |
 | Core legacy paper model / legacy baseline target trim | BRENT | LONG | 10 U ($10,000 notional each) | $111.412000 | $117.000000 (2026-10-23) | $5,015.62 |
 | Core legacy paper model / legacy baseline target trim | OIL (USOIL) | LONG | 10 U ($10,000 notional each) | $99.040000 | $102.000000 (2026-10-23) | $2,988.69 |
 | Core / manual live test lot / paired 50U lot cash-out | BRENT | LONG | 50 U ($10,000 notional each) | $115.510000 | $117.409000 (2026-10-26) | $8,220.07 |
@@ -40,7 +40,7 @@ The following table is an event-level restoration overlay: it adds back lots aff
 
 ### Screenshot PnL treatment
 
-For the October 29 private-fund TradingView Paper Trading closes, the reported transaction PnL is **not realized in this scenario**. If the closes are voided, each lot remains open and its screenshot-reported close price is used as a conditional mark; the prior screenshot PnL is shown as unrealized rather than added again as realized cash. TradingView Paper Trading is not independently audited brokerage execution.
+The user directed that both October 29 Private Fund oil closes be **nullified and voided**. Keep the earlier BRENT and USOIL longs open at $114.043 and $99.18, respectively, with quantities as reported in the screenshots. Their entry dates/times are unknown. The screenshot close prices and PnL are preserved as voided-source details only; they are not current marks or realized PnL. No mark-to-market PnL is calculated for these two lots because no valid later mark is supplied. The screenshot source itself remains unchanged, and platform void status is not independently confirmed.
 
 ### ATS campaign sensitivities
 

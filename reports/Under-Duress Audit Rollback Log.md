@@ -23,3 +23,7 @@ Per the user's later instruction, the modeled ATS short-opening and related cove
 ## Related hypothetical funding
 
 The LCID $4.2B buyout consideration is carried only as an unallocated hypothetical restoration-funding pool in the replay: $2.2B cash plus $2.0B non-cash share/equity value. No actual transaction, receipt, or deployment is asserted.
+
+## Related user-supplied quote series
+
+The [Under-Duress Mode — EANBF Quote Series](Under-Duress%20Mode%20%E2%80%94%20EANBF%20Quote%20Series.md) preserves the supplied wording as individual quote atoms and overlapping bundles. It is interpretive source material, not evidence that the described statements or events occurred, and it does not alter this scenario log or the portfolio records.

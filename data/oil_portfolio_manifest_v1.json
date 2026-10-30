@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "portfolio_name": "Oil",
+  "builder": "scripts/build_oil_portfolio.py",
+  "trade_event_cutoff": "2026-10-19",
+  "mark_data_end_date": "2026-10-19",
+  "post_cutoff_price_marks_authorized_for_version": false,
+  "source_hashes_sha256": {
+    "data/tradingview_benchmark_session_marks_20261026.csv": "13780554622d099c8a1b774c15e8468e480902795d6dd2382f4634b384fad111",
+    "data/ats_oil_liquidation_reported_v1.csv": "2f92e08b93c4f4fad96c560f1c618c408adfd0c08daa0bd33cf9668748d190bc",
+    "reports/Harshal's Private Fund \u2014 November 2026++ Experiment.md": "550c72a582bd69e3d8df5d645b55a56c3a813514c19d8bb42b0757ddb4956981",
+    "data/harshal_priyavadan_patel_ai_fund_summary_v1.json": "79b22cf6503f35b1e7ae9557435cdd5d652b1e800d9040037ac26aefd30a4a0a",
+    "data/harshal_priyavadan_patel_ai_fund_summary_v2.json": "0416cffa3024ee193709403eb2453a573dbcb2e3ab207c9596e9c98d8cb11948",
+    "data/harshal_priyavadan_patel_ai_fund_event_ledger_v1.csv": "8179d95d0589fea0dfb02f793e485fd5abed9d475bd2329fdca3ada09005c77e",
+    "trades/BRENT.txt": "e88475ae94517e3db43ec0c448f92acdacc2253730b340a9e2710025859b5b8a",
+    "trades/CVX.txt": "e9d15d794272e69c3f7ee511a85a60a64df2eba04994aa0cf35134118aa165bd",
+    "trades/OIL.txt": "a467df2c3137fb3d90ba18ba3fcc17a4cd02708581f5c46d0ca9d35d72a4c0ef",
+    "trades/VLO.txt": "3e01d9a7b51a38a74e2acaa776960d3e5422fc3e5b15157ecdb45cae60dffb15",
+    "trades/XLE.txt": "bd623704e2fd7c8e011c8f6aa461d67938228fc1c8578f4abc67178ddae14f12"
+  },
+  "outputs": [
+    "data/oil_portfolio_daily_v1.csv",
+    "data/oil_portfolio_trade_ledger_v1.csv",
+    "data/oil_portfolio_related_book_records_v1.csv",
+    "data/oil_pnl_reconciliation_v1.csv",
+    "data/oil_portfolio_summary_v1.json",
+    "reports/Oil Portfolio.md",
+    "data/oil_portfolio_manifest_v1.json"
+  ],
+  "private_paper_account_records_kept_separate": true,
+  "oil_foundation_liquidation_records_kept_separate": true
+}

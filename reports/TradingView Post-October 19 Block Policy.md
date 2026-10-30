@@ -2,7 +2,7 @@
 
 **Effective date: October 20, 2026** (October 19 remains permitted)
 
-> **STRICT BLOCK:** No TradingView-sourced input dated October 20, 2026 or later may be newly added to, or used in, an active portfolio/trading calculation in this repository. This includes Paper Trading orders and fills, charts/screenshots, price or EOD marks, alerts, and other TradingView-derived values. The rule is source-based and applies to both public and private books.
+> **DEFAULT STRICT BLOCK:** No TradingView-sourced input dated October 20, 2026 or later may be newly added to, or used in, an active portfolio/trading calculation in this repository unless a specific, versioned exception is explicitly authorized. This includes Paper Trading orders and fills, charts/screenshots, price or EOD marks, alerts, and other TradingView-derived values. The rule is source-based and applies to both public and private books. One narrow Oil-only mark-forward exception is recorded below; no other model or trade-event cutoff is waived.
 
 ## Scope and date rule
 
@@ -11,13 +11,19 @@
 - An ATS-generated order is not automatically a TradingView input merely because the ATS is used in a portfolio. Conversely, a chart, signal, mark, or ATS action derived from TradingView data after the cutoff is prohibited unless a future policy amendment explicitly says otherwise.
 - This is a repository portfolio-control rule; it does not assert that an external TradingView account, ATS, brokerage, or third-party system has actually disabled activity.
 
+## Specific user-authorized exception — Oil v2 (October 29, 2026)
+
+On October 29, 2026, the user authorized one versioned Oil-only mark-forward using existing, previously flagged TradingView EOD marks through **October 26, 2026**. The replay revalues the positions already active through October 19; the **trade-event cutoff remains October 19**. It uses no post-cutoff trade-log events, no ATS/manual short sensitivities, and no Under-Duress replay positions. The v1 October 19 snapshot is preserved unchanged; v2 outputs are separately versioned and linked in the [Oil update report](Oil%20Portfolio%20%E2%80%94%202026-10-26%20Update.md).
+
+This is not authorization to ingest new TradingView material, use October 27–29 marks, update the AI Fund or other models, or treat related-book screenshot PnL as active Oil PnL. The available package has no complete aligned five-symbol EOD marks for October 27–29. The October 28 oil chart captures are intraday quotes, and October 29 close screenshots belong to a separate book; neither is substituted for a common EOD mark set.
+
 ## Existing post-cutoff records
 
-Pre-existing post-cutoff records are **flagged, preserved, and not automatically recalculated**. The policy does not delete historical screenshots or trade events, and it does not silently rewrite prior PnL or model outputs. A flagged historical record is an audit exception—not approval to use the record in a new active model. Review and an explicit user decision are required before an affected output is rebuilt or reused.
+Pre-existing post-cutoff records are **flagged and preserved**. They are not automatically recalculated. The policy does not delete historical screenshots or trade events, and it does not silently rewrite prior PnL or model outputs. A flagged historical record is an audit exception—not blanket approval to use it in a new active model. Review and an explicit, scoped user decision are required before an affected output is rebuilt or reused. Oil v2 is the sole exception authorizing post-cutoff data for an active model calculation. The user-authorized Oil position sheet, October 28 multi-asset register, and October 29 change log are audit documents only: they preserve source/scenario references and do not authorize treating post-cutoff events as executed or active positions.
 
-The generated [post-cutoff exception index](../data/tradingview_post_cutoff_exceptions_v1.csv) currently lists **97 artifact/record groups**. Its aggregate count of **1,066 rows across source and dependent artifacts includes duplicate versions and derived outputs; it is not a unique-trade count**. Trade-log rows without an explicit platform label are conservatively flagged when they are post-cutoff simulated-paper entries. The index builder is [`build_tradingview_post_cutoff_exceptions.py`](../scripts/build_tradingview_post_cutoff_exceptions.py); rerunning it refreshes flags only, not PnL.
+The generated [post-cutoff exception index](../data/tradingview_post_cutoff_exceptions_v1.csv) currently lists **107 artifact/record groups**. Its aggregate count of **1,142 rows across source and dependent artifacts includes duplicate versions, authorized audit/register documents, and derived outputs; it is not a unique-trade count**. Trade-log rows without an explicit platform label are conservatively flagged when they are post-cutoff simulated-paper entries. The index builder is [`build_tradingview_post_cutoff_exceptions.py`](../scripts/build_tradingview_post_cutoff_exceptions.py); rerunning it refreshes flags only, not PnL.
 
-Known screenshot exceptions include the October 29 oil close screenshots and the October 29 LCID Paper Trading order screenshot. The existing October 20–26 TradingView benchmark/mark artifacts, other logged post-cutoff TradingView-sourced items, and reports that depend on them are also flagged. Existing reports and numbers remain as historical outputs until reviewed; they must not be represented as compliant with the new cutoff.
+Known screenshot exceptions include the October 29 oil close screenshots and the October 29 LCID Paper Trading order screenshot. The existing October 20–26 TradingView benchmark/mark artifacts, other logged post-cutoff TradingView-sourced items, and reports that depend on them remain flagged. The Oil v2 outputs covered by the scoped exception are labeled `USER_AUTHORIZED_SCOPED_OIL_V2`; the cross-book Oil sheet, October 28 multi-asset register, and October 29 change log have separate audit-document labels. Those documents preserve source status and do not authorize post-cutoff model calculations or transactions; all other flagged records remain audit-only until separately reviewed.
 
 ## Enforcement for new inputs
 
