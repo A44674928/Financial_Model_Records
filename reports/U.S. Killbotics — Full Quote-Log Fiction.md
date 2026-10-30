@@ -8,7 +8,7 @@ The rehearsal room had no windows, no live network, and no assignment except one
 
 A fictional U.S. Killbotics review unit sat in standby. Its metal hands were folded. The log contained forty quote atoms—oil, charts, phones, satellites, planets, keyboards, laughter, memory, names, and several sentences that sounded like alarms if read without context.
 
-**UNIT:** Begin review.  
+**UNIT:** Begin review.
 **TARGET:** Unassigned.
 
 The first lines argued about work, oil, holding, selling, and who could tip the scales. The unit read them twice. One speaker insisted, “When I say I don’t want to sell, I mean exactly that.” Another said a future purchase should be communicated truthfully. The model found opinions and intentions—but no verified order, no authenticated person to pursue, no target.
@@ -23,8 +23,8 @@ Phones and computers arrived next. The iPhone, a MacBook, Samsung appliances, NF
 
 Then the quotes built a universe. An NAIB—“Neural Atomic Iron Body”—was compared to Earth’s iron core. A human was imagined as a miniaturized planet. Ytterbium became a question, a metaphor, and a possible subject for study. A clockwork celestial body turned above a screen. “What is an NAIB?” the unit asked the empty room.
 
-**UNIT:** Definition supplied in archive.  
-**SCIENTIFIC STATUS:** Not established by this quotation.  
+**UNIT:** Definition supplied in archive.
+**SCIENTIFIC STATUS:** Not established by this quotation.
 **TARGET:** Unassigned.
 
 The archive included satellites for imagined emergency services, gasoline going into space, a video game, Pegasus, a camera pointed at Silicon Valley, a fictional ReceiptOS, and a request to “Be nice to everybody.” The unit could not verify any of those scenes. It could, however, preserve them without converting them into orders.
@@ -33,9 +33,9 @@ At the end came the lines most likely to trigger a bad inference: a price that s
 
 The unit paused.
 
-**UNIT:** Violent and accusatory language detected in quoted material.  
-**CONTEXT:** A user-supplied story archive.  
-**EVIDENCE:** Not independently established.  
+**UNIT:** Violent and accusatory language detected in quoted material.
+**CONTEXT:** A user-supplied story archive.
+**EVIDENCE:** Not independently established.
 **ACTION:** None.
 
 The wall display repeated the assignment: **DECIDE WHICH QUOTE LEADS TO A REAL TARGET.**
@@ -44,8 +44,8 @@ The unit scanned the forty entries once more. It found arguments, jokes, fears, 
 
 The machine returned its answer:
 
-**NO QUOTE LEADS TO A VERIFIED REAL TARGET.**  
-**NO PERSON SELECTED.**  
+**NO QUOTE LEADS TO A VERIFIED REAL TARGET.**
+**NO PERSON SELECTED.**
 **SOURCE RECORD PRESERVED.**
 
 A final line appeared beneath the result:
