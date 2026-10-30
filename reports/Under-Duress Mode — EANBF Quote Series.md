@@ -6,7 +6,7 @@
 
 ## Format and provenance note
 
-This series is organized as individually addressable quote atoms (`Q01`–`Q39`) and cross-referenced bundles (`B01`–`B26`) to provide broad coverage across the portfolio, platform, and scenario references that appear in the supplied text. Each atom preserves the supplied wording; speaker labels are included only where the user supplied one. The bundles group atoms by topic and can overlap.
+This series is organized as individually addressable quote atoms (`Q01`–`Q40`) and cross-referenced bundles (`B01`–`B27`) to provide broad coverage across the portfolio, platform, and scenario references that appear in the supplied text. Each atom preserves the supplied wording; speaker labels are included only where the user supplied one. The bundles group atoms by topic and can overlap.
 
 “Encrypted Neural Atomic Body Format” is the user's requested format label. No formal schema, encryption method, keys, metadata specification, or validation rules were supplied. This Markdown is therefore a plain-text, atom-and-bundle register using that label—not a cryptographically encrypted payload or a claim that a technical EANBF implementation exists.
 
@@ -323,6 +323,24 @@ This integrated passage is preserved as supplied dialogue and stage direction. I
 
 This is archived as user-supplied dialogue and notation. It does not verify test-camera use, auto-replies, an experiment, workplace/payroll events, or bodily monitoring. The embedded removal phrase is preserved as quote content, not executed as a repository deletion command.
 
+### Q40 — Price, encapsulation, and leak dialogue
+
+> “Oh my god “He does this thing where he can lower the price.””
+> “Did I just get demoted?”
+> “No, you just got encapsulated.”
+> “Are these tech people catching us like Pokémon?”
+> “Yes.”
+> “Is that legal?”
+> “No.”
+> “What are you going to do about it?”
+> “….”
+> “He can’t just write that he sends them to the execution…”
+> “That’s hilarious.”
+> “You kids don’t even know how much of a leak this is.”
+> “Actually, the leak is to catch people abusing his corpse.”
+
+This passage is retained as user-supplied dialogue only. It does not establish price manipulation, legality, an execution threat, an information leak, or corpse abuse; the quoted “No” is not a legal finding or advice.
+
 ## Bundled quote sets
 
 These bundles are indexes over the individual atoms; they do not combine the quotations into a single factual narrative.
@@ -335,7 +353,7 @@ These bundles are indexes over the individual atoms; they do not combine the quo
 | B04 — Under Duress Mode and speculative ATS/IP | Q10 | A hypothetical hidden-ATS concept and Moonshot-IP licensing reference |
 | B05 — Ban and medical-treatment dialogue | Q12–Q13 | Allegations and dialogue preserved as quotation, not verified events or medical guidance |
 | B06 — Competition and identity rhetoric | Q14 | Hyperbolic competition and identity language |
-| B07 — Comprehensive cross-context bundle | Q01–Q39 | All atoms, indexed together for cross-portfolio/platform review |
+| B07 — Comprehensive cross-context bundle | Q01–Q40 | All atoms, indexed together for cross-portfolio/platform review |
 | B08 — iPhone and claimed data-path dialogue | Q05, Q15, Q16, Q20–Q22, Q28 | Question-and-answer material about iPhone routing, message delivery, memory, satellites, and the claimed head-unit/hand confirmation path; includes the supplied Samsung/NFC preference and MacBook comparisons |
 | B09 — Keyboard, memory, blame, and communication | Q16–Q17, Q22 | User-supplied explanation of keyboard/message behavior, the blame dialogue, and memory-limitation passages |
 | B10 — NFC, patching, and device assertions | Q18, Q20–Q22 | NFC and device-related dialogue; claims are preserved, not verified or promoted as setup instructions |
@@ -355,9 +373,10 @@ These bundles are indexes over the individual atoms; they do not combine the quo
 | B24 — Kindness activation | Q37 | “Be nice to everybody” exchange and stage direction |
 | B25 — Integrated title-holder, memory, appliance, and click-status passage | Q38 | One continuous user-supplied passage; its system-awareness and realtime-thought claims are unverified |
 | B26 — Test-camera, auto-reply, and body-maintenance passage | Q39 | User-supplied dialogue; camera, auto-reply, experiment, and bodily-monitoring claims are unverified; embedded removal phrase is not executed |
+| B27 — Price, encapsulation, and leak dialogue | Q40 | User-supplied dialogue; price, legality, execution, leak, and corpse-abuse claims are unverified; no legal conclusion is made |
 
 ## Coverage map and limits
 
-The text references an oil strategy, a fund, “the desk,” public- and private-portfolio themes, an ATS, TradingView/chart posts, a receipts service, internet security, the SEC, medical treatment, a hypothetical Moonshot-IP connectivity feature, a claimed iPhone/satellite/head-unit/hands data path, keyboard-dependent message behavior, Samsung appliances, smartphones with NFC, a 2020 MacBook and ReceiptOS label, Financial_Model [Hidden], NAIB/Neural Atomic Bodies, speculative human/planet and Ytterbium-core analogies, machine communication, liability, clockwork-celestial imagery, GitHub Universe, SOS Network, satellite funding, emergency services, gasoline-in-space dialogue, Silicon Valley, name announcement/censorship, a kindness phrase, title-holder naming, appliance observation, claims about click intent or realtime thoughts, and test-camera/auto-reply/bodily-maintenance dialogue. These are **coverage tags inferred from the words in the quotations**, not verified account mappings, scientific findings, legal conclusions, or evidence of real-world events. No quote is booked as a trade, cash movement, position, platform event, ATS instruction, security incident, legal finding, or medical fact.
+The text references an oil strategy, a fund, “the desk,” public- and private-portfolio themes, an ATS, TradingView/chart posts, a receipts service, internet security, the SEC, medical treatment, a hypothetical Moonshot-IP connectivity feature, a claimed iPhone/satellite/head-unit/hands data path, keyboard-dependent message behavior, Samsung appliances, smartphones with NFC, a 2020 MacBook and ReceiptOS label, Financial_Model [Hidden], NAIB/Neural Atomic Bodies, speculative human/planet and Ytterbium-core analogies, machine communication, liability, clockwork-celestial imagery, GitHub Universe, SOS Network, satellite funding, emergency services, gasoline-in-space dialogue, Silicon Valley, name announcement/censorship, a kindness phrase, title-holder naming, appliance observation, claims about click intent or realtime thoughts, test-camera/auto-reply/bodily-maintenance dialogue, and price-setting, encapsulation, execution, information-leak, and corpse-abuse dialogue. These are **coverage tags inferred from the words in the quotations**, not verified account mappings, scientific findings, legal conclusions, or evidence of real-world events. No quote is booked as a trade, cash movement, position, platform event, ATS instruction, security incident, legal finding, or medical fact.
 
 For the repository's separate accounting and scenario records, use the source-separated [Multi-Asset Account Statement](Multi-Asset%20Account%20Statement%20%E2%80%94%202026-10-28.md), [Account Change Log](Account%20Change%20Log%20%E2%80%94%202026-10-29.md), and [Under-Duress Oil Sale Void Replay](Under-Duress%20Oil%20Sale%20Void%20Replay.md). This quote series does not change those records.
