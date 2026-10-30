@@ -2,6 +2,8 @@
 
 > **Scenario overlay, not a change to source history.** The user directed that the October 29 Private Fund oil close records be nullified and voided; the earlier BRENT and USOIL longs remain open at their reported entry prices. Other listed oil sales/closes are treated as voidable in this separate under-duress scenario. The private portfolio rows remain separate from public ATS books. Original screenshots, trade logs, ATS reports, and historical records remain preserved. This is not audited brokerage accounting or legal advice.
 
+**Subsequent test note (2026-10-30):** A later user request separately reverses the modeled short covers for an October 2026 Under-Duress test, including these oil sensitivities. See the [October 2026 Short Closure Rollback Test](October%202026%20Short%20Closure%20Rollback%20Test.md) and [`october_2026_short_closure_rollback_v1.csv`](../data/october_2026_short_closure_rollback_v1.csv). This v1 replay remains preserved as the earlier baseline; its source events and prior scenario outcomes are not rewritten.
+
 ## ATS manual-review rationale and scope
 
 Per the user's report, in the public portfolio the ATS flagged sell orders for manual review under the standing order to ‘buy a few more barrels every couple dollars’. The user says required risk protocols were not satisfied and directs that the affected public-portfolio oil sales be undone in this scenario. This explanation is user-reported; no ATS alert, review ticket, or order-to-book mapping was supplied. See the [Under-Duress Audit / Rollback Log](Under-Duress%20Audit%20Rollback%20Log.md).
@@ -10,7 +12,7 @@ This rationale is scoped to the public portfolio and must not be generalized to 
 
 ## Replay policy
 
-- A voided close is skipped by the replay; its original event remains in the audit trail. Long sales restore their linked long lots. The ATS sensitivity short openings and their linked covers are explicitly nullified per the user's latest direction, so they create no open short positions. No cross-book netting or silent deletion is performed.
+- A voided close is skipped by the replay; its original event remains in the audit trail. Long sales restore their linked long lots. The ATS sensitivity short openings and their linked covers were explicitly nullified under the user's direction used for this baseline v1 replay, so this version has no open short positions. No cross-book netting or silent deletion is performed.
 - This replay covers the ATS locked $200 LONG foundation liquidation; the documented legacy oil trims; the named October 26 50U cash-outs; the October 29 TradingView Paper Trading closes; and the ATS 10U/20U/30U/40U close sensitivities. ATS scenario rows are alternatives, not additive positions.
 - The ATS foundation is restored from the last pre-liquidation modeled allocation snapshot dated October 26, 2026. Its quantity equivalents and values are model outputs, not verified contracts or broker fills; exact liquidation quantities, fills, and timing remain unknown.
 - Per-book marks are the event price or last documented pre-liquidation mark where valid. For the two nullified October 29 close records, the displayed close prices are preserved only as source evidence and are not used as marks; no replacement current mark is supplied. Rows do not form one simultaneous portfolio valuation. Contract multipliers, fees, taxes, funding sources, and leverage are not inferred.
@@ -44,7 +46,7 @@ The user directed that both October 29 Private Fund oil closes be **nullified an
 
 ### ATS campaign sensitivities
 
-The modeled ATS long exits restore the corresponding 10U, 20U, 30U, or 40U of the tagged 50U campaign lot. Per the user's latest direction, the matching short-opening and subsequent cover/closure lifecycle is nullified in every sensitivity: **the replay has no open ATS shorts**. The eight nullification decisions remain in the event register but do not appear as restored positions. Quantities are user-reported/model sensitivities, not a verified ATS fill history; each scenario remains separate.
+The modeled ATS long exits restore the corresponding 10U, 20U, 30U, or 40U of the tagged 50U campaign lot. Under the direction used for this baseline v1 replay, the matching short-opening and subsequent cover/closure lifecycle was nullified in every sensitivity: **this version has no open ATS shorts**. The eight nullification decisions remain in the event register but do not appear as restored positions. A later, separate October 30 test reverses those short covers; see the linked rollback test at the top of this report. Quantities are user-reported/model sensitivities, not a verified ATS fill history; each scenario remains separate.
 
 Nullified short-lifecycle records: **8** (BRENT and OIL/USOIL at the 10U, 20U, 30U, and 40U sensitivities). These are audit actions, not positions.
 

@@ -17,6 +17,12 @@ On October 29, 2026, the user authorized one versioned Oil-only mark-forward usi
 
 This is not authorization to ingest new TradingView material, use October 27–29 marks, update the AI Fund or other models, or treat related-book screenshot PnL as active Oil PnL. The available package has no complete aligned five-symbol EOD marks for October 27–29. The October 28 oil chart captures are intraday quotes, and October 29 close screenshots belong to a separate book; neither is substituted for a common EOD mark set.
 
+## Specific user-authorized scoped exception — Post-Harassment V3A + V3A marks (October 30, 2026)
+
+The user's October 30 request to rebuild the separate Post-Harassment V3A + V3A portfolio authorizes use of existing flagged TradingView benchmark EOD marks through **October 26, 2026**, plus the specified mechanical V3A 1U/EOD force tranches through that date based only on pre-cutoff eligible chart directions. This is recorded as [`USER_AUTHORIZED_POST_HARASSMENT_V3A_V3A_MARKS_AND_FORCE_V1`](TradingView%20Scoped%20Exception%20%E2%80%94%20Post-Harassment%20V3A%20%2B%20V3A%20Replay.md). It does not change the general source cutoff or authorize post-cutoff data/model activity in other portfolios.
+
+User-sourced chart/trade events remain capped at **October 19**; no post-cutoff event records are ingested. No complete synchronized marks through October 30 are present, so the replay's latest as-of date is October 26. Manual, ATS, user-directed/reported, third-party commentary, ambiguous-direction, and screened-ticker events remain excluded. The 10U/DAY DXY add-on and energy daily-buy sidecar are not included.
+
 ## Existing post-cutoff records
 
 Pre-existing post-cutoff records are **flagged and preserved**. They are not automatically recalculated. The policy does not delete historical screenshots or trade events, and it does not silently rewrite prior PnL or model outputs. A flagged historical record is an audit exception—not blanket approval to use it in a new active model. Review and an explicit, scoped user decision are required before an affected output is rebuilt or reused. Oil v2 is the sole exception authorizing post-cutoff data for an active model calculation. The user-authorized Oil position sheet, October 28 multi-asset register, and October 29 change log are audit documents only: they preserve source/scenario references and do not authorize treating post-cutoff events as executed or active positions.
