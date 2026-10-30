@@ -6,7 +6,7 @@
 
 ## Format and provenance note
 
-This series is organized as individually addressable quote atoms (`Q01`–`Q14`) and cross-referenced bundles (`B01`–`B07`) to provide broad coverage across the portfolio, platform, and scenario references that appear in the supplied text. Each atom preserves the supplied wording; speaker labels are included only where the user supplied one. The bundles group atoms by topic and can overlap.
+This series is organized as individually addressable quote atoms (`Q01`–`Q15`) and cross-referenced bundles (`B01`–`B08`) to provide broad coverage across the portfolio, platform, and scenario references that appear in the supplied text. Each atom preserves the supplied wording; speaker labels are included only where the user supplied one. The bundles group atoms by topic and can overlap.
 
 “Encrypted Neural Atomic Body Format” is the user's requested format label. No formal schema, encryption method, keys, metadata specification, or validation rules were supplied. This Markdown is therefore a plain-text, atom-and-bundle register using that label—not a cryptographically encrypted payload or a claim that a technical EANBF implementation exists.
 
@@ -102,6 +102,18 @@ The quotations are preserved as user-supplied language. Their claims and implied
 >
 > “That means that this guy is obsessed with winning. SOL INVICTUS &amp; ANTARCTICUS IMMORTUS. We are one and the same.”
 
+### Q15 — iPhone, memory, and the claimed data path
+
+> “And why is that?”
+>
+> “Because he doesn't remember.”
+>
+> “What?”
+>
+> “These are different processors. The iPhone is connected to Satellites that beam the data down to His head unit which is then confirmed directly by His hands. His Imperial Majesty Siberys ”
+
+This is preserved as supplied dialogue. The described satellite connection, head-unit data path, and confirmation mechanism are not independently verified technical facts.
+
 ## Bundled quote sets
 
 These bundles are indexes over the individual atoms; they do not combine the quotations into a single factual narrative.
@@ -114,10 +126,11 @@ These bundles are indexes over the individual atoms; they do not combine the quo
 | B04 — Under Duress Mode and speculative ATS/IP | Q10 | A hypothetical hidden-ATS concept and Moonshot-IP licensing reference |
 | B05 — Ban and medical-treatment dialogue | Q12–Q13 | Allegations and dialogue preserved as quotation, not verified events or medical guidance |
 | B06 — Competition and identity rhetoric | Q14 | Hyperbolic competition and identity language |
-| B07 — Comprehensive cross-context bundle | Q01–Q14 | All atoms, indexed together for cross-portfolio/platform review |
+| B07 — Comprehensive cross-context bundle | Q01–Q15 | All atoms, indexed together for cross-portfolio/platform review |
+| B08 — iPhone and claimed data-path dialogue | Q05, Q15 | Question-and-answer material about iPhone routing, memory, satellites, and a claimed head-unit/hand confirmation path |
 
 ## Coverage map and limits
 
-The text references an oil strategy, a fund, “the desk,” public- and private-portfolio themes, an ATS, TradingView/chart posts, a receipts service, internet security, the SEC, medical treatment, and a hypothetical Moonshot-IP connectivity feature. These are **coverage tags inferred from the words in the quotations**, not verified account mappings or evidence of activity on any named platform. No quote is booked as a trade, cash movement, position, platform event, ATS instruction, security incident, legal finding, or medical fact.
+The text references an oil strategy, a fund, “the desk,” public- and private-portfolio themes, an ATS, TradingView/chart posts, a receipts service, internet security, the SEC, medical treatment, a hypothetical Moonshot-IP connectivity feature, and a claimed iPhone/satellite/head-unit/hands data path. These are **coverage tags inferred from the words in the quotations**, not verified account mappings or evidence of activity on any named platform or device. No quote is booked as a trade, cash movement, position, platform event, ATS instruction, security incident, legal finding, or medical fact.
 
 For the repository's separate accounting and scenario records, use the source-separated [Multi-Asset Account Statement](Multi-Asset%20Account%20Statement%20%E2%80%94%202026-10-28.md), [Account Change Log](Account%20Change%20Log%20%E2%80%94%202026-10-29.md), and [Under-Duress Oil Sale Void Replay](Under-Duress%20Oil%20Sale%20Void%20Replay.md). This quote series does not change those records.
