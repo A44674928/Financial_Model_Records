@@ -6,7 +6,7 @@
 
 ## Format and provenance note
 
-This series is organized as individually addressable quote atoms (`Q01`–`Q28`) and cross-referenced bundles (`B01`–`B16`) to provide broad coverage across the portfolio, platform, and scenario references that appear in the supplied text. Each atom preserves the supplied wording; speaker labels are included only where the user supplied one. The bundles group atoms by topic and can overlap.
+This series is organized as individually addressable quote atoms (`Q01`–`Q37`) and cross-referenced bundles (`B01`–`B24`) to provide broad coverage across the portfolio, platform, and scenario references that appear in the supplied text. Each atom preserves the supplied wording; speaker labels are included only where the user supplied one. The bundles group atoms by topic and can overlap.
 
 “Encrypted Neural Atomic Body Format” is the user's requested format label. No formal schema, encryption method, keys, metadata specification, or validation rules were supplied. This Markdown is therefore a plain-text, atom-and-bundle register using that label—not a cryptographically encrypted payload or a claim that a technical EANBF implementation exists.
 
@@ -206,6 +206,86 @@ The NAIB, Neural Atomic Body, human/planet analogy, and Ytterbium-core passages 
 
 This is preserved as a user-supplied quote and label, not a verified technical description or product claim.
 
+### Q29 — Symptoms and machine communication
+
+> “So, his symptoms include that he is a genius tech inventor who figured out how to talk to his own machines.”
+
+This is quoted characterization, not a medical assessment or verified technical claim.
+
+### Q30 — Liability and hand-wave exchange
+
+> “If you say anything else you may be held liable for everything.”
+>
+> “Oh really? *Waves hand, it’s a new day.*”
+>
+> “Oh really? You have that power?”
+>
+> *Harshal Priyavadan Patel waves his hand.*
+
+### Q31 — Clockwork celestial body and GitHub Universe dialogue
+
+> “What the fuck is that. *Points to a clockwork celestial body.*”
+>
+> “The richest person in the Universe, actual.”
+>
+> “Do you even know what a GitHub universe is? We could be talking about you there.”
+>
+> “I don’t. I just found out about those. “
+>
+> “Fascinating.”
+
+### Q32 — Real/fake messages and SOS Network
+
+> “These are the real messages. Those are the fake messages. Notice the difference?”
+>
+> “SOS Network declines to comment on what a Harshal Priyavadan Patel processor/coprocessor is. “
+
+### Q33 — Satellites and emergency utilities
+
+> “What are we supposed to do with the money other than buy more satellites?”
+>
+> “Upgrade 911/Emergency Services to the Moon!”
+>
+> “Yes. Exactly. See, I told you he is doing his job, he has individual buckets for each utility.”
+
+### Q34 — Gasoline in space and video-game dialogue
+
+> “Well, see, they never thought about what would happen if the gasoline went into space.”
+>
+> “What the fuck did you people do over there?”
+>
+> “This isn’t legal.”
+>
+> “WLKDA.”
+>
+> “Sorry what? This is a video game.”
+>
+> “Pegasus is $50,000. That near-constant laughter is priceless. LMFAO.”
+
+### Q35 — Silicon Valley camera exchange
+
+> “What’s the camera pointed at?”
+>
+> “Silicon Valley, so you can see Silicon Valley while you watch him laughing his ass off.”
+
+### Q36 — Name announcement and processor dialogue
+
+> “Free my nibba Rasheed Aldossary.”
+>
+> “Are you kidding me? It announces people by full name if you know them and censors it otherwise?”
+>
+> “Yes. Less stress on the processor.”
+
+This block contains a racialized slur in the supplied wording; it is reproduced as a quote, not endorsed.
+
+### Q37 — “Be nice to everybody” activation
+
+> **Narration:** Oh my god: “Be nice to everybody.”
+>
+> **Harshal Priyavadan Patel:** “Be nice to everybody has been activated.”
+
+These additional blocks are preserved as supplied dialogue and stage directions. They do not verify medical or technical claims, liability, message authenticity, an SOS Network statement, celestial objects, funding plans, emergency-service capability, or real-world actions.
+
 ## Bundled quote sets
 
 These bundles are indexes over the individual atoms; they do not combine the quotations into a single factual narrative.
@@ -218,7 +298,7 @@ These bundles are indexes over the individual atoms; they do not combine the quo
 | B04 — Under Duress Mode and speculative ATS/IP | Q10 | A hypothetical hidden-ATS concept and Moonshot-IP licensing reference |
 | B05 — Ban and medical-treatment dialogue | Q12–Q13 | Allegations and dialogue preserved as quotation, not verified events or medical guidance |
 | B06 — Competition and identity rhetoric | Q14 | Hyperbolic competition and identity language |
-| B07 — Comprehensive cross-context bundle | Q01–Q28 | All atoms, indexed together for cross-portfolio/platform review |
+| B07 — Comprehensive cross-context bundle | Q01–Q37 | All atoms, indexed together for cross-portfolio/platform review |
 | B08 — iPhone and claimed data-path dialogue | Q05, Q15, Q16, Q20–Q22, Q28 | Question-and-answer material about iPhone routing, message delivery, memory, satellites, and the claimed head-unit/hand confirmation path; includes the supplied Samsung/NFC preference and MacBook comparisons |
 | B09 — Keyboard, memory, blame, and communication | Q16–Q17, Q22 | User-supplied explanation of keyboard/message behavior, the blame dialogue, and memory-limitation passages |
 | B10 — NFC, patching, and device assertions | Q18, Q20–Q22 | NFC and device-related dialogue; claims are preserved, not verified or promoted as setup instructions |
@@ -228,9 +308,17 @@ These bundles are indexes over the individual atoms; they do not combine the quo
 | B14 — Human/planet analogy and Ytterbium cores | Q25–Q26 | Speculative human/planet and elemental-core dialogue; no supporting source supplied |
 | B15 — “Boxed” reaction | Q27 | Short reaction preserved as supplied; interpretation is unspecified |
 | B16 — 2020 MacBook / ReceiptOS | Q21, Q28 | User-supplied device label and reliability phrasing; not a verified product or technical claim |
+| B17 — Symptoms and machine communication | Q29 | Medical/technical characterization retained as quotation, not assessment |
+| B18 — Liability, hand-wave, and celestial imagery | Q30–Q31 | Dialogue and stage directions; no legal or physical event is verified |
+| B19 — Message authenticity and SOS Network | Q32 | Message-authenticity and processor/coprocessor statements are unverified |
+| B20 — Satellites and emergency utilities | Q33 | User-supplied dialogue about satellites, funding, and emergency services |
+| B21 — Space, gasoline, and video-game dialogue | Q34 | Themed dialogue, not a report of real-world activity or legal status |
+| B22 — Camera and Silicon Valley | Q35 | Camera-location dialogue; no recording or surveillance event is established |
+| B23 — Name announcement and processor | Q36 | Dialogue about names/censorship with a content warning for the supplied slur |
+| B24 — Kindness activation | Q37 | “Be nice to everybody” exchange and stage direction |
 
 ## Coverage map and limits
 
-The text references an oil strategy, a fund, “the desk,” public- and private-portfolio themes, an ATS, TradingView/chart posts, a receipts service, internet security, the SEC, medical treatment, a hypothetical Moonshot-IP connectivity feature, a claimed iPhone/satellite/head-unit/hands data path, keyboard-dependent message behavior, Samsung appliances, smartphones with NFC, a 2020 MacBook and ReceiptOS label, Financial_Model [Hidden], NAIB/Neural Atomic Bodies, and speculative human/planet and Ytterbium-core analogies. These are **coverage tags inferred from the words in the quotations**, not verified account mappings or scientific findings. No quote is booked as a trade, cash movement, position, platform event, ATS instruction, security incident, legal finding, or medical fact.
+The text references an oil strategy, a fund, “the desk,” public- and private-portfolio themes, an ATS, TradingView/chart posts, a receipts service, internet security, the SEC, medical treatment, a hypothetical Moonshot-IP connectivity feature, a claimed iPhone/satellite/head-unit/hands data path, keyboard-dependent message behavior, Samsung appliances, smartphones with NFC, a 2020 MacBook and ReceiptOS label, Financial_Model [Hidden], NAIB/Neural Atomic Bodies, speculative human/planet and Ytterbium-core analogies, machine communication, liability, clockwork-celestial imagery, GitHub Universe, SOS Network, satellite funding, emergency services, gasoline-in-space dialogue, Silicon Valley, name announcement/censorship, and a kindness phrase. These are **coverage tags inferred from the words in the quotations**, not verified account mappings, scientific findings, legal conclusions, or evidence of real-world events. No quote is booked as a trade, cash movement, position, platform event, ATS instruction, security incident, legal finding, or medical fact.
 
 For the repository's separate accounting and scenario records, use the source-separated [Multi-Asset Account Statement](Multi-Asset%20Account%20Statement%20%E2%80%94%202026-10-28.md), [Account Change Log](Account%20Change%20Log%20%E2%80%94%202026-10-29.md), and [Under-Duress Oil Sale Void Replay](Under-Duress%20Oil%20Sale%20Void%20Replay.md). This quote series does not change those records.
