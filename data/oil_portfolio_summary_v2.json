@@ -1,0 +1,371 @@
+{
+  "portfolio_name": "Oil",
+  "portfolio_type": "separate simulated paper-model oil/energy portfolio",
+  "output_version": "2",
+  "active_replay_start_date": "2026-09-03",
+  "active_replay_end_date": "2026-10-26",
+  "active_trade_event_cutoff": "2026-10-19",
+  "latest_aligned_eod_mark_date": "2026-10-26",
+  "last_allowed_tradingview_input_date": "2026-10-26",
+  "post_cutoff_tradingview_marks_authorized_for_this_version": true,
+  "active_direct_crude_tickers": [
+    "BRENT",
+    "OIL"
+  ],
+  "active_oil_linked_equity_tickers": [
+    "CVX",
+    "VLO",
+    "XLE"
+  ],
+  "all_trade_log_rows_indexed": 34,
+  "pre_cutoff_trade_log_rows_used": 18,
+  "post_cutoff_trade_log_rows_preserved_not_used": 16,
+  "weekend_oil_tagged_lots_by_variant": {
+    "V1": [
+      {
+        "ticker": "BRENT",
+        "side": "LONG",
+        "entry_date": "2026-10-19",
+        "entry_price": 111.412,
+        "units": 50,
+        "gross_notional_usd": 500000.0,
+        "as_of_date": "2026-10-26",
+        "as_of_mark": 115.38,
+        "unrealized_pnl_usd": 17807.776541126528,
+        "live_ats_manual_allocation_verified": false
+      },
+      {
+        "ticker": "OIL",
+        "side": "LONG",
+        "entry_date": "2026-10-19",
+        "entry_price": 99.04,
+        "units": 50,
+        "gross_notional_usd": 500000.0,
+        "as_of_date": "2026-10-26",
+        "as_of_mark": 101.3,
+        "unrealized_pnl_usd": 11409.531502423188,
+        "live_ats_manual_allocation_verified": false
+      }
+    ],
+    "V2": [
+      {
+        "ticker": "BRENT",
+        "side": "LONG",
+        "entry_date": "2026-10-19",
+        "entry_price": 111.412,
+        "units": 50,
+        "gross_notional_usd": 500000.0,
+        "as_of_date": "2026-10-26",
+        "as_of_mark": 115.38,
+        "unrealized_pnl_usd": 17807.776541126528,
+        "live_ats_manual_allocation_verified": false
+      },
+      {
+        "ticker": "OIL",
+        "side": "LONG",
+        "entry_date": "2026-10-19",
+        "entry_price": 99.04,
+        "units": 50,
+        "gross_notional_usd": 500000.0,
+        "as_of_date": "2026-10-26",
+        "as_of_mark": 101.3,
+        "unrealized_pnl_usd": 11409.531502423188,
+        "live_ats_manual_allocation_verified": false
+      }
+    ],
+    "V3A": [
+      {
+        "ticker": "BRENT",
+        "side": "LONG",
+        "entry_date": "2026-10-19",
+        "entry_price": 111.412,
+        "units": 50,
+        "gross_notional_usd": 500000.0,
+        "as_of_date": "2026-10-26",
+        "as_of_mark": 115.38,
+        "unrealized_pnl_usd": 17807.776541126528,
+        "live_ats_manual_allocation_verified": false
+      },
+      {
+        "ticker": "OIL",
+        "side": "LONG",
+        "entry_date": "2026-10-19",
+        "entry_price": 99.04,
+        "units": 50,
+        "gross_notional_usd": 500000.0,
+        "as_of_date": "2026-10-26",
+        "as_of_mark": 101.3,
+        "unrealized_pnl_usd": 11409.531502423188,
+        "live_ats_manual_allocation_verified": false
+      }
+    ],
+    "V3B": [
+      {
+        "ticker": "BRENT",
+        "side": "LONG",
+        "entry_date": "2026-10-19",
+        "entry_price": 111.412,
+        "units": 50,
+        "gross_notional_usd": 500000.0,
+        "as_of_date": "2026-10-26",
+        "as_of_mark": 115.38,
+        "unrealized_pnl_usd": 17807.776541126528,
+        "live_ats_manual_allocation_verified": false
+      },
+      {
+        "ticker": "OIL",
+        "side": "LONG",
+        "entry_date": "2026-10-19",
+        "entry_price": 99.04,
+        "units": 50,
+        "gross_notional_usd": 500000.0,
+        "as_of_date": "2026-10-26",
+        "as_of_mark": 101.3,
+        "unrealized_pnl_usd": 11409.531502423188,
+        "live_ats_manual_allocation_verified": false
+      }
+    ]
+  },
+  "external_oil_book_records_separate": 5,
+  "external_book_transaction_pnl_included_in_core_model": false,
+  "post_cutoff_tradingview_inputs_used": 25,
+  "post_cutoff_trade_rows_used": 0,
+  "cash_convention": "All-cash/debit paper model; no leverage, financing, or funding source inferred.",
+  "variants": {
+    "V1": {
+      "label": "Variant 1 \u2014 1U Open",
+      "realized_pnl_usd": 0.0,
+      "unrealized_pnl_usd": 42935.36,
+      "total_pnl_usd": 42935.36,
+      "roi_pct": 3.701324,
+      "deployed_notional_usd": 1160000.0,
+      "open_units": 116.0,
+      "by_ticker": {
+        "BRENT": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 21912.9,
+          "total_pnl_usd": 21912.9,
+          "open_units": 55,
+          "open_lot_count": 6,
+          "open_notional_usd": 550000.0
+        },
+        "CVX": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 3234.46,
+          "total_pnl_usd": 3234.46,
+          "open_units": 3,
+          "open_lot_count": 3,
+          "open_notional_usd": 30000.0
+        },
+        "OIL": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 16639.64,
+          "total_pnl_usd": 16639.64,
+          "open_units": 56,
+          "open_lot_count": 7,
+          "open_notional_usd": 560000.0
+        },
+        "VLO": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 62.72,
+          "total_pnl_usd": 62.72,
+          "open_units": 1,
+          "open_lot_count": 1,
+          "open_notional_usd": 10000.0
+        },
+        "XLE": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 1085.64,
+          "total_pnl_usd": 1085.64,
+          "open_units": 1,
+          "open_lot_count": 1,
+          "open_notional_usd": 10000.0
+        }
+      }
+    },
+    "V2": {
+      "label": "Variant 2 \u2014 1U SAR",
+      "realized_pnl_usd": 0.0,
+      "unrealized_pnl_usd": 42935.36,
+      "total_pnl_usd": 42935.36,
+      "roi_pct": 3.701324,
+      "deployed_notional_usd": 1160000.0,
+      "open_units": 116.0,
+      "by_ticker": {
+        "BRENT": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 21912.9,
+          "total_pnl_usd": 21912.9,
+          "open_units": 55,
+          "open_lot_count": 6,
+          "open_notional_usd": 550000.0
+        },
+        "CVX": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 3234.46,
+          "total_pnl_usd": 3234.46,
+          "open_units": 3,
+          "open_lot_count": 3,
+          "open_notional_usd": 30000.0
+        },
+        "OIL": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 16639.64,
+          "total_pnl_usd": 16639.64,
+          "open_units": 56,
+          "open_lot_count": 7,
+          "open_notional_usd": 560000.0
+        },
+        "VLO": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 62.72,
+          "total_pnl_usd": 62.72,
+          "open_units": 1,
+          "open_lot_count": 1,
+          "open_notional_usd": 10000.0
+        },
+        "XLE": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 1085.64,
+          "total_pnl_usd": 1085.64,
+          "open_units": 1,
+          "open_lot_count": 1,
+          "open_notional_usd": 10000.0
+        }
+      }
+    },
+    "V3A": {
+      "label": "Variant 3A \u2014 Nu Open",
+      "realized_pnl_usd": 0.0,
+      "unrealized_pnl_usd": 42935.36,
+      "total_pnl_usd": 42935.36,
+      "roi_pct": 3.701324,
+      "deployed_notional_usd": 1160000.0,
+      "open_units": 116.0,
+      "by_ticker": {
+        "BRENT": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 21912.9,
+          "total_pnl_usd": 21912.9,
+          "open_units": 55,
+          "open_lot_count": 6,
+          "open_notional_usd": 550000.0
+        },
+        "CVX": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 3234.46,
+          "total_pnl_usd": 3234.46,
+          "open_units": 3,
+          "open_lot_count": 3,
+          "open_notional_usd": 30000.0
+        },
+        "OIL": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 16639.64,
+          "total_pnl_usd": 16639.64,
+          "open_units": 56,
+          "open_lot_count": 7,
+          "open_notional_usd": 560000.0
+        },
+        "VLO": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 62.72,
+          "total_pnl_usd": 62.72,
+          "open_units": 1,
+          "open_lot_count": 1,
+          "open_notional_usd": 10000.0
+        },
+        "XLE": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 1085.64,
+          "total_pnl_usd": 1085.64,
+          "open_units": 1,
+          "open_lot_count": 1,
+          "open_notional_usd": 10000.0
+        }
+      }
+    },
+    "V3B": {
+      "label": "Variant 3B \u2014 Nu SAR",
+      "realized_pnl_usd": 0.0,
+      "unrealized_pnl_usd": 42935.36,
+      "total_pnl_usd": 42935.36,
+      "roi_pct": 3.701324,
+      "deployed_notional_usd": 1160000.0,
+      "open_units": 116.0,
+      "by_ticker": {
+        "BRENT": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 21912.9,
+          "total_pnl_usd": 21912.9,
+          "open_units": 55,
+          "open_lot_count": 6,
+          "open_notional_usd": 550000.0
+        },
+        "CVX": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 3234.46,
+          "total_pnl_usd": 3234.46,
+          "open_units": 3,
+          "open_lot_count": 3,
+          "open_notional_usd": 30000.0
+        },
+        "OIL": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 16639.64,
+          "total_pnl_usd": 16639.64,
+          "open_units": 56,
+          "open_lot_count": 7,
+          "open_notional_usd": 560000.0
+        },
+        "VLO": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 62.72,
+          "total_pnl_usd": 62.72,
+          "open_units": 1,
+          "open_lot_count": 1,
+          "open_notional_usd": 10000.0
+        },
+        "XLE": {
+          "realized_pnl_usd": 0,
+          "unrealized_pnl_usd": 1085.64,
+          "total_pnl_usd": 1085.64,
+          "open_units": 1,
+          "open_lot_count": 1,
+          "open_notional_usd": 10000.0
+        }
+      }
+    }
+  },
+  "pnl_reconciliation": {
+    "ai_fund_v1_total_pnl_usd_by_variant": {
+      "V1": 28886.28,
+      "V2": 28052.06,
+      "V3A": 43247.87,
+      "V3B": 37656.14
+    },
+    "ai_fund_v2_total_pnl_usd_by_variant": {
+      "V1": 27671.57,
+      "V2": 26837.35,
+      "V3A": 42033.15,
+      "V3B": 36441.43
+    },
+    "ai_fund_v1_to_v2_removed_pnl_usd_by_variant": {
+      "V1": 1214.71,
+      "V2": 1214.71,
+      "V3A": 1214.72,
+      "V3B": 1214.71
+    },
+    "transferred_ai_fund_v1_oil_cvx_trade_pnl_usd": 1214.71,
+    "oil_portfolio_historical_v1_total_pnl_usd": 1723.09,
+    "oil_portfolio_total_pnl_usd": 42935.36,
+    "oil_portfolio_latest_replay_total_pnl_usd": 42935.36,
+    "other_oil_records_net_pnl_usd_at_2026_10_19": 508.38,
+    "other_oil_records_net_pnl_usd": 508.38,
+    "private_fund_screenshot_reported_close_pnl_usd_separate": 2713480646.02,
+    "private_fund_nullified_voided_close_pnl_recognized_usd": 0.0,
+    "private_fund_oil_close_orders_void_status": "NULLIFIED AND VOIDED PER USER INSTRUCTION; platform void status not independently confirmed",
+    "active_oil_short_entries_used": 0,
+    "later_short_entries_not_used": 2
+  }
+}

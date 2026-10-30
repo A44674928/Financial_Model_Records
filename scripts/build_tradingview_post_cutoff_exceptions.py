@@ -16,6 +16,52 @@ DATA = ROOT / "data"
 OUTPUT = DATA / "tradingview_post_cutoff_exceptions_v1.csv"
 CUTOFF = POLICY_EFFECTIVE_DATE.isoformat()
 DATE_RE = re.compile(r"20\d\d-\d\d-\d\d")
+AUTHORIZED_OIL_V2_ARTIFACTS = {
+    "data/oil_portfolio_daily_v2.csv",
+    "data/oil_portfolio_trade_ledger_v2.csv",
+    "reports/Oil Portfolio — 2026-10-26 Update.md",
+}
+AUTHORIZED_OIL_AUDIT_SHEET = "data/oil_position_audit_sheet_v1.csv"
+AUTHORIZED_OIL_V2_STATUS = "USER_AUTHORIZED_SCOPED_OIL_V2; MARKS_THROUGH_2026-10-26; NO_POST_CUTOFF_TRADE_EVENTS"
+AUTHORIZED_OIL_V2_NOTES = (
+    "User authorized on 2026-10-29 a versioned Oil-only mark-forward using existing aligned TradingView EOD marks through 2026-10-26. "
+    "Active trade-event cutoff remains 2026-10-19; no post-cutoff trade events, ATS scenarios, or under-duress positions were used. "
+    "This is not a general waiver of the repository cutoff."
+)
+AUTHORIZED_OIL_AUDIT_STATUS = "USER_AUTHORIZED_OIL_AUDIT_SHEET; SCENARIOS LABELED; NOT NETTED"
+AUTHORIZED_OIL_AUDIT_NOTES = (
+    "User requested one cross-book Oil position audit sheet. Post-cutoff rows are retained as source/scenario references; "
+    "the eight ATS short lifecycles are reinstated only in the test sheet, not in the source replay or as verified actual trades. "
+    "No cross-book net total is asserted; the Oil v2 active model remains limited to its 2026-10-19 trade-event set and 2026-10-26 marks."
+)
+AUTHORIZED_REGISTER_STATUSES = {
+    "reports/Multi-Asset Account Statement — 2026-10-28.md": (
+        "USER_AUTHORIZED_MULTI_ASSET_REGISTER; SOURCE_BOOKS_SEPARATED; NO_NET_TOTAL",
+        "User requested a multi-asset statement register. It preserves separate source books, alternative models, and audit-only rows; it is not an active model input or reconciled account statement.",
+    ),
+    "reports/Account Change Log — 2026-10-29.md": (
+        "USER_AUTHORIZED_OCT29_CHANGE_LOG; TRANSACTIONS_AND_CONTROLS_SEPARATED",
+        "User requested a dated change log. Screenshot-reported PnL, the LCID buy, hypothetical offer reference, and model/policy controls are separately labeled; no cross-book totals or active model recalculations are authorized.",
+    ),
+    "data/account_change_log_2026-10-29_v1.csv": (
+        "USER_AUTHORIZED_OCT29_CHANGE_LOG; TRANSACTIONS_AND_CONTROLS_SEPARATED",
+        "User requested a dated change log. Screenshot-reported PnL, the LCID buy, hypothetical offer reference, and model/policy controls are separately labeled; no cross-book totals or active model recalculations are authorized.",
+    ),
+}
+
+
+def _apply_scoped_authorization(row):
+    if not row:
+        return row
+    if row["artifact"] in AUTHORIZED_OIL_V2_ARTIFACTS:
+        row["policy_status"] = AUTHORIZED_OIL_V2_STATUS
+        row["notes"] = AUTHORIZED_OIL_V2_NOTES
+    elif row["artifact"] == AUTHORIZED_OIL_AUDIT_SHEET:
+        row["policy_status"] = AUTHORIZED_OIL_AUDIT_STATUS
+        row["notes"] = AUTHORIZED_OIL_AUDIT_NOTES
+    elif row["artifact"] in AUTHORIZED_REGISTER_STATUSES:
+        row["policy_status"], row["notes"] = AUTHORIZED_REGISTER_STATUSES[row["artifact"]]
+    return row
 SOURCE_HEADER_RE = re.compile(r"source|provider|platform|origin|provenance|url", re.I)
 
 
@@ -41,13 +87,14 @@ def scan_csv(path):
     if not rows:
         return None
     source_fields = [name for name in fieldnames if SOURCE_HEADER_RE.search(name)]
-    source_is_tv_file = is_tradingview_source(path.name)
+    is_source_artifact = is_tradingview_source(path.name)
+    source_is_tv_file = is_source_artifact or path.name == "oil_position_audit_sheet_v1.csv"
     affected_dates = []
     affected_rows = 0
     for row in rows:
         source_evidence = [path.name] if source_is_tv_file else []
         source_evidence.extend(row.get(name, "") for name in source_fields)
-        if not any(is_tradingview_source(value) for value in source_evidence):
+        if not source_is_tv_file and not any(is_tradingview_source(value) for value in source_evidence):
             continue
         date_values = []
         for name, value in row.items():
@@ -60,12 +107,12 @@ def scan_csv(path):
             affected_dates.extend(post_cutoff)
     if not affected_rows:
         return None
-    category = "TradingView source/mark artifact" if source_is_tv_file else "Dataset with TradingView provenance (input or dependent output)"
-    return _exception_row(
+    category = "TradingView source/mark artifact" if is_source_artifact else "Dataset with TradingView provenance (input or dependent output)"
+    return _apply_scoped_authorization(_exception_row(
         path.relative_to(ROOT).as_posix(), category, affected_rows,
         min(affected_dates), max(affected_dates),
         "Pre-existing post-cutoff rows retained and flagged. No source rows or dependent PnL outputs were changed by this policy addition.",
-    )
+    ))
 
 
 def scan_trade_logs(path):
@@ -94,10 +141,10 @@ def scan_reports(path):
     dates = [value for value in DATE_RE.findall(text) if value >= CUTOFF]
     if not dates:
         return None
-    return _exception_row(
+    return _apply_scoped_authorization(_exception_row(
         path.relative_to(ROOT).as_posix(), "Dependent report/output", 1, min(dates), max(dates),
         "Existing report may depend on post-cutoff TradingView inputs. Preserved as-is pending review; this index does not recalculate it.",
-    )
+    ))
 
 
 def scan_known_screenshots():

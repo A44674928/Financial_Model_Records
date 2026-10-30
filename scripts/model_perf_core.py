@@ -29,7 +29,15 @@ OIL_PORTFOLIO_REPLAY = os.environ.get("PAPER_TRADES_OIL_PORTFOLIO_REPLAY", "0") 
 if sum((SCREENED_REPLAY, AI_FUND_REPLAY, OIL_PORTFOLIO_REPLAY)) > 1:
     raise ValueError("Choose exactly one of the screened, AI fund, or Oil portfolio replay modes")
 SCREENED_EXCLUDED_TICKERS = BLOCKED_TICKERS if SCREENED_REPLAY else frozenset()
-SCREENED_MAX_DATE = MAX_TRADINGVIEW_INPUT_DATE.isoformat() if (SCREENED_REPLAY or AI_FUND_REPLAY or OIL_PORTFOLIO_REPLAY) else None
+POLICY_MAX_DATE = MAX_TRADINGVIEW_INPUT_DATE.isoformat()
+OIL_PORTFOLIO_MARK_MAX_DATE = os.environ.get("PAPER_TRADES_OIL_PORTFOLIO_MARK_MAX_DATE", POLICY_MAX_DATE)
+OIL_PORTFOLIO_EVENT_MAX_DATE = os.environ.get("PAPER_TRADES_OIL_PORTFOLIO_EVENT_MAX_DATE", POLICY_MAX_DATE)
+if OIL_PORTFOLIO_REPLAY and OIL_PORTFOLIO_MARK_MAX_DATE > POLICY_MAX_DATE:
+    if os.environ.get("PAPER_TRADES_OIL_PORTFOLIO_ALLOW_POST_CUTOFF_MARKS") != "1":
+        raise ValueError("Post-cutoff Oil marks require explicit, Oil-only authorization")
+SCREENED_MAX_DATE = (
+    OIL_PORTFOLIO_MARK_MAX_DATE if OIL_PORTFOLIO_REPLAY else POLICY_MAX_DATE
+) if (SCREENED_REPLAY or AI_FUND_REPLAY or OIL_PORTFOLIO_REPLAY) else None
 AI_FUND_VERSION = os.environ.get("PAPER_TRADES_AI_FUND_REPLAY_VERSION", "1")
 AI_FUND_DIRECT_TICKERS = frozenset(
     BLOCKED_TICKERS | ({"CAT", "CVX", "DIS", "OIL"} if AI_FUND_VERSION == "1" else {"CAT", "DIS"})
@@ -179,6 +187,8 @@ def parse_trades():
                 and sym not in BLOCKED_TICKERS
                 and not is_explicit_third_party_commentary(m.group("note"))
             ):
+                continue
+            if OIL_PORTFOLIO_REPLAY and m.group("date") > OIL_PORTFOLIO_EVENT_MAX_DATE:
                 continue
             parsed_units = float(m.group("units"))
             units = int(parsed_units) if parsed_units.is_integer() else parsed_units

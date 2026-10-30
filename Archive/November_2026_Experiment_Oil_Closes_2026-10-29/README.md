@@ -7,7 +7,11 @@ Two user-provided balance-history screenshots documenting the reported long clos
 | `IMG_1218.png` | Standard Oil Tra… / `BLACKBULL:BRENT` | Close long; 2026-10-29 10:41:44 | 538,566,907 | $114.043000 | $115.777 | +$933,875,016.74 |
 | `IMG_1217.png` | US Oil Tracker / `TVC:USOIL` | Close long; 2026-10-29 10:41:38 | 601,218,118 | $99.180000 | $102.14 | +$1,779,605,629.28 |
 
-The values above are transcribed from user-provided TradingView Paper Trading screenshots. They document paper-trading activity, not an independently audited brokerage statement. The account-level before/after balances and cumulative realized PnL are preserved in the screenshots but are not added to the profit-only experiment; only the two transaction-level realized-PnL amounts are carried forward.
+The values above are transcribed from user-provided TradingView Paper Trading screenshots. They document what the screenshots display, not an independently audited brokerage statement. The account-level before/after balances and cumulative realized PnL are preserved in the screenshots.
+
+## Subsequent user-directed status update
+
+The user later directed that both October 29 oil close records shown above be **nullified and voided**, with the earlier BRENT and USOIL longs kept open at their stated entry prices. This user-directed status is recorded for both records; platform void status is not independently confirmed by a separate order-status artifact. Accordingly, the screenshot-displayed close prices and PnL remain voided-source evidence only: they are not used as current marks or recognized as realized PnL. The original screenshots and their transcription above are preserved unchanged.
 
 ## SHA-256
 

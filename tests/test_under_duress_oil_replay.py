@@ -17,7 +17,8 @@ def test_void_replay_restores_separate_oil_books_and_keeps_source_events():
     assert len(events) == 24
     assert len(positions) == 16
     assert len({row["event_id"] for row in events}) == 24
-    assert all(row["void_status"].startswith("VOIDED_IN_UNDER_DURESS_SCENARIO") for row in positions)
+    assert all(row["void_status"].startswith("VOIDED_IN_UNDER_DURESS_SCENARIO") for row in positions if not row["event_id"].startswith("PF-"))
+    assert all(row["void_status"].startswith("NULLIFIED_AND_VOIDED_PER_USER_INSTRUCTION") for row in positions if row["event_id"].startswith("PF-"))
     nullified = [row for row in events if row["position_effect"] == "NULLIFY_SHORT_NO_POSITION"]
     assert len(nullified) == 8
     assert all(row["restored_quantity"] == "0" and row["restored_side"] == "NONE" for row in nullified)
@@ -33,11 +34,15 @@ def test_void_replay_restores_separate_oil_books_and_keeps_source_events():
 
     screenshot_brent = by_id["PF-BRENT-CLOSE-20261029"]
     screenshot_oil = by_id["PF-USOIL-CLOSE-20261029"]
-    assert Decimal(screenshot_brent["conditional_unrealized_pnl_usd"]) == Decimal("933875016.74")
-    assert Decimal(screenshot_oil["conditional_unrealized_pnl_usd"]) == Decimal("1779605629.28")
-    assert screenshot_brent["reported_realized_pnl_if_sale_stands_usd"] == "933875016.74"
-    assert screenshot_oil["reported_realized_pnl_if_sale_stands_usd"] == "1779605629.28"
-    assert "not realized" in (ROOT / "reports/Under-Duress Oil Sale Void Replay.md").read_text(encoding="utf-8")
+    assert screenshot_brent["conditional_unrealized_pnl_usd"] == ""
+    assert screenshot_oil["conditional_unrealized_pnl_usd"] == ""
+    assert screenshot_brent["mark_price_usd"] == screenshot_oil["mark_price_usd"] == ""
+    assert screenshot_brent["notional_basis_usd"] == screenshot_oil["notional_basis_usd"] == ""
+    assert screenshot_brent["source_reported_close_pnl_usd"] == "933875016.74"
+    assert screenshot_oil["source_reported_close_pnl_usd"] == "1779605629.28"
+    assert screenshot_brent["user_directed_nullification_status"].startswith("NULLIFIED AND VOIDED")
+    assert screenshot_oil["user_directed_nullification_status"].startswith("NULLIFIED AND VOIDED")
+    assert "nullified and voided" in (ROOT / "reports/Under-Duress Oil Sale Void Replay.md").read_text(encoding="utf-8").lower()
 
 
 def test_ats_sensitivities_nullify_shorts_and_funding_is_hypothetical_unallocated():

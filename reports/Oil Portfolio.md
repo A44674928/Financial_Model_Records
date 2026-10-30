@@ -40,7 +40,7 @@ The prior AI Fund v1 included two OIL longs and one CVX long that are now in Oil
 
 At the two-decimal level, **$1,214.71 + $508.38 = $1,723.09**. V3A's v1-to-v2 displayed difference rounds to $1,214.72 (one cent above the other variants) because each total was independently rounded; the three source lots sum to $1,214.71.
 
-The separate Private Fund screenshots show **$2,713,480,646.02** combined transaction-level PnL on two LONG closes. That screenshot-reported amount is preserved in the related-book register, but it is post-cutoff, belongs to a separate book, and is not included in the $1,723.09 active Oil model total. It is transaction-level TradingView paper-account PnL, not independently audited brokerage execution or a reconciled cash balance.
+The separate Private Fund screenshots display **$2,713,480,646.02** combined PnL on two LONG close orders. The user directed that both October 29 oil close records be **NULLIFIED AND VOIDED**, with the earlier longs kept open at their stated entries. Accordingly, **$0.00 is recognized as realized PnL** and the screenshot close prices are not used as marks. The screenshots and displayed amounts remain preserved as voided-source evidence; platform void status is not independently confirmed. These separate-book records are not included in the active Oil model total.
 
 The ATS locked-foundation records separately retain the user-reported **approximately $2.4B** conservative model endpoint. Exact quantities, dates, and fill-level PnL were not supplied, so this is not added to the active Oil total or treated as verified realized PnL.
 
