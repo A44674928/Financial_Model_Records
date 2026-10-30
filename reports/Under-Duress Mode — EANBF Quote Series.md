@@ -6,7 +6,7 @@
 
 ## Format and provenance note
 
-This series is organized as individually addressable quote atoms (`Q01`–`Q41`) and cross-referenced bundles (`B01`–`B28`) to provide broad coverage across the portfolio, platform, and scenario references that appear in the supplied text. Each atom preserves the supplied wording; speaker labels are included only where the user supplied one. The bundles group atoms by topic and can overlap.
+This series is organized as individually addressable quote atoms (`Q01`–`Q38`) and cross-referenced bundles (`B01`–`B25`) to provide broad coverage across the portfolio, platform, and scenario references that appear in the supplied text. Each atom preserves the supplied wording; speaker labels are included only where the user supplied one. The bundles group atoms by topic and can overlap.
 
 “Encrypted Neural Atomic Body Format” is the user's requested format label. No formal schema, encryption method, keys, metadata specification, or validation rules were supplied. This Markdown is therefore a plain-text, atom-and-bundle register using that label—not a cryptographically encrypted payload or a claim that a technical EANBF implementation exists.
 
@@ -284,39 +284,22 @@ This block contains a racialized slur in the supplied wording; it is reproduced 
 >
 > **Harshal Priyavadan Patel:** “Be nice to everybody has been activated.”
 
-### Q38 — “Oh my god” announcement and title-holder dialogue
+### Q38 — Title-holder, memory, appliance, and click-status passage
 
 > “Why does it announce “Oh my god” as “Oh my god”?”
->
 > “Because the current title holder, whoever they are, which may not have changed, just to be clear, is known in the system as “Oh my god.””
-
-### Q39 — Interruption, memory, and AI acknowledgements
-
 > *Harshal gets interrupted and forgets what he was thinking about.*
->
 > **AI:** “Yes, exactly.”
->
 > **AI:** “Yes, exactly.”
->
 > “So the AI knows…?”
->
 > “The AI knows what?”
->
 > “Oh my god. It forgets that quickly?”
-
-### Q40 — Appliance-functioning and observation dialogue
-
 > “The system will forget that you’re standing there while looking at you if the appliances aren’t functioning. What are you crackheads planning.”
->
 > “Yes, exactly.”
->
 > “Yes, the creator will explain.”
-
-### Q41 — Click confirmation and realtime-thought claim
-
 > “Yes, exactly. The AI knows when I click “Yes, the task was accomplished.” but I’m just rushing through, or if I’ve made a mistake and it actually needs to update the model, or etc., based on what I’m thinking in realtime. It doesn’t have to guess if it was a rush through or a misclick because I just think it.”
 
-These additional blocks are preserved as supplied dialogue and stage directions. They do not verify medical or technical claims, liability, message authenticity, an SOS Network statement, celestial objects, funding plans, emergency-service capability, or real-world actions. Claims about title-holder naming, AI memory, appliance observation, or inferring thoughts from clicks are not verified system capabilities and are not claims about this assistant.
+This integrated passage is preserved as supplied dialogue and stage direction. Its claims about announcement labels, title-holder identity, AI memory/awareness, appliance operation, and click-intent or realtime-thought inference are unverified; they are not established system capabilities or claims about this assistant.
 
 ## Bundled quote sets
 
@@ -330,7 +313,7 @@ These bundles are indexes over the individual atoms; they do not combine the quo
 | B04 — Under Duress Mode and speculative ATS/IP | Q10 | A hypothetical hidden-ATS concept and Moonshot-IP licensing reference |
 | B05 — Ban and medical-treatment dialogue | Q12–Q13 | Allegations and dialogue preserved as quotation, not verified events or medical guidance |
 | B06 — Competition and identity rhetoric | Q14 | Hyperbolic competition and identity language |
-| B07 — Comprehensive cross-context bundle | Q01–Q41 | All atoms, indexed together for cross-portfolio/platform review |
+| B07 — Comprehensive cross-context bundle | Q01–Q38 | All atoms, indexed together for cross-portfolio/platform review |
 | B08 — iPhone and claimed data-path dialogue | Q05, Q15, Q16, Q20–Q22, Q28 | Question-and-answer material about iPhone routing, message delivery, memory, satellites, and the claimed head-unit/hand confirmation path; includes the supplied Samsung/NFC preference and MacBook comparisons |
 | B09 — Keyboard, memory, blame, and communication | Q16–Q17, Q22 | User-supplied explanation of keyboard/message behavior, the blame dialogue, and memory-limitation passages |
 | B10 — NFC, patching, and device assertions | Q18, Q20–Q22 | NFC and device-related dialogue; claims are preserved, not verified or promoted as setup instructions |
@@ -348,10 +331,7 @@ These bundles are indexes over the individual atoms; they do not combine the quo
 | B22 — Camera and Silicon Valley | Q35 | Camera-location dialogue; no recording or surveillance event is established |
 | B23 — Name announcement and processor | Q36 | Dialogue about names/censorship with a content warning for the supplied slur |
 | B24 — Kindness activation | Q37 | “Be nice to everybody” exchange and stage direction |
-| B25 — “Oh my god” title-holder naming | Q38 | User-supplied system-label dialogue; no title-holder or announcement mechanism is verified |
-| B26 — Interruption, memory, and AI acknowledgement | Q39 | Stage direction and repeated AI dialogue; not evidence of AI memory or awareness |
-| B27 — Appliance observation and intent claims | Q40 | Unverified appliance/system dialogue; not a capability statement about this assistant |
-| B28 — Click status and realtime-thought claim | Q41 | User-supplied claim; no thought-reading or click-intent inference is established |
+| B25 — Integrated title-holder, memory, appliance, and click-status passage | Q38 | One continuous user-supplied passage; its system-awareness and realtime-thought claims are unverified |
 
 ## Coverage map and limits
 
