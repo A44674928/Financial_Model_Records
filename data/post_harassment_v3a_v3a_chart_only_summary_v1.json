@@ -1,0 +1,71 @@
+{
+  "portfolio_name": "Post-Harassment V3A + V3A Audit Portfolio",
+  "version": 1,
+  "replay_method": "V3A core + V3A-specific 1U/EOD force model; chart-only event filter; no energy daily-buy sidecar; DXY direction excluded under source screen",
+  "status": "Chart-only model reconstruction through latest complete marks; not a verified account restoration",
+  "user_authorized_scoped_exception_id": "USER_AUTHORIZED_POST_HARASSMENT_V3A_V3A_MARKS_AND_FORCE_V1",
+  "scoped_force_model_additions_through_valuation_date": true,
+  "post_cutoff_user_sourced_events_ingested": false,
+  "event_cutoff": "2026-10-19",
+  "valuation_as_of": "2026-10-26",
+  "latest_common_mark_date_in_repository": "2026-10-26",
+  "user_requested_to_date_limit": "No complete synchronized TradingView benchmark marks for 2026-10-27 through 2026-10-30 were present; output is not valued through 2026-10-30.",
+  "direct_price_ticker_screen_excluded": [
+    "AAPL",
+    "AMZN",
+    "INTC",
+    "META",
+    "NVDA",
+    "PLTR",
+    "TSLA"
+  ],
+  "dxy_directional_sleeve_included": false,
+  "energy_daily_buy_sidecar_included": false,
+  "manual_ats_user_directed_or_reported_events_included": 0,
+  "included_chart_context_event_count": 38,
+  "source_event_count_audited": 126,
+  "excluded_event_count": 88,
+  "exclusion_counts_with_overlap": {
+    "direction is explicitly inferred/ambiguous": 1,
+    "explicit third-party/community commentary or signal badge": 15,
+    "manual, ATS, user-directed/reported, or override event excluded": 31,
+    "news-based rationale is not a chart-only signal": 1,
+    "no configured direct-price mark series": 10,
+    "no explicit chart/timeframe/technical context in normalized source note": 35,
+    "not eligible in this direct-price V3A/V3A chart-only replay": 10,
+    "standing screened-ticker exclusion": 40,
+    "trade-event cutoff: only chart events through 2026-10-19 are eligible": 36
+  },
+  "core_V3A": {
+    "realized_pnl_usd": 0.0,
+    "unrealized_pnl_usd": 25430.38,
+    "total_pnl_usd": 25430.38,
+    "cumulative_gross_additions_usd": 370000.0,
+    "gross_open_notional_usd": 370000.0,
+    "open_units": 37.0,
+    "open_lot_count": 36
+  },
+  "force_V3A_1U_EOD": {
+    "realized_pnl_usd": 0.0,
+    "unrealized_pnl_usd": 102292.92,
+    "total_pnl_usd": 102292.92,
+    "cumulative_gross_additions_usd": 3990000.0,
+    "gross_open_notional_usd": 3990000.0,
+    "open_units": 399.0,
+    "open_lot_count": 398
+  },
+  "combined_V3A_V3A": {
+    "realized_pnl_usd": 0.0,
+    "unrealized_pnl_usd": 127723.3,
+    "total_pnl_usd": 127723.3,
+    "cumulative_gross_additions_usd": 4360000.0,
+    "gross_open_notional_usd": 4360000.0,
+    "open_units": 436.0,
+    "open_lot_count": 434,
+    "max_peak_to_trough_pnl_drawdown_usd": 18928.61,
+    "max_drawdown_peak_date": "2026-09-14",
+    "max_drawdown_trough_date": "2026-09-30"
+  },
+  "accounting_caveat": "Model U is $10,000 entry notional, not shares or account funding. No opening cash, actual shares, brokerage/ATS fills, account mapping, leverage, financing, or realized account cash balance is inferred. The all-cash/debit convention remains; modeled notional is not a borrowing claim.",
+  "chart_processing_caveat": "The replay consumes normalized chart-context events in trades/*.txt. It does not OCR/reinterpret every image in Archives/ or Charts/; ambiguous/no-direction and non-chart/news/third-party/manual/ATS/user-directed records are excluded and audited."
+}

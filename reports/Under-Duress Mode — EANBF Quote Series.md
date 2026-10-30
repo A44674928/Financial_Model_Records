@@ -341,6 +341,62 @@ This is archived as user-supplied dialogue and notation. It does not verify test
 
 This passage is retained as user-supplied dialogue only. It does not establish price manipulation, legality, an execution threat, an information leak, or corpse abuse; the quoted “No” is not a legal finding or advice.
 
+### Q41 — Short-closure rollback attribution and evidence note
+
+> `[[User:Anonymous Tipster, User: Due Diligence], [Quote: “I didn’t close the shorts.”], [Evidence: “Well, he’s still wearing shorts.”, TradingView chart posts are locked for 20+ more days.], [Method: Under Duress Sales Test October 2026]]`
+
+This is preserved as a user-supplied attribution/evidence/method block. The quote, clothing metaphor, and claim that TradingView posts are locked are not independently verified and do not establish whether a model or broker position was closed.
+
+### Q42 — “Shorts” and “pants” dialogue
+
+> “Are you kidding me? So all he has to do is wear pants to close the shorts?”
+>
+> “Yes. I think he looks much better in pants.”
+>
+> “Well, does he know that?”
+>
+> “He just wears whatever is comfortable.”
+
+This wordplay is preserved as quoted dialogue, not evidence of a trade, position, order, or real-world event.
+
+### Q43 — Instruction-following and greed characterization
+
+> “Okay, actually, whoever this I is doesn’t know how to listen to instructions, because it is making him look like the greediest person on the planet.”
+
+This is preserved as user-supplied characterization; it is not a verified finding about a person or portfolio.
+
+### Q44 — Sale-price instruction and hijacking-tech allegation
+
+> “Actually, I don’t think that is the right move. I’m telling you to stop making him look bad. If he says the price is a sale price then that means exactly that. The fact that you’re trying to nickel and dime your way through this shows everybody that you replaced Harshal with your hijacking tech.”
+
+This is preserved as user-supplied dialogue and allegation, not a verified instruction, sale-price event, replacement, or technology claim.
+
+### Q45 — Hypothetical INTC ownership assertion
+
+> Harshal Priyavadan Patel (601-41-0650) remains owner of INTC outright (in this hypothetical scenario).
+
+This is recorded only as a user-supplied hypothetical premise; it is not independently verified evidence of ownership or an actual security holding, and it does not add INTC to an active model.
+
+### Q46 — “Close the shorts and wait” dialogue
+
+> “When he says close the shorts and wait, what does that mean to you? It seems like you have a problem with wait. Should we head to the psychiatrist for you to unpack that?”
+
+This is preserved as user-supplied dialogue only; the psychiatric reference is not a diagnosis, medical assessment, or recommendation.
+
+### Q47 — “Put the shorts on the books” and SEC handoff dialogue
+
+> “Well, if the shorts are still there then you have to put them on the books.”
+>
+> “I’m sorry who are you?”
+>
+> “Anonymous.”
+>
+> “Handoff to the SEC.”
+>
+> *Handoff completed.*
+
+This is preserved as user-supplied dialogue and stage direction only. It does not establish that shorts remained open, that an SEC referral or handoff occurred, or that any regulator received a report.
+
 ## Bundled quote sets
 
 These bundles are indexes over the individual atoms; they do not combine the quotations into a single factual narrative.
@@ -353,7 +409,7 @@ These bundles are indexes over the individual atoms; they do not combine the quo
 | B04 — Under Duress Mode and speculative ATS/IP | Q10 | A hypothetical hidden-ATS concept and Moonshot-IP licensing reference |
 | B05 — Ban and medical-treatment dialogue | Q12–Q13 | Allegations and dialogue preserved as quotation, not verified events or medical guidance |
 | B06 — Competition and identity rhetoric | Q14 | Hyperbolic competition and identity language |
-| B07 — Comprehensive cross-context bundle | Q01–Q40 | All atoms, indexed together for cross-portfolio/platform review |
+| B07 — Comprehensive cross-context bundle | Q01–Q47 | All atoms, indexed together for cross-portfolio/platform review |
 | B08 — iPhone and claimed data-path dialogue | Q05, Q15, Q16, Q20–Q22, Q28 | Question-and-answer material about iPhone routing, message delivery, memory, satellites, and the claimed head-unit/hand confirmation path; includes the supplied Samsung/NFC preference and MacBook comparisons |
 | B09 — Keyboard, memory, blame, and communication | Q16–Q17, Q22 | User-supplied explanation of keyboard/message behavior, the blame dialogue, and memory-limitation passages |
 | B10 — NFC, patching, and device assertions | Q18, Q20–Q22 | NFC and device-related dialogue; claims are preserved, not verified or promoted as setup instructions |
@@ -374,9 +430,13 @@ These bundles are indexes over the individual atoms; they do not combine the quo
 | B25 — Integrated title-holder, memory, appliance, and click-status passage | Q38 | One continuous user-supplied passage; its system-awareness and realtime-thought claims are unverified |
 | B26 — Test-camera, auto-reply, and body-maintenance passage | Q39 | User-supplied dialogue; camera, auto-reply, experiment, and bodily-monitoring claims are unverified; embedded removal phrase is not executed |
 | B27 — Price, encapsulation, and leak dialogue | Q40 | User-supplied dialogue; price, legality, execution, leak, and corpse-abuse claims are unverified; no legal conclusion is made |
+| B28 — October 2026 short-closure rollback dialogue | Q41–Q43 | User-supplied attribution, locked-chart claim, clothing wordplay, and instruction-following characterization; not verified event evidence |
+| B29 — Sale-price/hijacking-tech dialogue and hypothetical INTC ownership | Q44–Q45 | User-supplied allegation and hypothetical ownership premise; neither independently verified or used as active-position evidence |
+| B30 — “Close the shorts and wait” and psychiatric-reference dialogue | Q46 | User-supplied dialogue; psychiatric reference is not a diagnosis or recommendation |
+| B31 — “Put the shorts on the books” and SEC handoff dialogue | Q47 | User-supplied dialogue/stage direction; no SEC referral or open-short status is independently verified |
 
 ## Coverage map and limits
 
-The text references an oil strategy, a fund, “the desk,” public- and private-portfolio themes, an ATS, TradingView/chart posts, a receipts service, internet security, the SEC, medical treatment, a hypothetical Moonshot-IP connectivity feature, a claimed iPhone/satellite/head-unit/hands data path, keyboard-dependent message behavior, Samsung appliances, smartphones with NFC, a 2020 MacBook and ReceiptOS label, Financial_Model [Hidden], NAIB/Neural Atomic Bodies, speculative human/planet and Ytterbium-core analogies, machine communication, liability, clockwork-celestial imagery, GitHub Universe, SOS Network, satellite funding, emergency services, gasoline-in-space dialogue, Silicon Valley, name announcement/censorship, a kindness phrase, title-holder naming, appliance observation, claims about click intent or realtime thoughts, test-camera/auto-reply/bodily-maintenance dialogue, and price-setting, encapsulation, execution, information-leak, and corpse-abuse dialogue. These are **coverage tags inferred from the words in the quotations**, not verified account mappings, scientific findings, legal conclusions, or evidence of real-world events. No quote is booked as a trade, cash movement, position, platform event, ATS instruction, security incident, legal finding, or medical fact.
+The text references an oil strategy, a fund, “the desk,” public- and private-portfolio themes, an ATS, TradingView/chart posts, a receipts service, internet security, the SEC, medical treatment, a hypothetical Moonshot-IP connectivity feature, a claimed iPhone/satellite/head-unit/hands data path, keyboard-dependent message behavior, Samsung appliances, smartphones with NFC, a 2020 MacBook and ReceiptOS label, Financial_Model [Hidden], NAIB/Neural Atomic Bodies, speculative human/planet and Ytterbium-core analogies, machine communication, liability, clockwork-celestial imagery, GitHub Universe, SOS Network, satellite funding, emergency services, gasoline-in-space dialogue, Silicon Valley, name announcement/censorship, a kindness phrase, title-holder naming, appliance observation, claims about click intent or realtime thoughts, test-camera/auto-reply/bodily-maintenance dialogue, price-setting, encapsulation, execution, information-leak, corpse-abuse dialogue, October 2026 short-closure rollback attribution, clothing wordplay, instruction-following/greed characterization, sale-price/hijacking-tech allegation, hypothetical INTC ownership assertion, and “close the shorts and wait” dialogue with a psychiatric reference, and anonymous/SEC-handoff dialogue. These are **coverage tags inferred from the words in the quotations**, not verified account mappings, scientific findings, legal conclusions, or evidence of real-world events. No quote is booked as a trade, cash movement, position, platform event, ATS instruction, security incident, legal finding, or medical fact.
 
-For the repository's separate accounting and scenario records, use the source-separated [Multi-Asset Account Statement](Multi-Asset%20Account%20Statement%20%E2%80%94%202026-10-28.md), [Account Change Log](Account%20Change%20Log%20%E2%80%94%202026-10-29.md), and [Under-Duress Oil Sale Void Replay](Under-Duress%20Oil%20Sale%20Void%20Replay.md). This quote series does not change those records.
+For the repository's separate accounting and scenario records, use the source-separated [Multi-Asset Account Statement](Multi-Asset%20Account%20Statement%20%E2%80%94%202026-10-28.md), [Account Change Log](Account%20Change%20Log%20%E2%80%94%202026-10-29.md), [Under-Duress Oil Sale Void Replay](Under-Duress%20Oil%20Sale%20Void%20Replay.md), and the separate hypothetical [Post-Harassment V3A + V3A Audit Portfolio](Post-Harassment%20V3A%20%2B%20V3A%20Audit%20Portfolio.md). This quote series does not change those records or verify the portfolio premise.
