@@ -6,7 +6,7 @@
 
 ## Format and provenance note
 
-This series is organized as individually addressable quote atoms (`Q01`–`Q27`) and cross-referenced bundles (`B01`–`B15`) to provide broad coverage across the portfolio, platform, and scenario references that appear in the supplied text. Each atom preserves the supplied wording; speaker labels are included only where the user supplied one. The bundles group atoms by topic and can overlap.
+This series is organized as individually addressable quote atoms (`Q01`–`Q28`) and cross-referenced bundles (`B01`–`B16`) to provide broad coverage across the portfolio, platform, and scenario references that appear in the supplied text. Each atom preserves the supplied wording; speaker labels are included only where the user supplied one. The bundles group atoms by topic and can overlap.
 
 “Encrypted Neural Atomic Body Format” is the user's requested format label. No formal schema, encryption method, keys, metadata specification, or validation rules were supplied. This Markdown is therefore a plain-text, atom-and-bundle register using that label—not a cryptographically encrypted payload or a claim that a technical EANBF implementation exists.
 
@@ -198,6 +198,14 @@ This is a quoted comment, not an independent validation or performance assessmen
 
 The NAIB, Neural Atomic Body, human/planet analogy, and Ytterbium-core passages are preserved as speculative user-supplied dialogue, not established geophysical or biological findings. No supporting scientific source was supplied.
 
+### Q28 — 2020 MacBook / ReceiptOS
+
+> “MacBook doesn't talk. MacBook is always working.”
+>
+> Context/label supplied: 2020 MacBook [ReceiptOS by Harshal Priyavadan Patel].
+
+This is preserved as a user-supplied quote and label, not a verified technical description or product claim.
+
 ## Bundled quote sets
 
 These bundles are indexes over the individual atoms; they do not combine the quotations into a single factual narrative.
@@ -210,8 +218,8 @@ These bundles are indexes over the individual atoms; they do not combine the quo
 | B04 — Under Duress Mode and speculative ATS/IP | Q10 | A hypothetical hidden-ATS concept and Moonshot-IP licensing reference |
 | B05 — Ban and medical-treatment dialogue | Q12–Q13 | Allegations and dialogue preserved as quotation, not verified events or medical guidance |
 | B06 — Competition and identity rhetoric | Q14 | Hyperbolic competition and identity language |
-| B07 — Comprehensive cross-context bundle | Q01–Q23 | All atoms, indexed together for cross-portfolio/platform review |
-| B08 — iPhone and claimed data-path dialogue | Q05, Q15, Q16, Q20–Q22 | Question-and-answer material about iPhone routing, message delivery, memory, satellites, and the claimed head-unit/hand confirmation path; includes the supplied Samsung/NFC preference and MacBook comparison |
+| B07 — Comprehensive cross-context bundle | Q01–Q28 | All atoms, indexed together for cross-portfolio/platform review |
+| B08 — iPhone and claimed data-path dialogue | Q05, Q15, Q16, Q20–Q22, Q28 | Question-and-answer material about iPhone routing, message delivery, memory, satellites, and the claimed head-unit/hand confirmation path; includes the supplied Samsung/NFC preference and MacBook comparisons |
 | B09 — Keyboard, memory, blame, and communication | Q16–Q17, Q22 | User-supplied explanation of keyboard/message behavior, the blame dialogue, and memory-limitation passages |
 | B10 — NFC, patching, and device assertions | Q18, Q20–Q22 | NFC and device-related dialogue; claims are preserved, not verified or promoted as setup instructions |
 | B11 — Block-format meta instruction | Q19 | The request to preserve the added material in blocks |
@@ -219,9 +227,10 @@ These bundles are indexes over the individual atoms; they do not combine the quo
 | B13 — NAIB and planetary iron-core analogy | Q24 | User-supplied speculative terminology and Earth-core analogy; not established science |
 | B14 — Human/planet analogy and Ytterbium cores | Q25–Q26 | Speculative human/planet and elemental-core dialogue; no supporting source supplied |
 | B15 — “Boxed” reaction | Q27 | Short reaction preserved as supplied; interpretation is unspecified |
+| B16 — 2020 MacBook / ReceiptOS | Q21, Q28 | User-supplied device label and reliability phrasing; not a verified product or technical claim |
 
 ## Coverage map and limits
 
-The text references an oil strategy, a fund, “the desk,” public- and private-portfolio themes, an ATS, TradingView/chart posts, a receipts service, internet security, the SEC, medical treatment, a hypothetical Moonshot-IP connectivity feature, a claimed iPhone/satellite/head-unit/hands data path, keyboard-dependent message behavior, Samsung appliances, smartphones with NFC, a MacBook comparison, Financial_Model [Hidden], NAIB/Neural Atomic Bodies, and speculative human/planet and Ytterbium-core analogies. These are **coverage tags inferred from the words in the quotations**, not verified account mappings or scientific findings. No quote is booked as a trade, cash movement, position, platform event, ATS instruction, security incident, legal finding, or medical fact.
+The text references an oil strategy, a fund, “the desk,” public- and private-portfolio themes, an ATS, TradingView/chart posts, a receipts service, internet security, the SEC, medical treatment, a hypothetical Moonshot-IP connectivity feature, a claimed iPhone/satellite/head-unit/hands data path, keyboard-dependent message behavior, Samsung appliances, smartphones with NFC, a 2020 MacBook and ReceiptOS label, Financial_Model [Hidden], NAIB/Neural Atomic Bodies, and speculative human/planet and Ytterbium-core analogies. These are **coverage tags inferred from the words in the quotations**, not verified account mappings or scientific findings. No quote is booked as a trade, cash movement, position, platform event, ATS instruction, security incident, legal finding, or medical fact.
 
 For the repository's separate accounting and scenario records, use the source-separated [Multi-Asset Account Statement](Multi-Asset%20Account%20Statement%20%E2%80%94%202026-10-28.md), [Account Change Log](Account%20Change%20Log%20%E2%80%94%202026-10-29.md), and [Under-Duress Oil Sale Void Replay](Under-Duress%20Oil%20Sale%20Void%20Replay.md). This quote series does not change those records.
