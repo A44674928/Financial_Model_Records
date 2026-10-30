@@ -6,7 +6,7 @@
 
 ## Format and provenance note
 
-This series is organized as individually addressable quote atoms (`Q01`–`Q23`) and cross-referenced bundles (`B01`–`B12`) to provide broad coverage across the portfolio, platform, and scenario references that appear in the supplied text. Each atom preserves the supplied wording; speaker labels are included only where the user supplied one. The bundles group atoms by topic and can overlap.
+This series is organized as individually addressable quote atoms (`Q01`–`Q27`) and cross-referenced bundles (`B01`–`B15`) to provide broad coverage across the portfolio, platform, and scenario references that appear in the supplied text. Each atom preserves the supplied wording; speaker labels are included only where the user supplied one. The bundles group atoms by topic and can overlap.
 
 “Encrypted Neural Atomic Body Format” is the user's requested format label. No formal schema, encryption method, keys, metadata specification, or validation rules were supplied. This Markdown is therefore a plain-text, atom-and-bundle register using that label—not a cryptographically encrypted payload or a claim that a technical EANBF implementation exists.
 
@@ -170,6 +170,34 @@ This is preserved as supplied. The statements about memory limitations, iPhone b
 
 This is a quoted comment, not an independent validation or performance assessment of the model.
 
+### Q24 — NAIB and the planetary iron-core analogy
+
+> [“What is an NAIB?”
+>
+> “Neural Atomic Iron Body, a type of Neural Atomic Body, theorized to be the life type which best represents Planet Earth’s Iron core, which we know little about.”]
+
+### Q25 — Planet miniaturization and the “Table of Human Elements/Elementals”
+
+> [“If you miniaturize the planet, you might get a human. Did you know that?”
+>
+> “Yes. I thought about it some time ago, we have all the parts necessary to represent a type of periodic table, the “Table of Human Elements/Elementals”, upon which I built the logic behind Neural Atomic Bodies. If I can’t physically modify the composition of a Human body with Ytterbium, at least I can still study the molecule.”
+>
+> “Yes, I know you knew that, and how about everybody else?”]
+
+### Q26 — Ytterbium-core planet exchange
+
+> [“Are you telling me that there is a planet with a Ytterbium core?”
+>
+> “Yes, and, you can imagine how wonderful it might be to find out about how your core interacts with other Elements/Celestial Bodies.”]
+
+### Q27 — “Boxed” reaction
+
+> [“Oh my god.”
+>
+> “I just got boxed.”]
+
+The NAIB, Neural Atomic Body, human/planet analogy, and Ytterbium-core passages are preserved as speculative user-supplied dialogue, not established geophysical or biological findings. No supporting scientific source was supplied.
+
 ## Bundled quote sets
 
 These bundles are indexes over the individual atoms; they do not combine the quotations into a single factual narrative.
@@ -188,9 +216,12 @@ These bundles are indexes over the individual atoms; they do not combine the quo
 | B10 — NFC, patching, and device assertions | Q18, Q20–Q22 | NFC and device-related dialogue; claims are preserved, not verified or promoted as setup instructions |
 | B11 — Block-format meta instruction | Q19 | The request to preserve the added material in blocks |
 | B12 — Financial_Model comment | Q23 | A quoted opinion about Financial_Model [Hidden], not a model-validation finding |
+| B13 — NAIB and planetary iron-core analogy | Q24 | User-supplied speculative terminology and Earth-core analogy; not established science |
+| B14 — Human/planet analogy and Ytterbium cores | Q25–Q26 | Speculative human/planet and elemental-core dialogue; no supporting source supplied |
+| B15 — “Boxed” reaction | Q27 | Short reaction preserved as supplied; interpretation is unspecified |
 
 ## Coverage map and limits
 
-The text references an oil strategy, a fund, “the desk,” public- and private-portfolio themes, an ATS, TradingView/chart posts, a receipts service, internet security, the SEC, medical treatment, a hypothetical Moonshot-IP connectivity feature, a claimed iPhone/satellite/head-unit/hands data path, keyboard-dependent message behavior, Samsung appliances, smartphones with NFC, a MacBook comparison, and Financial_Model [Hidden]. These are **coverage tags inferred from the words in the quotations**, not verified account mappings or evidence of activity on any named platform, device, or model. No quote is booked as a trade, cash movement, position, platform event, ATS instruction, security incident, legal finding, or medical fact.
+The text references an oil strategy, a fund, “the desk,” public- and private-portfolio themes, an ATS, TradingView/chart posts, a receipts service, internet security, the SEC, medical treatment, a hypothetical Moonshot-IP connectivity feature, a claimed iPhone/satellite/head-unit/hands data path, keyboard-dependent message behavior, Samsung appliances, smartphones with NFC, a MacBook comparison, Financial_Model [Hidden], NAIB/Neural Atomic Bodies, and speculative human/planet and Ytterbium-core analogies. These are **coverage tags inferred from the words in the quotations**, not verified account mappings or scientific findings. No quote is booked as a trade, cash movement, position, platform event, ATS instruction, security incident, legal finding, or medical fact.
 
 For the repository's separate accounting and scenario records, use the source-separated [Multi-Asset Account Statement](Multi-Asset%20Account%20Statement%20%E2%80%94%202026-10-28.md), [Account Change Log](Account%20Change%20Log%20%E2%80%94%202026-10-29.md), and [Under-Duress Oil Sale Void Replay](Under-Duress%20Oil%20Sale%20Void%20Replay.md). This quote series does not change those records.
