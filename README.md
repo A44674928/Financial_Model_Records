@@ -1,5 +1,7 @@
 # Paper Trades — Repository Guide
 
+> **OIL DESK CLOSED; ALUMINUM REMAINS OPEN.** The user reports that harassment described on October 29, 2026, resulted in the closure of Harshal’s Oil Desk. This does not close the separate ALIUSD aluminum position, which the user reports remains open. The exact desk-closure date and current position status are not independently verified. See the [oil briefing](reports/%24200%20Oil%20Foundation%20%26%20U-Sized%20Opportunity%20Capitalization%20Strategy%20%E2%80%94%20Briefing.md) and [aluminum position](reports/ALIUSD%20User-Directed%20LONG%20Position.md).
+
 > **USOIL FULL EXIT AT $104.50 — 2026-10-30.** All in-scope USOIL was sold at $104.50 per user instruction; the prior Private Fund void is lifted and superseded. Price-only PnL is computed separately by book, before costs, without cross-book aggregation. Scenarios remain untouched; execution is unverified. See [USOIL Full Exit at $104.50](reports/USOIL%20Full%20Exit%20at%20%24104.50%20%E2%80%94%202026-10-30.md) and [register](data/usoil_sold_10450_20261030_v1.csv).
 
 This repository contains the Fall (Arizona) 2026 paper-trading ledger, model analysis, source records, and supporting research.
