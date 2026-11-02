@@ -2,6 +2,8 @@
 
 > **User-directed paper scenario, not a verified brokerage position.** The user specified a LONG at **$2,999.99** and selected the attached paper-trading export's **15,546,506 quantity** as authoritative. This supersedes the earlier $20B notional sizing for this same position. The exported `50x` leverage and margin are bookkeeping fields only; **no leverage, borrowing, or financing is modeled**.
 
+**Current status per user:** Aluminum (ALIUSD) **remains open**. The reported closure of Harshal’s Oil Desk following the harassment described on October 29, 2026, applies to the oil desk; it does not close this separate aluminum position. This is a user-reported status, not an independently verified current brokerage position. No new mark, execution, or change to quantity or basis is implied. See the [Oil Foundation briefing](%24200%20Oil%20Foundation%20%26%20U-Sized%20Opportunity%20Capitalization%20Strategy%20%E2%80%94%20Briefing.md).
+
 | Field | Recorded value |
 |---|---:|
 | Instrument | `CAPITALCOM:ALUMINUM` / ALIUSD |
