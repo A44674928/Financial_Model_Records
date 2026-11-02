@@ -82,4 +82,25 @@ For context only, applying those extreme sale prices uniformly to the component 
 
 The **$870,184,084.04** gap between endpoints is scenario-price uncertainty, not a fee or recorded loss. The user's approximate $2.4B profit characterization aligns with the lower endpoint, but exact realized profit cannot be reconciled without quantities by cohort, individual fill prices, execution timing, costs, and a mapping to account lots. Zero remaining units and dissolution are recorded as the user's reported status; this repository does not execute orders or certify withdrawals.
 
+## BRENT exit re-recorded at a single $119 price — 2026-10-30
+
+The user subsequently directs that **all BRENT was sold at $119** on **2026-10-30** (execution time not supplied). For the BRENT leg this **supersedes** the two marked-price sale bands of $114.670–$117.345 above with a single exit price. The prior bands, the endpoint envelope, and the $2.4B conservative endpoint are **preserved as earlier references** and are not restated. **USOIL is unaffected** — the instruction covered BRENT only, so the $101.500–$103.400 bands and the OIL envelope remain as previously recorded.
+
+| BRENT component | Quantity equivalent | Basis | Exit price | Model-implied proceeds | Price-only realized PnL |
+|---|---:|---:|---:|---:|---:|
+| Original $20B pool residual allocation | 92,912,838.31666911 | $102.315 | $119.00 | — | $1,550,250,707.31 |
+| Restored supplemental order remainder | 86,952,173.91304348 | $115.00 | $119.00 | — | $347,808,695.65 |
+| **Combined locked foundation** | **179,865,012.22971259** | **$108.44731174** blended | **$119.00** | **$21,403,936,455.34** | **$1,898,059,402.97** |
+| 50U transferred to THE WINNING MODEL | 4,347.82608696 | $115.00 | $119.00 | $517,391.30 | $17,391.30 |
+
+The combined row is the book's representative total; its two component legs are recorded for audit continuity and are **excluded from the subtotal** to avoid double counting. They tie to the combined row within $0.01. Gross basis of the combined foundation is $19,505,877,052.37.
+
+The 50U Winner-transfer lot is carved **out** of the supplemental $10B leg and is already excluded from that leg's quantity, so it is not a double count. It is recorded here because the user directed that *all* BRENT was sold. It remains a **capital/burden reallocation**, not a performance reward, and does not alter THE WINNING MODEL's historical realized PnL or champion-selection result.
+
+PnL is `quantity × ($119 − basis)`, **price-only and before costs**. Fees, financing, margin, taxes, contract multipliers, slippage, and market impact are not modeled. Quantity equivalents remain **allocation dollars ÷ modeled entry price** — they are not contract, barrel, share, or broker-order quantities. The $119 price, the date, and the "all BRENT" scope are **user-reported** and are not independently verified fills.
+
+At $119 the BRENT modeled price change of **$1,898,059,402.97** sits **above** the prior upper endpoint of $1,600,382,807.73, because $119 exceeds the top of the earlier $114.670–$117.345 band. This is a price-input change directed by the user, not a newly discovered gain; the earlier envelope is retained unchanged for audit continuity.
+
+This book's BRENT quantity is **not interchangeable** with the Private Fund's platform-reported units or the core model's U-denominated lots; the books must not be summed. The exit is dated after the October 19 TradingView cutoff and is recorded under `USER_DIRECTED_POST_CUTOFF_EXIT_SCOPED_EXCEPTION_20261030`. See [`reports/BRENT Full Exit at $119 — 2026-10-30.md`](reports/BRENT%20Full%20Exit%20at%20%24119%20%E2%80%94%202026-10-30.md) and [`data/brent_sold_119_20261030_v1.csv`](data/brent_sold_119_20261030_v1.csv).
+
 CSV audits: [model-book deductions](data/units_experiment_model_costs_20261026.csv), [original balanced pool allocation](data/units_experiment_pool_allocation_20261026.csv), and [earlier, supplemental, and combined oil-foundation lots](data/units_experiment_oil_foundation_lots_20261027.csv). The winner scale factor is 27.201116019530× on cumulative gross additions; the original pool deduction uses its scaled current open notional of $497,100,395.26.

@@ -19,11 +19,15 @@ class ModelTradeScopeTests(unittest.TestCase):
         self.assertEqual(UNMODELED_SYMBOLS, {"BTC", "ETH", "ALIUSD", "DXY", "EURUSD", "JPYUSD", "US10Y", "US30Y"})
         self.assertTrue(modeled.isdisjoint(UNMODELED_SYMBOLS))
         self.assertTrue(modeled.issubset(PRICES))
-        self.assertEqual(len(events), 116)
+        # 116 through the 2026-10-26 mark cutoff, plus the nine user-directed BRENT
+        # exits at $119 logged 2026-10-30 (post-cutoff).
+        self.assertEqual(len(events), 125)
         self.assertEqual(sum(event["date"] <= "2026-10-22" for event in events), 85)
         self.assertEqual(sum(event["date"] <= "2026-10-23" for event in events), 91)
         self.assertTrue({"BTC", "ETH"}.isdisjoint(modeled))
         self.assertEqual(SESSION_DATES[-1], "2026-10-26")
+        # The nine 2026-10-30 BRENT exits are post-cutoff, so the at-or-before-mark
+        # count is unchanged at 116.
         self.assertEqual(sum(event["date"] <= "2026-10-26" for event in events), 116)
 
     def test_reported_ats_core_entries_and_meta_short_close_are_separate_lots(self):
@@ -39,7 +43,7 @@ class ModelTradeScopeTests(unittest.TestCase):
         with ZipFile(root / "trades.zip") as archive:
             for filename in ("GEV.txt", "RIVN.txt", "INTC.txt", "META.txt", "index.txt"):
                 self.assertEqual(archive.read(f"trades/{filename}"), (root / "trades" / filename).read_bytes())
-        self.assertIn("126 standardized log events currently recorded", (root / "trades/index.txt").read_text())
+        self.assertIn("135 standardized log events currently recorded", (root / "trades/index.txt").read_text())
         extended_dates = list(SESSION_DATES)
         with patch.object(model_perf_core, "SESSION_DATES", extended_dates), patch.object(
             model_perf_core, "N_SESS", len(extended_dates)
@@ -146,7 +150,7 @@ class ModelTradeScopeTests(unittest.TestCase):
         with ZipFile(root / "trades.zip") as archive:
             for filename in ("CAT.txt", "DIS.txt", "PLTR.txt", "SPCX.txt", "TSLA.txt", "UPS.txt", "index.txt"):
                 self.assertEqual(archive.read(f"trades/{filename}"), (root / "trades" / filename).read_bytes())
-        self.assertIn("126 standardized log events currently recorded", (root / "trades/index.txt").read_text())
+        self.assertIn("135 standardized log events currently recorded", (root / "trades/index.txt").read_text())
 
     def test_reported_oil_cashout_closes_only_the_named_paired_lots(self):
         events = parse_trades()

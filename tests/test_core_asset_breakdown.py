@@ -51,7 +51,18 @@ class CoreAssetBreakdownTests(unittest.TestCase):
         self.assertIn("marked at the supplied 2026-10-26 closes", self.report)
         self.assertIn("BRENT and OIL current marks are user-supplied TradingView EOD values", self.report)
         self.assertIn("not independently verified brokerage executions", self.report)
-        self.assertIn("No direct-price entries fall after the current mark cutoff", self.report)
+        # The nine user-directed BRENT exits at $119 are dated 2026-10-30, after the
+        # 2026-10-26 mark cutoff, so they are disclosed separately and excluded from
+        # every exposure/PnL figure above (which the assertions above still pin at
+        # 100U / $1,000,000 for BRENT).
+        self.assertIn("## Post-cutoff ledger entries", self.report)
+        self.assertIn(
+            "These are logged after the last EOD mark and are not included in any exposure or PnL figures above",
+            self.report,
+        )
+        self.assertEqual(self.report.count("| 2026-10-30 | 13:00 | BRENT | TAKE PROFIT |"), 9)
+        self.assertIn("$119.000", self.report)
+        self.assertNotIn("No direct-price entries fall after the current mark cutoff", self.report)
         self.assertIn("short closures reduce short exposure", self.report)
         self.assertIn("only the unallocated excess of the approved orders remains long", self.report)
         with breakdown.OUTPUT_CSV.open(newline="", encoding="utf-8") as handle:
