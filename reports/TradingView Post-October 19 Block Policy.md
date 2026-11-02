@@ -1,5 +1,7 @@
 # TradingView PaperTrading Block — Post-October 19 Policy
 
+> **Separate scoped USOIL exit exception:** `USER_DIRECTED_USOIL_EXIT_SCOPED_EXCEPTION_20261030` authorizes only the user-reported October 30 sale at $104.50 and its per-lot price-only accounting. No new TradingView imports, benchmarks, EOD marks, scenario updates, or general recomputations are authorized. The preceding BRENT-only exception remains BRENT-only; it did not authorize this separate exit. See [USOIL report](USOIL%20Full%20Exit%20at%20%24104.50%20%E2%80%94%202026-10-30.md).
+
 **Effective date: October 20, 2026** (October 19 remains permitted)
 
 > **DEFAULT STRICT BLOCK:** No TradingView-sourced input dated October 20, 2026 or later may be newly added to, or used in, an active portfolio/trading calculation in this repository unless a specific, versioned exception is explicitly authorized. This includes Paper Trading orders and fills, charts/screenshots, price or EOD marks, alerts, and other TradingView-derived values. The rule is source-based and applies to both public and private books. One narrow Oil-only mark-forward exception is recorded below; no other model or trade-event cutoff is waived.
@@ -22,6 +24,26 @@ This is not authorization to ingest new TradingView material, use October 27–2
 The user's October 30 request to rebuild the separate Post-Harassment V3A + V3A portfolio authorizes use of existing flagged TradingView benchmark EOD marks through **October 26, 2026**, plus the specified mechanical V3A 1U/EOD force tranches through that date based only on pre-cutoff eligible chart directions. This is recorded as [`USER_AUTHORIZED_POST_HARASSMENT_V3A_V3A_MARKS_AND_FORCE_V1`](TradingView%20Scoped%20Exception%20%E2%80%94%20Post-Harassment%20V3A%20%2B%20V3A%20Replay.md). It does not change the general source cutoff or authorize post-cutoff data/model activity in other portfolios.
 
 User-sourced chart/trade events remain capped at **October 19**; no post-cutoff event records are ingested. No complete synchronized marks through October 30 are present, so the replay's latest as-of date is October 26. Manual, ATS, user-directed/reported, third-party commentary, ambiguous-direction, and screened-ticker events remain excluded. The 10U/DAY DXY add-on and energy daily-buy sidecar are not included.
+
+## Specific user-authorized scoped exception — BRENT full exit at $119 (October 30, 2026)
+
+The user's October 30 direction that **all BRENT was sold at $119** authorizes recording that single user-reported exit price, dated **2026-10-30**, across the repository's real BRENT positions. This is recorded as **`USER_DIRECTED_POST_CUTOFF_EXIT_SCOPED_EXCEPTION_20261030`**.
+
+The authorized input is a **user-reported sale price**, not a newly imported TradingView mark, chart, screenshot series, or EOD price list. No TradingView material dated on or after October 20 is ingested under this exception. It authorizes:
+
+- Closing the real BRENT lots in the Private Fund book, the ATS locked foundation / $20B pool, THE WINNING MODEL's transferred 50U, the core paper-trade ledger, Oil v2 / the November clean sheet, and the ATS-and-manual reconciliation.
+- Computing **price-only realized PnL** from each lot's own documented basis, before costs.
+- **Lifting and superseding** the earlier nullification/void of the Private Fund BRENT close, while preserving the screenshot close price $115.777 and displayed PnL $933,875,016.74 as superseded source evidence.
+
+It does **not** authorize any of the following, all of which remain blocked:
+
+- New TradingView imports, benchmark rebuilds, sidecars, or general portfolio/PnL rebuilds.
+- October 27–30 EOD marks for any ticker, or a current-date valuation of any ticker. This record creates no new mark series.
+- Any change to **USOIL** or any non-BRENT ticker. The USOIL close remains nullified and voided.
+- Any change to the Under-Duress Oil Sale Void Replay overlay or to the 10U/20U/30U/40U ATS exit sensitivities, which remain preserved alternative scenarios.
+- Restating the earlier ATS sale-price bands, the endpoint envelope, or the $2.4B conservative endpoint; those are preserved as earlier references.
+
+The exception is BRENT-only and event-only. It does not relax the general source cutoff, and the standing no-recompute rule remains in force for every other model. Register: [`data/brent_sold_119_20261030_v1.csv`](../data/brent_sold_119_20261030_v1.csv); report: [`BRENT Full Exit at $119 — 2026-10-30.md`](BRENT%20Full%20Exit%20at%20%24119%20%E2%80%94%202026-10-30.md).
 
 ## Existing post-cutoff records
 

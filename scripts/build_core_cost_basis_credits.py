@@ -89,12 +89,31 @@ def _closure_credits(ticker, variant, lots, oil_positions):
     )
 
 
+def post_cutoff_events():
+    """Ledger events dated after the last supplied EOD mark.
+
+    These are excluded from this basis view. They are disclosed in the report so
+    the reader can see what is pending, matching the treatment in
+    build_core_asset_breakdown.py.
+    """
+    cutoff = core.SESSION_DATES[-1]
+    return [event for event in core.parse_trades() if event["date"] > cutoff]
+
+
 def build_rows():
-    events = core.parse_trades()
+    all_events = core.parse_trades()
+    # This report is an entry/economic-basis view "as of the latest supplied EOD
+    # close". Ledger events dated after that close are post-cutoff: consistent
+    # with build_core_asset_breakdown.py (which lists them separately as
+    # "Post-cutoff ledger entries") and with the TradingView post-October 19
+    # block policy, they are excluded here rather than silently rewriting the
+    # open-position basis of this and unrelated tickers.
+    cutoff_date = core.SESSION_DATES[-1]
+    events = [event for event in all_events if event["date"] <= cutoff_date]
     replay = replay_latest(events)
     oil_positions = oil_basis._position_inputs(events)
     rows = []
-    latest_date = max(event["date"] for event in events)
+    latest_date = cutoff_date
 
     for variant in VARIANTS:
         lots, _realized = replay[variant]
@@ -184,6 +203,31 @@ def write_outputs(rows):
         f"Machine-readable per-variant rows: [`{CSV_PATH.name}`](data/{CSV_PATH.name}).",
         "",
     ])
+
+    pending = post_cutoff_events()
+    if pending:
+        syms = sorted({event["sym"] for event in pending})
+        dates = sorted({event["date"] for event in pending})
+        lines.extend([
+            "### Post-cutoff ledger events excluded from this basis view",
+            "",
+            f"The following ledger events are dated after the latest supplied EOD close "
+            f"({core.SESSION_DATES[-1]}) and are therefore **excluded** from every open-long basis "
+            f"row above: {len(pending)} event(s) on {', '.join(dates)} affecting "
+            f"{', '.join(syms)}. They are listed separately as post-cutoff entries in "
+            "[`Core Portfolio Asset Breakdown.md`](Core%20Portfolio%20Asset%20Breakdown.md). "
+            "Excluding them keeps this report an entry/economic-basis view as of the supplied mark "
+            "cutoff and prevents a post-cutoff exit from silently zeroing an open basket or shifting "
+            "the as-of date of unrelated tickers, per the "
+            "[TradingView post-October 19 block policy](reports/TradingView%20Post-October%2019%20Block%20Policy.md). "
+            "Their realized effect is recorded in the applicable exit register instead; for the "
+            "2026-10-30 BRENT exits see "
+            "[`BRENT Full Exit at $119 — 2026-10-30.md`](reports/BRENT%20Full%20Exit%20at%20%24119%20%E2%80%94%202026-10-30.md) "
+            "and [`data/brent_sold_119_20261030_v1.csv`](data/brent_sold_119_20261030_v1.csv); "
+            "for USOIL see [`USOIL Full Exit at $104.50 — 2026-10-30.md`](reports/USOIL%20Full%20Exit%20at%20%24104.50%20%E2%80%94%202026-10-30.md) "
+            "and [`data/usoil_sold_10450_20261030_v1.csv`](data/usoil_sold_10450_20261030_v1.csv).",
+            "",
+        ])
     REPORT_PATH.write_text("\n".join(lines), encoding="utf-8")
 
 

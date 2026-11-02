@@ -1,8 +1,12 @@
 # Under-Duress Oil Sale Void Replay
 
+> **USOIL $104.50 exit cross-reference only:** the later real-book exit is documented in [the USOIL exit report](USOIL%20Full%20Exit%20at%20%24104.50%20%E2%80%94%202026-10-30.md); this earlier scenario overlay and its CSVs are not rewritten.
+
 > **Scenario overlay, not a change to source history.** The user directed that the October 29 Private Fund oil close records be nullified and voided; the earlier BRENT and USOIL longs remain open at their reported entry prices. Other listed oil sales/closes are treated as voidable in this separate under-duress scenario. The private portfolio rows remain separate from public ATS books. Original screenshots, trade logs, ATS reports, and historical records remain preserved. This is not audited brokerage accounting or legal advice.
 
 **Subsequent test note (2026-10-30):** A later user request separately reverses the modeled short covers for an October 2026 Under-Duress test, including these oil sensitivities. See the [October 2026 Short Closure Rollback Test](October%202026%20Short%20Closure%20Rollback%20Test.md) and [`october_2026_short_closure_rollback_v1.csv`](../data/october_2026_short_closure_rollback_v1.csv). This v1 replay remains preserved as the earlier baseline; its source events and prior scenario outcomes are not rewritten.
+
+**BRENT $119 exit note (2026-10-30) — cross-reference only; this overlay is NOT rewritten:** The user separately directed that **all BRENT was sold at $119**. That instruction **lifts and supersedes** the nullification/void of the Private Fund BRENT close in the live books, so the BRENT long is now closed at $119 with price-only realized PnL recognized. Per the user's explicit scope direction, **this Under-Duress overlay is left untouched**: its restored-position tables, event register, and CSVs below are preserved unchanged as the earlier baseline, and the 10U/20U/30U/40U ATS sensitivities remain alternative scenarios. The **USOIL** close also remains nullified and voided, since the instruction covered BRENT only. The authoritative record of the exit is [`BRENT Full Exit at $119 — 2026-10-30.md`](BRENT%20Full%20Exit%20at%20%24119%20%E2%80%94%202026-10-30.md) and [`data/brent_sold_119_20261030_v1.csv`](../data/brent_sold_119_20261030_v1.csv). Where this overlay and the exit record differ on BRENT, the exit record governs the live books and this overlay governs its own preserved scenario view.
 
 ## ATS manual-review rationale and scope
 

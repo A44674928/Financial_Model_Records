@@ -1,8 +1,12 @@
 # ATS and Manual Live Position Reconciliation
 
+> **USOIL $104.50 exit — 2026-10-30:** the five real non-scenario lots total 97U, with price-only PnL $33,163.92 before costs; the 50U mirror was already sold. Sensitivity and pre-exit tables below are historical and unchanged. User-reported, not verified. See [USOIL exit report](reports/USOIL%20Full%20Exit%20at%20%24104.50%20%E2%80%94%202026-10-30.md).
+
 > **Status and disclosure:** This is a user-directed reconciliation, not an audited brokerage ledger or investment recommendation. The user clarifies that the underlying funds were verified account money, that ATS automatically liquidated all positions at the best available prices, and that the organization dissolved at a profit because of harassment of the organizer. Those account and execution claims are user-reported and have not been independently reviewed here. Historical ATS quantities and fill-level allocations remain uncertain; scenario tables below remain scenario-based.
 
 ## Later user-reported ATS oil liquidation
+
+**BRENT decision note:** The user reports that the ATS asked for a price check at $119 and then decided to sell on its own. This decision process is user-reported and not independently verified; the time and source of the price check were not supplied. See the [BRENT exit record](reports/BRENT%20Full%20Exit%20at%20%24119%20%E2%80%94%202026-10-30.md).
 
 The user clarifies that the funds were verified money in an account and reports that **all units in the locked $200 LONG foundation were automatically liquidated through the ATS** at the best prices available, converting the positions to cash; the user says the organization has dissolved at a profit and no oil units remain. The user attributes the exit to “Repeated and continued harassment while working the desk” and harassment of the organizer. The user accepts approximately **$2.4B** as the conservative endpoint of the earlier model-based exit estimate. This is a user-reported account/execution/profit claim, not independently audited here. Exact unit counts, individual fills, execution date/time/timezone, and mapping to separate manual, hypothetical, or other market books remain unspecified; the approximate PnL cannot be reconciled to fills from the available data.
 
