@@ -113,8 +113,8 @@ class AtsManualReconciliationTests(unittest.TestCase):
         index = (ROOT / "trades/index.txt").read_text(encoding="utf-8")
         self.assertEqual(archived_index, index)
         # 126 through the 2026-10-26 mark cutoff, plus the nine user-directed BRENT
-        # exits at $119 logged 2026-10-30 (post-cutoff).
-        self.assertIn("135 standardized log events currently recorded", index)
+        # exits at $119 and ten USOIL exits at $104.50 logged 2026-10-30 (post-cutoff).
+        self.assertIn("145 standardized log events currently recorded", index)
 
     def test_manual_test_replenishments_are_separate_from_approved_short_closures(self):
         manual = [row for row in self.rows if row["record_type"] == "MANUAL LIVE TEST POSITION"]

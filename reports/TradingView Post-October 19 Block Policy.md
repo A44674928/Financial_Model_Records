@@ -1,5 +1,7 @@
 # TradingView PaperTrading Block — Post-October 19 Policy
 
+> **Separate scoped USOIL exit exception:** `USER_DIRECTED_USOIL_EXIT_SCOPED_EXCEPTION_20261030` authorizes only the user-reported October 30 sale at $104.50 and its per-lot price-only accounting. No new TradingView imports, benchmarks, EOD marks, scenario updates, or general recomputations are authorized. The preceding BRENT-only exception remains BRENT-only; it did not authorize this separate exit. See [USOIL report](USOIL%20Full%20Exit%20at%20%24104.50%20%E2%80%94%202026-10-30.md).
+
 **Effective date: October 20, 2026** (October 19 remains permitted)
 
 > **DEFAULT STRICT BLOCK:** No TradingView-sourced input dated October 20, 2026 or later may be newly added to, or used in, an active portfolio/trading calculation in this repository unless a specific, versioned exception is explicitly authorized. This includes Paper Trading orders and fills, charts/screenshots, price or EOD marks, alerts, and other TradingView-derived values. The rule is source-based and applies to both public and private books. One narrow Oil-only mark-forward exception is recorded below; no other model or trade-event cutoff is waived.

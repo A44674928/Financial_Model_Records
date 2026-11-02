@@ -24,8 +24,8 @@ class ActionableTickerAuditTests(unittest.TestCase):
         self.assertAlmostEqual(self.result["dxy_core_terminal_pnl"], 3413.80, places=2)
         self.assertEqual(self.result["sessions"], 37)
         # 116 through the 2026-10-26 mark cutoff, plus the nine user-directed BRENT
-        # exits at $119 logged 2026-10-30 (post-cutoff; see trades/BRENT.txt).
-        self.assertEqual(self.result["events"], 125)
+        # exits at $119 plus ten USOIL exits at $104.50 logged 2026-10-30 (post-cutoff).
+        self.assertEqual(self.result["events"], 135)
         self.assertEqual(self.result["core_daily_rows"], 148)
         self.assertEqual(self.result["force_daily_rows"], 37)
         self.assertEqual(self.result["energy_rows"], 171)

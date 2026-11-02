@@ -268,11 +268,11 @@ class BrentLedgerAndAuditSheetTests(unittest.TestCase):
         self.assertIn("$115.777", pf["source_nullification_state"])
         self.assertEqual(pf["exit_price_usd"], "119.00")
         self.assertEqual(pf["realized_pnl_usd"], "2669676158.00")
-        self.assertIn("USOIL close remains NULLIFIED AND VOIDED", pf["test_override_state"])
+        self.assertIn("USOIL close remained NULLIFIED AND VOIDED", pf["test_override_state"])
 
 
 class DependentBookTests(unittest.TestCase):
-    def test_november_clean_sheet_closes_brent_and_leaves_usoil_active(self):
+    def test_november_clean_sheet_closes_both_oil_symbols(self):
         sheet = rows(CLEAN_SHEET)
         brent = next(r for r in sheet if r["ticker"].startswith("BRENT"))
         usoil = next(r for r in sheet if r["ticker"].startswith("USOIL"))
@@ -282,27 +282,25 @@ class DependentBookTests(unittest.TestCase):
         self.assertEqual(brent["ats_foundation_exit_price_only_realized_pnl_usd"], "1898059402.97")
         self.assertEqual(brent["oil_v2_exit_price_only_realized_pnl_usd_per_variant"], "35076.52")
         self.assertEqual(brent["exit_policy_label"], EXCEPTION)
-        # USOIL is deliberately unaffected.
-        self.assertEqual(usoil["position_status"],
-                         "ACTIVE IN THIS NOVEMBER CLEAN SHEET PER USER INSTRUCTION")
-        self.assertEqual(usoil["user_directed_exit_price_usd"], "")
-        self.assertEqual(usoil["private_fund_exit_price_only_realized_pnl_usd"], "")
-        self.assertIn("NOT AFFECTED", usoil["exit_scope_note"])
+        # The subsequent separate USOIL instruction closes its lot too.
+        self.assertTrue(usoil["position_status"].startswith("CLOSED — SOLD AT $104.50"))
+        self.assertEqual(usoil["user_directed_exit_price_usd"], "104.50")
+        self.assertEqual(usoil["private_fund_exit_price_only_realized_pnl_usd"], "3198480387.76")
 
-    def test_private_fund_balance_books_brent_and_keeps_usoil_voided(self):
+    def test_private_fund_balance_books_both_exits(self):
         sheet = rows(PF_BALANCE)
         subtotal = next(r for r in sheet
                         if r["balance_sheet_line"].startswith("Profit-only cash carry-forward subtotal"))
-        self.assertEqual(Decimal(subtotal["amount_usd"]), Decimal("5066245845.95"))
+        self.assertEqual(Decimal(subtotal["amount_usd"]), Decimal("8264726233.71"))
         additions = next(r for r in sheet
                          if r["balance_sheet_line"].startswith("Total new realized-PnL additions"))
-        self.assertEqual(Decimal(additions["amount_usd"]), Decimal("2669676158.00"))
+        self.assertEqual(Decimal(additions["amount_usd"]), Decimal("5868156545.76"))
         carry_in = next(r for r in sheet if r["balance_sheet_line"] == "Prior profit-only carry-in")
         self.assertEqual(Decimal(carry_in["amount_usd"]) + Decimal(additions["amount_usd"]),
                          Decimal(subtotal["amount_usd"]))
         unreconciled = next(r for r in sheet
                             if r["balance_sheet_line"].startswith("Unreconciled simple sum"))
-        self.assertEqual(Decimal(unreconciled["amount_usd"]), Decimal("6063251837.29"))
+        self.assertEqual(Decimal(unreconciled["amount_usd"]), Decimal("9261732225.05"))
 
         brent_close = next(r for r in sheet if r["ticker"] == "BRENT"
                            and r["balance_sheet_line"].startswith("BRENT close order"))
@@ -311,19 +309,16 @@ class DependentBookTests(unittest.TestCase):
         self.assertEqual(brent_close["source_reported_pnl_usd"], "933875016.74",
                          "the superseded screenshot PnL must remain visible as evidence")
 
-        # USOIL close stays voided with nothing booked.
+        # USOIL is now independently closed under a later instruction.
         usoil = [r for r in sheet if r["ticker"] == "USOIL"]
         self.assertEqual(len(usoil), 2)
-        for row in usoil:
-            self.assertNotEqual(row["amount_usd"], "2669676158.00")
-            self.assertIn(row["amount_usd"], ("", "0.00"),
-                          "nothing may be booked for USOIL")
-            self.assertNotEqual(row["close_price_usd"], "119.00")
-            combined = (row["balance_sheet_line"] + row["action"] + row["classification"]).lower()
-            self.assertIn("nullified and voided", combined)
+        close = next(r for r in usoil if r["balance_sheet_line"].startswith("USOIL close order"))
+        self.assertEqual(close["amount_usd"], "3198480387.76")
+        self.assertEqual(close["close_price_usd"], "104.50")
+        self.assertEqual(close["source_reported_pnl_usd"], "1779605629.28")
 
-    def test_change_log_is_brent_only_and_supersedes_the_void(self):
-        log = rows(CHANGE_LOG)
+    def test_brent_change_log_supersedes_the_void(self):
+        log = [row for row in rows(CHANGE_LOG) if row["ticker"] == "BRENT"]
         self.assertTrue(log)
         for row in log:
             self.assertEqual(row["ticker"], "BRENT")
@@ -335,6 +330,16 @@ class DependentBookTests(unittest.TestCase):
         self.assertEqual(superseded["source_reported_pnl_usd"], "933875016.74")
         policy_row = next(r for r in log if r["change_type"] == "MODEL/POLICY CONTROL")
         self.assertEqual(policy_row["source_record_id"], EXCEPTION)
+
+    def test_user_reported_ats_decision_note(self):
+        register = rows(REGISTER)
+        foundation = next(r for r in register if r["record_id"] == "BRENT119-ATS-FOUNDATION")
+        log = next(r for r in rows(CHANGE_LOG)
+                   if r["source_record_id"] == "ATS-FOUNDATION-BRENT-SOLD-119-20261030")
+        for note in (foundation["notes"], log["notes"], REPORT.read_text(encoding="utf-8")):
+            self.assertIn("price check at $119", note)
+            self.assertIn("on its own", note)
+            self.assertIn("not independently verified", note)
 
     def test_scoped_exception_and_report_are_recorded(self):
         policy_text = POLICY.read_text(encoding="utf-8")
@@ -359,7 +364,7 @@ class DependentBookTests(unittest.TestCase):
 
     def test_index_event_count_matches_the_ledger_tree(self):
         index = (ROOT / "trades/index.txt").read_text(encoding="utf-8")
-        self.assertIn("135 standardized log events currently recorded", index)
+        self.assertIn("145 standardized log events currently recorded", index)
         dated = 0
         for path in sorted((ROOT / "trades").glob("*.txt")):
             if path.name == "index.txt":
@@ -368,7 +373,7 @@ class DependentBookTests(unittest.TestCase):
                 line = line.strip()
                 if line and not line.startswith("#") and line[:4].isdigit():
                     dated += 1
-        self.assertEqual(dated, 135)
+        self.assertEqual(dated, 145)
 
 
 if __name__ == "__main__":

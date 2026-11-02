@@ -1,5 +1,7 @@
 # Under-Duress Oil Sale Void Replay
 
+> **USOIL $104.50 exit cross-reference only:** the later real-book exit is documented in [the USOIL exit report](USOIL%20Full%20Exit%20at%20%24104.50%20%E2%80%94%202026-10-30.md); this earlier scenario overlay and its CSVs are not rewritten.
+
 > **Scenario overlay, not a change to source history.** The user directed that the October 29 Private Fund oil close records be nullified and voided; the earlier BRENT and USOIL longs remain open at their reported entry prices. Other listed oil sales/closes are treated as voidable in this separate under-duress scenario. The private portfolio rows remain separate from public ATS books. Original screenshots, trade logs, ATS reports, and historical records remain preserved. This is not audited brokerage accounting or legal advice.
 
 **Subsequent test note (2026-10-30):** A later user request separately reverses the modeled short covers for an October 2026 Under-Duress test, including these oil sensitivities. See the [October 2026 Short Closure Rollback Test](October%202026%20Short%20Closure%20Rollback%20Test.md) and [`october_2026_short_closure_rollback_v1.csv`](../data/october_2026_short_closure_rollback_v1.csv). This v1 replay remains preserved as the earlier baseline; its source events and prior scenario outcomes are not rewritten.

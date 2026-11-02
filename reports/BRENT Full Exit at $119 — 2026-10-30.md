@@ -1,6 +1,10 @@
 # BRENT Full Exit at $119 — 2026-10-30
 
+> **Later USOIL update:** The USOIL void referred to in this historical BRENT report was subsequently lifted and superseded by the separate [USOIL $104.50 exit](USOIL%20Full%20Exit%20at%20%24104.50%20%E2%80%94%202026-10-30.md). The BRENT-only statements below describe the state at the time of that instruction.
+
 > **User-directed exit record.** The user directs that **all BRENT was sold at $119**. This report books that exit across the repository's real BRENT positions, per book, at a single sale price of **$119.00** on **2026-10-30** (time not supplied). It **supersedes** the previously voided 2026-10-29 Private Fund BRENT close at $115.777. Price-only realized PnL is computed from each lot's own basis, before costs. The sale price is user-reported; it is **not** an independently verified brokerage fill, execution, or audited account record. Source books and historical records are preserved, not rewritten.
+
+**ATS decision note:** The user reports that the ATS asked for a price check at $119 and then made the decision to sell on its own. This describes the reported decision process, not independently verified evidence of a price check, order, or execution; no additional timing or price source is inferred. The user-directed bookkeeping and per-book treatment remain unchanged.
 
 **Machine-readable register:** [`data/brent_sold_119_20261030_v1.csv`](../data/brent_sold_119_20261030_v1.csv) — 22 rows, one per lot or documented component leg.
 **Builder:** [`scripts/build_brent_119_exit.py`](../scripts/build_brent_119_exit.py) · **Test:** [`tests/test_brent_119_exit.py`](../tests/test_brent_119_exit.py)

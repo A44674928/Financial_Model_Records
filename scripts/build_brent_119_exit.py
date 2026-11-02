@@ -180,7 +180,10 @@ def build_rows():
         "Overlaps the two component legs BRENT119-ATS-POOL-RESIDUAL and BRENT119-ATS-SUPPLEMENTAL — this row is their combination, not an additional position",
         "Blended quantity-weighted basis. Supersedes the earlier user-reported ATS sale-price bands "
         "($114.670-$117.345) for this book. The $2.4B conservative endpoint and the prior price-envelope "
-        "estimates are preserved as earlier references and are not restated here.",
+        "estimates are preserved as earlier references and are not restated here. "
+        "The user reports that the ATS asked for a price check at $119 and then made the decision "
+        "to sell on its own. This decision process is user-reported and not independently verified; "
+        "the time and price source of the check were not supplied.",
     ))
     rows.append(qty_lot(
         "BRENT119-ATS-POOL-RESIDUAL",

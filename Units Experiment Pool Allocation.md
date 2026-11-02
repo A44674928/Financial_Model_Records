@@ -1,5 +1,7 @@
 # $20B Paper Portfolio — Units Experiment
 
+> **USOIL $104.50 exit — 2026-10-30:** the locked foundation is closed at the user-reported $104.50, with price-only PnL $1,891,607,645.29; the separately transferred Winner 50U is $17,326.73. The old USOIL price bands and endpoint estimates below are historical references, superseded for this exit. Books are not additive. See [USOIL Full Exit at $104.50](reports/USOIL%20Full%20Exit%20at%20%24104.50%20%E2%80%94%202026-10-30.md).
+
 > **Historical allocation model and later user-reported exit.** The user clarifies that the underlying money was verified in an account and reports that the ATS liquidated positions automatically; this repository has not independently reviewed account evidence or execution statements. The $20B pool bridge and quantity equivalents below remain model-derived allocations, not a broker ledger.
 
 ## Historical record and two-stage process

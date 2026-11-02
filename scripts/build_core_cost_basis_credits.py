@@ -223,7 +223,9 @@ def write_outputs(rows):
             "Their realized effect is recorded in the applicable exit register instead; for the "
             "2026-10-30 BRENT exits see "
             "[`BRENT Full Exit at $119 — 2026-10-30.md`](reports/BRENT%20Full%20Exit%20at%20%24119%20%E2%80%94%202026-10-30.md) "
-            "and [`data/brent_sold_119_20261030_v1.csv`](data/brent_sold_119_20261030_v1.csv).",
+            "and [`data/brent_sold_119_20261030_v1.csv`](data/brent_sold_119_20261030_v1.csv); "
+            "for USOIL see [`USOIL Full Exit at $104.50 — 2026-10-30.md`](reports/USOIL%20Full%20Exit%20at%20%24104.50%20%E2%80%94%202026-10-30.md) "
+            "and [`data/usoil_sold_10450_20261030_v1.csv`](data/usoil_sold_10450_20261030_v1.csv).",
             "",
         ])
     REPORT_PATH.write_text("\n".join(lines), encoding="utf-8")

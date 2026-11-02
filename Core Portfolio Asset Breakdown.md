@@ -77,6 +77,16 @@ These are logged after the last EOD mark and are not included in any exposure or
 | 2026-10-30 | 13:00 | BRENT | TAKE PROFIT | 10U | $119.000 | $100,000 |
 | 2026-10-30 | 13:00 | BRENT | TAKE PROFIT | 10U | $119.000 | $100,000 |
 | 2026-10-30 | 13:00 | BRENT | TAKE PROFIT | 35U | $119.000 | $350,000 |
+| 2026-10-30 | 13:00 | USOIL (OIL) | TAKE PROFIT | 1U | $104.500 | $10,000 |
+| 2026-10-30 | 13:00 | USOIL (OIL) | TAKE PROFIT | 1U | $104.500 | $10,000 |
+| 2026-10-30 | 13:00 | USOIL (OIL) | TAKE PROFIT | 1U | $104.500 | $10,000 |
+| 2026-10-30 | 13:00 | USOIL (OIL) | TAKE PROFIT | 1U | $104.500 | $10,000 |
+| 2026-10-30 | 13:00 | USOIL (OIL) | TAKE PROFIT | 1U | $104.500 | $10,000 |
+| 2026-10-30 | 13:00 | USOIL (OIL) | TAKE PROFIT | 1U | $104.500 | $10,000 |
+| 2026-10-30 | 13:00 | USOIL (OIL) | TAKE PROFIT | 40U | $104.500 | $400,000 |
+| 2026-10-30 | 13:00 | USOIL (OIL) | TAKE PROFIT | 10U | $104.500 | $100,000 |
+| 2026-10-30 | 13:00 | USOIL (OIL) | TAKE PROFIT | 10U | $104.500 | $100,000 |
+| 2026-10-30 | 13:00 | USOIL (OIL) | TAKE PROFIT | 34U | $104.500 | $340,000 |
 
 Machine-readable detail: [`core_portfolio_asset_breakdown_20261026.csv`](data/core_portfolio_asset_breakdown_20261026.csv) (128 asset/variant rows).
 
