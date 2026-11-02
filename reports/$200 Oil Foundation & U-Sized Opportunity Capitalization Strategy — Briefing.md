@@ -2,6 +2,8 @@
 
 ## Latest user-reported outcome: ATS liquidation and dissolution
 
+**Exit timeline note:** The user reports that Harshal’s Oil Desk began to exit all positions on **October 29, 2026**, with the goal of exiting cleanly before the end of that week. This is a reported start and goal, not a verified fill date or confirmation that every position was closed by the deadline; individual execution dates and times remain unspecified unless separately recorded.
+
 The user clarifies that the funds were verified money held in an account and reports that the ATS automatically liquidated all positions at the best available prices, leaving no positions. The user says the organization dissolved at a profit due to continued harassment of the organizer, describing the reason as “Repeated and continued harassment while working the desk.” The user accepts approximately **$2.4B** as the conservative endpoint of the earlier model-based price range. These account, execution, and profit statements are user-reported and have not been independently audited here. Exact counts by sale-price band, individual fills, execution date/time, transaction costs, and mapping to separate books remain unspecified; the $2.4B figure is not a fill-reconciled realized-PnL amount.
 
 The earlier model envelope of **$2,396,569,687.95–$3,266,753,771.99** applies user-reported price extrema uniformly to price-divided equivalents in the modeled $39,011,754,104.74 foundation. It is a scenario calculation, not proof of account holdings or exact cash proceeds. The $870,184,084.04 endpoint spread is model uncertainty, not a fee or independently verified loss. The user reports the positions and organization are now closed; no live order was placed by this repository.

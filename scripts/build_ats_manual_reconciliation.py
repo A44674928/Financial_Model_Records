@@ -318,6 +318,8 @@ def build_report() -> None:
         "",
         "## Later user-reported ATS oil liquidation",
         "",
+        "**Exit timeline note:** The user reports that Harshal’s Oil Desk began to exit all positions on **October 29, 2026**, with the goal of exiting cleanly before the end of that week. This is a reported start and goal, not a verified fill date or confirmation that every position was closed by the deadline; individual execution dates and times remain unspecified unless separately recorded.",
+        "",
         "The user clarifies that the funds were verified money in an account and reports that **all units in the locked $200 LONG foundation were automatically liquidated through the ATS** at the best prices available, converting the positions to cash; the user says the organization has dissolved at a profit and no oil units remain. The user attributes the exit to “Repeated and continued harassment while working the desk” and harassment of the organizer. The user accepts approximately **$2.4B** as the conservative endpoint of the earlier model-based exit estimate. This is a user-reported account/execution/profit claim, not independently audited here. Exact unit counts, individual fills, execution date/time/timezone, and mapping to separate manual, hypothetical, or other market books remain unspecified; the approximate PnL cannot be reconciled to fills from the available data.",
         "",
         "| Ticker | Marked-price group / user-supplied sale prices | Quantity | Remaining units | Execution date/time |",
